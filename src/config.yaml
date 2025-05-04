@@ -1,17 +1,17 @@
 site:
-  name: AstroWind
-  site: 'https://astrowind.vercel.app'
+  name: NABI
+  site: 'https://nabi-snu.github.io'
   base: '/'
   trailingSlash: false
 
-  googleSiteVerificationId: orcPxI47GSa-cRvY11tUe6iGg2IO_RPvnA1q95iEM3M
+  googleSiteVerificationId: false
 
 # Default SEO metadata
 metadata:
   title:
-    default: AstroWind
-    template: '%s — AstroWind'
-  description: "\U0001F680 Suitable for Startups, Small Business, Sass Websites, Professional Portfolios, Marketing Websites, Landing Pages & Blogs."
+    default: Natural and Artificial Brain Intelligence
+    template: '%s — NABI'
+  description: "\U0001F680 Compendium of research from NABI, the Natural and Artificial Brain Intelligence study group at SNU.\U0001F680"
   robots:
     index: true
     follow: true
