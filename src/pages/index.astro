@@ -2,9 +2,7 @@
 import Layout from '~/layouts/PageLayout.astro';
 import Hero from '~/components/widgets/Hero.astro';
 import FAQs from '~/components/widgets/FAQs.astro';
-import Features2 from '~/components/widgets/Features2.astro';
-import BlogLatestPosts from '~/components/widgets/BlogLatestPosts.astro';
-import Content from '~/components/widgets/Content.astro';
+import Note from '~/components/widgets/Note.astro';
 import CallToAction from '~/components/widgets/CallToAction.astro';
 
 const metadata = {
@@ -67,113 +65,6 @@ const metadata = {
       ]}
     />
 
-
-  <!-- Content Widget **************** -->
-  <Content
-  isReversed
-  tagline="About NABI"
-  title="Natural and Artificial Brain Intelligence"
-  items={[
-    {
-      title: '서울대 기반의 신경AI 스터디',
-      description:
-        'NABI는 서울대학교 학생들을 중심으로 신경과학과 인공지능의 융합을 탐구하는 학제 간 스터디 그룹입니다.',
-    },
-    {
-      title: '논문 분석과 코드 실습 중심',
-      description:
-        '딥러닝, 계산신경과학, 강화학습 등 최신 주제를 중심으로 논문 분석과 코드 구현을 병행하며 학습합니다.',
-    },
-    {
-      title: '융합형 인재 양성을 위한 커뮤니티',
-      description:
-        '의학, 생명과학, 컴퓨터공학 등 다양한 전공의 학생들이 함께하며, 학제 간 융합 역량을 키워갑니다.',
-    },
-  ]}
-  image={{
-    src: 'https://images.unsplash.com/photo-1519389950473-47ba0277781c?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80',
-    alt: 'Colorful Image',
-  }}
->
-
-</Content>
-
-<!-- Features2 Widget -->
-    <Features2
-    title="Key Papers in NeuroAI"
-    subtitle="Groundbreaking studies at the intersection of neuroscience and artificial intelligence"
-    tagline="Research Highlights"
-    items={[
-      {
-        title: 'Could a neuroscientist understand a microprocessor?',
-        description: '신경과학의 분석 기법을 마이크로프로세서에 적용해봄으로써, 우리가 만든 시스템조차도 이해하지 못할 수 있다는 점을 조명합니다.',
-        icon: 'tabler:cpu',
-        href: 'https://doi.org/10.1371/journal.pcbi.1005268',
-      },
-      {
-        title: 'Meta-reinforcement learning via orbitofrontal cortex',
-        description: 'OFC(안와전두피질)가 메타강화학습의 역할을 수행한다는 가설을 제시하며, 빠른 행동 적응의 메커니즘을 설명합니다.',
-        icon: 'tabler:brain',
-        href: 'https://doi.org/10.1038/s41593-023-01485-3',
-      },
-      {
-        title: 'Transformer as a hippocampal memory model',
-        description: 'Transformer 아키텍처를 해마의 기억 통합 모델로 재해석하며 생물학적으로 타당한 메모리 시스템을 제시합니다.',
-        icon: 'tabler:circuit-diode',
-        href: 'https://proceedings.neurips.cc/paper_files/paper/2023/file/2f1eb4c897e63870eee9a0a0f7a10332-Paper-Conference.pdf',
-      },
-      {
-        title: 'Prefrontal cortex as a meta-reinforcement learning system',
-        description: '전전두엽이 강화학습 알고리즘을 구현함으로써 유연한 행동 제어를 수행한다는 모델을 제안합니다.',
-        icon: 'tabler:device-analytics',
-        href: 'https://doi.org/10.1038/s41593-018-0147-8',
-      },
-      {
-        title: 'Human cognition and neuromodulatory integration',
-        description: '신경계 전체의 역동성과 신경조절 시스템이 인간 인지를 어떻게 조정하는지를 탐구합니다.',
-        icon: 'tabler:brain',
-        href: 'https://doi.org/10.1038/s41593-018-0312-0',
-      },
-      {
-        title: 'Scaffolding cooperation with deep RL',
-        description: '딥 강화학습을 통해 인간 집단 내 협력을 촉진하고 유지하는 방안을 제시합니다.',
-        icon: 'tabler:users-group',
-        href: 'https://doi.org/10.1038/s41562-023-01686-7',
-      },
-      {
-        title: 'A recurrent planning model explains hippocampal replay',
-        description: '계획 최적화를 위한 순환 신경망 모델이 해마의 메모리 재생 현상을 자연스럽게 설명할 수 있음을 보입니다.',
-        icon: 'tabler:repeat',
-        href: 'https://doi.org/10.1038/s41593-024-01675-7',
-      },
-      {
-        title: 'Brain-wide behavior representations in C. elegans',
-        description: 'C. elegans의 전뇌 이미징을 통해 다양한 시간 규모와 상태에 걸친 행동 표현 방식을 밝힙니다.',
-        icon: 'tabler:microscope',
-        href: 'https://doi.org/10.1016/j.cell.2023.07.035',
-      },
-      {
-        title: 'Emergence of syntax in a cerebellar circuit',
-        description: '소뇌 회로 기반 인공 신경망에서 구문론적 표현과 예측 부호화가 자발적으로 등장함을 보여줍니다.',
-        icon: 'tabler:language',
-        href: 'https://doi.org/10.1038/s41467-024-44801-6',
-      },
-    ]}
-  >
-    <Fragment slot="bg">
-      <div class="absolute inset-0 bg-blue-50 dark:bg-transparent"></div>
-    </Fragment>
-  </Features2>
-  
-  <!-- HighlightedPosts Widget ******* -->
-
-  <BlogLatestPosts
-    title="Find out more content in our Blog"
-    information={`Research notes from Monthly Meetings at NABI
-                `}
-  />
-
-
   <CallToAction
     title="함께하고 싶다면?"
     subtitle="서울의대 및 서울대병원 구성원의 많은 참여를 기다립니다."
@@ -192,4 +83,13 @@ const metadata = {
       },
     ]}
   />
+
+  <!-- Note Widget ******************* -->
+  <a href = ./about >
+  <Note 
+      title="Want to learn more?:" 
+      description="Simplicity, Best Practices and High Performance" 
+  />
+  </a>
+
 </Layout>
