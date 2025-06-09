@@ -6,9 +6,7 @@ This is the new **NABI** website built with [Astro](https://astro.build/).
 
 ## About NABI
 
-NABI is a student-led initiative, centered at Seoul National University College of Medicine and Seoul National University Hospital. 
-
-Aimed to promote knowledge exchange between students and researchers from the computational neuroscience and artificial intelligence fields. B
+NABI is a student-led initiative, centered at Seoul National University College of Medicine and Seoul National University Hospital. It aims to promote knowledge exchange between students and researchers from the computational neuroscience and artificial intelligence fields. 
 
 
 ## Contributing
