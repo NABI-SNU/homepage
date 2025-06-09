@@ -1,5 +1,5 @@
 site:
-  name: NABI_SNU
+  name: NABI
   site: 'https://nabi-snu.github.io'
   base: '/'
   trailingSlash: false
@@ -10,12 +10,12 @@ metadata:
   title:
     default: Natural and Artificial Brain Intelligence
     template: '%s — NABI'
-  description: "Research notes from NABI, the Natural and Artificial Brain Intelligence study group at SNU."
+  description: "Research notes from NABI, the Natural and Artificial Brain Intelligence study group."
   robots:
     index: true
     follow: true
   openGraph:
-    site_name: NABI_SNU
+    site_name: NABI
     images:
       - url: '~/assets/images/default.png'
         width: 1200
