@@ -35,6 +35,16 @@ export const headerData = {
     {
       text: 'Resources',
       href: getPermalink('/research'),
+      links: [
+        {
+          text: 'Research',
+          href: getPermalink('/research'),
+        },
+        {
+          text: 'Monthly Papers',
+          href: getPermalink('/monthly'),
+        },
+      ],
     },
     {
       text: 'Contact',
