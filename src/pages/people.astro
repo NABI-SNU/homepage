@@ -1,12 +1,68 @@
 ---
 import Layout from '~/layouts/PageLayout.astro';
 import HeroText from '~/components/widgets/HeroText.astro';
+import { Icon } from 'astro-icon/components';
 
 const metadata = {
-  title: 'Our People',
+  title: 'People',
 };
+
+interface Person {
+  name: string;
+  email: string;
+  research: string;
+  socials: { icon: string; href: string }[];
+}
+
+const people: Person[] = [
+  {
+    name: 'Younghoon Kim',
+    email: 'aktivhoon@gmail.com',
+    research: 'Reinforcement Learning, Meta-Learning & Reversal Learning, Inductive Bias, Neural Manifold, Computational Psychiatry',
+    socials: [
+      { icon: 'tabler:brand-github', href: 'https://github.com/aktivhoon' },
+      { icon: 'tabler:brand-linkedin', href: 'https://www.linkedin.com/in/younghoon-kim-10560611a' },
+      { icon: 'tabler:file-spark', href: 'https://orcid.org/0000-0001-7470-1780' },
+      { icon: 'tabler:brand-twitter', href: 'https://x.com/@aktivhoon' }
+    ],
+  },
+  {
+    name: 'Chaebeom Sheen',
+    email: 'bazelcu@qmed.im',
+    research: 'Neural representation, Inductive bias, Dynamical systems, Information theory, Thermodynamics',
+    socials: [
+      { icon: 'tabler:brand-github', href: 'https://github.com/Cauch-BS' },
+      { icon: 'tabler:brand-linkedin', href: 'https://www.linkedin.com/in/qmedim'},
+      { icon: 'tabler:file-spark', href: 'https://orcid.org/0009-0003-0846-5072'},
+      { icon: 'tabler:brand-twitter', href: 'https://twitter.com/@CatBase3' },
+    ],
+  },
+];
 ---
 
 <Layout metadata={metadata}>
-  <HeroText tagline="Our People" title="Meet the Team" />
+  <HeroText tagline="People" title="Meet our Members" />
+
+  <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 max-w-6xl mx-auto mt-8 pb-12 md:pb-16 lg:pb-20">
+    {
+      people.map((person) => (
+        <div class="p-4 border rounded-md shadow-md dark:border-slate-700">
+          <h3 class="text-xl font-bold">{person.name}</h3>
+          <p class="text-sm text-muted">{person.research}</p>
+          <p class="mt-2">
+            <a class="text-primary" href={`mailto:${person.email}`}>
+              {person.email}
+            </a>
+          </p>
+          <div class="flex gap-3 mt-2">
+            {person.socials.map((s) => (
+              <a href={s.href} target="_blank" rel="noopener noreferrer">
+                <Icon name={s.icon} class="w-6 h-6" />
+              </a>
+            ))}
+          </div>
+        </div>
+      ))
+    }
+  </div>
 </Layout>
