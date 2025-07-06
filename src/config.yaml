@@ -1,6 +1,6 @@
 site:
   name: NABI Research
-  site: 'https://nabi-snu.github.io'
+  site: 'https://nabiresearch.org'
   base: '/'
   trailingSlash: false
   googleSiteVerificationId: false
