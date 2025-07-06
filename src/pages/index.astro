@@ -13,65 +13,72 @@ const metadata = {
 <Layout metadata={metadata}>
   <!-- Hero Widget ******************* -->
   <Hero
-    tagline="NABI 스터디원 모집"
+    tagline="Natural and Artificial Brain Intelligence"
     actions={[
       {
         variant: 'primary',
-        text: '지원서 작성',
-        href: 'https://forms.gle/di4rV24pK2jezSMG8',
+        text: 'Contact Us',
+        href: 'mailto:nabi.members@gmail.com',
         target: '_blank',
         icon: 'tabler:external-link',
       },
-      { text: '문의하기', href: 'mailto:nabi.members@gmail.com' },
+      { text: 'Join Us', href: 'https://forms.gle/di4rV24pK2jezSMG8' },
     ]}
     image={{ src: '~/assets/images/hero-image.png', alt: 'Brain Hero Image' }}
-  >
+  > 
     <Fragment slot="title">
-      <span class="text-accent dark:text-accent-dark">NABI</span> Study Group
+      <span class="text-accent dark:text-accent-dark">NABI</span> Research Group
     </Fragment>
     <Fragment slot="subtitle">
-      NABI (Natural and Artificial Brain Intelligence)는 2023년부터 운영된
-      Computational Neuroscience와 NeuroAI를 함께 탐구하는 스터디입니다.
+      NABI (Natural and Artificial Brain Intelligence) is a research group based in Seoul National University, College of Medicine that explores the intersection of neuroscience and artificial intelligence research. 
     </Fragment>
   </Hero>
+
+  <!-- Note Widget ******************* -->
+  <a href="./about">
+    <Note 
+      title="About NABI:"
+      description="Learn more about our mission, study themes, and how to get involved."
+    />
+  </a>
 
   <!-- FAQs Widget ******************* -->
 
   <FAQs
-      title="Frequently Asked Questions"
-      tagline="FAQs"
+      title="Understanding Our Mission"
+      tagline="Our Mission"
       classes={{ container: 'max-w-6xl' }}
       items={[
         {
-          title: 'NABI는 어떤 스터디인가요?',
+          title: 'What is NABI?',
           description:
-            "NABI는 신경과학과 인공지능(AI)의 융합을 다루는 학제 간 스터디입니다. 뇌의 작동 원리를 수학적·계산적 모델로 탐구하며, 최근 각광받고 있는 NeuroAI 분야에 대한 이해를 심화시키는 것을 목표로 합니다.",
+            "NABI is a research group based in Seoul National University, College of Medicine that explores the intersection of neuroscience and artificial intelligence research.",
         },
         {
-          title: '컴퓨터 언어나 수학 지식이 부족해도 괜찮나요?',
+          title: 'What is the purpose of NABI?',
           description:
-            "괜찮습니다! 계산 뇌과학과 NeuroAI의 경우 다양한 분야의 논문을 포괄하기 때문에, 꼭 수학이나 컴퓨터에 대한 깊은 지식이 없어도 이해할 수 있는 논문들이 있습니다. 수학적 지식보다도 논문 발표를 위한 자기주도 학습 역량이 중요합니다.",
+            "As NABI is based in a medical school, our research focus is primarily translational. We aim to develop computational models to better understand the brain and its function in normal psychophysiology and pathogenesis.",
         },
         {
-          title: '스터디에서는 어떤 활동을 하나요?',
+          title: 'What do members of NABI do?',
           description:
-            "최신 논문을 리뷰하여 발표 및 토론을 진행합니다. 특히 최근 학회 혹은 저널에서 발표된 NeuroAI와 계산뇌과학 관련 논문들을 중심으로 이론과 실제를 함께 배웁니다. 해당 시즌에 발표한 논문을 바탕으로 심포지움에서 발표할 수 있습니다.",
+            "Members of NABI read and discuss papers, and develop computational models based on the latest research related to NeuroAI and computational neuroscience. Every year, we have a symposium and Seoul National Universtiy Hospital where members of NABI present their research.",
         },
         {
-          title: "활동의 로드가 어느 정도 되나요?",
+          title: "What is the time commitment for NABI members?",
           description:
-            "활동 강도는 학업과 병행할 수 있도록 무리하지 않게 구성되어 있습니다. 정규 스터디는 월 1회(1시간 - 2시간 내외)이며, 발표자는 준비나 복습에 5시간 이내 정도 걸릴 수 있습니다. 발표 준비는 자율적인 조율이 이루어지며, 시험 기간에는 일정을 유연하게 조정합니다. 지속적인 학습과 성장을 도모하면서도 학업과 균형을 유지할 수 있도록 설계되어 있습니다.",
+            "The time commitment for NABI members is flexible. We have a regular study session once a month (2 hours), and the presenter usually spends 10 hours or less on preparation. The preparation is done voluntarily, and the schedule is flexible during exam periods. We aim to balance learning and growth while maintaining academic balance.",
         },
       ]}
     />
 
   <CallToAction
-    title="함께하고 싶다면?"
-    subtitle="서울의대 및 서울대병원 구성원의 많은 참여를 기다립니다."
+    title="Join Us"
+    subtitle="We welcome participation from Seoul National University and Seoul National University Hospital members."
     actions={[
       {
         variant: 'primary',
-        text: '지원서 작성',
+        text: 'Join Us',
         href: 'https://forms.gle/di4rV24pK2jezSMG8',
         target: '_blank',
         icon: 'tabler:edit',
@@ -84,13 +91,6 @@ const metadata = {
     ]}
   />
 
-  <!-- Note Widget ******************* -->
-<a href="./about">
-  <Note 
-    title="About NABI:"
-    description="Learn more about our mission, study themes, and how to get involved."
-  />
-</a>
 
 
 </Layout>
