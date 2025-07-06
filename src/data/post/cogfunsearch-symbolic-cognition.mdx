@@ -1,0 +1,74 @@
+---
+publishDate: 2025-03-30T00:00:01Z
+author: Younghoon Kim
+title: 'CogFunSearch: Symbolic Cognitive Models with LLMs'
+image: https://i.imgur.com/ZqB593s.png
+excerpt: 'A look at CogFunSearch, a new method using LLMs to automatically discover symbolic cognitive models from human and animal behavior.'
+category: Monthly Meeting
+tags:
+  - cognitive science
+  - large language models
+  - symbolic models
+---
+
+import { YouTube } from 'astro-embed';
+
+_Original Paper: [Discovering Symbolic Cognitive Models from Human and Animal Behavior](https://www.biorxiv.org/content/10.1101/2025.02.05.636732v1.full)_
+
+We explored "CogFunSearch," a novel method that leverages the power of large
+language models (LLMs) to automatically discover symbolic cognitive models
+directly from behavioral data. This approach offers a new path to creating
+interpretable, structured models of cognition.
+
+## Summary of the Presentation
+
+- **Symbolic Models:** These models are valuable as they use interpretable
+  variables (e.g., "prediction error", "learning rate") to represent cognitive
+  processes, but they are difficult to design by hand and can lack enough
+  flexibility to capture complex behaviors.
+- **CogFunSearch:** Inspired by Google DeepMind's"FunSearch," this method uses an
+  LLM to generate and evolve symbolic models as python code, which are then
+  evaluated against behavioral data. High-performing models are fed back to the
+  LLM to improve subsequent generations of models.
+- **Performance:** The model was tested on data from humans, rats, and flies, with
+  the LLM-discovered models consistently outperforming human-designed baseline
+  models in both data fitting and generalization. For more complex human behavior,
+  providing the LLM with a structured "seed" program as a starting point
+  significantly improved the results.
+- **Complexity:** The discovered models not only fit the data well but also captured
+  key behavioral signatures, like how rewards and previous choices influence future
+  decisions. While more accurate models tended to be more complex, the system
+  demonstrated an ability to find a good balance between predictive power and
+  interpretability.
+
+## Key Discussion Points
+
+1. **Is the model truly better?**: A key critique was that the model's improved
+   performance might be due to more parameters, not a better structure, as the
+   paper didn't use metrics like BIC to penalize for complexity.
+
+2. **Interpretability of AI-generated code**: Another critique was the code
+   generated might not truly be interpretable. The presenter argued that
+   LLM-generated code can be interpretable because it's trained on scientific
+   literature and thus uses familiar terms (e.g., "Q values").
+
+3. **Incorporating biological plausibility**: We discussed how to ensure the
+   discovered models are biologically meaningful. Providing a biologically
+   plausible "seed program" can act as a soft constraint, guiding the LLM towards
+   more realistic solutions.
+
+4. **The future role of scientists**: A major topic was the potential for AI to
+   automate key scientific tasks. There was a shared concern that tools like
+   CogFunSearch could reduce the need for human experts in specialized modeling,
+   much like AlphaFold changed protein structure prediction. This might push
+   researchers to focus on more general, high-level questions.
+
+5. **Cost vs. Benefit:** While the computational cost is currently high, the
+   underlying idea is powerful. The approach has the potential for exponential
+   improvement, much like AlphaFold, and could one day dramatically accelerate
+   the pace of cognitive modeling.
+
+## Original Video
+
+<YouTube id="zreS289rr78" title="Discovering Symbolic Cognitive Models from
+Human and Animal Behavior" />

@@ -1,0 +1,80 @@
+---
+publishDate: 2025-03-30T00:00:00Z
+author: Chaebeom Sheen
+title: A Neural Coding Model for Olfaction
+image: https://i.imgur.com/cb2BnBy.jpeg
+excerpt: Poisson compressed sensing for rapid inference of olfactory information (NeurIPS, 2023)
+category: Monthly Meeting
+tags:
+  - olfaction
+  - bayesian inference
+  - poisson compressed sensing
+---
+
+import { YouTube } from 'astro-embed';
+
+*Original Paper: [Neural Circuits for Fast Poisson Compressed Sensing in the
+Olfactory Bulb](https://openreview.net/pdf?id=Cxn1FpnNvG)*
+
+We explored the core components and results of the Poisson Compressed Sensing
+model, presenting a biologically plausible framework for understanding odor
+perception.
+
+## Summary of the Presentation
+
+- **Olfaction as a High-Dimensional Sense:** Olfaction is a high-dimensional sense,
+  unlike vision or audition. Unlike the clear numerical representations for color
+  (RGB) or sound (frequency), there is no simple, straightforward way to quantify
+  an odor.
+- **Population Coding:** The PCS model rejects a simple one-to-one mapping between
+  a receptor and a specific smell. Instead, it utilizes population coding, where
+  the combined activity of a *population* of receptors represents a specific
+  odor.
+- **Bayesian Inference and Gradient Ascent:** The PCS model uses Bayesian inference
+  to estimate odor concentration. It achieves this using gradient ascent, a method
+  typically reserved for the *training* phase of neural networks, but here applied
+  to the *inference* step of perception itself.
+- **Biological Mapping:** The model's components are directly mapped to the
+  microanatomy of the olfactory bulb, lending it significant biological
+  plausibility.
+  - **Projection Neurons (P):** Encode the difference between the brain's
+     prediction and the actual sensory observation.
+  - **Granular Neurons (G):** Form the core of the inference layer, representing
+     the most likely estimate for the odor's concentration.
+  - **Cortical Feedback (B):** Represents the brain's prior beliefs or
+     expectations, which influence perception.
+- **Geometric Coding:** The relationships between different odors are preserved in
+  the brain's representation. If two odors are distinct in the chemical world,
+  they remain orthogonal in the neural code. This leads to significantly faster
+  and more accurate inference.
+- **Key Results:** The model successfully explains state-dependent inhibition
+  observed in mitral cells, a phenomenon that previous models could not account
+  for. It also demonstrates fast and accurate dynamic inference, capable of
+  tracking changes in odors over time.
+
+## Key Discussion Points
+
+1. **What makes a complex model like this valid?**: The presenter acknowledged the
+   model's mathematical elegance and noted that some of the model's parameters
+   were indeed derived from biological data, such as calcium imaging.
+
+2. **Threshold for Acceptance**: The discussion touched on the different standards
+   for model acceptance across scientific fields. While a machine learning
+   conference like NeurIPS might value the model's mathematical novelty,
+   biological journals would likely require more extensive experimental
+   validation.
+
+3. **Testing with Variability**: An interesting suggestion was to test the model's
+   validity by seeing if it could explain olfactory differences between species
+   or individuals. For instance, could the model show why a dog's sense of smell
+   is more sensitive than a human's by revealing different parameter settings?
+
+4. **The Subjectivity of Smell**: A participant raised the valid point that the
+   model treats odor as an objective vector, while the perception of smell is
+   highly subjective. This poses a challenge for directly comparing the model's
+   output with experimental data from neuroscience.
+
+## Original Video
+
+<YouTube id="DpvkakMWNh8" title="Poisson Compressed Sensing Model of Olfaction"
+/>

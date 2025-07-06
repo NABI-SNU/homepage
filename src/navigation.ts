@@ -19,24 +19,16 @@ export const headerData = {
       href: getBlogPermalink(),
       links: [
         {
-          text: 'Blog List',
+          text: 'Explore our Posts',
           href: getBlogPermalink(),
         },
         {
-          text: 'Article',
-          href: getPermalink('get-started-website-with-astro-tailwind-css', 'post'),
+          text: 'Explore Categories',
+          href: getPermalink('monthly-meeting', 'category'),
         },
         {
-          text: 'Article (with MDX)',
-          href: getPermalink('markdown-elements-demo-post', 'post'),
-        },
-        {
-          text: 'Category Page',
-          href: getPermalink('tutorials', 'category'),
-        },
-        {
-          text: 'Tag Page',
-          href: getPermalink('astro', 'tag'),
+          text: 'Explore Tags',
+          href: getPermalink('bayesian-inference', 'tag'),
         },
       ],
     },
@@ -81,10 +73,9 @@ export const footerData = {
     {
       title: 'Articles',
       links: [
-        { text: 'Blog List', href: getBlogPermalink() },
-        { text: 'Article', href: getPermalink('get-started-website-with-astro-tailwind-css', 'post') },
-        { text: 'Article (with MDX)', href: getPermalink('markdown-elements-demo-post', 'post') },
-        { text: 'Category Page', href: getPermalink('tutorials', 'category') },
+        { text: 'Meeting Notes', href: getBlogPermalink() },
+        { text: 'Monthly Meetings', href: getPermalink('monthly-meeting', 'category') },
+        { text: 'Bayesian Inference', href: getPermalink('bayesian-inference', 'tag') },
       ],
     },
   ],
