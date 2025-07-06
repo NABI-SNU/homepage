@@ -1,5 +1,5 @@
 site:
-  name: NABI
+  name: NABI Research
   site: 'https://nabi-snu.github.io'
   base: '/'
   trailingSlash: false
