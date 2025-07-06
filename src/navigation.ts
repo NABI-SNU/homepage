@@ -53,22 +53,29 @@ export const headerData = {
 
 export const footerData = {
   links: [
-    {
-      title: 'Resources',
-      links: [
-        { text: 'Features', href: getPermalink('/research') },
-        { text: 'Security', href: getPermalink('/research') },
-        { text: 'Team', href: getPermalink('/research') },
-        { text: 'Enterprise', href: getPermalink('/research') },
-        { text: 'Pricing', href: getPermalink('/research') },
-      ],
-    },
+    // {
+    //   title: 'Resources',
+    //   links: [
+    //     { text: 'Features', href: getPermalink('/research') },
+    //     { text: 'Security', href: getPermalink('/research') },
+    //     { text: 'Team', href: getPermalink('/research') },
+    //     { text: 'Enterprise', href: getPermalink('/research') },
+    //     { text: 'Pricing', href: getPermalink('/research') },
+    //   ],
+    // },
     {
       title: 'Support',
       links: [
-        { text: 'Docs', href: getPermalink('/contact') },
-        { text: 'Community Forum', href: getPermalink('/contact') },
-        { text: 'Status', href: getPermalink('/contact') },
+        { text: 'Contact Us', href: getPermalink('/contact') },
+      ],
+    },
+    {
+      title: 'Who We Are',
+      links: [
+        { text: 'About Us', href: getPermalink('/about') },
+        { text: 'Our People', href: getPermalink('/people') },
+        { text: 'Research', href: getPermalink('/research') },
+        { text: 'Activity', href: getPermalink('/activity') },
       ],
     },
     {
@@ -80,20 +87,9 @@ export const footerData = {
         { text: 'Category Page', href: getPermalink('tutorials', 'category') },
       ],
     },
-    {
-      title: 'Company',
-      links: [
-        { text: 'About Us', href: getPermalink('/about') },
-        { text: 'Our People', href: getPermalink('/people') },
-        { text: 'Research', href: getPermalink('/research') },
-        { text: 'Activity', href: getPermalink('/activity') },
-        { text: 'Contact Us', href: getPermalink('/contact') },
-      ],
-    },
   ],
   secondaryLinks: [
-    { text: 'Terms', href: getPermalink('/terms') },
-    { text: 'Privacy Policy', href: getPermalink('/privacy') },
+
   ],
   socialLinks: [
     { ariaLabel: 'RSS', icon: 'tabler:rss', href: getAsset('/rss.xml') },
