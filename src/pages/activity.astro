@@ -4,9 +4,54 @@ import HeroText from '~/components/widgets/HeroText.astro';
 
 const metadata = {
   title: 'Activity',
+  description: 'Updates on NABI events, seminars, and collaborative activities.',
 };
 ---
 
 <Layout metadata={metadata}>
   <HeroText tagline="Activity" title="Group Activities" />
+
+  <section>
+    <h1 class="text-3xl font-bold mb-4">NABI: Natural and Artificial Brain Intelligence</h1>
+  
+    <p class="mb-4">
+      <strong>NABI 2025 Symposium: "Memory in Context"</strong><br />
+      The core focus of NABI’s current academic year is our flagship symposium, 
+      <em>“Memory in Context: Prelude”</em>, a deep dive into recent advances in understanding how memory is 
+      structured, retrieved, and transformed within contextual frameworks. This theme integrates perspectives 
+      from neuroscience, machine learning, and cognitive modeling.
+    </p>
+  
+    <p class="mb-4">
+      <strong>Key References:</strong><br />
+      Grounded in landmark studies such as <em>Stachenfeld et al. (2017)</em> on predictive maps in the hippocampus 
+      and <em>Whittington et al. (2020, 2022)</em> on relational memory and transformers, our sessions explore the dynamic 
+      roles of context in spatial and conceptual memory. Emerging work such as <em>Raju et al. (2024)</em> and 
+      <em>Dedieu et al. (2024)</em> highlights how AI models reinterpret classical hippocampal theories.
+    </p>
+  
+    <p class="mb-4">
+      <strong>What We Do:</strong><br />
+      NABI is an interdisciplinary student-led study group that explores brain intelligence—both natural and 
+      artificial. We organize structured seminars, collaborative reading groups, and live discussions connecting 
+      computational models with biological data.
+    </p>
+  
+    <div class="mb-4">
+      <strong>Activities at a Glance:</strong>
+      <ul class="list-disc list-inside mt-2 space-y-1">
+        <li>Weekly study meetings with curated reading lists</li>
+        <li>Concept deep-dives and member-led talks</li>
+        <li>Cross-referencing neuroscience and AI literature</li>
+        <li>Workshops on theoretical models and experimental paradigms</li>
+      </ul>
+    </div>
+  
+    <p>
+      NABI welcomes students and researchers passionate about bridging cognitive neuroscience and artificial 
+      intelligence. Join us as we unravel how the brain—and machines—represent and retrieve knowledge in context.
+    </p>
+  </section>
+  
 </Layout>
+
