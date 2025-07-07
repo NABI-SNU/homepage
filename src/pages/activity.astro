@@ -2,55 +2,103 @@
 import Layout from '~/layouts/PageLayout.astro';
 import HeroText from '~/components/widgets/HeroText.astro';
 
-const metadata = {
-  title: 'Activity',
+import type { MetaData } from '~/types';
+
+export interface Props {
+  frontmatter: {
+    title?: string;
+  };
+}
+
+const { frontmatter} = Astro.props;
+
+/** Page-level SEO / OG metadata */
+const metadata: MetaData = {
+  title: frontmatter?.title ?? 'Activity',
   description: 'Updates on NABI events, seminars, and collaborative activities.',
 };
 ---
 
 <Layout metadata={metadata}>
+  <!-- ▸ Hero banner -->
   <HeroText tagline="Activity" title="Group Activities" />
 
-  <section>
-    <h1 class="text-3xl font-bold mb-4">NABI: Natural and Artificial Brain Intelligence</h1>
+  <!-- ▸ Main content -->
+  <section class="px-4 py-16 sm:px-6 mx-auto lg:px-8 lg:py-20 max-w-4xl">
+    <h1 class="font-bold font-heading text-4xl md:text-5xl leading-tighter tracking-tighter">NABI Symposium</h1>
 
-    <p class="mb-4">
-      <strong>NABI 2025 Symposium: "Memory in Context"</strong><br />
-      The core focus of NABI’s current academic year is our flagship symposium,
-      <em>“Memory in Context: Prelude”</em>, a deep dive into recent advances in understanding how memory is structured,
-      retrieved, and transformed within contextual frameworks. This theme integrates perspectives from neuroscience,
-      machine learning, and cognitive modeling.
-    </p>
+    <div
+      class="mx-auto prose prose-lg max-w-4xl dark:prose-invert dark:prose-headings:text-slate-300 prose-md prose-headings:font-heading prose-headings:leading-tighter prose-headings:tracking-tighter prose-headings:font-bold prose-a:text-blue-600 dark:prose-a:text-blue-400 prose-img:rounded-md prose-img:shadow-lg mt-8"
+    >
+      <strong
+        class = "font-bold font-heading text-2xl md:text-3xl leading-tighter tracking-tighter">
+        NABI 2025 Symposium: “Memory in Context”
+      </strong>
+      <br />
+      The core focus of NABI's current academic year is our flagship symposium,
+      <em>Memory in Context</em>, a deep dive into recent advances in understanding how memory is
+      structured, retrieved, and transformed within contextual frameworks. This theme integrates perspectives
+      from neuroscience, machine learning, and cognitive modeling. The symposium will be held on February 2026, at Seoul National University Hospital.
 
-    <p class="mb-4">
-      <strong>Key References:</strong><br />
-      Grounded in landmark studies such as <em>Stachenfeld et al. (2017)</em> on predictive maps in the hippocampus and <em
-        >Whittington et al. (2020, 2022)</em
-      > on relational memory and transformers, our sessions explore the dynamic roles of context in spatial and conceptual
-      memory. Emerging work such as <em>Raju et al. (2024)</em> and
-      <em>Dedieu et al. (2024)</em> highlights how AI models reinterpret classical hippocampal theories.
-    </p>
+      <br />
 
-    <p class="mb-4">
-      <strong>What We Do:</strong><br />
-      NABI is an interdisciplinary student-led study group that explores brain intelligence—both natural and artificial.
-      We organize structured seminars, collaborative reading groups, and live discussions connecting computational models
-      with biological data.
-    </p>
+      <div class="my-8 text-center">
+        <img 
+          src="https://i.imgur.com/R6GRT2h.png"
+          alt="Tollman Eichenbaum Machine Schema"
+          class="mx-auto rounded-lg shadow-lg max-w-2xl w-full"
+          width="1200"
+          height="500"
+        />
+        <p class="text-sm text-gray-600 dark:text-gray-400 mt-2 italic">
+          A schematic of the machine schema proposed by Tollman and Eichenbaum. Reproduced from <a href="https://doi.org/10.1016/j.cell.2020.11.023 ">Whittington et al. (2020)</a>.
+        </p>
+      </div>
 
-    <div class="mb-4">
-      <strong>Activities at a Glance:</strong>
+      <br />
+
+      <strong
+        class = "font-bold font-heading text-2xl md:text-3xl leading-tighter tracking-tighter">
+        Key References:
+      </strong>
+      <br />
+      Grounded in landmark studies such as <a href="https://doi.org/10.1038/nn.4650"><em>Stachenfeld et al. (2017)</em></a> on predictive maps in the hippocampus
+      and <a href="https://doi.org/10.1016/j.cell.2020.11.023"><em>Whittington et al. (2020)</em></a> on relational memory and transformers, our sessions explore
+      the dynamic roles of context in spatial and conceptual memory. Emerging work such as
+      <a href="https://doi.org/10.1126/sciadv.adm8470"><em>Raju et al. (2024)</em></a> and <a href="https://doi.org/10.48550/arXiv.2401.059461.">
+      <em>Dedieu et al. (2024)</em></a> highlights how AI models reinterpret classical
+      hippocampal theories.
+
+      <br /><br />
+
+      <strong
+        class = "font-bold font-heading text-2xl md:text-3xl leading-tighter tracking-tighter">
+        What We Do:
+      </strong>
+      <br />
+      NABI is an interdisciplinary student-led study group that explores brain intelligence—both natural and
+      artificial. We organize structured seminars, collaborative reading groups, and live discussions
+      connecting computational models with biological data.
+
+      <br /><br />
+
+      <strong
+        class = "font-bold font-heading text-2xl md:text-3xl leading-tighter tracking-tighter">
+        Activities at a Glance:
+      </strong>
+      <br />
       <ul class="list-disc list-inside mt-2 space-y-1">
         <li>Weekly study meetings with curated reading lists</li>
         <li>Concept deep-dives and member-led talks</li>
         <li>Cross-referencing neuroscience and AI literature</li>
         <li>Workshops on theoretical models and experimental paradigms</li>
       </ul>
+
+      <em>
+        NABI welcomes students and researchers passionate about bridging cognitive neuroscience and artificial
+        intelligence. Join us as we unravel how the brain—and machines—represent and retrieve knowledge in context.
+      </em>
     </div>
 
-    <p>
-      NABI welcomes students and researchers passionate about bridging cognitive neuroscience and artificial
-      intelligence. Join us as we unravel how the brain—and machines—represent and retrieve knowledge in context.
-    </p>
-  </section>
+</section>
 </Layout>
