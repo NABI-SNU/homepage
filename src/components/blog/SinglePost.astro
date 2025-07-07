@@ -107,18 +107,113 @@ const { post, url } = Astro.props;
   </section>
 </section>
 
-<script src="https://giscus.app/client.js"
-        data-repo="NABI-SNU/homepage"
-        data-repo-id="R_kgDOOkMCBQ"
-        data-category="General"
-        data-category-id="DIC_kwDOOkMCBc4CskkE"
-        data-mapping="pathname"
-        data-strict="1"
-        data-reactions-enabled="1"
-        data-emit-metadata="0"
-        data-input-position="bottom"
-        data-theme="dark"
-        data-lang="en"
-        crossorigin="anonymous"
-        async>
+<script>
+  // Function to detect current theme
+  function getCurrentTheme(): 'light' | 'dark' {
+    // Method 1: Check if document has dark class (most common)
+    if (document.documentElement.classList.contains('dark')) {
+      return 'dark';
+    }
+    // Method 2: Check data-theme attribute
+    const dataTheme = document.documentElement.getAttribute('data-theme');
+    if (dataTheme === 'dark') {
+      return 'dark';
+    }
+    // Method 3: Check body class
+    if (document.body.classList.contains('dark')) {
+      return 'dark';
+    }
+    // Method 4: Check CSS custom property
+    const themeFromCSS = getComputedStyle(document.documentElement)
+      .getPropertyValue('--theme')
+      .trim();
+    if (themeFromCSS === 'dark') {
+      return 'dark';
+    }
+    // Default to light theme
+    return 'light';
+  }
+
+  // Function to load Giscus with current theme
+  function loadGiscus() {
+    const container = document.getElementById('giscus-container');
+    if (!container) return;
+
+    const currentTheme = getCurrentTheme();
+    const giscusTheme = currentTheme === 'dark' ? 'catppucin-frappe' : 'catppucin-latte'
+    
+    // Clear existing Giscus instance
+    container.innerHTML = '';
+
+    // Create script element
+    const script = document.createElement('script');
+    script.src = 'https://giscus.app/client.js';
+    script.setAttribute('data-repo', 'NABI-SNU/homepage');
+    script.setAttribute('data-repo-id', 'R_kgDOOkMCBQ');
+    script.setAttribute('data-category', 'General');
+    script.setAttribute('data-category-id', 'DIC_kwDOOkMCBc4CskkE');
+    script.setAttribute('data-mapping', 'pathname');
+    script.setAttribute('data-strict', '1');
+    script.setAttribute('data-reactions-enabled', '1');
+    script.setAttribute('data-emit-metadata', '0');
+    script.setAttribute('data-input-position', 'bottom');
+    script.setAttribute('data-theme', giscusTheme);
+    script.setAttribute('data-lang', 'en');
+    script.setAttribute('crossorigin', 'anonymous');
+    script.async = true;
+
+    container.appendChild(script);
+  }
+
+  // Function to update Giscus theme
+  function updateGiscusTheme() {
+    const currentTheme = getCurrentTheme();
+    const giscusFrame = document.querySelector('iframe.giscus-frame') as HTMLIFrameElement;
+    
+    if (giscusFrame) {
+      giscusFrame.contentWindow?.postMessage(
+        {
+          giscus: {
+            setConfig: {
+              theme: currentTheme
+            }
+          }
+        },
+        'https://giscus.app'
+      );
+    }
+  }
+
+  // Load Giscus when DOM is ready
+  document.addEventListener('DOMContentLoaded', loadGiscus);
+
+  // Watch for theme changes
+  const observer = new MutationObserver((mutations) => {
+    mutations.forEach((mutation) => {
+      if (mutation.type === 'attributes' && 
+          (mutation.attributeName === 'class' || mutation.attributeName === 'data-theme')) {
+        updateGiscusTheme();
+      }
+    });
+  });
+
+  // Observe changes to html element (most common location for theme classes)
+  observer.observe(document.documentElement, {
+    attributes: true,
+    attributeFilter: ['class', 'data-theme']
+  });
+
+  // Also observe body element in case theme is applied there
+  observer.observe(document.body, {
+    attributes: true,
+    attributeFilter: ['class', 'data-theme']
+  });
+
+  // Handle system theme changes
+  if (window.matchMedia) {
+    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
+      // Small delay to allow theme switching logic to complete
+      setTimeout(updateGiscusTheme, 100);
+    });
+  }
 </script>
