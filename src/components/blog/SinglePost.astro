@@ -100,4 +100,25 @@ const { post, url } = Astro.props;
       <SocialShare url={url} text={post.title} class="mt-5 sm:mt-1 align-middle text-gray-500 dark:text-slate-600" />
     </div>
   </article>
+
+  <section class="px-4 py-16 sm:px-6 mx-auto lg:px-8 lg:py-20 max-w-4xl">
+    <div class="giscus"
+      ></div>
+  </section>
 </section>
+
+<script src="https://giscus.app/client.js"
+        data-repo="NABI-SNU/homepage"
+        data-repo-id="R_kgDOOkMCBQ"
+        data-category="General"
+        data-category-id="DIC_kwDOOkMCBc4CskkE"
+        data-mapping="pathname"
+        data-strict="1"
+        data-reactions-enabled="1"
+        data-emit-metadata="0"
+        data-input-position="bottom"
+        data-theme="dark"
+        data-lang="en"
+        crossorigin="anonymous"
+        async>
+</script>
