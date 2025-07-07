@@ -1,2 +1,3 @@
 User-agent: *
-Disallow:
+Allow: /
+Sitemap: https://nabiresearch.org/sitemap-index.xml
