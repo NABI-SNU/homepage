@@ -55,16 +55,6 @@ export const headerData = {
 
 export const footerData = {
   links: [
-    // {
-    //   title: 'Resources',
-    //   links: [
-    //     { text: 'Features', href: getPermalink('/research') },
-    //     { text: 'Security', href: getPermalink('/research') },
-    //     { text: 'Team', href: getPermalink('/research') },
-    //     { text: 'Enterprise', href: getPermalink('/research') },
-    //     { text: 'Pricing', href: getPermalink('/research') },
-    //   ],
-    // },
     {
       title: 'Support',
       links: [
@@ -86,6 +76,13 @@ export const footerData = {
         { text: 'Meeting Notes', href: getBlogPermalink() },
         { text: 'Monthly Meetings', href: getPermalink('monthly-meeting', 'category') },
         { text: 'Bayesian Inference', href: getPermalink('bayesian-inference', 'tag') },
+      ],
+    },
+    {
+      title: 'Resources',
+      links: [
+        { text: 'Research', href: getPermalink('/research') },
+        { text: 'Monthly Papers', href: getPermalink('/monthly')}
       ],
     },
   ],
