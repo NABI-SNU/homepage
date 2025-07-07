@@ -3,7 +3,7 @@ site:
   site: 'https://nabiresearch.org'
   base: '/'
   trailingSlash: false
-  googleSiteVerificationId: false
+  googleSiteVerificationId: 'moFoIAkQHYCfTaiWlyf_qkIMU0xwqjAIwYImr-B8FcQ'
 
 # Default SEO metadata
 metadata:
@@ -61,7 +61,7 @@ apps:
 analytics:
   vendors:
     googleAnalytics:
-      id: null # or "G-XXXXXXXXXX"
+      id: 'G-TDZJMHW141'
 
 ui:
   theme: 'system' # Values: "system" | "light" | "dark" | "light:only" | "dark:only"
