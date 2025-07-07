@@ -10,7 +10,7 @@ export interface Props {
   };
 }
 
-const { frontmatter} = Astro.props;
+const { frontmatter } = Astro.props;
 
 /** Page-level SEO / OG metadata */
 const metadata: MetaData = {
@@ -30,20 +30,20 @@ const metadata: MetaData = {
     <div
       class="mx-auto prose prose-lg max-w-4xl dark:prose-invert dark:prose-headings:text-slate-300 prose-md prose-headings:font-heading prose-headings:leading-tighter prose-headings:tracking-tighter prose-headings:font-bold prose-a:text-blue-600 dark:prose-a:text-blue-400 prose-img:rounded-md mt-8"
     >
-      <strong
-        class = "font-bold font-heading text-2xl md:text-3xl leading-tighter tracking-tighter">
+      <strong class="font-bold font-heading text-2xl md:text-3xl leading-tighter tracking-tighter">
         NABI 2025 Symposium: “Memory in Context”
       </strong>
       <br />
       The core focus of NABI's current academic year is our flagship symposium,
-      <em>Memory in Context</em>, a deep dive into recent advances in understanding how memory is
-      structured, retrieved, and transformed within contextual frameworks. This theme integrates perspectives
-      from neuroscience, machine learning, and cognitive modeling. The symposium will be held on February 2026, at Seoul National University Hospital.
+      <em>Memory in Context</em>, a deep dive into recent advances in understanding how memory is structured, retrieved,
+      and transformed within contextual frameworks. This theme integrates perspectives from neuroscience, machine
+      learning, and cognitive modeling. The symposium will be held on February 2026, at Seoul National University
+      Hospital.
 
       <br />
 
       <div class="my-8 text-center">
-        <img 
+        <img
           src="https://i.imgur.com/R6GRT2h.png"
           alt="Tollman Eichenbaum Machine Schema"
           class="rounded-lg max-w-2xl w-full shadow-none"
@@ -51,39 +51,43 @@ const metadata: MetaData = {
           height="500"
         />
         <p class="text-sm text-gray-600 dark:text-gray-400 mt-2 italic">
-          A schematic of the machine schema proposed by Tollman and Eichenbaum. Reproduced from <a href="https://doi.org/10.1016/j.cell.2020.11.023 ">Whittington et al. (2020)</a>.
+          A schematic of the machine schema proposed by Tollman and Eichenbaum. Reproduced from <a
+            href="https://doi.org/10.1016/j.cell.2020.11.023 ">Whittington et al. (2020)</a
+          >.
         </p>
       </div>
 
       <br />
 
-      <strong
-        class = "font-bold font-heading text-2xl md:text-3xl leading-tighter tracking-tighter">
+      <strong class="font-bold font-heading text-2xl md:text-3xl leading-tighter tracking-tighter">
         Key References:
       </strong>
       <br />
-      Grounded in landmark studies such as <a href="https://doi.org/10.1038/nn.4650"><em>Stachenfeld et al. (2017)</em></a> on predictive maps in the hippocampus
-      and <a href="https://doi.org/10.1016/j.cell.2020.11.023"><em>Whittington et al. (2020)</em></a> on relational memory and transformers, our sessions explore
-      the dynamic roles of context in spatial and conceptual memory. Emerging work such as
-      <a href="https://doi.org/10.1126/sciadv.adm8470"><em>Raju et al. (2024)</em></a> and <a href="https://doi.org/10.48550/arXiv.2401.059461.">
-      <em>Dedieu et al. (2024)</em></a> highlights how AI models reinterpret classical
-      hippocampal theories.
+      Grounded in landmark studies such as <a href="https://doi.org/10.1038/nn.4650"
+        ><em>Stachenfeld et al. (2017)</em></a
+      > on predictive maps in the hippocampus and <a href="https://doi.org/10.1016/j.cell.2020.11.023"
+        ><em>Whittington et al. (2020)</em></a
+      > on relational memory and transformers, our sessions explore the dynamic roles of context in spatial and conceptual
+      memory. Emerging work such as
+      <a href="https://doi.org/10.1126/sciadv.adm8470"><em>Raju et al. (2024)</em></a> and <a
+        href="https://doi.org/10.48550/arXiv.2401.059461."
+      >
+        <em>Dedieu et al. (2024)</em></a
+      > highlights how AI models reinterpret classical hippocampal theories.
 
       <br /><br />
 
-      <strong
-        class = "font-bold font-heading text-2xl md:text-3xl leading-tighter tracking-tighter">
+      <strong class="font-bold font-heading text-2xl md:text-3xl leading-tighter tracking-tighter">
         What We Do:
       </strong>
       <br />
-      NABI is an interdisciplinary student-led study group that explores brain intelligence—both natural and
-      artificial. We organize structured seminars, collaborative reading groups, and live discussions
-      connecting computational models with biological data.
+      NABI is an interdisciplinary student-led study group that explores brain intelligence—both natural and artificial.
+      We organize structured seminars, collaborative reading groups, and live discussions connecting computational models
+      with biological data.
 
       <br /><br />
 
-      <strong
-        class = "font-bold font-heading text-2xl md:text-3xl leading-tighter tracking-tighter">
+      <strong class="font-bold font-heading text-2xl md:text-3xl leading-tighter tracking-tighter">
         Activities at a Glance:
       </strong>
       <br />
@@ -99,6 +103,5 @@ const metadata: MetaData = {
         intelligence. Join us as we unravel how the brain—and machines—represent and retrieve knowledge in context.
       </em>
     </div>
-
-</section>
+  </section>
 </Layout>
