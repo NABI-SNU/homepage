@@ -1,15 +1,19 @@
 ---
 import Layout from '~/layouts/PageLayout.astro';
+import PostTags from '~/components/blog/Tags.astro';
+import SocialShare from '~/components/common/SocialShare.astro';
 
 import type { MetaData } from '~/types';
 
 export interface Props {
   frontmatter: {
     title?: string;
+    tags?: string[];
   };
+  url: string | URL;
 }
 
-const { frontmatter } = Astro.props;
+const { frontmatter, url } = Astro.props;
 
 const metadata: MetaData = {
   title: frontmatter?.title,
@@ -25,6 +29,10 @@ const metadata: MetaData = {
       <slot />
     </div>
   </section>
+  <div class="mx-auto px-6 sm:px-6 max-w-3xl mt-8 flex justify-between flex-col sm:flex-row">
+    <PostTags tags={(frontmatter.tags || []).map(tag => ({ slug: tag, title: tag }))} class="mr-5 rtl:mr-0 rtl:ml-5" />
+    <SocialShare url={url} text={frontmatter.title || ''} class="mt-5 sm:mt-1 align-middle text-gray-500 dark:text-slate-600" />
+  </div>
   <section class="px-4 py-16 sm:px-6 mx-auto lg:px-8 lg:py-20 max-w-4xl">
     <div class="giscus"
       ></div>
