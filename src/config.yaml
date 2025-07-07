@@ -10,7 +10,7 @@ metadata:
   title:
     default: Natural and Artificial Brain Intelligence
     template: '%s — NABI'
-  description: "Research notes from NABI, the Natural and Artificial Brain Intelligence study group."
+  description: 'Research notes from NABI, the Natural and Artificial Brain Intelligence study group.'
   robots:
     index: true
     follow: true

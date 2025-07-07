@@ -13,8 +13,8 @@ tags:
 
 import { YouTube } from 'astro-embed';
 
-*Original Paper: [Neural Circuits for Fast Poisson Compressed Sensing in the
-Olfactory Bulb](https://openreview.net/pdf?id=Cxn1FpnNvG)*
+_Original Paper: [Neural Circuits for Fast Poisson Compressed Sensing in the
+Olfactory Bulb](https://openreview.net/pdf?id=Cxn1FpnNvG)_
 
 We explored the core components and results of the Poisson Compressed Sensing
 model, presenting a biologically plausible framework for understanding odor
@@ -28,21 +28,21 @@ perception.
   an odor.
 - **Population Coding:** The PCS model rejects a simple one-to-one mapping between
   a receptor and a specific smell. Instead, it utilizes population coding, where
-  the combined activity of a *population* of receptors represents a specific
+  the combined activity of a _population_ of receptors represents a specific
   odor.
 - **Bayesian Inference and Gradient Ascent:** The PCS model uses Bayesian inference
   to estimate odor concentration. It achieves this using gradient ascent, a method
-  typically reserved for the *training* phase of neural networks, but here applied
-  to the *inference* step of perception itself.
+  typically reserved for the _training_ phase of neural networks, but here applied
+  to the _inference_ step of perception itself.
 - **Biological Mapping:** The model's components are directly mapped to the
   microanatomy of the olfactory bulb, lending it significant biological
   plausibility.
   - **Projection Neurons (P):** Encode the difference between the brain's
-     prediction and the actual sensory observation.
+    prediction and the actual sensory observation.
   - **Granular Neurons (G):** Form the core of the inference layer, representing
-     the most likely estimate for the odor's concentration.
+    the most likely estimate for the odor's concentration.
   - **Cortical Feedback (B):** Represents the brain's prior beliefs or
-     expectations, which influence perception.
+    expectations, which influence perception.
 - **Geometric Coding:** The relationships between different odors are preserved in
   the brain's representation. If two odors are distinct in the chemical world,
   they remain orthogonal in the neural code. This leads to significantly faster
@@ -76,5 +76,4 @@ perception.
 
 ## Original Video
 
-<YouTube id="DpvkakMWNh8" title="Poisson Compressed Sensing Model of Olfaction"
-/>
+<YouTube id="DpvkakMWNh8" title="Poisson Compressed Sensing Model of Olfaction" />

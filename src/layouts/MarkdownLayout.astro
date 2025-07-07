@@ -28,25 +28,30 @@ const metadata: MetaData = {
     </div>
   </section>
   <div class="mx-auto px-6 sm:px-6 max-w-3xl mt-8 flex justify-between flex-col sm:flex-row">
-    <SocialShare url={url} text={frontmatter.title || ''} class="mt-5 sm:mt-1 align-middle text-gray-500 dark:text-slate-600" />
+    <SocialShare
+      url={url}
+      text={frontmatter.title || ''}
+      class="mt-5 sm:mt-1 align-middle text-gray-500 dark:text-slate-600"
+    />
   </div>
   <section class="px-4 py-16 sm:px-6 mx-auto lg:px-8 lg:py-20 max-w-4xl">
     <div class="giscus"></div>
   </section>
 </Layout>
 
-<script src="https://giscus.app/client.js"
-        data-repo="NABI-SNU/homepage"
-        data-repo-id="R_kgDOOkMCBQ"
-        data-category="General"
-        data-category-id="DIC_kwDOOkMCBc4CskkE"
-        data-mapping="pathname"
-        data-strict="1"
-        data-reactions-enabled="1"
-        data-emit-metadata="0"
-        data-input-position="bottom"
-        data-theme="preferred_color_scheme"
-        data-lang="en"
-        crossorigin="anonymous"
-        async>
-</script>
+<script
+  src="https://giscus.app/client.js"
+  data-repo="NABI-SNU/homepage"
+  data-repo-id="R_kgDOOkMCBQ"
+  data-category="General"
+  data-category-id="DIC_kwDOOkMCBc4CskkE"
+  data-mapping="pathname"
+  data-strict="1"
+  data-reactions-enabled="1"
+  data-emit-metadata="0"
+  data-input-position="bottom"
+  data-theme="preferred_color_scheme"
+  data-lang="en"
+  crossorigin="anonymous"
+  async
+></script>

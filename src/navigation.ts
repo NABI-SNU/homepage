@@ -6,7 +6,7 @@ export const headerData = {
       text: 'About Us',
       href: getPermalink('/about'),
     },
-    {      
+    {
       text: 'Our People',
       href: getPermalink('/people'),
     },
@@ -57,9 +57,7 @@ export const footerData = {
   links: [
     {
       title: 'Support',
-      links: [
-        { text: 'Contact Us', href: getPermalink('/contact') },
-      ],
+      links: [{ text: 'Contact Us', href: getPermalink('/contact') }],
     },
     {
       title: 'Who We Are',
@@ -82,13 +80,11 @@ export const footerData = {
       title: 'Resources',
       links: [
         { text: 'Research', href: getPermalink('/research') },
-        { text: 'Monthly Papers', href: getPermalink('/monthly')}
+        { text: 'Monthly Papers', href: getPermalink('/monthly') },
       ],
     },
   ],
-  secondaryLinks: [
-
-  ],
+  secondaryLinks: [],
   socialLinks: [
     { ariaLabel: 'RSS', icon: 'tabler:rss', href: getAsset('/rss.xml') },
     { ariaLabel: 'Email', icon: 'tabler:mail', href: 'mailto:nabi.members@gmail.com' },

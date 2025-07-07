@@ -5,7 +5,6 @@ This is the new **NABI** website built with [Astro](https://astro.build/).
 **AstroWind** is a free and open-source template to make your website using
 **Astro + Tailwind CSS**.
 
-
 ## Key Information
 
 - Built with [Astro](https://astro.build/) and Tailwind CSS using the AstroWind template.
@@ -23,7 +22,7 @@ This is the new **NABI** website built with [Astro](https://astro.build/).
 - `src/components`: Reusable UI components.
 - `public`: Static assets served as-is.
 
-Contributions should follow the existing coding style (see `.prettierrc.cjs` and 
+Contributions should follow the existing coding style (see `.prettierrc.cjs` and
 `.editorconfig`) and run the provided `npm` scripts before opening a pull request.
 
 ## Contributing

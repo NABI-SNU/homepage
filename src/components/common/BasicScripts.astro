@@ -74,12 +74,9 @@ import { UI } from 'astrowind:config';
       // Update theme for giscus iframe if it exists
       const theme = document.documentElement.classList.contains('dark') ? 'dark' : 'light';
       const giscusFrame = document.querySelector('iframe.giscus-frame');
-      
+
       if (giscusFrame) {
-        giscusFrame.contentWindow.postMessage(
-          { giscus: { setConfig: { theme } } },
-          'https://giscus.app'
-        );
+        giscusFrame.contentWindow.postMessage({ giscus: { setConfig: { theme } } }, 'https://giscus.app');
       }
     });
 

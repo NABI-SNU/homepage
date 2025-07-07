@@ -1,6 +1,6 @@
 ---
-import PageFindSearch from "astro-pagefind/components/Search";
-import { Icon } from "astro-icon/components";
+import PageFindSearch from 'astro-pagefind/components/Search';
+import { Icon } from 'astro-icon/components';
 ---
 
 <button
@@ -9,16 +9,14 @@ import { Icon } from "astro-icon/components";
   aria-label="Open search"
   aria-controls="search-dialog"
   aria-expanded="false"
-  class="
-    ml-2                         /* even gap from RSS / theme-toggle */
+  class="ml-2 /* even gap from RSS / theme-toggle */
     inline-flex items-center justify-center
-    rounded-md p-2               /* symmetric padding */
+    rounded-md p-2 /* symmetric padding */
     text-neutral-700 dark:text-gray-400
-    transition-colors            /* smooth hover/focus */
+    transition-colors /* smooth hover/focus */
     focus:outline-none focus:ring-2 focus:ring-primary-500
-    hover:bg-neutral-200         /* light-mode hover */
-    dark:hover:bg-neutral-800       /* dark-mode hover (background only) */
-  "
+    hover:bg-neutral-200 /* light-mode hover */
+    dark:hover:bg-neutral-800 /* dark-mode hover (background only) */"
 >
   <Icon name="tabler:search" class="h-5 w-5" />
 </button>
@@ -56,11 +54,7 @@ import { Icon } from "astro-icon/components";
 
     <!-- Search component -->
     <div class="min-h-[400px] p-6 bg-white dark:bg-[#040620]">
-      <PageFindSearch
-        id="search"
-        className="pagefind-ui"
-        uiOptions={{ showImages: false }}
-      />
+      <PageFindSearch id="search" className="pagefind-ui" uiOptions={{ showImages: false }} />
     </div>
   </div>
 </dialog>
@@ -163,15 +157,9 @@ import { Icon } from "astro-icon/components";
 <script>
   function initSearch() {
     // Get DOM elements with proper typing
-    const searchTrigger = document.getElementById(
-      "search-trigger"
-    ) as HTMLButtonElement | null;
-    const searchDialog = document.getElementById(
-      "search-dialog"
-    ) as HTMLDialogElement | null;
-    const closeButton = document.getElementById(
-      "close-search"
-    ) as HTMLButtonElement | null;
+    const searchTrigger = document.getElementById('search-trigger') as HTMLButtonElement | null;
+    const searchDialog = document.getElementById('search-dialog') as HTMLDialogElement | null;
+    const closeButton = document.getElementById('close-search') as HTMLButtonElement | null;
 
     // Function to detect current theme
     function getCurrentTheme(): 'light' | 'dark' {
@@ -192,9 +180,7 @@ import { Icon } from "astro-icon/components";
       }
 
       // Method 4: Check CSS custom property
-      const themeFromCSS = getComputedStyle(document.documentElement)
-        .getPropertyValue('--theme')
-        .trim();
+      const themeFromCSS = getComputedStyle(document.documentElement).getPropertyValue('--theme').trim();
       if (themeFromCSS === 'dark') {
         return 'dark';
       }
@@ -207,7 +193,7 @@ import { Icon } from "astro-icon/components";
     function updatePagefindTheme() {
       const theme = getCurrentTheme();
       const dialog = searchDialog;
-      
+
       if (dialog) {
         // Apply theme class to dialog for CSS variables
         if (theme === 'dark') {
@@ -219,25 +205,23 @@ import { Icon } from "astro-icon/components";
     }
 
     // Open dialog
-    searchTrigger?.addEventListener("click", () => {
+    searchTrigger?.addEventListener('click', () => {
       updatePagefindTheme(); // Update theme before showing
       searchDialog?.showModal();
-      searchTrigger.setAttribute("aria-expanded", "true");
+      searchTrigger.setAttribute('aria-expanded', 'true');
       // Focus the search input when dialog opens
-      const searchInput = document.querySelector<HTMLInputElement>(
-        ".pagefind-ui__search-input"
-      );
+      const searchInput = document.querySelector<HTMLInputElement>('.pagefind-ui__search-input');
       searchInput?.focus();
     });
 
     // Close dialog
-    closeButton?.addEventListener("click", () => {
+    closeButton?.addEventListener('click', () => {
       searchDialog?.close();
-      searchTrigger?.setAttribute("aria-expanded", "false");
+      searchTrigger?.setAttribute('aria-expanded', 'false');
     });
 
     // Close dialog when clicking outside
-    searchDialog?.addEventListener("click", (e: MouseEvent) => {
+    searchDialog?.addEventListener('click', (e: MouseEvent) => {
       if (!searchDialog) return;
 
       const dialogDimensions = searchDialog.getBoundingClientRect();
@@ -248,24 +232,25 @@ import { Icon } from "astro-icon/components";
         e.clientY > dialogDimensions.bottom
       ) {
         searchDialog.close();
-        searchTrigger?.setAttribute("aria-expanded", "false");
+        searchTrigger?.setAttribute('aria-expanded', 'false');
       }
     });
 
     // Handle escape key
-    document.addEventListener("keydown", (e: KeyboardEvent) => {
-      if (e.key === "Escape" && searchDialog?.open) {
+    document.addEventListener('keydown', (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && searchDialog?.open) {
         searchDialog.close();
-        searchTrigger?.setAttribute("aria-expanded", "false");
+        searchTrigger?.setAttribute('aria-expanded', 'false');
       }
     });
 
     // Watch for theme changes
     const observer = new MutationObserver((mutations) => {
       mutations.forEach((mutation) => {
-        if (mutation.type === 'attributes' && 
-            (mutation.attributeName === 'class' || 
-             mutation.attributeName === 'data-theme')) {
+        if (
+          mutation.type === 'attributes' &&
+          (mutation.attributeName === 'class' || mutation.attributeName === 'data-theme')
+        ) {
           updatePagefindTheme();
         }
       });
@@ -274,12 +259,12 @@ import { Icon } from "astro-icon/components";
     // Observe theme changes on document element and body
     observer.observe(document.documentElement, {
       attributes: true,
-      attributeFilter: ['class', 'data-theme']
+      attributeFilter: ['class', 'data-theme'],
     });
 
     observer.observe(document.body, {
       attributes: true,
-      attributeFilter: ['class']
+      attributeFilter: ['class'],
     });
 
     // Initial theme setup
@@ -287,5 +272,5 @@ import { Icon } from "astro-icon/components";
   }
 
   initSearch();
-  document.addEventListener("astro:after-swap", initSearch);
+  document.addEventListener('astro:after-swap', initSearch);
 </script>

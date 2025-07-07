@@ -8,7 +8,7 @@ import CallToAction from '~/components/widgets/CallToAction.astro';
 const metadata = {
   title: 'NABI | Computational Neuroscience & NeuroAI Study Group at SNU',
   description:
-  'Official website of NABI Research Group at Seoul National University exploring the intersection of neuroscience and artificial intelligence.',
+    'Official website of NABI Research Group at Seoul National University exploring the intersection of neuroscience and artificial intelligence.',
 };
 ---
 
@@ -27,52 +27,50 @@ const metadata = {
       { text: 'Join Us', href: 'https://forms.gle/di4rV24pK2jezSMG8' },
     ]}
     image={{ src: '~/assets/images/hero-image.png', alt: 'Brain Hero Image' }}
-  > 
+  >
     <Fragment slot="title">
       <span class="text-accent dark:text-accent-dark">NABI</span> Research Group
     </Fragment>
     <Fragment slot="subtitle">
-      NABI (Natural and Artificial Brain Intelligence) is a research group based in Seoul National University, College of Medicine that explores the intersection of neuroscience and artificial intelligence research. 
+      NABI (Natural and Artificial Brain Intelligence) is a research group based in Seoul National University, College
+      of Medicine that explores the intersection of neuroscience and artificial intelligence research.
     </Fragment>
   </Hero>
 
   <!-- Note Widget ******************* -->
   <a href="./about">
-    <Note 
-      title="About NABI:"
-      description="Learn more about our mission, study themes, and how to get involved."
-    />
+    <Note title="About NABI:" description="Learn more about our mission, study themes, and how to get involved." />
   </a>
 
   <!-- FAQs Widget ******************* -->
 
   <FAQs
-      title="Understanding Our Mission"
-      tagline="Our Mission"
-      classes={{ container: 'max-w-6xl' }}
-      items={[
-        {
-          title: 'What is NABI?',
-          description:
-            "NABI is a research group based in Seoul National University, College of Medicine that explores the intersection of neuroscience and artificial intelligence research.",
-        },
-        {
-          title: 'What is the purpose of NABI?',
-          description:
-            "As NABI is based in a medical school, our research focus is primarily translational. We aim to develop computational models to better understand the brain and its function in normal psychophysiology and pathogenesis.",
-        },
-        {
-          title: 'What do members of NABI do?',
-          description:
-            "Members of NABI read and discuss papers, and develop computational models based on the latest research related to NeuroAI and computational neuroscience. Every year, we have a symposium and Seoul National Universtiy Hospital where members of NABI present their research.",
-        },
-        {
-          title: "What is the time commitment for NABI members?",
-          description:
-            "The time commitment for NABI members is flexible. We have a regular study session once a month (2 hours), and the presenter usually spends 10 hours or less on preparation. The preparation is done voluntarily, and the schedule is flexible during exam periods. We aim to balance learning and growth while maintaining academic balance.",
-        },
-      ]}
-    />
+    title="Understanding Our Mission"
+    tagline="Our Mission"
+    classes={{ container: 'max-w-6xl' }}
+    items={[
+      {
+        title: 'What is NABI?',
+        description:
+          'NABI is a research group based in Seoul National University, College of Medicine that explores the intersection of neuroscience and artificial intelligence research.',
+      },
+      {
+        title: 'What is the purpose of NABI?',
+        description:
+          'As NABI is based in a medical school, our research focus is primarily translational. We aim to develop computational models to better understand the brain and its function in normal psychophysiology and pathogenesis.',
+      },
+      {
+        title: 'What do members of NABI do?',
+        description:
+          'Members of NABI read and discuss papers, and develop computational models based on the latest research related to NeuroAI and computational neuroscience. Every year, we have a symposium and Seoul National Universtiy Hospital where members of NABI present their research.',
+      },
+      {
+        title: 'What is the time commitment for NABI members?',
+        description:
+          'The time commitment for NABI members is flexible. We have a regular study session once a month (2 hours), and the presenter usually spends 10 hours or less on preparation. The preparation is done voluntarily, and the schedule is flexible during exam periods. We aim to balance learning and growth while maintaining academic balance.',
+      },
+    ]}
+  />
 
   <CallToAction
     title="Join Us"
@@ -92,7 +90,4 @@ const metadata = {
       },
     ]}
   />
-
-
-
 </Layout>

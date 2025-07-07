@@ -32,7 +32,7 @@ const {
         containerClass
       )}
     >
-      {items.map(({ title, description, icon, callToAction, href, classes: itemClasses = {} }) => (
+      {items.map(({ title, description, icon, callToAction, href, classes: itemClasses = {} }) =>
         href ? (
           <a
             href={href}
@@ -47,7 +47,10 @@ const {
             )}
             <div class={twMerge('text-xl font-bold', titleClass, itemClasses?.title)}>{title}</div>
             {description && (
-              <p class={twMerge('text-muted mt-2', descriptionClass, itemClasses?.description)} set:html={description} />
+              <p
+                class={twMerge('text-muted mt-2', descriptionClass, itemClasses?.description)}
+                set:html={description}
+              />
             )}
             {callToAction && (
               <div class="mt-2">
@@ -68,7 +71,10 @@ const {
             )}
             <div class={twMerge('text-xl font-bold', titleClass, itemClasses?.title)}>{title}</div>
             {description && (
-              <p class={twMerge('text-muted mt-2', descriptionClass, itemClasses?.description)} set:html={description} />
+              <p
+                class={twMerge('text-muted mt-2', descriptionClass, itemClasses?.description)}
+                set:html={description}
+              />
             )}
             {callToAction && (
               <div class="mt-2">
@@ -77,7 +83,7 @@ const {
             )}
           </div>
         )
-      ))}
+      )}
     </div>
   )
 }
