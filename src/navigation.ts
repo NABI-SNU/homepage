@@ -19,16 +19,16 @@ export const headerData = {
       href: getBlogPermalink(),
       links: [
         {
-          text: 'Explore our Posts',
+          text: 'All Posts',
           href: getBlogPermalink(),
         },
         {
-          text: 'Explore Categories',
+          text: 'Monthly Meetings',
           href: getPermalink('monthly-meeting', 'category'),
         },
         {
-          text: 'Explore Tags',
-          href: getPermalink('bayesian-inference', 'tag'),
+          text: 'Opinions',
+          href: getPermalink('opinions', 'category'),
         },
       ],
     },
@@ -81,6 +81,7 @@ export const footerData = {
       links: [
         { text: 'Research', href: getPermalink('/research') },
         { text: 'Monthly Papers', href: getPermalink('/monthly') },
+        { text: 'Source Code', href:'https://www.github.com/NABI-SNU/homepage' }
       ],
     },
   ],
