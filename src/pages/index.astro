@@ -26,7 +26,13 @@ const metadata = {
       },
       { text: 'Join Us', href: 'https://forms.gle/di4rV24pK2jezSMG8' },
     ]}
-    image={{ src: '~/assets/images/hero-image.png', alt: 'Brain Hero Image' }}
+    image={
+      { 
+        src: '~/assets/images/hero-image.png', 
+        alt: 'Brain Hero Image', 
+        fetchpriority: 'high'
+      }
+    }
   >
     <Fragment slot="title">
       <span class="text-accent dark:text-accent-dark">NABI</span> Research Group
