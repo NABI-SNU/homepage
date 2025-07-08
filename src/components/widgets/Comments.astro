@@ -1,0 +1,28 @@
+---
+// Comments component using giscus with catppuccin themes
+const { lang = 'en' } = Astro.props;
+---
+
+<div id="giscus-container" class="giscus"></div>
+<script is:inline define:vars={{ lang }}>
+  const theme = document.documentElement.classList.contains('dark') ? 'catppuccin_frappe' : 'catppuccin_latte';
+  const attrs = {
+    src: 'https://giscus.app/client.js',
+    'data-repo': 'NABI-SNU/homepage',
+    'data-repo-id': 'R_kgDOOkMCBQ',
+    'data-category': 'General',
+    'data-category-id': 'DIC_kwDOOkMCBc4CskkE',
+    'data-mapping': 'pathname',
+    'data-strict': '1',
+    'data-reactions-enabled': '1',
+    'data-emit-metadata': '0',
+    'data-input-position': 'bottom',
+    'data-theme': theme,
+    'data-lang': lang,
+    crossorigin: 'anonymous',
+  };
+  const script = document.createElement('script');
+  Object.entries(attrs).forEach(([k, v]) => script.setAttribute(k, v));
+  script.async = true;
+  document.getElementById('giscus-container').appendChild(script);
+</script>

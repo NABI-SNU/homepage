@@ -1,6 +1,7 @@
 ---
 import Layout from '~/layouts/PageLayout.astro';
 import SocialShare from '~/components/common/SocialShare.astro';
+import Comments from '~/components/widgets/Comments.astro';
 
 import type { MetaData } from '~/types';
 
@@ -35,22 +36,6 @@ const metadata: MetaData = {
     />
   </div>
   <section class="px-4 py-16 sm:px-6 mx-auto lg:px-8 lg:py-20 max-w-4xl">
-    <div class="giscus"></div>
+    <Comments />
   </section>
 </Layout>
-
-<script
-  src="https://giscus.app/client.js"
-  data-repo="NABI-SNU/homepage"
-  data-repo-id="R_kgDOOkMCBQ"
-  data-category="General"
-  data-category-id="DIC_kwDOOkMCBc4CskkE"
-  data-mapping="pathname"
-  data-strict="1"
-  data-reactions-enabled="1"
-  data-emit-metadata="0"
-  data-input-position="bottom"
-  data-theme="preferred_color_scheme"
-  data-lang="en"
-  crossorigin="anonymous"
-  async></script>

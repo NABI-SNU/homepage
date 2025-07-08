@@ -4,6 +4,7 @@ import { Icon } from 'astro-icon/components';
 import Image from '~/components/common/Image.astro';
 import PostTags from '~/components/blog/Tags.astro';
 import SocialShare from '~/components/common/SocialShare.astro';
+import Comments from '~/components/widgets/Comments.astro';
 
 import { getPermalink } from '~/utils/permalinks';
 import { getFormattedDate } from '~/utils/utils';
@@ -25,7 +26,9 @@ const { post, url } = Astro.props;
         ? 'intersect-once intersect-quarter motion-safe:md:opacity-0 motion-safe:md:intersect:animate-fade'
         : 'intersect-once intersect-quarter motion-safe:md:opacity-0 motion-safe:md:intersect:animate-fade'}
     >
-      <div class="flex justify-between flex-col sm:flex-row max-w-3xl mx-auto mt-0 mb-2 px-4 sm:px-6 sm:items-center text-[15px]">
+      <div
+        class="flex justify-between flex-col sm:flex-row max-w-3xl mx-auto mt-0 mb-2 px-4 sm:px-6 sm:items-center text-[15px]"
+      >
         <p>
           <Icon name="tabler:clock" class="w-4 h-4 inline-block -mt-0.5 dark:text-gray-400" />
           <time datetime={String(post.publishDate)} class="inline-block">{getFormattedDate(post.publishDate)}</time>
@@ -104,22 +107,6 @@ const { post, url } = Astro.props;
   </article>
 
   <section class="px-4 py-14 sm:px-6 mx-auto lg:px-8 lg:py-18 max-w-4xl">
-    <div class="giscus"></div>
+    <Comments />
   </section>
 </section>
-
-<script
-  src="https://giscus.app/client.js"
-  data-repo="NABI-SNU/homepage"
-  data-repo-id="R_kgDOOkMCBQ"
-  data-category="General"
-  data-category-id="DIC_kwDOOkMCBc4CskkE"
-  data-mapping="pathname"
-  data-strict="1"
-  data-reactions-enabled="1"
-  data-emit-metadata="0"
-  data-input-position="bottom"
-  data-theme="preferred_color_scheme"
-  data-lang="en"
-  crossorigin="anonymous"
-  async></script>

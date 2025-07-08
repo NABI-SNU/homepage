@@ -72,7 +72,7 @@ import { UI } from 'astrowind:config';
       localStorage.theme = document.documentElement.classList.contains('dark') ? 'dark' : 'light';
 
       // Update theme for giscus iframe if it exists
-      const theme = document.documentElement.classList.contains('dark') ? 'dark' : 'light';
+      const theme = document.documentElement.classList.contains('dark') ? 'catppuccin_frappe' : 'catppuccin_latte';
       const giscusFrame = document.querySelector('iframe.giscus-frame');
 
       if (giscusFrame) {
