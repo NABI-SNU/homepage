@@ -71,9 +71,9 @@ export const footerData = {
     {
       title: 'Articles',
       links: [
-        { text: 'Meeting Notes', href: getBlogPermalink() },
+        { text: 'All Posts', href: getBlogPermalink() },
         { text: 'Monthly Meetings', href: getPermalink('monthly-meeting', 'category') },
-        { text: 'Bayesian Inference', href: getPermalink('bayesian-inference', 'tag') },
+        { text: 'Opinions', href: getPermalink('opinions', 'category') },
       ],
     },
     {
