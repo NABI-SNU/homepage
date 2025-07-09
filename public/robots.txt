@@ -1,3 +1,4 @@
 User-agent: *
 Allow: /
 Sitemap: https://nabiresearch.org/sitemap-index.xml
+# Algolia-Crawler-Verif: FD8C58E2026356FC
