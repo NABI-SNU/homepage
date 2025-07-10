@@ -15,17 +15,23 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Use Node.js v23
+      - name: Use Node.js v22
         uses: actions/setup-node@v4
         with:
-          node-version: 23
+          node-version: 22
           cache: npm
 
       - name: Install dependencies
         run: npm ci
 
+      - name: Check for errors
+        run: npm run check
+
       - name: Build the site
         run: npm run build
+      
+      - name: Run Pagefind
+        run: rm -r ./dist/pagefind && npm run pagefind
 
       - name: Upload built site (dist folder)
         uses: actions/upload-pages-artifact@v3
