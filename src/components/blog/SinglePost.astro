@@ -4,7 +4,6 @@ import { Icon } from 'astro-icon/components';
 import Image from '~/components/common/Image.astro';
 import PostTags from '~/components/blog/Tags.astro';
 import SocialShare from '~/components/common/SocialShare.astro';
-import Comments from '~/components/widgets/Comments.astro';
 import TableOfContents from '~/components/blog/TableOfContents.astro';
 
 import { getPermalink } from '~/utils/permalinks';
@@ -143,6 +142,3 @@ const hasToc = post?.headings && post.headings.length > 2;
   </div>
 </section>
 
-<section class="px-4 py-14 sm:px-6 mx-auto lg:px-8 lg:py-18 max-w-4xl clear-both">
-  <Comments />
-</section>

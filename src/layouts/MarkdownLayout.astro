@@ -1,7 +1,6 @@
 ---
 import Layout from '~/layouts/PageLayout.astro';
 import SocialShare from '~/components/common/SocialShare.astro';
-import Comments from '~/components/widgets/Comments.astro';
 
 import type { MetaData } from '~/types';
 
@@ -37,7 +36,4 @@ const metadata: MetaData = {
       class="mt-5 sm:mt-1 align-middle text-gray-500 dark:text-slate-600"
     />
   </div>
-  <section class="px-4 py-16 sm:px-6 mx-auto lg:px-8 lg:py-20 max-w-4xl">
-    <Comments />
-  </section>
 </Layout>

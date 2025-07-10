@@ -70,14 +70,6 @@ import { UI } from 'astrowind:config';
       }
       document.documentElement.classList.toggle('dark');
       localStorage.theme = document.documentElement.classList.contains('dark') ? 'dark' : 'light';
-
-      // Update theme for giscus iframe if it exists
-      const theme = document.documentElement.classList.contains('dark') ? 'catppuccin_frappe' : 'catppuccin_latte';
-      const giscusFrame = document.querySelector('iframe.giscus-frame');
-
-      if (giscusFrame) {
-        giscusFrame.contentWindow.postMessage({ giscus: { setConfig: { theme } } }, 'https://giscus.app');
-      }
     });
 
     attachEvent('[data-aw-social-share]', 'click', function (_, elem) {
