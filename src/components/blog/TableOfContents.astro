@@ -52,7 +52,7 @@ const { headings = [] } = Astro.props;
 </style>
 
 <script>
-  document.addEventListener('DOMContentLoaded', () => {
+  const init = () => {
     const list = document.getElementById('toc-list');
     if (list) {
       const links = Array.from(list.querySelectorAll('.toc-link'));
@@ -79,5 +79,13 @@ const { headings = [] } = Astro.props;
       document.addEventListener('scroll', updateActive, { passive: true });
       document.addEventListener('astro:after-swap', updateActive);
     }
-  });
+  };
+
+  if (document.readyState !== 'loading') {
+    init();
+  } else {
+    document.addEventListener('DOMContentLoaded', init, { once: true });
+  }
+
+  document.addEventListener('astro:page-load', init);
 </script>
