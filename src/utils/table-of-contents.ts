@@ -34,4 +34,4 @@ if (document.readyState !== 'loading') {
   document.addEventListener('DOMContentLoaded', initTableOfContents, { once: true });
 }
 
-document.addEventListener('astro:page-load', initTableOfContents); 
+document.addEventListener('astro:page-load', initTableOfContents);
