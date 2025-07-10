@@ -1,0 +1,81 @@
+---
+import type { MarkdownHeading } from 'astro';
+
+export interface Props {
+  title?: string;
+  headings: MarkdownHeading[] | undefined;
+}
+const { headings = []} = Astro.props;
+---
+
+<div class="px-4 sm:px-6 max-w-3xl mx-auto mt-4 text-sm">
+  <div class="max-h-[48vh] overflow-y-auto py-2 px-3">
+    <ul id="toc-list" class="space-y-2">
+      {headings?.map((heading, idx) => (
+        <li class={`relative ml-${(heading.depth - 2) * 4}`}>
+          <a 
+            href={`#${heading.slug}`} 
+            class="toc-link block pl-3 hover:underline transition-colors"
+            data-toc-idx={idx}
+          >
+            {heading.text}
+          </a>
+          {/* The accent bar will be added via JS or via CSS .active class */}
+        </li>
+      ))}
+    </ul>
+  </div>
+</div>
+
+<style>
+.toc-link.active {
+  font-weight: 600;
+  color: var(--aw-color-primary);
+}
+.toc-link.active::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0.35rem;
+  bottom: 0.35rem;
+  width: 0.20rem;
+  border-radius: 9999px;
+  background: var(--aw-color-primary);
+  transition: background 0.2s;
+}
+li.relative .toc-link {
+  position: relative;
+  display: block;
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  const list = document.getElementById('toc-list');
+  if (list) {
+    const links = Array.from(list.querySelectorAll('.toc-link'));
+    const targets = links.map((a) => {
+      const href = a.getAttribute('href') || '';
+      return document.getElementById(href.slice(1));
+    });
+
+    function updateActive() {
+      let activeIndex = -1;
+      for (let i = 0; i < targets.length; i++) {
+        const rect = targets[i]?.getBoundingClientRect();
+        if (rect && rect.top <= 120) activeIndex = i;
+      }
+      links.forEach((link, idx) => {
+        if (idx === activeIndex) {
+          link.classList.add('active');
+        } else {
+          link.classList.remove('active');
+        }
+      });
+    }
+    updateActive();
+    document.addEventListener('scroll', updateActive, { passive: true });
+    document.addEventListener('astro:after-swap', updateActive);
+  }
+});
+</script>
