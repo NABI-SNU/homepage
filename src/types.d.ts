@@ -112,15 +112,6 @@ export interface Headline {
   classes?: Record<string, string>;
 }
 
-interface TeamMember {
-  name?: string;
-  job?: string;
-  image?: Image;
-  socials?: Array<Social>;
-  description?: string;
-  classes?: Record<string, string>;
-}
-
 interface Social {
   icon?: string;
   href?: string;
@@ -140,26 +131,6 @@ export interface Item {
   classes?: Record<string, string>;
   callToAction?: CallToAction;
   image?: Image;
-}
-
-export interface Price {
-  title?: string;
-  subtitle?: string;
-  description?: string;
-  price?: number | string;
-  period?: string;
-  items?: Array<Item>;
-  callToAction?: CallToAction;
-  hasRibbon?: boolean;
-  ribbonTitle?: string;
-}
-
-export interface Testimonial {
-  title?: string;
-  testimonial?: string;
-  name?: string;
-  job?: string;
-  image?: string | unknown;
 }
 
 export interface Input {
@@ -222,26 +193,9 @@ export interface Hero extends Omit<Headline, 'classes'>, Omit<Widget, 'isDark' |
   image?: string | unknown;
 }
 
-export interface Team extends Omit<Headline, 'classes'>, Widget {
-  team?: Array<TeamMember>;
-}
 
 export interface Stats extends Omit<Headline, 'classes'>, Widget {
   stats?: Array<Stat>;
-}
-
-export interface Pricing extends Omit<Headline, 'classes'>, Widget {
-  prices?: Array<Price>;
-}
-
-export interface Testimonials extends Omit<Headline, 'classes'>, Widget {
-  testimonials?: Array<Testimonial>;
-  callToAction?: CallToAction;
-}
-
-export interface Brands extends Omit<Headline, 'classes'>, Widget {
-  icons?: Array<string>;
-  images?: Array<Image>;
 }
 
 export interface Features extends Omit<Headline, 'classes'>, Widget {
