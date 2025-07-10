@@ -1,0 +1,3 @@
+[submodule "paperfinder"]
+	path = paperfinder
+	url = https://github.com/NABI-SNU/paperfinder.git
