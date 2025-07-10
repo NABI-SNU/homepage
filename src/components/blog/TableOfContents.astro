@@ -1,5 +1,6 @@
 ---
 import type { MarkdownHeading } from 'astro';
+import '~/assets/styles/table-of-contents.css';
 
 export interface Props {
   title?: string;
@@ -21,7 +22,6 @@ const { headings = [] } = Astro.props;
             >
               {heading.text}
             </a>
-            {/* The accent bar will be added via JS or via CSS .active class */}
           </li>
         ))
       }
@@ -29,63 +29,4 @@ const { headings = [] } = Astro.props;
   </div>
 </div>
 
-<style>
-  .toc-link.active {
-    font-weight: 600;
-    color: var(--aw-color-primary);
-  }
-  .toc-link.active::before {
-    content: '';
-    position: absolute;
-    left: 0;
-    top: 0.35rem;
-    bottom: 0.35rem;
-    width: 0.2rem;
-    border-radius: 9999px;
-    background: var(--aw-color-primary);
-    transition: background 0.2s;
-  }
-  li.relative .toc-link {
-    position: relative;
-    display: block;
-  }
-</style>
-
-<script>
-  const init = () => {
-    const list = document.getElementById('toc-list');
-    if (list) {
-      const links = Array.from(list.querySelectorAll('.toc-link'));
-      const targets = links.map((a) => {
-        const href = a.getAttribute('href') || '';
-        return document.getElementById(href.slice(1));
-      });
-
-      function updateActive() {
-        let activeIndex = -1;
-        for (let i = 0; i < targets.length; i++) {
-          const rect = targets[i]?.getBoundingClientRect();
-          if (rect && rect.top <= 120) activeIndex = i;
-        }
-        links.forEach((link, idx) => {
-          if (idx === activeIndex) {
-            link.classList.add('active');
-          } else {
-            link.classList.remove('active');
-          }
-        });
-      }
-      updateActive();
-      document.addEventListener('scroll', updateActive, { passive: true });
-      document.addEventListener('astro:after-swap', updateActive);
-    }
-  };
-
-  if (document.readyState !== 'loading') {
-    init();
-  } else {
-    document.addEventListener('DOMContentLoaded', init, { once: true });
-  }
-
-  document.addEventListener('astro:page-load', init);
-</script>
+<script src="../../utils/table-of-contents.ts"></script>  

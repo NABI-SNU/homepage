@@ -1,0 +1,92 @@
+dialog::backdrop {
+    background-color: rgba(0, 0, 0, 0.5);
+  }
+  
+  /* Remove default dialog styles */
+  dialog {
+    border: none;
+    padding: 0;
+  }
+  
+  /* Custom scrollbar styles - Light mode */
+  dialog div {
+    scrollbar-width: thin;
+    scrollbar-color: #cbd5e0 #edf2f7;
+  }
+  
+  dialog div::-webkit-scrollbar {
+    width: 8px;
+  }
+  
+  dialog div::-webkit-scrollbar-track {
+    background: #edf2f7;
+  }
+  
+  dialog div::-webkit-scrollbar-thumb {
+    background-color: #cbd5e0;
+    border-radius: 4px;
+  }
+  
+  /* Dark mode scrollbar styles */
+  .dark dialog div {
+    scrollbar-color: #4a5568 #2d3748;
+  }
+  
+  .dark dialog div::-webkit-scrollbar-track {
+    background: #2d3748;
+  }
+  
+  .dark dialog div::-webkit-scrollbar-thumb {
+    background-color: #4a5568;
+  }
+  
+  /* Light mode pagefind styles */
+  :root {
+    --pagefind-ui-primary: #3b82f6;
+    --pagefind-ui-text: #374151;
+    --pagefind-ui-background: #ffffff;
+    --pagefind-ui-border: #d1d5db;
+    --pagefind-ui-tag: #f3f4f6;
+    --pagefind-ui-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  }
+  
+  /* Dark mode pagefind styles - applied via class */
+  .dark {
+    --pagefind-ui-primary: #63b3ed;
+    --pagefind-ui-text: #e2e8f0;
+    --pagefind-ui-background: #040620;
+    --pagefind-ui-border: #4a5568;
+    --pagefind-ui-tag: #2d3748;
+    --pagefind-ui-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  }
+  
+  @keyframes scale-down {
+    from {
+      opacity: 0;
+      transform: translate(-50%, -30%) scale(0.95);
+    }
+    to {
+      opacity: 1;
+      transform: translate(-50%, 0) scale(1);
+    }
+  }
+  
+  .animate-scale-down {
+    animation: scale-down 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  }
+  
+  /* Optional: Add animation for closing */
+  dialog[closing] {
+    animation: scale-up 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  }
+  
+  @keyframes scale-up {
+    from {
+      opacity: 1;
+      transform: translate(-50%, 0) scale(1);
+    }
+    to {
+      opacity: 0;
+      transform: translate(-50%, -30%) scale(0.95);
+    }
+  }
