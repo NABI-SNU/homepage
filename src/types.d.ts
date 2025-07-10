@@ -195,7 +195,6 @@ export interface Hero extends Omit<Headline, 'classes'>, Omit<Widget, 'isDark' |
   image?: string | unknown;
 }
 
-
 export interface Stats extends Omit<Headline, 'classes'>, Widget {
   stats?: Array<Stat>;
 }

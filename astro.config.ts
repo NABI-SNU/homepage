@@ -79,10 +79,7 @@ export default defineConfig({
   ],
 
   image: {
-    domains: [
-      'cdn.pixabay.com',
-      'img-svr.nabiresearch.workers.dev',
-    ],
+    domains: ['cdn.pixabay.com', 'img-svr.nabiresearch.workers.dev'],
   },
 
   markdown: {

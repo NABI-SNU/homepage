@@ -23,11 +23,13 @@ const hasToc = post?.headings && post.headings.length > 2;
 ---
 
 <section class="py-7 sm:py-14 lg:py-18 mx-auto relative max-w-6xl">
-  {hasToc ? (
-    <aside class="hidden lg:block w-60 float-right sticky top-28">
-      <TableOfContents headings={post.headings} />
-    </aside>
-  ) : null}
+  {
+    hasToc ? (
+      <aside class="hidden lg:block w-60 float-right sticky top-28">
+        <TableOfContents headings={post.headings} />
+      </aside>
+    ) : null
+  }
 
   <article class="mx-auto max-w-3xl px-4 sm:px-6 lg:mr-72">
     <header
@@ -35,32 +37,37 @@ const hasToc = post?.headings && post.headings.length > 2;
         ? 'intersect-once intersect-quarter motion-safe:md:opacity-0 motion-safe:md:intersect:animate-fade'
         : 'intersect-once intersect-quarter motion-safe:md:opacity-0 motion-safe:md:intersect:animate-fade'}
     >
-      <div
-        class="max-w-3xl mx-auto mt-0 mb-2 px-4 sm:px-6 sm:items-center text-[15px]"
-      >
+      <div class="max-w-3xl mx-auto mt-0 mb-2 px-4 sm:px-6 sm:items-center text-[15px]">
         <p>
           <Icon name="tabler:clock" class="w-4 h-4 inline-block -mt-0.5 dark:text-gray-400" />
           <time datetime={String(post.publishDate)} class="inline-block">{getFormattedDate(post.publishDate)}</time>
-          {post.author && (
-            <>
-              {' '}·{' '}
-              <Icon name="tabler:user" class="w-4 h-4 inline-block -mt-0.5 dark:text-gray-400" />
-              <span class="inline-block">{post.author}</span>
-            </>
-          )}
-          {post.category && (
-            <>
-              {' '}·{' '}
-              <a class="hover:underline inline-block" href={getPermalink(post.category.slug, 'category')}>
-                {post.category.title}
-              </a>
-            </>
-          )}
-          {post.readingTime && (
-            <>
-              &nbsp;· <span>{post.readingTime}</span> min read
-            </>
-          )}
+          {
+            post.author && (
+              <>
+                {' '}
+                · <Icon name="tabler:user" class="w-4 h-4 inline-block -mt-0.5 dark:text-gray-400" />
+                <span class="inline-block">{post.author}</span>
+              </>
+            )
+          }
+          {
+            post.category && (
+              <>
+                {' '}
+                ·{' '}
+                <a class="hover:underline inline-block" href={getPermalink(post.category.slug, 'category')}>
+                  {post.category.title}
+                </a>
+              </>
+            )
+          }
+          {
+            post.readingTime && (
+              <>
+                &nbsp;· <span>{post.readingTime}</span> min read
+              </>
+            )
+          }
         </p>
       </div>
 
@@ -75,47 +82,51 @@ const hasToc = post?.headings && post.headings.length > 2;
         {post.excerpt}
       </p>
 
-      {post.image ? (
-        <Image
-          src={post.image}
-          class="max-w-full lg:max-w-[900px] mx-auto mb-6 sm:rounded-md bg-gray-400 dark:bg-slate-700"
-          widths={[320, 720]}
-          sizes="(max-width: 720px) 320px, 720px"
-          alt={post?.excerpt || ''}
-          width={720}
-          height={480}
-          loading="eager"
-          decoding="async"
-        />
-      ) : (
-        <div class="max-w-3xl mx-auto px-4 sm:px-6">
-          <div class="border-t dark:border-slate-700" />
-        </div>
-      )}
+      {
+        post.image ? (
+          <Image
+            src={post.image}
+            class="max-w-full lg:max-w-[900px] mx-auto mb-6 sm:rounded-md bg-gray-400 dark:bg-slate-700"
+            widths={[320, 720]}
+            sizes="(max-width: 720px) 320px, 720px"
+            alt={post?.excerpt || ''}
+            width={720}
+            height={480}
+            loading="eager"
+            decoding="async"
+          />
+        ) : (
+          <div class="max-w-3xl mx-auto px-4 sm:px-6">
+            <div class="border-t dark:border-slate-700" />
+          </div>
+        )
+      }
     </header>
 
     <!-- ▸ Mobile toggleable TOC -->
-    {hasToc ? (
-      <div class="lg:hidden px-4 sm:px-6 max-w-3xl mx-auto mt-4">
-        <details class="border rounded-md">
-          <summary class="cursor-pointer py-2 px-3 font-semibold flex items-center gap-1">
-            <Icon name="tabler:list" class="w-5 h-5" />
-            Table of Contents
-          </summary>
-          <div class="max-h-[60vh] overflow-y-auto py-2 px-3">
-            <ul id="toc-list" class="space-y-1">
-              {post.headings?.map((heading) => (
-                <li class={`ml-${(heading.depth - 2) * 4}`}>
-                  <a href={`#${heading.slug}`} class="toc-link block hover:underline">
-                    {heading.text}
-                  </a>
-                </li>
-              ))}
-            </ul>
-          </div>
-        </details>
-      </div>
-    ) : null}
+    {
+      hasToc ? (
+        <div class="lg:hidden px-4 sm:px-6 max-w-3xl mx-auto mt-4">
+          <details class="border rounded-md">
+            <summary class="cursor-pointer py-2 px-3 font-semibold flex items-center gap-1">
+              <Icon name="tabler:list" class="w-5 h-5" />
+              Table of Contents
+            </summary>
+            <div class="max-h-[60vh] overflow-y-auto py-2 px-3">
+              <ul id="toc-list" class="space-y-1">
+                {post.headings?.map((heading) => (
+                  <li class={`ml-${(heading.depth - 2) * 4}`}>
+                    <a href={`#${heading.slug}`} class="toc-link block hover:underline">
+                      {heading.text}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </details>
+        </div>
+      ) : null
+    }
 
     <div
       class="mx-auto px-6 sm:px-6 max-w-3xl prose prose-lg dark:prose-invert dark:prose-headings:text-slate-300 prose-headings:font-heading prose-headings:leading-tight prose-headings:tracking-tight prose-headings:font-semibold prose-a:text-primary dark:prose-a:text-blue-400 prose-img:rounded-md mt-7 prose-headings:scroll-mt-[48px] prose-li:my-0 clear-both"
@@ -135,4 +146,3 @@ const hasToc = post?.headings && post.headings.length > 2;
 <section class="px-4 py-14 sm:px-6 mx-auto lg:px-8 lg:py-18 max-w-4xl clear-both">
   <Comments />
 </section>
-

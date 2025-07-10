@@ -44,6 +44,7 @@ const metadata = merge(
   { ...(post?.metadata ? { ...post.metadata, canonical: post.metadata?.canonical || url } : {}) }
 ) as MetaData;
 ---
+
 <Layout metadata={metadata}>
   <pagefind-main>
     <SinglePost post={{ ...post, image: image }} url={url}>

@@ -81,7 +81,7 @@ export const footerData = {
       links: [
         { text: 'Research', href: getPermalink('/research') },
         { text: 'Monthly Papers', href: getPermalink('/monthly') },
-        { text: 'Source Code', href:'https://www.github.com/NABI-SNU/homepage' }
+        { text: 'Source Code', href: 'https://www.github.com/NABI-SNU/homepage' },
       ],
     },
   ],
