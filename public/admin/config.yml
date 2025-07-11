@@ -1,14 +1,15 @@
 backend:
   name: git-gateway
   branch: main
+  email_confirmation: true
 
 media_folder: 'src/assets/images'
 public_folder: '/_astro'
 
 collections:
-  - name: 'posts'
+  - name: 'post'
     label: 'Posts'
-    folder: 'src/data/posts'
+    folder: 'src/data/post'
     create: true
     fields:
       - { label: 'Title', name: 'title', widget: 'string' }
