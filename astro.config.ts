@@ -7,6 +7,7 @@ import sitemap from '@astrojs/sitemap';
 import tailwind from '@astrojs/tailwind';
 import mdx from '@astrojs/mdx';
 import partytown from '@astrojs/partytown';
+import svelte from '@astrojs/svelte';
 import icon from 'astro-icon';
 import compress from 'astro-compress';
 import pagefind from 'astro-pagefind';
@@ -38,6 +39,7 @@ export default defineConfig({
       },
     }),
     mdx(),
+    svelte(),
     icon({
       include: {
         tabler: ['*'],
