@@ -1,0 +1,29 @@
+---
+import Layout from '~/layouts/PageLayout.astro';
+import Headline from '~/components/blog/Headline.astro';
+import Steps from '~/components/widgets/Steps.astro';
+import { getLatestMonthlyItems, type MonthlyItem } from '~/utils/monthly';
+
+const monthlyItems: MonthlyItem[] = await getLatestMonthlyItems();
+
+const metadata = {
+  title: 'Resources',
+  description:
+    'Monthly highlights featuring curated research papers and resources in computational neuroscience and AI.',
+};
+---
+
+<Layout metadata={metadata}>
+  <!-- Steps Widget ****************** -->
+  <section class="px-6 sm:px-6 py-12 sm:py-16 lg:py-20 mx-auto max-w-4xl">
+    <Headline subtitle="Curated computational neuroscience papers each month"> Monthly Highlights </Headline>
+  </section>
+  <Steps
+    title="The Latest in NeuroAI"
+    items={monthlyItems}
+    image={{
+      src: 'https://images.unsplash.com/photo-1616198814651-e71f960c3180?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=987&q=80',
+      alt: 'Steps image',
+    }}
+  />
+</Layout>

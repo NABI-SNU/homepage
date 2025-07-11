@@ -98,6 +98,12 @@ const getNormalizedPost = async (post: CollectionEntry<'post'>): Promise<Post> =
 
     readingTime: remarkPluginFrontmatter?.readingTime,
     headings: headings,
+    reference: data.reference
+      ? {
+          ...data.reference,
+          articleUrl: data.reference.url || '',
+        }
+      : undefined,
   };
 };
 

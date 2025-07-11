@@ -1,0 +1,39 @@
+---
+import Layout from '~/layouts/PageLayout.astro';
+import HeroText from '~/components/widgets/HeroText.astro';
+import { ExternalLink } from 'lucide-svelte';
+import { getAllPapers } from '~/utils/papers';
+
+const papers = await getAllPapers();
+const metadata = { title: 'Papers' };
+---
+
+<Layout metadata={metadata}>
+  <HeroText tagline="References" title="Database of NeuroAI Papers" />
+
+  <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 max-w-5xl mx-auto mt-8 pb-12 md:pb-16 lg:pb-20">
+    {
+      papers.map((paper) => (
+        <div class="p-4 border rounded-md shadow-md dark:border-slate-700 flex flex-col">
+          <h3 class="text-xl font-bold">{paper.title}</h3>
+          <p class="text-sm text-muted">{paper.authors.join(', ')}</p>
+          <p class="text-sm text-muted">
+            {paper.sources.map((source) => (
+              <span>
+                <em>As covered in</em> <a href={source.url} class="text-primary inline-flex items-center gap-1">
+                  {source.title.substring(0, 12)}{source.title.length > 12 ? '...' : ''}
+                </a>
+              </span>
+            ))}
+          </p>
+          <p class="mt-auto">
+            <a class="text-black font-bold inline-flex items-center gap-1 dark:text-white" href={paper.articleUrl}>
+              <ExternalLink class="w-3 h-3" />
+              {paper.journal} ({paper.year})
+            </a>
+          </p>
+        </div>
+      ))
+    }
+  </div>
+</Layout>

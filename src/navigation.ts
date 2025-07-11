@@ -41,8 +41,12 @@ export const headerData = {
           href: getPermalink('/research'),
         },
         {
-          text: 'Monthly Papers',
-          href: getPermalink('/monthly'),
+          text: 'News',
+          href: getPermalink('/news'),
+        },
+        {
+          text: 'Papers',
+          href: getPermalink('/references'),
         },
       ],
     },
@@ -80,7 +84,8 @@ export const footerData = {
       title: 'Resources',
       links: [
         { text: 'Research', href: getPermalink('/research') },
-        { text: 'Monthly Papers', href: getPermalink('/monthly') },
+        { text: 'News', href: getPermalink('/news') },
+        { text: 'Papers', href: getPermalink('/references') },
         { text: 'Source Code', href: 'https://www.github.com/NABI-SNU/homepage' },
       ],
     },

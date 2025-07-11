@@ -46,6 +46,15 @@ const metadataDefinition = () =>
     })
     .optional();
 
+const paperSchema = z.object({
+  title: z.string(),
+  authors: z.array(z.string()),
+  journal: z.string().optional(),
+  year: z.number().optional(),
+  doi: z.string().optional(),
+  url: z.string().optional(),
+});
+
 const postCollection = defineCollection({
   loader: glob({ pattern: ['*.md', '*.mdx'], base: 'src/data/post' }),
   schema: z.object({
@@ -61,10 +70,27 @@ const postCollection = defineCollection({
     tags: z.array(z.string()).optional(),
     author: z.string().optional(),
 
+    reference: paperSchema.optional(),
+    bibtex: z.string().optional(),
+
     metadata: metadataDefinition(),
+  }),
+});
+
+const newsCollection = defineCollection({
+  loader: glob({ pattern: ['*.md', '*.mdx'], base: 'src/data/news' }),
+  schema: z.object({
+    title: z.string(),
+    description: z.string().optional(),
+    image: z.string().optional(),
+    href: z.string().optional(),
+    date: z.string().optional(),
+    references: z.array(paperSchema).optional(),
+    bibtex: z.string().optional(),
   }),
 });
 
 export const collections = {
   post: postCollection,
+  news: newsCollection,
 };
