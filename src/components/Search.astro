@@ -2,6 +2,7 @@
 import PageFindSearch from 'astro-pagefind/components/Search';
 import { Icon } from 'astro-icon/components';
 import '~/assets/styles/pagefind-ui.css';
+import SearchInit from '~/components/SearchInit.svelte';
 ---
 
 <button
@@ -60,4 +61,4 @@ import '~/assets/styles/pagefind-ui.css';
   </div>
 </dialog>
 
-<script src="../utils/pagefind.ts"></script>
+<SearchInit client:load />
