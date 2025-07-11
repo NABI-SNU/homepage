@@ -1,19 +1,19 @@
 .toc-link.active {
-    font-weight: 600;
-    color: var(--aw-color-primary);
-  }
-  .toc-link.active::before {
-    content: '';
-    position: absolute;
-    left: 0;
-    top: 0.35rem;
-    bottom: 0.35rem;
-    width: 0.2rem;
-    border-radius: 9999px;
-    background: var(--aw-color-primary);
-    transition: background 0.2s;
-  }
-  li.relative .toc-link {
-    position: relative;
-    display: block;
-  }
+  font-weight: 600;
+  color: var(--aw-color-primary);
+}
+.toc-link.active::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0.35rem;
+  bottom: 0.35rem;
+  width: 0.2rem;
+  border-radius: 9999px;
+  background: var(--aw-color-primary);
+  transition: background 0.2s;
+}
+li.relative .toc-link {
+  position: relative;
+  display: block;
+}

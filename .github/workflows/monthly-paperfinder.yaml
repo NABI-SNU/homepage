@@ -21,12 +21,12 @@ jobs:
           python-version: '3.11'
 
       - name: Install paperfinder
-        run: pip install git+https://github.com/NABI-SNU/paperfinder
+        run: cd paperfinder && pip install -e .
 
       - name: Generate monthly MDX
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
-        run: python scripts/generate_monthly_mdx.py
+        run: python paperfinder/generate.py
 
       - name: Commit changes
         run: |

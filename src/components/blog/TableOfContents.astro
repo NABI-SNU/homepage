@@ -2,6 +2,8 @@
 import type { MarkdownHeading } from 'astro';
 import '~/assets/styles/table-of-contents.css';
 
+import TableOfContentsInit from './TableOfContentsInit.svelte';
+
 export interface Props {
   title?: string;
   headings: MarkdownHeading[] | undefined;
@@ -29,4 +31,4 @@ const { headings = [] } = Astro.props;
   </div>
 </div>
 
-<script src="../../utils/table-of-contents.ts"></script>  
+<TableOfContentsInit client:load />

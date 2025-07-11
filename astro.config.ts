@@ -7,11 +7,14 @@ import sitemap from '@astrojs/sitemap';
 import tailwind from '@astrojs/tailwind';
 import mdx from '@astrojs/mdx';
 import partytown from '@astrojs/partytown';
+import svelte from '@astrojs/svelte';
 import icon from 'astro-icon';
 import compress from 'astro-compress';
 import pagefind from 'astro-pagefind';
 import type { AstroIntegration } from 'astro';
 
+import remarkMath from 'remark-math';
+import rehypeKatex from 'rehype-katex';
 import astrowind from './vendor/integration';
 
 import { readingTimeRemarkPlugin, responsiveTablesRehypePlugin, lazyImagesRehypePlugin } from './src/utils/frontmatter';
@@ -36,6 +39,7 @@ export default defineConfig({
       },
     }),
     mdx(),
+    svelte(),
     icon({
       include: {
         tabler: ['*'],
@@ -83,8 +87,8 @@ export default defineConfig({
   },
 
   markdown: {
-    remarkPlugins: [readingTimeRemarkPlugin],
-    rehypePlugins: [responsiveTablesRehypePlugin, lazyImagesRehypePlugin],
+    remarkPlugins: [readingTimeRemarkPlugin, remarkMath],
+    rehypePlugins: [responsiveTablesRehypePlugin, lazyImagesRehypePlugin, rehypeKatex],
   },
 
   vite: {

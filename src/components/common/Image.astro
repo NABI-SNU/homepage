@@ -1,6 +1,7 @@
 ---
 import type { HTMLAttributes } from 'astro/types';
 import { findImage } from '~/utils/images';
+import HydratedImage from '~/components/common/HydratedImage.svelte';
 import {
   getImagesOptimized,
   astroAssetsOptimizer,
@@ -56,6 +57,10 @@ if (
   !image ? (
     <Fragment />
   ) : (
-    <img src={image.src} crossorigin="anonymous" referrerpolicy="no-referrer" {...image.attributes} />
+    <HydratedImage
+      client:load
+      src={image.src}
+      attributes={{ ...image.attributes, crossorigin: 'anonymous', referrerpolicy: 'no-referrer' }}
+    />
   )
 }

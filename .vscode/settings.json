@@ -1,4 +1,5 @@
 {
+  "editor.tabSize": 2,
   "css.customData": ["./vscode.tailwind.json"],
   "eslint.validate": ["javascript", "javascriptreact", "astro", "typescript", "typescriptreact"],
   "files.associations": {
