@@ -3,6 +3,7 @@ import { getCollection, render, type CollectionEntry } from 'astro:content';
 import Layout from '~/layouts/PageLayout.astro';
 import SingleMonth from '~/components/news/SingleMonth.svelte';
 import SocialShare from '~/components/common/SocialShare.astro';
+import { getCanonical } from '~/utils/permalinks';
 
 export async function getStaticPaths() {
   const entries = (await getCollection('news')) as CollectionEntry<'news'>[];
@@ -23,6 +24,8 @@ const entry = ((await getCollection('news')) as CollectionEntry<'news'>[]).find(
   (e) => e.id === id
 ) as CollectionEntry<'news'>;
 
+const url = getCanonical(String(Astro.url.pathname));
+
 const { Content } = await render(entry);
 
 const metadata = {
@@ -42,18 +45,14 @@ const metadata = {
         date: entry.data.date || '',
         references: entry.data.references || [],
       }}
-      url={Astro.url}
+      url={url}
     >
       <Content />
     </SingleMonth>
   </pagefind-main>
   <div class="max-w-3xl mx-auto mb-12">
     <section id="news-footer">
-      <SocialShare
-        url={Astro.url}
-        text={entry.data.title}
-        class="flex items-center gap-3 text-gray-500 dark:text-gray-400"
-      />
+      <SocialShare url={url} text={entry.data.title} class="flex items-center gap-3 text-gray-500 dark:text-gray-400" />
     </section>
   </div>
 </Layout>
