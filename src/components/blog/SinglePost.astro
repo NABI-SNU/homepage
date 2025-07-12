@@ -102,31 +102,6 @@ const hasToc = post?.headings && post.headings.length > 2;
       }
     </header>
 
-    <!-- ▸ Mobile toggleable TOC -->
-    {
-      hasToc ? (
-        <div class="lg:hidden px-4 sm:px-6 max-w-3xl mx-auto mt-4">
-          <details class="border rounded-md">
-            <summary class="cursor-pointer py-2 px-3 font-semibold flex items-center gap-1">
-              <Icon name="tabler:list" class="w-5 h-5" />
-              Table of Contents
-            </summary>
-            <div class="max-h-[60vh] overflow-y-auto py-2 px-3">
-              <ul id="toc-list" class="space-y-1">
-                {post.headings?.map((heading) => (
-                  <li class={`ml-${(heading.depth - 2) * 4}`}>
-                    <a href={`#${heading.slug}`} class="toc-link block hover:underline">
-                      {heading.text}
-                    </a>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          </details>
-        </div>
-      ) : null
-    }
-
     <div
       class="mx-auto px-6 sm:px-6 max-w-3xl prose prose-lg dark:prose-invert dark:prose-headings:text-slate-300 prose-headings:font-heading prose-headings:leading-tight prose-headings:tracking-tight prose-headings:font-semibold prose-a:text-primary dark:prose-a:text-blue-400 prose-img:rounded-md mt-7 prose-headings:scroll-mt-[48px] prose-li:my-0 clear-both"
     >
