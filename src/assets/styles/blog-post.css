@@ -1,0 +1,90 @@
+/* Custom scrollbar for webkit browsers */
+:global(html) {
+  scroll-behavior: smooth;
+}
+
+/* Enhance focus states for accessibility */
+:global(a:focus-visible) {
+  outline: 2px solid theme('colors.primary');
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* Smooth transitions for dark mode */
+:global(*) {
+  transition-property: color, background-color, border-color;
+  transition-duration: 200ms;
+  transition-timing-function: ease-in-out;
+}
+
+/* Enhanced prose styles */
+:global(.prose h2::before) {
+  content: '';
+  display: block;
+  width: 3rem;
+  height: 2px;
+  background: linear-gradient(to right, theme('colors.primary'), theme('colors.blue.400'));
+  margin-bottom: 1rem;
+  border-radius: 1px;
+}
+
+/* Improved code block styling */
+:global(.prose pre) {
+  position: relative;
+  overflow-x: auto;
+}
+
+:global(.prose pre::before) {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(to right, transparent, theme('colors.gray.400'), transparent);
+}
+
+/* Enhanced blockquote styling */
+:global(.prose blockquote) {
+  position: relative;
+  font-style: italic;
+}
+
+:global(.prose blockquote::before) {
+  content: '"';
+  position: absolute;
+  top: -0.5rem;
+  left: -0.5rem;
+  font-size: 3rem;
+  color: theme('colors.primary');
+  opacity: 0.3;
+  font-family: serif;
+}
+
+/* Table of contents enhancements */
+:global(.toc-link) {
+  position: relative;
+  padding-left: 1rem;
+  transition: all 0.2s ease;
+}
+
+:global(.toc-link:hover) {
+  color: theme('colors.primary');
+  transform: translateX(0.25rem);
+}
+
+:global(.toc-link.active) {
+  color: theme('colors.primary');
+  font-weight: 600;
+}
+
+:global(.toc-link.active::before) {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0.35rem;
+  bottom: 0.35rem;
+  width: 0.2rem;
+  border-radius: 9999px;
+  background: theme('colors.primary');
+}
