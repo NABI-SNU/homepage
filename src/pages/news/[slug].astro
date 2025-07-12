@@ -2,6 +2,7 @@
 import { getCollection, render, type CollectionEntry } from 'astro:content';
 import Layout from '~/layouts/PageLayout.astro';
 import SingleMonth from '~/components/news/SingleMonth.svelte';
+import SocialShare from '~/components/common/SocialShare.astro';
 
 export async function getStaticPaths() {
   const entries = (await getCollection('news')) as CollectionEntry<'news'>[];
@@ -46,4 +47,13 @@ const metadata = {
       <Content />
     </SingleMonth>
   </pagefind-main>
+  <div class="max-w-3xl mx-auto mb-12">
+    <section id="news-footer">
+      <SocialShare
+        url={Astro.url}
+        text={entry.data.title}
+        class="flex items-center gap-3 text-gray-500 dark:text-gray-400"
+      />
+    </section>
+  </div>
 </Layout>
