@@ -7,7 +7,7 @@ import PostTags from '~/components/blog/Tags.astro';
 import { APP_BLOG } from 'astrowind:config';
 import type { Post } from '~/types';
 
-import { getPermalink } from '~/utils/permalinks';
+import { getPermalink, cleanSlug } from '~/utils/permalinks';
 import { findImage } from '~/utils/images';
 import { getFormattedDate } from '~/utils/utils';
 
@@ -22,12 +22,34 @@ const link = APP_BLOG?.post?.isEnabled ? getPermalink(post.permalink, 'post') : 
 ---
 
 <article
-  class={`max-w-md mx-auto md:max-w-none grid gap-6 md:gap-8 intersect-once intersect-quarter motion-safe:md:opacity-0 motion-safe:md:intersect:animate-fade ${image ? 'md:grid-cols-2' : ''}`}
+  class={`group relative p-4 rounded-xl shadow-sm
+      transition-all duration-300 ease-out hover:shadow-xl hover:shadow-blue-500/10 dark:hover:shadow-blue-400/10
+      hover:scale-[1.02] hover:-translate-y-1 bg-white dark:bg-[#040620] hover:bg-gradient-to-br hover:from-white hover:to-blue-50/30
+      dark:hover:from-slate-900 dark:hover:to-blue-950/20 overflow-hidden
+      max-w-md mx-auto md:max-w-none grid gap-6 md:gap-8 intersect-once intersect-quarter motion-safe:md:opacity-0 motion-safe:md:intersect:animate-fade ${image ? 'md:grid-cols-2' : ''}`}
 >
+  <div
+    class="absolute inset-0 bg-gradient-to-r from-blue-500/5 to-purple-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500"
+  >
+  </div>
+  <div
+    class="absolute -top-1 -left-1 w-8 h-8 bg-gradient-to-br from-blue-400/20 to-purple-400/20 rounded-full blur-sm opacity-0 group-hover:opacity-100 transition-all duration-500 ease-out group-hover:scale-150"
+  >
+  </div>
+  <div
+    class="absolute bottom-4 right-4 w-2 h-2
+        bg-gradient-to-r from-green-400 to-blue-500
+        rounded-full
+        opacity-0 group-hover:opacity-100
+        transition-all duration-300 ease-out
+        group-hover:scale-125 group-hover:shadow-lg group-hover:shadow-blue-500/50"
+  >
+  </div>
+
   {
     image &&
       (link ? (
-        <a class="relative block group" href={link ?? 'javascript:void(0)'}>
+        <a class="relative block" href={link ?? 'javascript:void(0)'}>
           <div class="relative h-0 pb-[56.25%] md:pb-[75%] md:h-72 lg:pb-[56.25%] overflow-hidden bg-gray-400 dark:bg-slate-700 rounded shadow-lg">
             {image && (
               <Image
@@ -73,7 +95,9 @@ const link = APP_BLOG?.post?.isEnabled ? getPermalink(post.permalink, 'post') : 
               <>
                 {' '}
                 · <Icon name="tabler:user" class="w-3.5 h-3.5 inline-block -mt-0.5 dark:text-gray-400" />
-                <span>{post.author.replaceAll('-', ' ')}</span>
+                <a href={`/people#${cleanSlug(post.author)}`} class="hover:underline">
+                  {post.author.replaceAll('-', ' ')}
+                </a>
               </>
             )
           }

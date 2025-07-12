@@ -18,8 +18,21 @@ const link = APP_BLOG?.post?.isEnabled ? getPermalink(post.permalink, 'post') : 
 ---
 
 <article
-  class="mb-6 transition intersect-once intersect-quarter motion-safe:md:opacity-0 motion-safe:md:intersect:animate-fade"
+  class="group relative mb-6 p-4 rounded-xl shadow-sm
+    transition-all duration-300 ease-out intersect-once intersect-quarter motion-safe:md:opacity-0 motion-safe:md:intersect:animate-fade
+    hover:shadow-xl hover:shadow-blue-500/10 dark:hover:shadow-blue-400/10 hover:scale-[1.02] hover:-translate-y-1
+    bg-white dark:bg-[#040620] hover:bg-gradient-to-br hover:from-white hover:to-blue-50/30
+    dark:hover:from-slate-900 dark:hover:to-blue-950/20 overflow-hidden"
 >
+  <div
+    class="absolute inset-0 bg-gradient-to-r from-blue-500/5 to-purple-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500"
+  >
+  </div>
+  <div
+    class="absolute -top-1 -left-1 w-8 h-8 bg-gradient-to-br from-blue-400/20 to-purple-400/20 rounded-full blur-sm opacity-0 group-hover:opacity-100 transition-all duration-500 ease-out group-hover:scale-150"
+  >
+  </div>
+
   <div class="relative md:h-64 bg-gray-400 dark:bg-slate-700 rounded shadow-lg mb-6">
     {
       image &&
