@@ -1,7 +1,6 @@
 ---
 import type { HTMLAttributes } from 'astro/types';
 import { findImage } from '~/utils/images';
-import HydratedImage from '~/components/common/HydratedImage.svelte';
 import {
   getImagesOptimized,
   astroAssetsOptimizer,
@@ -10,57 +9,41 @@ import {
   type ImageProps,
 } from '~/utils/images-optimization';
 
-type Props = ImageProps;
-type ImageType = {
-  src: string;
-  attributes: HTMLAttributes<'img'>;
-};
+import { Image as AstroImage } from 'astro:assets';
 
-const props = Astro.props;
+const props = Astro.props as ImageProps;
 
-if (props.alt === undefined || props.alt === null) {
-  throw new Error();
-}
+// validation/fall-backs
+if (props.alt == null) throw new Error('`alt` is required for accessibility');
+props.loading ??= 'lazy';
+props.decoding ??= 'async';
+if (typeof props.width === 'string') props.width = parseInt(props.width);
+if (typeof props.height === 'string') props.height = parseInt(props.height);
 
-if (typeof props.width === 'string') {
-  props.width = parseInt(props.width);
-}
-
-if (typeof props.height === 'string') {
-  props.height = parseInt(props.height);
-}
-
-if (!props.loading) {
-  props.loading = 'lazy';
-}
-
-if (!props.decoding) {
-  props.decoding = 'async';
-}
-
+// Resolve & optimize
 const _image = await findImage(props.src);
-
-let image: ImageType | undefined = undefined;
-
-if (
-  typeof _image === 'string' &&
-  (_image.startsWith('http://') || _image.startsWith('https://')) &&
-  isUnpicCompatible(_image)
-) {
-  image = await getImagesOptimized(_image, props, unpicOptimizer);
+let imageInfo;
+if (typeof _image === 'string' && isUnpicCompatible(_image)) {
+  imageInfo = await getImagesOptimized(_image, props, unpicOptimizer);
 } else if (_image) {
-  image = await getImagesOptimized(_image, props, astroAssetsOptimizer);
+  imageInfo = await getImagesOptimized(_image, props, astroAssetsOptimizer);
 }
 ---
 
-{
-  !image ? (
-    <Fragment />
-  ) : (
-    <HydratedImage
-      client:load
-      src={image.src}
-      attributes={{ ...image.attributes, crossorigin: 'anonymous', referrerpolicy: 'no-referrer' }}
-    />
-  )
-}
+{imageInfo ? (
+  <AstroImage
+    src={_image}
+    {...imageInfo.attributes}
+    {...props /* forward widths/sizes/layout if you passed them */}
+  />
+) : (
+  <img
+    src={typeof props.src === 'string' ? props.src : ''}
+    alt={props.alt}
+    width={props.width}
+    height={props.height}
+    loading={props.loading}
+    decoding={props.decoding}
+    {...(props as HTMLAttributes<'img'>)}
+  />
+)}

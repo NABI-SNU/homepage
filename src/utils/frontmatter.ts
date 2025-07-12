@@ -43,7 +43,29 @@ export const lazyImagesRehypePlugin: RehypePlugin = () => {
 
     visit(tree, 'element', function (node) {
       if (node.tagName === 'img') {
+        // Add lazy loading
         node.properties.loading = 'lazy';
+        
+        // Add decoding attribute for better performance
+        node.properties.decoding = 'async';
+        
+        // Ensure width and height are present for better CLS
+        if (!node.properties.width && !node.properties.height) {
+          // Try to extract from style attribute
+          const style = node.properties.style as string;
+          if (style && style.includes('width:')) {
+            const widthMatch = style.match(/width:\s*(\d+)%/);
+            if (widthMatch) {
+              // For percentage widths, set a reasonable default
+              node.properties.width = '800';
+              node.properties.height = '400';
+            }
+          } else {
+            // Default dimensions for images without explicit width/height
+            node.properties.width = '800';
+            node.properties.height = '400';
+          }
+        }
       }
     });
   };

@@ -3,6 +3,8 @@ import Layout from '~/layouts/PageLayout.astro';
 import HeroText from '~/components/widgets/HeroText.astro';
 import { Icon } from 'astro-icon/components';
 
+import { cleanSlug } from '~/utils/permalinks';
+
 const metadata = {
   title: 'People',
   description: 'Meet the members and collaborators of the NABI Research Group.',
@@ -48,7 +50,10 @@ const people: Person[] = [
   <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 max-w-6xl mx-auto mt-8 pb-12 md:pb-16 lg:pb-20">
     {
       people.map((person) => (
-        <div class="p-4 border rounded-md shadow-md dark:border-slate-700">
+        <div
+          id={cleanSlug(person.name)}
+          class="p-4 border rounded-md shadow-md dark:border-slate-700"
+        >
           <h3 class="text-xl font-bold">{person.name}</h3>
           <p class="text-sm text-muted">{person.research}</p>
           <p class="mt-2">
@@ -59,7 +64,7 @@ const people: Person[] = [
           <div class="flex gap-3 mt-2">
             {person.socials.map((s) => (
               <a href={s.href} target="_blank" rel="noopener noreferrer">
-                <Icon name={s.icon} class="w-6 h-6" />
+                <Icon name={s.icon} class="w-6 h-6" title={`${s.icon} of ${person.name}`}/>
               </a>
             ))}
           </div>

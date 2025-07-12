@@ -219,22 +219,29 @@ export const astroAssetsOptimizer: ImagesOptimizer = async (
   _height,
   format = undefined
 ) => {
-  if (!image) {
-    return [];
-  }
+  if (!image) return [];
 
   return Promise.all(
     breakpoints.map(async (w: number) => {
-      const result = await getImage({ src: image, width: w, inferSize: true, ...(format ? { format: format } : {}) });
+      const h = _width && _height
+        ? Math.floor(w * (_height / _width))
+        : undefined;
+      const result = await getImage({
+        src: image,
+        width: w,
+        height: h,
+        ...(format ? { format } : {}),
+      });
 
       return {
         src: result?.src,
         width: result?.attributes?.width ?? w,
-        height: result?.attributes?.height,
+        height: result?.attributes?.height ?? h,
       };
     })
   );
 };
+
 
 export const isUnpicCompatible = (image: string) => {
   return typeof parseUrl(image) !== 'undefined';
