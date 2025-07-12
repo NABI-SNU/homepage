@@ -38,7 +38,7 @@ const link = APP_BLOG?.post?.isEnabled ? getPermalink(post.permalink, 'post') : 
                 sizes="(max-width: 900px) 400px, 900px"
                 alt={post.title}
                 aspectRatio="16:9"
-                loading="lazy"
+                loading="eager"
                 decoding="async"
               />
             )}
@@ -55,7 +55,7 @@ const link = APP_BLOG?.post?.isEnabled ? getPermalink(post.permalink, 'post') : 
               sizes="(max-width: 900px) 400px, 900px"
               alt={post.title}
               aspectRatio="16:9"
-              loading="lazy"
+              loading="eager"
               decoding="async"
             />
           )}

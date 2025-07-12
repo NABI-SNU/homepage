@@ -1,6 +1,7 @@
 ---
 import Layout from '~/layouts/PageLayout.astro';
 import HeroText from '~/components/widgets/HeroText.astro';
+import Image from '~/components/common/Image.astro';
 
 import type { MetaData } from '~/types';
 
@@ -31,7 +32,7 @@ const metadata: MetaData = {
       class="mx-auto prose prose-lg max-w-4xl dark:prose-invert dark:prose-headings:text-slate-300 prose-md prose-headings:font-heading prose-headings:leading-tighter prose-headings:tracking-tighter prose-headings:font-bold prose-a:text-blue-600 dark:prose-a:text-blue-400 prose-img:rounded-md mt-8"
     >
       <strong class="font-bold font-heading text-2xl md:text-3xl leading-tighter tracking-tighter">
-        NABI 2025 Symposium: “Memory in Context”
+        NABI 2025 Symposium: "Memory in Context"
       </strong>
       <br />
       The core focus of NABI's current academic year is our flagship symposium,
@@ -43,12 +44,13 @@ const metadata: MetaData = {
       <br />
 
       <div class="my-8 text-center">
-        <img
+        <Image
           src="https://img-svr.nabiresearch.workers.dev/img/webp/R6GRT2h.webp"
           alt="Tollman Eichenbaum Machine Schema"
-          class="rounded-lg max-w-2xl w-full shadow-none"
-          width="1200"
-          height="500"
+          class="rounded-lg max-w-2xl w-full shadow-none mx-auto"
+          width={1200}
+          height={500}
+          loading="lazy"
         />
         <p class="text-sm text-gray-600 dark:text-gray-400 mt-2 italic">
           A schematic of the machine schema proposed by Tollman and Eichenbaum. Reproduced from <a

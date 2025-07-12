@@ -51,6 +51,10 @@ const metadata = merge(
       {post.Content ? <post.Content /> : <Fragment set:html={post.content || ''} />}
     </SinglePost>
   </pagefind-main>
-  <ToBlogLink />
-  <RelatedPosts post={post} />
+  <section id="blog-footer">
+    <ToBlogLink />
+    <div class="max-w-6xl mx-auto">
+      <RelatedPosts post={post} />
+    </div>
+  </section>
 </Layout>

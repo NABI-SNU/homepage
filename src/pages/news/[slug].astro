@@ -1,0 +1,59 @@
+---
+import { getCollection, render, type CollectionEntry } from 'astro:content';
+import Layout from '~/layouts/PageLayout.astro';
+import SingleMonth from '~/components/news/SingleMonth.svelte';
+import SocialShare from '~/components/common/SocialShare.astro';
+
+export async function getStaticPaths() {
+  const entries = (await getCollection('news')) as CollectionEntry<'news'>[];
+  return entries.map((entry) => ({
+    params: {
+      slug:
+        entry.id
+          .split('/')
+          .pop()
+          ?.replace(/\.(md|mdx)$/, '') || '',
+    },
+    props: { id: entry.id },
+  }));
+}
+
+const { id } = Astro.props as { id: string };
+const entry = ((await getCollection('news')) as CollectionEntry<'news'>[]).find(
+  (e) => e.id === id
+) as CollectionEntry<'news'>;
+
+const { Content } = await render(entry);
+
+const metadata = {
+  title: entry.data.title,
+  description: entry.data.description,
+};
+---
+
+<Layout metadata={metadata}>
+  <pagefind-main>
+    <SingleMonth
+      news={{
+        title: entry.data.title,
+        description: entry.data.description,
+        image: entry.data.image,
+        href: entry.data.href || '',
+        date: entry.data.date || '',
+        references: entry.data.references || [],
+      }}
+      url={Astro.url}
+    >
+      <Content />
+    </SingleMonth>
+  </pagefind-main>
+  <div class="max-w-3xl mx-auto mb-12">
+    <section id="news-footer">
+      <SocialShare
+        url={Astro.url}
+        text={entry.data.title}
+        class="flex items-center gap-3 text-gray-500 dark:text-gray-400"
+      />
+    </section>
+  </div>
+</Layout>

@@ -5,58 +5,121 @@ import '~/assets/styles/pagefind-ui.css';
 import SearchInit from '~/components/SearchInit.svelte';
 ---
 
+<!-- Search Trigger Button -->
 <button
   type="button"
   id="search-trigger"
   aria-label="Open search"
   aria-controls="search-dialog"
   aria-expanded="false"
-  class="ml-2 /* even gap from RSS / theme-toggle */
-    inline-flex items-center justify-center
-    rounded-md p-2 /* symmetric padding */
-    text-neutral-700 dark:text-gray-400
-    transition-colors /* smooth hover/focus */
-    focus:outline-none focus:ring-2 focus:ring-primary-500
-    hover:bg-neutral-200 /* light-mode hover */
-    dark:hover:bg-neutral-800 /* dark-mode hover (background only) */"
+  class="group relative ml-2 inline-flex items-center justify-center
+         rounded-xl p-2.5 text-gray-600 dark:text-gray-400
+         transition-all duration-200 ease-in-out
+         hover:bg-gray-100 dark:hover:bg-gray-800
+         hover:text-gray-900 dark:hover:text-gray-200
+         focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 dark:focus:ring-offset-gray-900
+         active:scale-95"
 >
-  <Icon name="tabler:search" class="h-5 w-5" />
+  <Icon name="tabler:search" class="h-5 w-5 transition-transform duration-200 group-hover:scale-110" />
+
+  <!-- Search hint tooltip -->
+  <div
+    class="absolute -bottom-12 left-1/2 -translate-x-1/2 px-2 py-1 bg-gray-900 dark:bg-gray-100 text-white dark:text-gray-900 text-xs rounded-md opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap"
+  >
+    Search articles
+    <div class="absolute -top-1 left-1/2 -translate-x-1/2 w-2 h-2 bg-gray-900 dark:bg-gray-100 rotate-45"></div>
+  </div>
 </button>
 
-<!-- Search dialog -->
 <dialog
   id="search-dialog"
-  class="animate-scale-down fixed left-1/2 top-[10vh] !m-0 w-full max-w-2xl -translate-x-1/2 rounded-lg p-0 backdrop:bg-gray-950/50"
+  class="animate-scale-down
+         fixed inset-0 z-50
+         w-full max-w-2xl p-0
+         -translate-x-1/2 -translate-y-1/2
+         border-none rounded-2xl overflow-hidden
+         backdrop:bg-gray-950/50 backdrop:backdrop-blur-sm"
 >
-  <div class="relative max-h-[80vh] overflow-y-auto bg-white dark:bg-[#040620] rounded-lg">
-    <!-- Close button -->
-    <div class="sticky right-0 top-0 z-10 bg-white dark:bg-[#040620] px-6 py-4">
-      <button
-        type="button"
-        id="close-search"
-        aria-label="Close search"
-        class="absolute right-4 top-4 rounded-full p-2 hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300 transition-colors"
-      >
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          width="20"
-          height="20"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2"
-          stroke-linecap="round"
-          stroke-linejoin="round"
+  <div
+    class="relative
+           w-full h-full max-h-[80vh]
+           bg-white dark:bg-gray-900
+           rounded-2xl shadow-2xl
+           border border-gray-200 dark:border-gray-700
+           overflow-hidden
+           transform transition-all duration-300"
+  >
+    <!-- Header -->
+    <div
+      class="sticky top-0 z-10 bg-white/95 dark:bg-gray-900/95 backdrop-blur-sm
+                border-b border-gray-200 dark:border-gray-700 px-6 py-4"
+    >
+      <div class="flex items-center justify-between">
+        <!-- Search Icon and Title -->
+        <div class="flex items-center gap-3">
+          <div class="flex items-center justify-center w-8 h-8 rounded-lg bg-primary/10 text-primary">
+            <Icon name="tabler:search" class="w-4 h-4" />
+          </div>
+          <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Search Articles</h2>
+        </div>
+
+        <!-- Close Button -->
+        <button
+          type="button"
+          id="close-search"
+          aria-label="Close search"
+          class="group flex items-center justify-center w-8 h-8 rounded-lg
+                 text-gray-500 dark:text-gray-400
+                 hover:bg-gray-100 dark:hover:bg-gray-800
+                 hover:text-gray-700 dark:hover:text-gray-300
+                 transition-all duration-200 ease-in-out
+                 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 dark:focus:ring-offset-gray-900"
         >
-          <line x1="18" y1="6" x2="6" y2="18"></line>
-          <line x1="6" y1="6" x2="18" y2="18"></line>
-        </svg>
-      </button>
+          <Icon name="tabler:x" class="w-4 h-4 transition-transform duration-200 group-hover:scale-110" />
+        </button>
+      </div>
+
+      <!-- Search Hint -->
+      <p class="mt-2 text-sm text-gray-600 dark:text-gray-400">
+        Search through our articles and find what you're looking for
+      </p>
     </div>
 
-    <!-- Search component -->
-    <div class="min-h-[400px] p-6 bg-white dark:bg-[#040620]">
-      <PageFindSearch id="search" className="pagefind-ui" uiOptions={{ showImages: true }} />
+    <!-- Search Content -->
+    <div class="relative min-h-[400px] max-h-[60vh] overflow-y-auto">
+      <!-- Custom Search Wrapper -->
+      <div class="p-6">
+        <!-- Enhanced Search Input Container -->
+        <div class="relative mb-6">
+          <!-- The PageFind search will replace this input -->
+          <div id="pagefind-search-container" class="relative">
+            <PageFindSearch
+              id="search"
+              className="pagefind-ui"
+              uiOptions={{
+                showImages: true,
+                showSubResults: true,
+                excerptLength: 30,
+                resetStyles: false,
+              }}
+            />
+          </div>
+        </div>
+
+        <!-- Search Tips -->
+        <div class="border-t border-gray-200 dark:border-gray-700 pt-4">
+          <div class="flex flex-wrap gap-2 text-xs text-gray-500 dark:text-gray-400">
+            <span class="inline-flex items-center gap-1 px-2 py-1 bg-gray-100 dark:bg-gray-800 rounded-md">
+              <Icon name="tabler:bulb" class="w-3 h-3" />
+              Tip: Use quotes for exact phrases
+            </span>
+            <span class="inline-flex items-center gap-1 px-2 py-1 bg-gray-100 dark:bg-gray-800 rounded-md">
+              <Icon name="tabler:keyboard" class="w-3 h-3" />
+              Press Cmd + K to open search
+            </span>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </dialog>

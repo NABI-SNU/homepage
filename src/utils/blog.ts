@@ -98,6 +98,21 @@ const getNormalizedPost = async (post: CollectionEntry<'post'>): Promise<Post> =
 
     readingTime: remarkPluginFrontmatter?.readingTime,
     headings: headings,
+    references: data.references
+      ? await Promise.all(
+          data.references.map(async (reference) => ({
+            ...reference,
+            url: reference.url || '',
+            sources: [
+              {
+                type: 'post',
+                title: title,
+                url: await generatePermalink({ id, slug, publishDate, category: category?.slug }),
+              },
+            ],
+          }))
+        )
+      : undefined,
   };
 };
 

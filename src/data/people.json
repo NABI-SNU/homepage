@@ -1,0 +1,24 @@
+[
+  {
+    "name": "Younghoon Kim",
+    "email": "aktivhoon@gmail.com",
+    "research": "Reinforcement Learning, Meta-Learning & Reversal Learning, Inductive Bias, Neural Manifold, Computational Psychiatry",
+    "socials": [
+      "X: @aktivhoon",
+      "github: @aktivhoon",
+      "LinkedIn: https://www.linkedin.com/in/younghoon-kim-10560611a/",
+      "ORCID: https://orcid.org/0000-0001-7470-1780"
+    ]
+  },
+  {
+    "name": "Chaebeom Sheen",
+    "email": "bazelcu@qmed.im",
+    "research": "Neural representation, Inductive bias, Dynamical systems, Information theory, Thermodynamics",
+    "socials": [
+      "X: @CatBase3",
+      "github: @Cauch-BS",
+      "LinkedIn: https://www.linkedin.com/in/qmedim",
+      "ORCID: https://orcid.org/0009-0003-0846-5072"
+    ]
+  }
+]

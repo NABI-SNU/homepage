@@ -2,6 +2,20 @@ import type { AstroComponentFactory } from 'astro/runtime/server/index.js';
 import type { HTMLAttributes, ImageMetadata } from 'astro/types';
 import type { MarkdownHeading } from 'astro';
 
+export interface Paper {
+  title: string;
+  authors: string[];
+  journal?: string;
+  year?: number;
+  doi?: string;
+  url: string;
+  sources: Array<{
+    type: 'post' | 'news';
+    title: string;
+    url: string;
+  }>;
+}
+
 export interface Post {
   /** A unique ID number that identifies a post. */
   id: string;
@@ -44,6 +58,16 @@ export interface Post {
   /**  */
   readingTime?: number;
   headings?: MarkdownHeading[];
+  references?: Paper[];
+}
+
+export interface News {
+  title: string;
+  description: string;
+  image?: ImageMetadata | string;
+  href: string;
+  date: string;
+  references: Paper[];
 }
 
 export interface Taxonomy {
