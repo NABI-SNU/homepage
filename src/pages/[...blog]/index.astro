@@ -51,6 +51,25 @@ const metadata = merge(
       {post.Content ? <post.Content /> : <Fragment set:html={post.content || ''} />}
     </SinglePost>
   </pagefind-main>
-  <ToBlogLink />
-  <RelatedPosts post={post} />
+  <section id="blog-footer">
+    <ToBlogLink />
+    <div class = "max-w-6xl mx-auto">
+      <RelatedPosts post={post} />
+    </div>
+  </section>
 </Layout>
+
+<script>
+  if (typeof window !== 'undefined') {
+    const toc     = document.getElementById('toc');
+    const footer  = document.getElementById('blog-footer');
+    if (toc && footer) {
+    const observer = new IntersectionObserver(
+      ([entry]) => toc.classList.toggle('translate-x-full', entry.isIntersecting),
+      { rootMargin: '0px', threshold: 0.5 }
+      );
+      observer.observe(footer);
+    }
+  }
+</script>
+
