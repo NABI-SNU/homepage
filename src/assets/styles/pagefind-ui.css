@@ -14,30 +14,9 @@ dialog div {
   scrollbar-color: #cbd5e0 #edf2f7;
 }
 
-dialog div::-webkit-scrollbar {
-  width: 8px;
-}
-
-dialog div::-webkit-scrollbar-track {
-  background: #edf2f7;
-}
-
-dialog div::-webkit-scrollbar-thumb {
-  background-color: #cbd5e0;
-  border-radius: 4px;
-}
-
 /* Dark mode scrollbar styles */
 .dark dialog div {
   scrollbar-color: #4a5568 #2d3748;
-}
-
-.dark dialog div::-webkit-scrollbar-track {
-  background: #2d3748;
-}
-
-.dark dialog div::-webkit-scrollbar-thumb {
-  background-color: #4a5568;
 }
 
 /* Light mode pagefind styles */
@@ -60,14 +39,27 @@ dialog div::-webkit-scrollbar-thumb {
   --pagefind-ui-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
 }
 
+
+/* Enhanced dialog animations */
 @keyframes scale-down {
   from {
     opacity: 0;
-    transform: translate(-50%, -30%) scale(0.95);
+    transform: scale(0.95) translateY(-20px);
   }
   to {
     opacity: 1;
-    transform: translate(-50%, 0) scale(1);
+    transform: scale(1) translateY(0);
+  }
+}
+
+@keyframes scale-up {
+  from {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: scale(0.95) translateY(-20px);
   }
 }
 
@@ -75,18 +67,144 @@ dialog div::-webkit-scrollbar-thumb {
   animation: scale-down 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
-/* Optional: Add animation for closing */
 dialog[closing] {
   animation: scale-up 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
-@keyframes scale-up {
-  from {
-    opacity: 1;
-    transform: translate(-50%, 0) scale(1);
+/* Custom scrollbar for search results */
+dialog div::-webkit-scrollbar {
+  width: 6px;
+}
+
+dialog div::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+dialog div::-webkit-scrollbar-thumb {
+  background-color: rgba(156, 163, 175, 0.5);
+  border-radius: 3px;
+}
+
+dialog div::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(156, 163, 175, 0.7);
+}
+
+.dark dialog div::-webkit-scrollbar-thumb {
+  background-color: rgba(75, 85, 99, 0.5);
+}
+
+.dark dialog div::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(75, 85, 99, 0.7);
+}
+
+/* Enhanced PageFind UI Integration */
+:global(.pagefind-ui__search-input) {
+  width: 100% !important;
+  padding: 12px 16px 12px 48px !important;
+  border: 2px solid #e5e7eb !important;
+  border-radius: 12px !important;
+  font-size: 16px !important;
+  background: #ffffff !important;
+  transition: all 0.2s ease-in-out !important;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1) !important;
+}
+
+:global(.pagefind-ui__search-input:focus) {
+  outline: none !important;
+  border-color: var(--aw-color-primary) !important;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1) !important;
+}
+
+:global(.dark .pagefind-ui__search-input) {
+  background: #1f2937 !important;
+  border-color: #374151 !important;
+  color: #f9fafb !important;
+}
+
+:global(.dark .pagefind-ui__search-input:focus) {
+  border-color: var(--aw-color-primary) !important;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2) !important;
+}
+
+/* Enhanced search results */
+:global(.pagefind-ui__results) {
+  margin-top: 1rem !important;
+}
+
+:global(.pagefind-ui__result) {
+  border: 1px solid #e5e7eb !important;
+  border-radius: 12px !important;
+  padding: 16px !important;
+  margin-bottom: 12px !important;
+  background: #ffffff !important;
+  transition: all 0.2s ease-in-out !important;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05) !important;
+}
+
+:global(.pagefind-ui__result:hover) {
+  border-color: var(--aw-color-primary) !important;
+  box-shadow: 0 4px 12px 0 rgba(0, 0, 0, 0.1) !important;
+  transform: translateY(-1px) !important;
+}
+
+:global(.dark .pagefind-ui__result) {
+  background: #1f2937 !important;
+  border-color: #374151 !important;
+}
+
+:global(.dark .pagefind-ui__result:hover) {
+  border-color: var(--aw-color-primary) !important;
+  box-shadow: 0 4px 12px 0 rgba(0, 0, 0, 0.3) !important;
+}
+
+:global(.pagefind-ui__result-title) {
+  font-size: 18px !important;
+  font-weight: 600 !important;
+  color: #111827 !important;
+  margin-bottom: 8px !important;
+}
+
+:global(.dark .pagefind-ui__result-title) {
+  color: #f9fafb !important;
+}
+
+:global(.pagefind-ui__result-excerpt) {
+  color: #6b7280 !important;
+  line-height: 1.6 !important;
+}
+
+:global(.dark .pagefind-ui__result-excerpt) {
+  color: #d1d5db !important;
+}
+
+/* Loading state */
+:global(.pagefind-ui__message) {
+  text-align: center !important;
+  padding: 2rem !important;
+  color: #6b7280 !important;
+}
+
+:global(.dark .pagefind-ui__message) {
+  color: #d1d5db !important;
+}
+
+/* Hide default search clear button */
+:global(.pagefind-ui__search-clear) {
+  display: none !important;
+}
+
+/* Responsive adjustments */
+@media (max-width: 640px) {
+  dialog {
+    padding: 1rem !important;
+    padding-top: 2rem !important;
   }
-  to {
-    opacity: 0;
-    transform: translate(-50%, -30%) scale(0.95);
+  
+  dialog > div {
+    max-height: 85vh !important;
+  }
+  
+  :global(.pagefind-ui__search-input) {
+    font-size: 16px !important; /* Prevent zoom on iOS */
   }
 }

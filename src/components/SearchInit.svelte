@@ -22,40 +22,57 @@
       }
     }
 
-    searchTrigger?.addEventListener('click', () => {
+    function openSearch() {
       updatePagefindTheme();
       searchDialog?.showModal();
-      searchTrigger.setAttribute('aria-expanded', 'true');
-      const searchInput = document.querySelector<HTMLInputElement>('.pagefind-ui__search-input');
-      searchInput?.focus();
-    });
+      searchTrigger?.setAttribute('aria-expanded', 'true');
+      
+      // Focus the search input after a brief delay to ensure it's rendered
+      setTimeout(() => {
+        const searchInput = document.querySelector<HTMLInputElement>('.pagefind-ui__search-input');
+        searchInput?.focus();
+      }, 100);
+      
+      // Add body scroll lock
+      document.body.style.overflow = 'hidden';
+    }
 
-    closeButton?.addEventListener('click', () => {
+    function closeSearch() {
       searchDialog?.close();
       searchTrigger?.setAttribute('aria-expanded', 'false');
-    });
+      
+      // Remove body scroll lock
+      document.body.style.overflow = '';
+      
+      // Return focus to trigger button
+      searchTrigger?.focus();
+    }
 
+    // Event listeners
+    searchTrigger?.addEventListener('click', openSearch);
+    closeButton?.addEventListener('click', closeSearch);
+
+    // Click outside to close
     searchDialog?.addEventListener('click', (e: MouseEvent) => {
       if (!searchDialog) return;
-      const dialogDimensions = searchDialog.getBoundingClientRect();
-      if (
-        e.clientX < dialogDimensions.left ||
-        e.clientX > dialogDimensions.right ||
-        e.clientY < dialogDimensions.top ||
-        e.clientY > dialogDimensions.bottom
-      ) {
-        searchDialog.close();
-        searchTrigger?.setAttribute('aria-expanded', 'false');
+      
+      // Check if the click target is the dialog backdrop (not the content)
+      const target = e.target as HTMLElement;
+      if (target === searchDialog) {
+        closeSearch();
       }
     });
 
+    // Keyboard shortcuts
     document.addEventListener('keydown', (e: KeyboardEvent) => {
-      if (e.key === 'Escape' && searchDialog?.open) {
-        searchDialog.close();
-        searchTrigger?.setAttribute('aria-expanded', 'false');
+      // Cmd/Ctrl + K to open search
+      if ((e.metaKey || e.ctrlKey) && e.key === 'k' && !searchDialog?.open) {
+        e.preventDefault();
+        openSearch();
       }
     });
 
+    // Theme change observer
     const observer = new MutationObserver((mutations) => {
       mutations.forEach((mutation) => {
         if (
@@ -77,6 +94,13 @@
       attributeFilter: ['class'],
     });
 
+    // Initial theme setup
     updatePagefindTheme();
+
+    // Cleanup function
+    return () => {
+      observer.disconnect();
+      document.body.style.overflow = '';
+    };
   });
 </script>
