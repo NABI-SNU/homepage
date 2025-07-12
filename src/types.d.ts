@@ -8,7 +8,7 @@ export interface Paper {
   journal?: string;
   year?: number;
   doi?: string;
-  articleUrl: string;
+  url: string;
   sources: Array<{
     type: 'post' | 'news';
     title: string;
@@ -58,7 +58,7 @@ export interface Post {
   /**  */
   readingTime?: number;
   headings?: MarkdownHeading[];
-  reference?: Paper;
+  references?: Paper[];
 }
 
 export interface News {

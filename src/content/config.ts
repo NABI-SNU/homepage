@@ -53,6 +53,15 @@ const paperSchema = z.object({
   year: z.number().optional(),
   doi: z.string().optional(),
   url: z.string().optional(),
+  sources: z
+    .array(
+      z.object({
+        type: z.enum(['post', 'news']),
+        title: z.string(),
+        url: z.string(),
+      })
+    )
+    .optional(),
 });
 
 const postCollection = defineCollection({
@@ -70,9 +79,7 @@ const postCollection = defineCollection({
     tags: z.array(z.string()).optional(),
     author: z.string().optional(),
 
-    reference: paperSchema.optional(),
-    bibtex: z.string().optional(),
-
+    references: z.array(paperSchema).optional(),
     metadata: metadataDefinition(),
   }),
 });
@@ -86,7 +93,6 @@ const newsCollection = defineCollection({
     href: z.string().optional(),
     date: z.string().optional(),
     references: z.array(paperSchema).optional(),
-    bibtex: z.string().optional(),
   }),
 });
 

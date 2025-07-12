@@ -13,7 +13,7 @@ export async function getStaticPaths() {
           .pop()
           ?.replace(/\.(md|mdx)$/, '') || '',
     },
-    props: { id: entry.id },  
+    props: { id: entry.id },
   }));
 }
 
@@ -32,16 +32,17 @@ const metadata = {
 
 <Layout metadata={metadata}>
   <pagefind-main>
-    <SingleMonth news={{
-      id: entry.id,
-      slug: entry.id.split('/').pop()?.replace(/\.(md|mdx)$/, '') || '',
-      permalink: Astro.url.pathname,
-      publishDate: new Date(entry.data.date || ''),
-      title: entry.data.title,
-      image: entry.data.image,
-      excerpt: entry.data.description,
-    }} url={Astro.url}>
-      
+    <SingleMonth
+      news={{
+        title: entry.data.title,
+        description: entry.data.description,
+        image: entry.data.image,
+        href: entry.data.href || '',
+        date: entry.data.date || '',
+        references: entry.data.references || [],
+      }}
+      url={Astro.url}
+    >
       <Content />
     </SingleMonth>
   </pagefind-main>

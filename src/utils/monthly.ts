@@ -21,7 +21,7 @@ export const getLatestMonthlyItems = async (count = 6): Promise<MonthlyItem[]> =
 
       return {
         title: (frontmatter.title as string) || slug,
-        description: (frontmatter.description as string),
+        description: frontmatter.description as string,
         icon: `tabler:number-${date.getMonth() + 1}`,
         href: `/news/${slug}`,
         date,
