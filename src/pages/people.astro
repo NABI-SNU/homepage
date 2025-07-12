@@ -17,88 +17,99 @@ const metadata = {
 
 <Layout {metadata}>
   <HeroText tagline="People" title="Meet our Members" />
-  
+
   <div class="relative max-w-7xl mx-auto mt-12 pb-16 md:pb-20 lg:pb-24">
     {/* Background decorative elements */}
     <div class="absolute inset-0 overflow-hidden pointer-events-none">
       <div class="absolute top-0 left-1/4 w-72 h-72 bg-blue-400/5 rounded-full blur-3xl"></div>
       <div class="absolute bottom-0 right-1/4 w-96 h-96 bg-purple-400/5 rounded-full blur-3xl"></div>
     </div>
-    
+
     <div class="relative grid gap-8 sm:grid-cols-2 lg:grid-cols-3 px-4 sm:px-6 lg:px-8">
-      {people.map((person) => (
-        <div 
-          class="group relative"
-        >
-          {/* Subtle background glow */}
-          <div class="absolute -inset-0.5 bg-blue-500/20 rounded-2xl blur opacity-0 group-hover:opacity-30 transition duration-500"></div>
-          
-          <div
-            id={cleanSlug(person.name)}
-            class="relative p-8 border border-white/10 dark:border-white/10 border-gray-200 rounded-2xl shadow-2xl bg-white/5 dark:bg-white/5 bg-gray-50 backdrop-blur-sm text-card-foreground flex flex-col transition-all duration-500 hover:shadow-2xl hover:scale-[1.02] hover:bg-white/10 dark:hover:bg-white/10 hover:bg-gray-100 hover:border-white/20 dark:hover:border-white/20 hover:border-gray-300 group-hover:transform group-hover:-translate-y-1"
-          >
-            {/* Subtle inner glow */}
-            <div class="absolute inset-0 rounded-2xl dark:bg-white/5 bg-gray-100/50 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-            
-            {/* Content */}
-            <div class="relative z-10">
-              {/* Name with clean styling */}
-              <h3 class="text-2xl font-bold mb-3 dark:text-white text-gray-800 dark:group-hover:text-blue-100 group-hover:text-blue-800 transition-colors duration-300">
-                {person.name}
-              </h3>
-              
-              {/* Interests section */}
-              <div class="flex-grow mb-6">
-                <div class="inline-flex items-center gap-2 mb-2">
-                  <div class="w-2 h-2 bg-blue-400 rounded-full"></div>
-                  <span class="text-sm font-medium dark:text-blue-200/80 text-blue-700 uppercase tracking-wider">Research Interests</span>
+      {
+        people.map((person) => (
+          <div class="group relative">
+            {/* Subtle background glow */}
+            <div class="absolute -inset-0.5 bg-blue-500/20 rounded-2xl blur opacity-0 group-hover:opacity-30 transition duration-500" />
+
+            <div
+              id={cleanSlug(person.name)}
+              class="relative p-8 border border-white/10 dark:border-white/10 border-gray-200 rounded-2xl shadow-2xl bg-white/5 dark:bg-white/5 bg-gray-50 backdrop-blur-sm text-card-foreground flex flex-col transition-all duration-500 hover:shadow-2xl hover:scale-[1.02] hover:bg-white/10 dark:hover:bg-white/10 hover:bg-gray-100 hover:border-white/20 dark:hover:border-white/20 hover:border-gray-300 group-hover:transform group-hover:-translate-y-1"
+            >
+              {/* Subtle inner glow */}
+              <div class="absolute inset-0 rounded-2xl dark:bg-white/5 bg-gray-100/50 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+
+              {/* Content */}
+              <div class="relative z-10">
+                {/* Name with clean styling */}
+                <h3 class="text-2xl font-bold mb-3 dark:text-white text-gray-800 dark:group-hover:text-blue-100 group-hover:text-blue-800 transition-colors duration-300">
+                  {person.name}
+                </h3>
+
+                {/* Interests section */}
+                <div class="flex-grow mb-6">
+                  <div class="inline-flex items-center gap-2 mb-2">
+                    <div class="w-2 h-2 bg-blue-400 rounded-full" />
+                    <span class="text-sm font-medium dark:text-blue-200/80 text-blue-700 uppercase tracking-wider">
+                      Research Interests
+                    </span>
+                  </div>
+                  <p class="dark:text-gray-300 text-gray-600 leading-relaxed dark:group-hover:text-white group-hover:text-gray-800 transition-colors duration-300">
+                    {person.research}
+                  </p>
                 </div>
-                <p class="dark:text-gray-300 text-gray-600 leading-relaxed dark:group-hover:text-white group-hover:text-gray-800 transition-colors duration-300">
-                  {person.research}
-                </p>
-              </div>
-              
-              {/* Email with enhanced styling */}
-              <div class="mb-6">
-                <a
-                  class="inline-flex items-center gap-2 dark:text-blue-300 text-blue-700 dark:hover:text-blue-200 hover:text-blue-800 transition-all duration-300 hover:gap-3 group/email"
-                  href={`mailto:${person.email}`}
-                >
-                  <svg class="w-4 h-4 opacity-70 group-hover/email:opacity-100 transition-opacity duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
-                  </svg>
-                  <span class="border-b border-transparent dark:group-hover/email:border-blue-300 group-hover/email:border-blue-800 transition-colors duration-300">
-                    {person.email}
-                  </span>
-                </a>
-              </div>
-              
-              {/* Social links with enhanced hover effects */}
-              <div class="flex gap-4">
-                {person.socials.map((s) => (
+
+                {/* Email with enhanced styling */}
+                <div class="mb-6">
                   <a
-                    href={s.href}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    class="group/social p-2 rounded-full bg-white/5 dark:bg-white/5 bg-gray-200 dark:text-gray-400 text-gray-500 dark:hover:text-white hover:text-gray-800 hover:bg-white/10 dark:hover:bg-white/10 hover:bg-gray-300 transition-all duration-300 hover:scale-110 hover:shadow-lg hover:shadow-blue-500/25"
-                    aria-label={`${s.icon} of ${person.name}`}
+                    class="inline-flex items-center gap-2 dark:text-blue-300 text-blue-700 dark:hover:text-blue-200 hover:text-blue-800 transition-all duration-300 hover:gap-3 group/email"
+                    href={`mailto:${person.email}`}
                   >
-                    <Icon 
-                      name={s.icon} 
-                      class="w-5 h-5 transition-transform duration-300 group-hover/social:scale-110" 
-                      title={`${s.icon} of ${person.name}`}
-                    />
+                    <svg
+                      class="w-4 h-4 opacity-70 group-hover/email:opacity-100 transition-opacity duration-300"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
+                      />
+                    </svg>
+                    <span class="border-b border-transparent dark:group-hover/email:border-blue-300 group-hover/email:border-blue-800 transition-colors duration-300">
+                      {person.email}
+                    </span>
                   </a>
-                ))}
+                </div>
+
+                {/* Social links with enhanced hover effects */}
+                <div class="flex gap-4">
+                  {person.socials.map((s) => (
+                    <a
+                      href={s.href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      class="group/social p-2 rounded-full bg-white/5 dark:bg-white/5 bg-gray-200 dark:text-gray-400 text-gray-500 dark:hover:text-white hover:text-gray-800 hover:bg-white/10 dark:hover:bg-white/10 hover:bg-gray-300 transition-all duration-300 hover:scale-110 hover:shadow-lg hover:shadow-blue-500/25"
+                      aria-label={`${s.icon} of ${person.name}`}
+                    >
+                      <Icon
+                        name={s.icon}
+                        class="w-5 h-5 transition-transform duration-300 group-hover/social:scale-110"
+                        title={`${s.icon} of ${person.name}`}
+                      />
+                    </a>
+                  ))}
+                </div>
+
+                {/* Bottom accent */}
+                <div class="absolute -top-6 left-1/2 transform -translate-x-1/2 w-12 h-0.5 bg-blue-400 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
               </div>
-              
-              {/* Bottom accent */}
-              <div class="absolute -top-6 left-1/2 transform -translate-x-1/2 w-12 h-0.5 bg-blue-400 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
             </div>
           </div>
-        </div>
-      ))}
+        ))
+      }
     </div>
-    
   </div>
 </Layout>

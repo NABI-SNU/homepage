@@ -46,7 +46,7 @@ const {
             height={768}
             layout="cover"
             src={typeof image === 'string' ? image : image?.src}
-            alt={typeof image === 'string' ? '' : (image?.alt || '')}
+            alt={typeof image === 'string' ? '' : image?.alt || ''}
             loading="eager"
           />
         </div>

@@ -21,9 +21,11 @@ import SearchInit from '~/components/SearchInit.svelte';
          active:scale-95"
 >
   <Icon name="tabler:search" class="h-5 w-5 transition-transform duration-200 group-hover:scale-110" />
-  
+
   <!-- Search hint tooltip -->
-  <div class="absolute -bottom-12 left-1/2 -translate-x-1/2 px-2 py-1 bg-gray-900 dark:bg-gray-100 text-white dark:text-gray-900 text-xs rounded-md opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap">
+  <div
+    class="absolute -bottom-12 left-1/2 -translate-x-1/2 px-2 py-1 bg-gray-900 dark:bg-gray-100 text-white dark:text-gray-900 text-xs rounded-md opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap"
+  >
     Search articles
     <div class="absolute -top-1 left-1/2 -translate-x-1/2 w-2 h-2 bg-gray-900 dark:bg-gray-100 rotate-45"></div>
   </div>
@@ -47,21 +49,20 @@ import SearchInit from '~/components/SearchInit.svelte';
            overflow-hidden
            transform transition-all duration-300"
   >
-    
     <!-- Header -->
-    <div class="sticky top-0 z-10 bg-white/95 dark:bg-gray-900/95 backdrop-blur-sm
-                border-b border-gray-200 dark:border-gray-700 px-6 py-4">
+    <div
+      class="sticky top-0 z-10 bg-white/95 dark:bg-gray-900/95 backdrop-blur-sm
+                border-b border-gray-200 dark:border-gray-700 px-6 py-4"
+    >
       <div class="flex items-center justify-between">
         <!-- Search Icon and Title -->
         <div class="flex items-center gap-3">
           <div class="flex items-center justify-center w-8 h-8 rounded-lg bg-primary/10 text-primary">
             <Icon name="tabler:search" class="w-4 h-4" />
           </div>
-          <h2 class="text-lg font-semibold text-gray-900 dark:text-white">
-            Search Articles
-          </h2>
+          <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Search Articles</h2>
         </div>
-        
+
         <!-- Close Button -->
         <button
           type="button"
@@ -77,7 +78,7 @@ import SearchInit from '~/components/SearchInit.svelte';
           <Icon name="tabler:x" class="w-4 h-4 transition-transform duration-200 group-hover:scale-110" />
         </button>
       </div>
-      
+
       <!-- Search Hint -->
       <p class="mt-2 text-sm text-gray-600 dark:text-gray-400">
         Search through our articles and find what you're looking for
@@ -92,19 +93,19 @@ import SearchInit from '~/components/SearchInit.svelte';
         <div class="relative mb-6">
           <!-- The PageFind search will replace this input -->
           <div id="pagefind-search-container" class="relative">
-            <PageFindSearch 
-              id="search" 
-              className="pagefind-ui" 
-              uiOptions={{ 
+            <PageFindSearch
+              id="search"
+              className="pagefind-ui"
+              uiOptions={{
                 showImages: true,
                 showSubResults: true,
                 excerptLength: 30,
-                resetStyles: false
-              }} 
+                resetStyles: false,
+              }}
             />
           </div>
         </div>
-        
+
         <!-- Search Tips -->
         <div class="border-t border-gray-200 dark:border-gray-700 pt-4">
           <div class="flex flex-wrap gap-2 text-xs text-gray-500 dark:text-gray-400">
@@ -124,4 +125,3 @@ import SearchInit from '~/components/SearchInit.svelte';
 </dialog>
 
 <SearchInit client:load />
-

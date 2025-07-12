@@ -14,7 +14,7 @@ export interface Person {
 // map the “Platform: value” strings to an icon name + URL
 function parseSocial(raw: string): Social | null {
   if (!raw.includes(':')) return null;
-  const [plat, rest] = raw.split(':').map(s => s.trim());
+  const [plat, rest] = raw.split(':').map((s) => s.trim());
   if (!rest) return null;
 
   let icon: string;
@@ -50,15 +50,11 @@ type RawEntry = {
   socials: string[];
 };
 
-export async function getPeople(
-  rawList: RawEntry[] = []
-): Promise<Person[]> {  
-  return rawList.map(entry => ({
+export async function getPeople(rawList: RawEntry[] = []): Promise<Person[]> {
+  return rawList.map((entry) => ({
     name: entry.name,
     email: entry.email,
     research: entry.research,
-    socials: entry.socials
-      .map(parseSocial)
-      .filter((s): s is { icon: string; href: string } => s !== null),
+    socials: entry.socials.map(parseSocial).filter((s): s is { icon: string; href: string } => s !== null),
   }));
 }

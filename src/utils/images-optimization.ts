@@ -223,9 +223,7 @@ export const astroAssetsOptimizer: ImagesOptimizer = async (
 
   return Promise.all(
     breakpoints.map(async (w: number) => {
-      const h = _width && _height
-        ? Math.floor(w * (_height / _width))
-        : undefined;
+      const h = _width && _height ? Math.floor(w * (_height / _width)) : undefined;
       const result = await getImage({
         src: image,
         width: w,
@@ -241,7 +239,6 @@ export const astroAssetsOptimizer: ImagesOptimizer = async (
     })
   );
 };
-
 
 export const isUnpicCompatible = (image: string) => {
   return typeof parseUrl(image) !== 'undefined';

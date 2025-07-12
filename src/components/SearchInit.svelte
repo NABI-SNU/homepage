@@ -26,13 +26,13 @@
       updatePagefindTheme();
       searchDialog?.showModal();
       searchTrigger?.setAttribute('aria-expanded', 'true');
-      
+
       // Focus the search input after a brief delay to ensure it's rendered
       setTimeout(() => {
         const searchInput = document.querySelector<HTMLInputElement>('.pagefind-ui__search-input');
         searchInput?.focus();
       }, 100);
-      
+
       // Add body scroll lock
       document.body.style.overflow = 'hidden';
     }
@@ -40,10 +40,10 @@
     function closeSearch() {
       searchDialog?.close();
       searchTrigger?.setAttribute('aria-expanded', 'false');
-      
+
       // Remove body scroll lock
       document.body.style.overflow = '';
-      
+
       // Return focus to trigger button
       searchTrigger?.focus();
     }
@@ -55,7 +55,7 @@
     // Click outside to close
     searchDialog?.addEventListener('click', (e: MouseEvent) => {
       if (!searchDialog) return;
-      
+
       // Check if the click target is the dialog backdrop (not the content)
       const target = e.target as HTMLElement;
       if (target === searchDialog) {

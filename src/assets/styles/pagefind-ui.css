@@ -39,7 +39,6 @@ dialog div {
   --pagefind-ui-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
 }
 
-
 /* Enhanced dialog animations */
 @keyframes scale-down {
   from {
@@ -199,11 +198,11 @@ dialog div::-webkit-scrollbar-thumb:hover {
     padding: 1rem !important;
     padding-top: 2rem !important;
   }
-  
+
   dialog > div {
     max-height: 85vh !important;
   }
-  
+
   :global(.pagefind-ui__search-input) {
     font-size: 16px !important; /* Prevent zoom on iOS */
   }

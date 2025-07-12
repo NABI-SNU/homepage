@@ -45,10 +45,10 @@ export const lazyImagesRehypePlugin: RehypePlugin = () => {
       if (node.tagName === 'img') {
         // Add lazy loading
         node.properties.loading = 'lazy';
-        
+
         // Add decoding attribute for better performance
         node.properties.decoding = 'async';
-        
+
         // Ensure width and height are present for better CLS
         if (!node.properties.width && !node.properties.height) {
           // Try to extract from style attribute

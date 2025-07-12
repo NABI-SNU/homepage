@@ -30,20 +30,24 @@ if (typeof _image === 'string' && isUnpicCompatible(_image)) {
 }
 ---
 
-{imageInfo ? (
-  <AstroImage
-    src={_image}
-    {...imageInfo.attributes}
-    {...props /* forward widths/sizes/layout if you passed them */}
-  />
-) : (
-  <img
-    src={typeof props.src === 'string' ? props.src : ''}
-    alt={props.alt}
-    width={props.width}
-    height={props.height}
-    loading={props.loading}
-    decoding={props.decoding}
-    {...(props as HTMLAttributes<'img'>)}
-  />
-)}
+{
+  imageInfo ? (
+    <AstroImage
+      src={_image}
+      {...imageInfo.attributes}
+      {
+        ...props /* forward widths/sizes/layout if you passed them */
+      }
+    />
+  ) : (
+    <img
+      src={typeof props.src === 'string' ? props.src : ''}
+      alt={props.alt}
+      width={props.width}
+      height={props.height}
+      loading={props.loading}
+      decoding={props.decoding}
+      {...(props as HTMLAttributes<'img'>)}
+    />
+  )
+}
