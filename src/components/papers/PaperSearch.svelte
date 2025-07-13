@@ -1,8 +1,8 @@
 <script lang="ts">
   import PaperTile from './PaperTile.svelte';
-  import PaginationControls from './PaginationControls.svelte';
-  import SortTabs from './SortTabs.svelte';
-  import SearchBar from './SearchBar.svelte';
+  import PaginationControls from '~/components/common/PaginationControls.svelte';
+  import SortTabs from '~/components/papers/SortTabs.svelte';
+  import SearchBar from '~/components/papers/SearchBar.svelte';
   import type { Paper } from '~/types';
 
   export let papers: Paper[] = [];
