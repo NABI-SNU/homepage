@@ -10,6 +10,7 @@ import CustomStyles from '~/components/CustomStyles.astro';
 import ApplyColorMode from '~/components/common/ApplyColorMode.astro';
 import Metadata from '~/components/common/Metadata.astro';
 import SiteVerification from '~/components/common/SiteVerification.astro';
+import BreadcrumbsJsonLd from '~/components/common/BreadcrumbsJsonLd.astro';
 import Analytics from '~/components/common/Analytics.astro';
 import BasicScripts from '~/components/common/BasicScripts.astro';
 
@@ -34,6 +35,7 @@ const { language, textDirection } = I18N;
     <CustomStyles />
     <ApplyColorMode />
     <Metadata {...metadata} />
+    <BreadcrumbsJsonLd />
     <SiteVerification />
     <link rel="preconnect" href="https://www.googletagmanager.com" />
     <Analytics />

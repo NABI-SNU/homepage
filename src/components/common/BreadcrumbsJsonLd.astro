@@ -1,0 +1,27 @@
+---
+import { SITE } from 'astrowind:config';
+import { getCanonical } from '~/utils/permalinks';
+
+const pathname = Astro.url.pathname;
+const segments = pathname.split('/').filter(Boolean);
+const crumbs = [{ name: 'Home', url: SITE.site }];
+let current = '';
+for (const segment of segments) {
+  current += '/' + segment;
+  crumbs.push({ name: decodeURIComponent(segment.replace(/-/g, ' ')), url: getCanonical(current) });
+}
+
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'BreadcrumbList',
+  itemListElement: crumbs.map((crumb, index) => ({
+    '@type': 'ListItem',
+    position: index + 1,
+    name: crumb.name,
+    item: crumb.url,
+  })),
+};
+const jsonLdStr = JSON.stringify(jsonLd);
+---
+
+<script type="application/ld+json" set:html={jsonLdStr} />
