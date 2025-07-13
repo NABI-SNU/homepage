@@ -3,14 +3,23 @@ import PageFindSearch from 'astro-pagefind/components/Search';
 import { Icon } from 'astro-icon/components';
 import '~/assets/styles/pagefind-ui.css';
 import SearchInit from '~/components/SearchInit.svelte';
+
+interface Props {
+  decorator?: string;
+}
+
+const { decorator } = Astro.props;
+const searchTriggerId = decorator ? `${decorator}-search-trigger` : 'search-trigger';
+const searchDialogId = decorator ? `${decorator}-search-dialog` : 'search-dialog';
+const closeButtonId = decorator ? `${decorator}-close-search` : 'close-search';
 ---
 
 <!-- Search Trigger Button -->
 <button
   type="button"
-  id="search-trigger"
+  id={searchTriggerId}
   aria-label="Open search"
-  aria-controls="search-dialog"
+  aria-controls={searchDialogId}
   aria-expanded="false"
   class="group relative ml-2 inline-flex items-center justify-center
          rounded-xl p-2.5 text-gray-600 dark:text-gray-400
@@ -32,7 +41,7 @@ import SearchInit from '~/components/SearchInit.svelte';
 </button>
 
 <dialog
-  id="search-dialog"
+  id={searchDialogId}
   class="animate-scale-down
          fixed inset-0 z-50
          w-full max-w-2xl p-0
@@ -66,7 +75,7 @@ import SearchInit from '~/components/SearchInit.svelte';
         <!-- Close Button -->
         <button
           type="button"
-          id="close-search"
+          id={closeButtonId}
           aria-label="Close search"
           class="group flex items-center justify-center w-8 h-8 rounded-lg
                  text-gray-500 dark:text-gray-400
@@ -124,4 +133,4 @@ import SearchInit from '~/components/SearchInit.svelte';
   </div>
 </dialog>
 
-<SearchInit client:load />
+<SearchInit client:load decorator={decorator} />

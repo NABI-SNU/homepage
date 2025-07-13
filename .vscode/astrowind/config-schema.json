@@ -8,6 +8,9 @@
         "name": {
           "type": "string"
         },
+        "mobilename": {
+          "type": "string"
+        },
         "site": {
           "type": "string"
         },

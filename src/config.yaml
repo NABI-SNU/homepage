@@ -1,5 +1,6 @@
 site:
   name: NABI Research
+  mobilename: NABI
   site: 'https://nabiresearch.org'
   base: '/'
   trailingSlash: false

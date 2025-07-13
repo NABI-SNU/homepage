@@ -1,10 +1,20 @@
 <script lang="ts">
   import { onMount } from 'svelte';
 
+  interface Props {
+    decorator?: string;
+  }
+
+  export let decorator: string | undefined = undefined;
+
   onMount(() => {
-    const searchTrigger = document.getElementById('search-trigger') as HTMLButtonElement | null;
-    const searchDialog = document.getElementById('search-dialog') as HTMLDialogElement | null;
-    const closeButton = document.getElementById('close-search') as HTMLButtonElement | null;
+    const searchTriggerId = decorator ? `${decorator}-search-trigger` : 'search-trigger';
+    const searchDialogId = decorator ? `${decorator}-search-dialog` : 'search-dialog';
+    const closeButtonId = decorator ? `${decorator}-close-search` : 'close-search';
+
+    const searchTrigger = document.getElementById(searchTriggerId) as HTMLButtonElement | null;
+    const searchDialog = document.getElementById(searchDialogId) as HTMLDialogElement | null;
+    const closeButton = document.getElementById(closeButtonId) as HTMLButtonElement | null;
 
     function getCurrentTheme(): 'light' | 'dark' {
       return document.documentElement.classList.contains('dark') ? 'dark' : 'light';

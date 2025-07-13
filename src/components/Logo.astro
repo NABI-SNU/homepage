@@ -7,5 +7,6 @@ import Image from '~/components/common/Image.astro';
   class="inline-flex items-center self-center ml-2 rtl:ml-0 rtl:mr-2 text-2xl md:text-xl font-bold text-gray-900 whitespace-nowrap dark:text-white"
 >
   <Image src="/favicon.svg" alt="NABI" class="inline-block h-5 w-5 mr-1" width={20} height={20} loading="eager" />
-  {SITE?.name}
+  <span class="hidden md:inline">{SITE?.name}</span>
+  <span class="md:hidden">{SITE?.mobilename}</span> 
 </span>
