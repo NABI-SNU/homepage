@@ -1,0 +1,30 @@
+name: Lint
+on: [push, pull_request]
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm ci
+      - run: npm run check  
+
+      - name: Commit changes
+        run: |
+          npm run fix
+          git config user.name github-actions
+          git config user.email github-actions@github.com
+          git add .
+          git commit -m "chore: lint" || echo "No changes to commit"
+
+      - name: Open Pull Request
+        uses: peter-evans/create-pull-request@v6
+        with:
+          branch: lint
+          title: "chore: lint"
+          commit-message: "chore: lint"
+          body: |
+            Lint the codebase.
