@@ -19,7 +19,12 @@
     "check:prettier": "prettier --check .",
     "fix": "npm run fix:eslint && npm run fix:prettier",
     "fix:eslint": "eslint --fix .",
-    "fix:prettier": "prettier -w ."
+    "fix:prettier": "prettier -w .",
+    "security:audit": "npm audit",
+    "security:fix": "npm audit fix",
+    "security:check": "npm audit --audit-level=high",
+    "deps:update": "npm update",
+    "deps:check": "npm outdated"
   },
   "dependencies": {
     "@astrojs/node": "^9.3.0",
