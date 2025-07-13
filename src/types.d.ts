@@ -212,6 +212,18 @@ export interface Form {
   method?: string;
 }
 
+export interface Social {
+  icon: string;
+  href: string;
+}
+
+export interface Person {
+  name: string;
+  email: string;
+  research: string;
+  socials: Social[];
+}
+
 // WIDGETS
 export interface Hero extends Omit<Headline, 'classes'>, Omit<Widget, 'isDark' | 'classes'> {
   content?: string;

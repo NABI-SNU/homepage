@@ -1,43 +1,39 @@
-// src/utils/get-people.ts
-export interface Social {
-  icon: string;
-  href: string;
-}
+import type { Person, Social } from '~/types';
 
-export interface Person {
-  name: string;
-  email: string;
-  research: string;
-  socials: Social[];
-}
-
-// map the “Platform: value” strings to an icon name + URL
+// map the "Platform: value" strings to an icon name + URL
 function parseSocial(raw: string): Social | null {
   if (!raw.includes(':')) return null;
-  const [plat, rest] = raw.split(':').map((s) => s.trim());
-  if (!rest) return null;
+  
+  const colonIndex = raw.indexOf(':');
+  const platform = raw.substring(0, colonIndex).trim().toLowerCase();
+  const value = raw.substring(colonIndex + 1).trim();
+  
+  if (!value) return null;
 
   let icon: string;
-  let href = rest;
+  let href: string;
 
-  switch (plat.toLowerCase()) {
+  switch (platform) {
     case 'x':
     case 'twitter':
       icon = 'tabler:brand-twitter';
-      if (!rest.startsWith('http')) href = `https://x.com/${rest.replace(/^@/, '')}`;
+      href = value.startsWith('http') ? value : `https://x.com/${value.replace(/^@/, '')}`;
       break;
     case 'github':
       icon = 'tabler:brand-github';
-      href = rest.startsWith('http') ? rest : `https://github.com/${rest.replace(/^@/, '')}`;
+      href = value.startsWith('http') ? value : `https://github.com/${value.replace(/^@/, '')}`;
       break;
     case 'linkedin':
       icon = 'tabler:brand-linkedin';
+      href = value.startsWith('http') ? value : `https://linkedin.com/in/${value.replace(/^@/, '')}`;
       break;
     case 'orcid':
       icon = 'tabler:file-spark';
+      href = value.startsWith('http') ? value : `https://orcid.org/${value}`;
       break;
     default:
       icon = 'tabler:link';
+      href = value;
   }
 
   return { icon, href };
@@ -47,7 +43,7 @@ type RawEntry = {
   name: string;
   email: string;
   research: string;
-  socials: string[];
+  socials: Record<string, string>;
 };
 
 export async function getPeople(rawList: RawEntry[] = []): Promise<Person[]> {
@@ -55,6 +51,8 @@ export async function getPeople(rawList: RawEntry[] = []): Promise<Person[]> {
     name: entry.name,
     email: entry.email,
     research: entry.research,
-    socials: entry.socials.map(parseSocial).filter((s): s is { icon: string; href: string } => s !== null),
+    socials: Object.entries(entry.socials)
+      .map(([platform, value]) => parseSocial(`${platform}: ${value}`))
+      .filter((s): s is { icon: string; href: string } => s !== null),
   }));
 }
