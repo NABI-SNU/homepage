@@ -7,7 +7,7 @@ import PostTags from '~/components/blog/Tags.astro';
 import { APP_BLOG } from 'astrowind:config';
 import type { Post } from '~/types';
 
-import { getPermalink, cleanSlug } from '~/utils/permalinks';
+import { getPermalink, cleanSlug, getCanonical } from '~/utils/permalinks';
 import { findImage } from '~/utils/images';
 import { getFormattedDate } from '~/utils/utils';
 
@@ -29,7 +29,7 @@ const link = APP_BLOG?.post?.isEnabled ? getPermalink(post.permalink, 'post') : 
       max-w-md mx-auto md:max-w-none grid gap-6 md:gap-8 intersect-once intersect-quarter motion-safe:md:opacity-0 motion-safe:md:intersect:animate-fade ${image ? 'md:grid-cols-2' : ''}`}
 >
   <div
-    class="absolute inset-0 bg-gradient-to-r from-blue-500/5 to-purple-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500"
+    class="pointer-events-none absolute inset-0 bg-gradient-to-r from-blue-500/5 to-purple-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500"
   >
   </div>
   <div
@@ -95,7 +95,7 @@ const link = APP_BLOG?.post?.isEnabled ? getPermalink(post.permalink, 'post') : 
               <>
                 {' '}
                 · <Icon name="tabler:user" class="w-3.5 h-3.5 inline-block -mt-0.5 dark:text-gray-400" />
-                <a href={`/people#${cleanSlug(post.author)}`} class="hover:underline">
+                <a href={getCanonical(`/people#${cleanSlug(post.author)}`)} class="hover:underline">
                   {post.author.replaceAll('-', ' ')}
                 </a>
               </>
@@ -106,7 +106,7 @@ const link = APP_BLOG?.post?.isEnabled ? getPermalink(post.permalink, 'post') : 
               <>
                 {' '}
                 ·{' '}
-                <a class="hover:underline" href={getPermalink(post.category.slug, 'category')}>
+                <a class="hover:underline" href={getCanonical(getPermalink(post.category.slug, 'category'))}>
                   {post.category.title}
                 </a>
               </>
