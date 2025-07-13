@@ -1,0 +1,49 @@
+---
+import Layout from '~/layouts/PageLayout.astro';
+import Headline from '~/components/blog/Headline.astro';
+import Steps from '~/components/widgets/Steps.astro';
+import Pagination from '~/components/blog/Pagination.astro';
+import { fetchMonthlyItems, groupItemsBySeason, getSeason, getSeasonImage} from '~/utils/monthly';
+import type { News } from '~/types';
+
+export const prerender = true;
+
+export async function getStaticPaths({ paginate }) {
+  const allItems = await fetchMonthlyItems();
+  const seasonGroups = groupItemsBySeason(allItems);
+  
+  return paginate(seasonGroups, { pageSize: 1 });
+}
+
+const { page } = Astro.props as {
+  page: { data: News[][]; url: { prev?: string; next?: string }; currentPage: number };
+};
+const monthlyItems: News[] = page.data[0] || [];
+
+const metadata = {
+  title: `Resources${page.currentPage > 1 ? ` — Page ${page.currentPage}` : ''}`,
+  description:
+    'Monthly highlights featuring curated research papers and resources in computational neuroscience and AI.',
+};
+
+const isReversed = page.currentPage % 2 === 0;
+---
+
+<Layout metadata={metadata}>
+  <!-- Steps Widget ****************** -->
+  <section class="px-6 sm:px-6 py-12 sm:py-16 lg:py-20 mx-auto max-w-4xl">
+    <Headline subtitle="Curated computational neuroscience papers each month"> Monthly Highlights </Headline>
+  </section>
+  <Steps
+    title={`The Latest in NeuroAI (${getSeason(new Date(monthlyItems[0].date).getMonth() + 1)} ${new Date(monthlyItems[0].date).getFullYear()})`}
+    items={monthlyItems}
+    isReversed={isReversed}
+    image={{
+      src: getSeasonImage(getSeason(new Date(monthlyItems[0].date).getMonth() + 1)),
+      alt: `This Month's Highlights ${page.currentPage > 1 ? `(Page ${page.currentPage})` : ''}`,
+    }}
+  />
+  <div class="max-w-5xl mx-auto px-4 sm:px-6">
+    <Pagination prevUrl={page.url.prev} nextUrl={page.url.next} />
+  </div>  
+</Layout>
