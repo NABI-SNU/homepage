@@ -1,0 +1,16 @@
+repos:
+  - repo: local
+    hooks:
+      - id: check
+        name: npm‐check
+        entry: npm run check
+        language: system
+        pass_filenames: false
+        files: \.(js|jsx|ts|tsx|astro|svelte|json|md|mdx|yaml|yml|css)$
+
+      - id: audit
+        name: npm‐audit
+        entry: npm run security:audit
+        language: system
+        pass_filenames: false
+        files: \.(js|jsx|ts|tsx|astro|svelte|json|md|mdx|yaml|yml|css)$
