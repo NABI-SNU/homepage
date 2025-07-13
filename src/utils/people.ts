@@ -3,11 +3,11 @@ import type { Person, Social } from '~/types';
 // map the "Platform: value" strings to an icon name + URL
 function parseSocial(raw: string): Social | null {
   if (!raw.includes(':')) return null;
-  
+
   const colonIndex = raw.indexOf(':');
   const platform = raw.substring(0, colonIndex).trim().toLowerCase();
   const value = raw.substring(colonIndex + 1).trim();
-  
+
   if (!value) return null;
 
   let icon: string;
