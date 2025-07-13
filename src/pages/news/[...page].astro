@@ -3,7 +3,7 @@ import Layout from '~/layouts/PageLayout.astro';
 import Headline from '~/components/blog/Headline.astro';
 import Steps from '~/components/widgets/Steps.astro';
 import Pagination from '~/components/blog/Pagination.astro';
-import { fetchMonthlyItems, groupItemsBySeason, getSeason, getSeasonImage} from '~/utils/monthly';
+import { fetchMonthlyItems, groupItemsBySeason, getSeason, getSeasonImage } from '~/utils/monthly';
 import type { News } from '~/types';
 
 export const prerender = true;
@@ -11,7 +11,7 @@ export const prerender = true;
 export async function getStaticPaths({ paginate }) {
   const allItems = await fetchMonthlyItems();
   const seasonGroups = groupItemsBySeason(allItems);
-  
+
   return paginate(seasonGroups, { pageSize: 1 });
 }
 
@@ -45,5 +45,5 @@ const isReversed = page.currentPage % 2 === 0;
   />
   <div class="max-w-5xl mx-auto px-4 sm:px-6">
     <Pagination prevUrl={page.url.prev} nextUrl={page.url.next} />
-  </div>  
+  </div>
 </Layout>

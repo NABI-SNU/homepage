@@ -2,9 +2,10 @@
 import Layout from '~/layouts/PageLayout.astro';
 import Headline from '~/components/blog/Headline.astro';
 import Steps from '~/components/widgets/Steps.astro';
-import { getLatestMonthlyItems, type MonthlyItem } from '~/utils/monthly';
+import { getLatestMonthlyItems } from '~/utils/monthly';
+import { type News } from '~/types';
 
-const monthlyItems: MonthlyItem[] = await getLatestMonthlyItems();
+const monthlyItems: News[] = await getLatestMonthlyItems();
 
 const metadata = {
   title: 'Resources',

@@ -9,45 +9,53 @@ import {
   type ImageProps,
 } from '~/utils/images-optimization';
 
-import { Image as AstroImage } from 'astro:assets';
+type Props = ImageProps;
+type ImageType = {
+  src: string;
+  attributes: HTMLAttributes<'img'>;
+};
 
-const props = Astro.props as ImageProps;
+const props = Astro.props;
 
-// validation/fall-backs
-if (props.alt == null) throw new Error('`alt` is required for accessibility');
-props.loading ??= 'lazy';
-props.decoding ??= 'async';
-if (typeof props.width === 'string') props.width = parseInt(props.width);
-if (typeof props.height === 'string') props.height = parseInt(props.height);
+if (props.alt === undefined || props.alt === null) {
+  throw new Error();
+}
 
-// Resolve & optimize
+if (typeof props.width === 'string') {
+  props.width = parseInt(props.width);
+}
+
+if (typeof props.height === 'string') {
+  props.height = parseInt(props.height);
+}
+
+if (!props.loading) {
+  props.loading = 'lazy';
+}
+
+if (!props.decoding) {
+  props.decoding = 'async';
+}
+
 const _image = await findImage(props.src);
-let imageInfo;
-if (typeof _image === 'string' && isUnpicCompatible(_image)) {
-  imageInfo = await getImagesOptimized(_image, props, unpicOptimizer);
+
+let image: ImageType | undefined = undefined;
+
+if (
+  typeof _image === 'string' &&
+  (_image.startsWith('http://') || _image.startsWith('https://')) &&
+  isUnpicCompatible(_image)
+) {
+  image = await getImagesOptimized(_image, props, unpicOptimizer);
 } else if (_image) {
-  imageInfo = await getImagesOptimized(_image, props, astroAssetsOptimizer);
+  image = await getImagesOptimized(_image, props, astroAssetsOptimizer);
 }
 ---
 
 {
-  imageInfo ? (
-    <AstroImage
-      src={_image}
-      {...imageInfo.attributes}
-      {
-        ...props /* forward widths/sizes/layout if you passed them */
-      }
-    />
+  !image ? (
+    <Fragment />
   ) : (
-    <img
-      src={typeof props.src === 'string' ? props.src : ''}
-      alt={props.alt}
-      width={props.width}
-      height={props.height}
-      loading={props.loading}
-      decoding={props.decoding}
-      {...(props as HTMLAttributes<'img'>)}
-    />
+    <img src={image.src} crossorigin="anonymous" referrerpolicy="no-referrer" {...image.attributes} />
   )
 }

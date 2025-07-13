@@ -100,7 +100,7 @@ const hasToc = post?.headings && post.headings.length > 2;
         {
           post.tags && Array.isArray(post.tags) && post.tags.length > 0 && (
             <div class="flex flex-wrap justify-start gap-2 mb-8">
-              {post.tags.map((tag) => (
+              {post.tags.map((tag: { slug: string; title: string }) => (
                 <a
                   href={getPermalink(tag.slug, 'tag')}
                   class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-primary hover:text-white dark:hover:bg-primary transition-colors duration-200"

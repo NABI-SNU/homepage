@@ -77,7 +77,7 @@ const currentPath = `/${trimSlash(new URL(Astro.url).pathname)}`;
       <!-- Left side: Menu toggle (mobile) and Logo -->
       <div class="flex items-center">
         <div class="flex items-center justify-center h-8 w-8 md:hidden">
-          <ToggleMenu/>
+          <ToggleMenu />
         </div>
         <a class="flex items-center" href={getHomePermalink()}>
           <Logo />
@@ -85,11 +85,10 @@ const currentPath = `/${trimSlash(new URL(Astro.url).pathname)}`;
       </div>
       <!-- Mobile search icon (visible up to md) -->
       <div class="ml-2 md:hidden">
-        <Search decorator="mobile"/>
+        <Search decorator="mobile" />
       </div>
     </div>
-  
-    
+
     <nav
       class="items-center w-full md:w-auto hidden md:flex md:mx-5 text-default overflow-y-auto overflow-x-hidden md:overflow-y-visible md:overflow-x-auto md:justify-self-center"
       aria-label="Main navigation"
@@ -141,7 +140,7 @@ const currentPath = `/${trimSlash(new URL(Astro.url).pathname)}`;
         }
       </ul>
     </nav>
-    
+
     <div
       class:list={[
         { 'ml-auto rtl:ml-0 rtl:mr-auto': position === 'left' },
@@ -151,7 +150,7 @@ const currentPath = `/${trimSlash(new URL(Astro.url).pathname)}`;
       <div class="items-center flex justify-between w-full md:w-auto">
         <div class="flex">
           <div class="hidden md:flex">
-            <Search decorator="desktop"/>
+            <Search decorator="desktop" />
           </div>
           {showToggleTheme && <ToggleTheme iconClass="w-6 h-6 md:w-5 md:h-5 md:inline-block" />}
           {

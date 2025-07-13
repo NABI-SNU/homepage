@@ -13,10 +13,10 @@ export const getSeason = (month: number): string => {
 /** Get season image URL */
 export const getSeasonImage = (season: string): string => {
   const images = {
-    'Spring': 'https://img-svr.nabiresearch.workers.dev/img/webp/czNmcy1.webp',
-    'Summer': 'https://img-svr.nabiresearch.workers.dev/img/webp/9g8xIWj.webp',
-    'Autumn': 'https://img-svr.nabiresearch.workers.dev/img/webp/e71F970.webp',
-    'Winter': 'https://img-svr.nabiresearch.workers.dev/img/webp/FEA1Ppu.webp',
+    Spring: 'https://img-svr.nabiresearch.workers.dev/img/webp/czNmcy1.webp',
+    Summer: 'https://img-svr.nabiresearch.workers.dev/img/webp/9g8xIWj.webp',
+    Autumn: 'https://img-svr.nabiresearch.workers.dev/img/webp/e71F970.webp',
+    Winter: 'https://img-svr.nabiresearch.workers.dev/img/webp/FEA1Ppu.webp',
   };
   return images[season] || images['Spring'];
 };
