@@ -11,24 +11,81 @@ export interface Props {
 const { headings = [] } = Astro.props;
 ---
 
-<div class="px-4 sm:px-6 max-w-3xl mx-auto mt-4 text-sm">
-  <div class="max-h-[48vh] overflow-y-auto py-2 px-3">
-    <ul id="toc-list" class="space-y-2">
+<div class="toc-container">
+  <!-- Desktop TOC - Fixed sidebar with Substack-style design -->
+  <aside
+    id="toc"
+    class="hidden md:block fixed z-20 transition-all duration-300 ease-in-out opacity-0 pointer-events-none"
+    style="left: max(68px, calc((100vw - 1024px) / 2 - 280px)); top: 50%; transform: translateY(-50%);"
+  >
+    <div
+      class="w-64 max-h-[calc(100vh-8rem)] bg-white dark:bg-gray-900 rounded-lg shadow-md border border-gray-200 dark:border-gray-700 overflow-hidden"
+    >
+      <div class="p-4">
+        <div class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-4">Contents</div>
+        <nav class="overflow-y-auto max-h-[calc(100vh-12rem)]">
+          <div id="toc-list" class="space-y-0">
+            {
+              headings?.map((heading, idx) => {
+                const indentLevel = Math.max(0, heading.depth - 2);
+                const indentClass = indentLevel > 0 ? `ml-${indentLevel * 4}` : '';
+                return (
+                  <a
+                    href={`#${heading.slug}`}
+                    class={`toc-link block py-2 px-3 text-sm transition-colors border-l-2 border-transparent hover:bg-gray-50 dark:hover:bg-gray-800 ${indentClass}`}
+                    data-toc-idx={idx}
+                    data-heading-level={heading.depth}
+                  >
+                    <div
+                      class={`truncate ${heading.depth === 2 ? 'font-medium text-gray-900 dark:text-gray-100' : heading.depth === 3 ? 'text-gray-700 dark:text-gray-300' : 'text-gray-600 dark:text-gray-400 text-xs'}`}
+                    >
+                      {heading.text}
+                    </div>
+                  </a>
+                );
+              })
+            }
+          </div>
+        </nav>
+      </div>
+    </div>
+  </aside>
+
+  <!-- TOC Toggle Button - Dynamic based on headings -->
+  <button
+    id="toc-toggle"
+    class="hidden md:block fixed z-30 transition-all duration-300 ease-in-out bg-white/20 dark:bg-gray-900/20 backdrop-blur-sm hover:bg-white hover:dark:bg-gray-900 rounded-lg hover:shadow-md hover:border hover:border-gray-200 hover:dark:border-gray-700 opacity-60 hover:opacity-100 group"
+    style="left: max(1rem, calc((100vw - 1024px) / 2 - 320px)); top: 50%; transform: translateY(-50%);"
+    aria-label="Toggle table of contents"
+  >
+    <div class="flex flex-col gap-2 p-4" id="toggle-lines">
       {
-        headings?.map((heading, idx) => (
-          <li class={`relative ml-${(heading.depth - 2) * 4}`}>
-            <a
-              href={`#${heading.slug}`}
-              class="toc-link block pl-3 hover:underline transition-colors"
+        headings?.map((heading, idx) => {
+          const indentLevel = Math.max(0, heading.depth - 2);
+          const lineWidth =
+            heading.depth === 2
+              ? 'w-5'
+              : heading.depth === 3
+                ? 'w-4'
+                : heading.depth === 4
+                  ? 'w-3'
+                  : heading.depth === 5
+                    ? 'w-2'
+                    : 'w-1';
+          const lineHeight = heading.depth === 2 ? 'h-0.5' : 'h-px';
+          const marginLeft = indentLevel > 0 ? `ml-${indentLevel}` : '';
+
+          return (
+            <div
+              class={`${lineWidth} ${lineHeight} bg-gray-700 dark:bg-gray-300 transition-all duration-200 ${marginLeft} toggle-line`}
               data-toc-idx={idx}
-            >
-              {heading.text}
-            </a>
-          </li>
-        ))
+              data-heading-level={heading.depth}
+            />
+          );
+        })
       }
-    </ul>
-  </div>
+    </div>
+  </button>
 </div>
 
 <TableOfContentsInit client:load />

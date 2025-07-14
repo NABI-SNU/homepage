@@ -1,19 +1,124 @@
-.toc-link.active {
-  font-weight: 600;
-  color: var(--aw-color-primary);
+/* Table of Contents Styles - Enhanced Substack Style */
+.toc-container {
+  position: relative;
 }
-.toc-link.active::before {
-  content: '';
-  position: absolute;
-  left: 0;
-  top: 0.35rem;
-  bottom: 0.35rem;
-  width: 0.2rem;
-  border-radius: 9999px;
-  background: var(--aw-color-primary);
-  transition: background 0.2s;
+
+/* Hide TOC on screens smaller than 640px */
+@media (max-width: 639px) {
+  #toc,
+  #toc-toggle {
+    display: none !important;
+  }
 }
-li.relative .toc-link {
+
+/* TOC Link Styles with proper heading level styling */
+.toc-link {
   position: relative;
   display: block;
+  transition: all 0.2s ease-in-out;
+}
+.toc-link:hover {
+  background-color: rgba(243, 244, 246, 0.8);
+}
+.dark .toc-link:hover {
+  background-color: rgba(31, 41, 55, 0.8);
+}
+
+/* Active link styles */
+.toc-link.active {
+  background-color: rgba(243, 244, 246, 1);
+  border-left-color: #3b82f6;
+}
+.dark .toc-link.active {
+  background-color: rgba(31, 41, 55, 1);
+}
+
+/* Heading level specific styles */
+.toc-link[data-heading-level='2'] {
+  font-weight: 500;
+  padding-left: 0.75rem;
+}
+.toc-link[data-heading-level='3'] {
+  padding-left: 1.5rem;
+  font-size: 0.875rem;
+}
+.toc-link[data-heading-level='4'] {
+  padding-left: 2.25rem;
+  font-size: 0.8125rem;
+  color: #6b7280;
+}
+.dark .toc-link[data-heading-level='4'] {
+  color: #9ca3af;
+}
+
+/* Toggle button styles - Enhanced visibility */
+#toc-toggle {
+  cursor: pointer;
+  transition: all 0.3s ease-in-out;
+  backdrop-filter: blur(8px);
+}
+#toc-toggle:hover {
+  transform: translateY(-2px);
+  opacity: 1 !important;
+}
+
+/* Toggle button lines - More visible and dynamic */
+.toggle-line {
+  transition: all 0.3s ease-in-out;
+  transform-origin: left center;
+}
+.toggle-line:hover {
+  transform: scaleX(1.1);
+}
+
+/* Active line highlighting */
+.toggle-line.active {
+  background-color: #3b82f6 !important;
+  transform: scaleX(1.2) scaleY(1.5);
+  box-shadow: 0 0 8px rgba(59, 130, 246, 0.4);
+}
+
+/* Heading level specific toggle lines */
+.toggle-line[data-heading-level='4'] {
+  background-color: #6b7280;
+}
+
+/* Smooth transitions */
+#toc {
+  transition:
+    opacity 0.3s ease-in-out,
+    transform 0.3s ease-in-out;
+}
+
+/* Custom scrollbar for TOC */
+#toc nav::-webkit-scrollbar {
+  width: 4px;
+}
+#toc nav::-webkit-scrollbar-track {
+  background: transparent;
+}
+#toc nav::-webkit-scrollbar-thumb {
+  background: rgba(156, 163, 175, 0.3);
+  border-radius: 2px;
+}
+#toc nav::-webkit-scrollbar-thumb:hover {
+  background: rgba(156, 163, 175, 0.6);
+}
+
+/* Content margin adjustment for left TOC */
+@media (min-width: 640px) {
+  .has-toc .article-content {
+    margin-left: 320px;
+  }
+}
+
+/* Enhanced hover effects */
+#toc-toggle.group:hover .toggle-line {
+  transform: scaleX(1.05);
+}
+#toc-toggle.group:hover .toggle-line[data-heading-level='2'] {
+  background-color: #1f2937;
+}
+.dark #toc-toggle.group:hover .toggle-line[data-heading-level='2'] {
+  background-color: #f9fafb;
 }

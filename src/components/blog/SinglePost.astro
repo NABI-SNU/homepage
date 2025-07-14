@@ -18,20 +18,9 @@ const hasToc = post?.headings && post.headings.length > 2;
 
 <article class="relative">
   <!-- Hero Section -->
-  <section class="relative pt-6 sm:pt-8 lg:pt-12 mx-auto max-w-6xl">
-    {
-      hasToc ? (
-        <aside
-          id="toc"
-          class="hidden lg:block fixed right-4 top-1/2 -translate-y-1/2 w-60 z-10
-               transition-transform duration-300 ease-in-out"
-        >
-          <TableOfContents headings={post.headings} />
-        </aside>
-      ) : null
-    }
-
-    <div class="mx-auto max-w-3xl px-4 sm:px-6 lg:px-8">
+  <section class="relative pt-6 sm:pt-8 lg:pt-12 mx-auto max-w-7xl">
+    <!-- Main content container with conditional padding -->
+    <div class={`mx-auto px-4 sm:px-6 lg:px-8 ${hasToc ? 'max-w-3xl md:ml-80' : 'max-w-3xl'}`}>
       <!-- Article Header -->
       <header
         class="mb-6 sm:mb-8 intersect-once intersect-quarter motion-safe:md:opacity-0 motion-safe:md:intersect:animate-fade"
@@ -87,6 +76,7 @@ const hasToc = post?.headings && post.headings.length > 2;
           {post.title}
         </h1>
         <div class="w-32 h-1 bg-gradient-to-r from-blue-500 to-purple-600 mx-auto lg:mx-0 rounded-full"></div>
+
         <!-- Excerpt -->
         {
           post.excerpt && (
@@ -117,7 +107,7 @@ const hasToc = post?.headings && post.headings.length > 2;
       {
         post.image ? (
           <Image
-            src={post.image}
+            src={post.image || '/placeholder.svg'}
             class="max-w-full lg:max-w-[900px] mx-auto mb-6 sm:rounded-md bg-gray-400 dark:bg-slate-700"
             widths={[320, 720]}
             sizes="(max-width: 720px) 320px, 720px"
@@ -134,11 +124,14 @@ const hasToc = post?.headings && post.headings.length > 2;
         )
       }
     </div>
+
+    <!-- Table of Contents -->
+    {hasToc && <TableOfContents headings={post.headings} />}
   </section>
 
   <!-- Article Content -->
-  <section class="relative py-8 sm:py-12 mx-auto max-w-6xl">
-    <div class="mx-auto max-w-3xl px-4 sm:px-6 lg:px-8">
+  <section class="relative py-8 sm:py-12 mx-auto max-w-7xl">
+    <div class={`mx-auto px-4 sm:px-6 lg:px-8 ${hasToc ? 'max-w-3xl md:ml-80' : 'max-w-3xl'}`}>
       <!-- Article Body -->
       <div
         class="prose prose-lg sm:prose-xl dark:prose-invert max-w-none
@@ -167,8 +160,8 @@ const hasToc = post?.headings && post.headings.length > 2;
   </section>
 
   <!-- Article Footer -->
-  <section class="relative py-8 sm:py-12 mx-auto max-w-6xl">
-    <div class="mx-auto max-w-3xl px-4 sm:px-6 lg:px-8">
+  <section id="article-footer" class="relative py-8 sm:py-12 mx-auto max-w-7xl">
+    <div class={`mx-auto px-4 sm:px-6 lg:px-8 ${hasToc ? 'max-w-3xl md:ml-80' : 'max-w-3xl'}`}>
       <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6">
         <!-- Tags -->
         <div class="flex-1">
