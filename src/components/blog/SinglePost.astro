@@ -18,9 +18,9 @@ const hasToc = post?.headings && post.headings.length > 2;
 
 <article class="relative">
   <!-- Hero Section -->
-  <section class="relative pt-6 sm:pt-8 lg:pt-12 mx-auto max-w-7xl">
+  <section class="relative pt-6 md:pt-12 mx-auto max-w-7xl md:mt-12">
     <!-- Main content container with conditional padding -->
-    <div class={`mx-auto px-4 sm:px-6 lg:px-8 ${hasToc ? 'max-w-3xl md:ml-80' : 'max-w-3xl'}`}>
+    <div class="mx-auto px-4 sm:px-6 lg:px-8 max-w-3xl">
       <!-- Article Header -->
       <header
         class="mb-6 sm:mb-8 intersect-once intersect-quarter motion-safe:md:opacity-0 motion-safe:md:intersect:animate-fade"
@@ -131,7 +131,7 @@ const hasToc = post?.headings && post.headings.length > 2;
 
   <!-- Article Content -->
   <section class="relative py-8 sm:py-12 mx-auto max-w-7xl">
-    <div class={`mx-auto px-4 sm:px-6 lg:px-8 ${hasToc ? 'max-w-3xl md:ml-80' : 'max-w-3xl'}`}>
+    <div class="mx-auto px-4 sm:px-6 lg:px-8 max-w-3xl">
       <!-- Article Body -->
       <div
         class="prose prose-lg sm:prose-xl dark:prose-invert max-w-none
@@ -161,7 +161,7 @@ const hasToc = post?.headings && post.headings.length > 2;
 
   <!-- Article Footer -->
   <section id="article-footer" class="relative py-8 sm:py-12 mx-auto max-w-7xl">
-    <div class={`mx-auto px-4 sm:px-6 lg:px-8 ${hasToc ? 'max-w-3xl md:ml-80' : 'max-w-3xl'}`}>
+    <div class="mx-auto px-4 sm:px-6 lg:px-8 max-w-3xl">
       <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6">
         <!-- Tags -->
         <div class="flex-1">
