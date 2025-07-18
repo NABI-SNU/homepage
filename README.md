@@ -8,7 +8,11 @@ This is the new **NABI** website built with [Astro](https://astro.build/).
 Consider sponsoring the [project](https://buymeacoffee.com/onwidget) if
 you find Astrowind useful.
 
-## Key Information
+## Key Usage Information
+
+- Please add new `.mdx` or `.md` files in `src/data/post` to add new blog posts.
+
+## Key Development Information
 
 - Built with [Astro](https://astro.build/) and Tailwind CSS using the AstroWind template.
 - Requires Node.js 18 or newer.
