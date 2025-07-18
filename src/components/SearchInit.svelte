@@ -73,15 +73,6 @@
       }
     });
 
-    // Keyboard shortcuts
-    document.addEventListener('keydown', (e: KeyboardEvent) => {
-      // Cmd/Ctrl + K to open search
-      if ((e.metaKey || e.ctrlKey) && e.key === 'k' && !searchDialog?.open) {
-        e.preventDefault();
-        openSearch();
-      }
-    });
-
     // Theme change observer
     const observer = new MutationObserver((mutations) => {
       mutations.forEach((mutation) => {
