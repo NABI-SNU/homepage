@@ -2,7 +2,7 @@
 publishDate: 2025-07-20T19:00:00+09:00
 author: Younghoon Kim
 title: 'Memory in Context (Kickoff Session)'
-image: https://img-svr.nabiresearch.workers.dev/img/webp/sHXuaLO.webp
+image: https://img-svr.nabiresearch.workers.dev/img/webp/CcE2224.webp
 excerpt: "The topic of this year's NABI symposium, we explore how hippocampal circuits reveal the principles behind flexible, context-dependent memory."
 category: Monthly Meeting
 tags:
@@ -69,44 +69,66 @@ references:
     url: https://arxiv.org/abs/2112.04035
 ---
 
-We explored **memory in context**, the theme of this year's NABI symposium. Hippocampal memory involves **inference, interpretation, and structural mapping**, with the “cognitive map” offering a framework for context-dependent memory.
+We explored **memory in context**, the theme of this year's NABI symposium. Contrary to older views, **hippocampal memory is not passive**—it actively infers, interprets, and structures experience.
 
-## **A Marriage of Geometry and RL**
+## **From Cognitive Maps to Predictive Maps**
 
-- The hippocampus encodes possible future states in high-dimensional space (_Tolman et al._, 1948).
-- Meanwhile, the brain maximizes expected rewards; latent action-value representations in memory support flexible decision-making. The microanatomy of the hippocampus is crucial for this.
-- **Place Cells** encode sequences of states.
-- **Grid Cells** encode latent spatial geometry.
-- **Limits of Predictive Maps:** Do not explain one-shot generalization, the “who-what-where” problem, or the diversity of hippocampal cell types.
+- The hippocampus encodes possible future states as a **cognitive map**.
+- **Maps are useful only if they can guide future actions**—hence the link to **reinforcement learning** and Bellman's equation.
+- **Successor Representation (SR)**:
+  - Provides a predictive map: $M(s, s')$ is the expected future occupancy of state $s'$ from $s$.
+  - Place cells encode the probability of being at future locations, not just the present.
+  - **Grid cells** emerge as the eigenvectors (basis functions) of the SR, supporting low-dimensional spatial coding.
 
-## **Structural Abstraction**
+### **Limitations of Predictive Maps**
 
-- The **Tolman-Eichenbaum Machine (TEM)** infers latent relational structure.
-- Structural codes (MEC) and sensory input (LEC) combine to update a **conjunctive code** representing entities in context.
-- The TEM thus learns a relational graph that guides future choices.
-- **TEM Limitations:**
-  - _Aliased Sensory Stimuli_: Struggles with identical cues in different contexts.
-  - _Compositional Reuse_: Lacks flexible recombination of learned structures.
-  - _Egocentric Generalization_: Cannot fully generalize across perspectives.
+- SR tracks locations but not entities (“who/what is where?”).
+- **Lacks one-shot generalization**: animals instantly reuse new rules, but SR needs many trials to adapt.
+- Can't explain the diversity of hippocampal cell types (border, band, object-vector cells, etc.).
 
-## **Sequential Memory**
+## **Structural Abstraction and the TEM**
 
-- The **Cloned-Structured Cognitive Graph (CSCG)** (an HMM) can:
-  - Learn context-specific structure from aliased stimuli,
-  - Disambiguate repeated observations,
-  - Reuse learned structure in new contexts.
-- However the _CSCG_ model fails to respect the microanatomy of the hippocampus, unlike the _TEM_.
+- The **Tolman-Eichenbaum Machine** learns latent relational structure shared across both spatial and non-spatial tasks.
+- The grid cells represent an allocentric representation of the environment, by performing path integration and a common structural code to generalize between environments.
+- The place map is a "where-map" between locations and entities within the environment, and rather than being tied to a specific sensory input (as in a _predictive mapping_) encodes the relationship between various locations in a graph-like structure.
+- Thus grid-like “g-cells” and conjunctive “p-cells” (items × locations) allow for flexible relational inference.
+- The conjunctive "prior" is initially learned from the inference step, and is updated through a generative process where the agent explores the environment.
+- **Emergent cell types**: Tolman-Eichenbaum machines account for a host of cell types, including grid, band, border, and object-vector-like units.
 
-## **Biological Disentanglement**
+### **Limitations**
 
-- The memory retrieval process in the _Tolman-Eichenbaum Machine (TEM)_ is mathematically equivalent to transformer self-attention:
+- Struggles with **aliased sensory inputs** (same cues in different places).
+- No compositional or **segmental reuse** of learned structure.
+- Operates in allocentric (map-based) rather than egocentric (self-centered) reference frames, thus failing at egocentric generalization.
+
+### **Biological Disentanglement and Theoretical Connections**
+
+- Memory retrieval in the TEM is mathematically equivalent to **transformer self-attention**.
   $$
   \text{TEM:} \quad q \leftarrow \sigma(qM), \quad \text{vs. Transformer:} \quad y = \text{softmax}(QK^\top)V
   $$
-- Thus, _Attention_-based mechanisms unify neural and artificial models of memory, supporting efficient generalization and flexible inference.
-- **Food For Thought**: Explaining $\neq$ Understanding:
-  - Just because we can explain something, does not mean we understand it.
+- Attention-based mechanisms may unify neural and artificial models of memory.
+
+## **Learning from Sequences: CSCG**
+
+- **Clone-Structured Cognitive Graph (CSCG)**:
+  - Models the hippocampus as a cloned Hidden Markov Model (HMM) with action-conditioned transitions.
+  - Learns context-specific structure, even with **aliased observations**. (i.e. same sensory stimuli in different contexts)
+  - Disambiguates repeated observations across episodes, allowing for egocentric generalization.
+  - Enables map stitching and place field remapping, mirroring experimental findings. (i.e. allowing for the reuse of learned structure in new contexts)
+- **Limitations**:
+  - Biologically unlikely compared to the TEM, and does not account for grid cell distribution.
+
+---
+
+## **Take Home Message**
+
+Hippocampal circuits serve as **contextual, predictive, and relational memory engines**, integrating spatial, relational, and sequential information. While models like SR, TEM, and CSCG each explain some hippocampal phenomena, **no single framework yet captures the full diversity and flexibility of memory in context**—a major ongoing challenge in neuroscience and AI.
+
+---
 
 ## Key Discussion Points
+
+---
 
 ## Original Video
