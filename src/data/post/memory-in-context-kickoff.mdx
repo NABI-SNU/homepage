@@ -1,0 +1,112 @@
+---
+publishDate: 2025-07-20T19:00:00+09:00
+author: Younghoon Kim
+title: 'Memory in Context (Kickoff Session)'
+image: https://img-svr.nabiresearch.workers.dev/img/webp/sHXuaLO.webp
+excerpt: "A look at Memory in Context, the topic of this year's NABI symposium, exploring how hippocampal circuits reveal the principles behind flexible, context-dependent memory."
+category: Monthly Meeting
+tags:
+  - memory in context
+  - cognitive science
+  - bayesian inference
+  - kickoff
+  - hippocampus
+  - tolman-eichenbaum machine
+  - large language models
+references:
+  - title: The hippocampus as a predictive map
+    authors:
+      - Stachenfeld, K. L.
+      - Botvinick, M. M.
+      - Gershman, S. J.
+    year: 2017
+    journal: Nature Neuroscience
+    doi: 10.1038/nn.4650
+    url: https://doi.org/10.1038/nn.4650
+
+  - title: The Tolman‑Eichenbaum Machine, Unifying Space and Relational Memory through Generalization in the Hippocampal Formation
+    authors:
+      - Whittington, J. C. R.
+      - Muller, T. H.
+      - Mark, S.
+      - Chen, G.
+      - Barry, C.
+      - Burgess, N.
+      - Behrens, T. E. J.
+    year: 2020
+    journal: Cell
+    doi: 10.1016/j.cell.2020.10.024
+    url: https://doi.org/10.1016/j.cell.2020.10.024
+
+  - title: Space is a latent sequence, A theory of the hippocampus
+    authors:
+      - Raju, S. S.
+      - Namboodiri, V. M. K.
+      - et al.
+    year: 2024
+    journal: Science Advances
+    doi: 10.1126/sciadv.adm8470
+    url: https://doi.org/10.1126/sciadv.adm8470
+
+  - title: Generalisation in Graph Neural Networks through Equivariance to Subgraph Isomorphism
+    authors:
+      - Dedieu, A.
+      - Yu, L.
+      - et al.
+    year: 2024
+    journal: arXiv
+    doi: 10.48550/arXiv.2401.05946
+    url: https://doi.org/10.48550/arXiv.2401.05946
+
+  - title: Relating Transformers to Models and Neural Representations of the Hippocampal Formation
+    authors:
+      - Whittington, J. C. R.
+      - Warren, J.
+      - Behrens, T. E. J.
+    year: 2022
+    journal: ICLR 2022 Conference Paper (arXiv preprint)
+    doi: 10.48550/arXiv.2112.04035
+    url: https://arxiv.org/abs/2112.04035
+---
+
+We explored **memory in context**, the theme of this year's NABI symposium. Hippocampal memory involves **inference, interpretation, and structural mapping**, with the “cognitive map” offering a framework for context-dependent memory.
+
+## **A Marriage of Geometry and RL**
+
+- The hippocampus encodes possible future states in high-dimensional space (_Tolman et al._, 1948).
+- Meanwhile, the brain maximizes expected rewards; latent action-value representations in memory support flexible decision-making. The microanatomy of the hippocampus is crucial for this.
+- **Place Cells** encode sequences of states.
+- **Grid Cells** encode latent spatial geometry.
+- **Limits of Predictive Maps:** Do not explain one-shot generalization, the “who-what-where” problem, or the diversity of hippocampal cell types.
+
+## **Structural Abstraction**
+
+- The **Tolman-Eichenbaum Machine (TEM)** infers latent relational structure.
+- Structural codes (MEC) and sensory input (LEC) combine to update a **conjunctive code** representing entities in context.
+- The TEM thus learns a relational graph that guides future choices.
+- **TEM Limitations:**
+  - _Aliased Sensory Stimuli_: Struggles with identical cues in different contexts.
+  - _Compositional Reuse_: Lacks flexible recombination of learned structures.
+  - _Egocentric Generalization_: Cannot fully generalize across perspectives.
+
+## **Sequential Memory**
+
+- The **Cloned-Structured Cognitive Graph (CSCG)** (an HMM) can:
+  - Learn context-specific structure from aliased stimuli,
+  - Disambiguate repeated observations,
+  - Reuse learned structure in new contexts.
+- However the _CSCG_ model fails to respect the microanatomy of the hippocampus, unlike the _TEM_.
+
+## **Biological Disentanglement**
+
+- The memory retrieval process in the _Tolman-Eichenbaum Machine (TEM)_ is mathematically equivalent to transformer self-attention:
+  $$
+  \text{TEM:} \quad q \leftarrow \sigma(qM), \quad \text{vs. Transformer:} \quad y = \text{softmax}(QK^\top)V
+  $$
+- Thus, _Attention_-based mechanisms unify neural and artificial models of memory, supporting efficient generalization and flexible inference.
+- **Food For Thought**: Explaining $\neq$ Understanding:
+  - Just because we can explain something, does not mean we understand it.
+
+## Key Discussion Points
+
+## Original Video
