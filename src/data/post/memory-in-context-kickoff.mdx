@@ -75,7 +75,7 @@ We explored **memory in context**, the theme of this year's NABI symposium. Cont
 
 - The hippocampus encodes possible future states as a **cognitive map**.
 - **Maps are useful only if they can guide future actions**—hence the link to **reinforcement learning** and Bellman's equation.
-- **Successor Representation (SR)**:
+- **Successor Representation (SR)** is a way to encode such as predictive map for RL.
   - Provides a predictive map: $M(s, s')$ is the expected future occupancy of state $s'$ from $s$.
   - Place cells encode the probability of being at future locations, not just the present.
   - **Grid cells** emerge as the eigenvectors (basis functions) of the SR, supporting low-dimensional spatial coding.
@@ -95,7 +95,7 @@ We explored **memory in context**, the theme of this year's NABI symposium. Cont
 - The conjunctive "prior" is initially learned from the inference step, and is updated through a generative process where the agent explores the environment.
 - **Emergent cell types**: Tolman-Eichenbaum machines account for a host of cell types, including grid, band, border, and object-vector-like units.
 
-### **Limitations**
+### **Limitations of the TEM**
 
 - Struggles with **aliased sensory inputs** (same cues in different places).
 - No compositional or **segmental reuse** of learned structure.
@@ -111,13 +111,14 @@ We explored **memory in context**, the theme of this year's NABI symposium. Cont
 
 ## **Learning from Sequences: CSCG**
 
-- **Clone-Structured Cognitive Graph (CSCG)**:
-  - Models the hippocampus as a cloned Hidden Markov Model (HMM) with action-conditioned transitions.
-  - Learns context-specific structure, even with **aliased observations**. (i.e. same sensory stimuli in different contexts)
-  - Disambiguates repeated observations across episodes, allowing for egocentric generalization.
-  - Enables map stitching and place field remapping, mirroring experimental findings. (i.e. allowing for the reuse of learned structure in new contexts)
-- **Limitations**:
-  - Biologically unlikely compared to the TEM, and does not account for grid cell distribution.
+- Models the hippocampus as a cloned Hidden Markov Model (HMM) with action-conditioned transitions.
+- Learns context-specific structure, even with **aliased observations**. (i.e. same sensory stimuli in different contexts)
+- Disambiguates repeated observations across episodes, allowing for egocentric generalization.
+- Enables map stitching and place field remapping, mirroring experimental findings. (i.e. allowing for the reuse of learned structure in new contexts)
+
+### **Limitations of CSCG**
+
+- Biologically unlikely compared to the TEM, and does not account for grid cell distribution.
 
 ---
 
