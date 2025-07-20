@@ -20,5 +20,188 @@
       "LinkedIn": "https://www.linkedin.com/in/qmedim",
       "ORCID": "https://orcid.org/0009-0003-0846-5072"
     }
+  },
+  {
+    "name": "Yubeen Bae",
+    "email": "lights0320@snu.ac.kr",
+    "research": "memory, natural language processing, representation, information, dynamics and chaos",
+    "socials": {
+      "LinkedIn": "https://www.linkedin.com/in/yubeen-bae/"
+    }
+  },
+  {
+    "name": "Hyunwoo Kim",
+    "email": "aqui030202@snu.ac.kr",
+    "research": "Neuro inspired-AI, Meta-algorithm Design, Representative learning, Inductive bias, Modeling assumption",
+    "socials": {}
+  },
+  {
+    "name": "Hyunseok Seo",
+    "email": "bmwha843@gmail.com",
+    "research": "Brain computer interface, neuroprosthesis, visual cortex foundation model",
+    "socials": {
+      "ORCID": "https://orcid.org/0000-0003-1801-629X"
+    }
+  },
+  {
+    "name": "Wooky Won",
+    "email": "wonwooky@snu.ac.kr",
+    "research": "",
+    "socials": {
+      "github": "@wonwooky",
+      "LinkedIn": "https://www.linkedin.com/in/욱희-원-7a087233"
+    }
+  },
+  {
+    "name": "Seungmin Lim",
+    "email": "ehfehfl3@gmail.com",
+    "research": "BCI, knowledge graph embedding and GNN, explainable AI, neuro-symbolic reasoning",
+    "socials": {
+      "LinkedIn": "https://www.linkedin.com/in/seungmin-lim"
+    }
+  },
+  {
+    "name": "Junghwan Kim",
+    "email": "junghwank@snu.ac.kr",
+    "research": "Neuronal Dynamics, Connectomics, Multisensory Integration, Consciousness",
+    "socials": {}
+  },
+  {
+    "name": "Soomin Kim",
+    "email": "kirkland@snu.ac.kr",
+    "research": "memory consolidation in sleep, brain simulation",
+    "socials": {}
+  },
+  {
+    "name": "Wonjun Lee",
+    "email": "seyundang13579@gmail.com",
+    "research": "Connectome, Information theory, Neural development, Inductive bias",
+    "socials": {}
+  },
+  {
+    "name": "Hyeon Jang",
+    "email": "ilcoyong1019@gmail.com",
+    "research": "neuromorphic computing",
+    "socials": {}
+  },
+  {
+    "name": "Jaemin Park",
+    "email": "alexjm0409@snu.ac.kr",
+    "research": "predictive coding, representation, constructed emotion",
+    "socials": {}
+  },
+  {
+    "name": "Jaejun Han",
+    "email": "hanjj753@snu.ac.kr",
+    "research": "Memory",
+    "socials": {}
+  },
+  {
+    "name": "Seoyeon Han",
+    "email": "ss_stella@snu.ac.kr",
+    "research": "",
+    "socials": {}
+  },
+  {
+    "name": "Hyuk Choi",
+    "email": "chyuck03@gmail.com",
+    "research": "",
+    "socials": {}
+  },
+  {
+    "name": "Hyungseo Joo",
+    "email": "redxeo@snu.ac.kr",
+    "research": "",
+    "socials": {}
+  },
+  {
+    "name": "Seongjun Cho",
+    "email": "hellosjcho@snu.ac.kr",
+    "research": "",
+    "socials": {}
+  },
+  {
+    "name": "Uiseok Jeong",
+    "email": "espeter00@snu.ac.kr",
+    "research": "",
+    "socials": {}
+  },
+  {
+    "name": "Seonki Jeong",
+    "email": "michael412@snu.ac.kr",
+    "research": "",
+    "socials": {}
+  },
+  {
+    "name": "Seunghyun Lee",
+    "email": "seanlee1208@snu.ac.kr",
+    "research": "",
+    "socials": {}
+  },
+  {
+    "name": "Jungwon Yoon",
+    "email": "juliaaayun@snu.ac.kr",
+    "research": "",
+    "socials": {}
+  },
+  {
+    "name": "Eunseo Yu",
+    "email": "po11242@snu.ac.kr",
+    "research": "",
+    "socials": {}
+  },
+  {
+    "name": "Jooahn Lee",
+    "email": "lalijuice@snu.ac.kr",
+    "research": "",
+    "socials": {}
+  },
+  {
+    "name": "Soyoon Kim",
+    "email": "woodstock@snu.ac.kr",
+    "research": "",
+    "socials": {}
+  },
+  {
+    "name": "Bonlyu Koo",
+    "email": "gomultimajor@snu.ac.kr",
+    "research": "Brain computer interface, memory hierarchy",
+    "socials": {}
+  },
+  {
+    "name": "Saejun Lee",
+    "email": "",
+    "research": "",
+    "socials": {}
+  },
+  {
+    "name": "Dongwon Lee",
+    "email": "",
+    "research": "",
+    "socials": {}
+  },
+  {
+    "name": "Seongji Wang",
+    "email": "",
+    "research": "",
+    "socials": {}
+  },
+  {
+    "name": "Jaedong Kim",
+    "email": "",
+    "research": "",
+    "socials": {}
+  },
+  {
+    "name": "Eunseong Kim",
+    "email": "",
+    "research": "",
+    "socials": {}
+  },
+  {
+    "name": "Saeok Kim",
+    "email": "",
+    "research": "",
+    "socials": {}
   }
 ]
