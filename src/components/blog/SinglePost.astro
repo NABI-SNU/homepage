@@ -8,6 +8,7 @@ import TableOfContents from '~/components/blog/TableOfContents.astro';
 
 import { getPermalink, cleanSlug } from '~/utils/permalinks';
 import { getFormattedDate } from '~/utils/utils';
+import type { Paper } from '~/types';
 
 import '~/assets/styles/blog-post.css';
 
@@ -156,6 +157,49 @@ const hasToc = post?.headings && post.headings.length > 2;
       >
         <slot />
       </div>
+
+      <!-- References Section -->
+      {
+        post.references && Array.isArray(post.references) && post.references.length > 1 && (
+          <div class="mt-16 pt-12 border-t-2 border-gray-200 dark:border-gray-700">
+            <div class="flex items-center gap-4 mb-8">
+              <div class="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
+                <Icon name="tabler:book" class="w-4 h-4 text-white" />
+              </div>
+              <h2 class="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white font-heading">References</h2>
+            </div>
+
+            <div class="bg-gray-50 dark:bg-gray-800/50 rounded-2xl p-6 sm:p-8 border border-gray-200 dark:border-gray-700">
+              <ol class="space-y-4">
+                {post.references.map((reference: Paper, index: number) => (
+                  <li class="flex gap-4 group">
+                    <span class="flex-shrink-0 w-8 h-8 bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 rounded-full flex items-center justify-center text-sm font-semibold">
+                      {index + 1}
+                    </span>
+                    <div class="flex-1 pt-1">
+                      <a
+                        href={reference.url}
+                        class="text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-200 group-hover:underline leading-relaxed"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        <span class="font-medium">{reference.authors.join(', ')}</span>
+                        <span class="text-gray-500 dark:text-gray-400">({reference.year})</span>
+                        <span class="font-medium">{reference.title}</span>
+                        <em class="text-gray-600 dark:text-gray-400">{reference.journal}</em>
+                        <Icon
+                          name="tabler:external-link"
+                          class="inline-block w-4 h-4 ml-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200"
+                        />
+                      </a>
+                    </div>
+                  </li>
+                ))}
+              </ol>
+            </div>
+          </div>
+        )
+      }
     </div>
   </section>
 
