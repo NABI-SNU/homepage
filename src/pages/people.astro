@@ -1,14 +1,13 @@
 ---
-// src/components/People.astro
 import Layout from '~/layouts/PageLayout.astro';
 import HeroText from '~/components/widgets/HeroText.astro';
 import { Icon } from 'astro-icon/components';
 import { cleanSlug } from '~/utils/permalinks';
-import { getPeople } from '~/utils/people';
+import { getPeople, type RawEntry } from '~/utils/people';
 import type { Person } from '~/types';
 import members from '~/data/people.json';
 
-const people: Person[] = await getPeople(members);
+const people: Person[] = await getPeople(members as RawEntry[]);
 
 const metadata = {
   title: 'People',

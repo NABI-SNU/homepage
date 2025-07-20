@@ -39,7 +39,7 @@ function parseSocial(raw: string): Social | null {
   return { icon, href };
 }
 
-type RawEntry = {
+export type RawEntry = {
   name: string;
   email: string;
   research: string;

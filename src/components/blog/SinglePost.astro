@@ -8,6 +8,7 @@ import TableOfContents from '~/components/blog/TableOfContents.astro';
 
 import { getPermalink, cleanSlug } from '~/utils/permalinks';
 import { getFormattedDate } from '~/utils/utils';
+import type { Paper } from '~/types';
 
 import '~/assets/styles/blog-post.css';
 
@@ -170,7 +171,7 @@ const hasToc = post?.headings && post.headings.length > 2;
 
             <div class="bg-gray-50 dark:bg-gray-800/50 rounded-2xl p-6 sm:p-8 border border-gray-200 dark:border-gray-700">
               <ol class="space-y-4">
-                {post.references.map((reference, index) => (
+                {post.references.map((reference: Paper, index: number) => (
                   <li class="flex gap-4 group">
                     <span class="flex-shrink-0 w-8 h-8 bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 rounded-full flex items-center justify-center text-sm font-semibold">
                       {index + 1}
