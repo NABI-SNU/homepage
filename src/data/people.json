@@ -2,7 +2,7 @@
   {
     "name": "Younghoon Kim",
     "email": "aktivhoon@gmail.com",
-    "research": "Reinforcement Learning, Meta-Learning & Reversal Learning, Inductive Bias, Neural Manifold, Computational Psychiatry",
+    "research": "Reinforcement learning, Meta-learning & Reversal learning, Inductive bias, Neural manifold, Computational psychiatry",
     "socials": {
       "X": "@aktivhoon",
       "github": "@aktivhoon",
@@ -24,7 +24,7 @@
   {
     "name": "Yubeen Bae",
     "email": "lights0320@snu.ac.kr",
-    "research": "memory, natural language processing, representation, information, dynamics and chaos",
+    "research": "Memory, Natural Language Processing, Representation, Information, Dynamics and Chaos",
     "socials": {
       "LinkedIn": "https://www.linkedin.com/in/yubeen-bae/"
     }
@@ -38,7 +38,7 @@
   {
     "name": "Hyunseok Seo",
     "email": "bmwha843@gmail.com",
-    "research": "Brain computer interface, neuroprosthesis, visual cortex foundation model",
+    "research": "Brain computer interface, Neuroprosthesis, Visual cortex foundation model",
     "socials": {
       "ORCID": "https://orcid.org/0000-0003-1801-629X"
     }
@@ -55,7 +55,7 @@
   {
     "name": "Seungmin Lim",
     "email": "ehfehfl3@gmail.com",
-    "research": "BCI, knowledge graph embedding and GNN, explainable AI, neuro-symbolic reasoning",
+    "research": "BCI, Knowledge graph embedding and GNN, Explainable AI, Neuro-symbolic reasoning",
     "socials": {
       "LinkedIn": "https://www.linkedin.com/in/seungmin-lim"
     }
@@ -63,13 +63,13 @@
   {
     "name": "Junghwan Kim",
     "email": "junghwank@snu.ac.kr",
-    "research": "Neuronal Dynamics, Connectomics, Multisensory Integration, Consciousness",
+    "research": "Neuronal dynamics, Connectomics, Multisensory integration, Consciousness",
     "socials": {}
   },
   {
     "name": "Soomin Kim",
     "email": "kirkland@snu.ac.kr",
-    "research": "memory consolidation in sleep, brain simulation",
+    "research": "Memory consolidation in sleep, Brain simulation",
     "socials": {}
   },
   {
@@ -81,13 +81,13 @@
   {
     "name": "Hyeon Jang",
     "email": "ilcoyong1019@gmail.com",
-    "research": "neuromorphic computing",
+    "research": "Neuromorphic computing",
     "socials": {}
   },
   {
     "name": "Jaemin Park",
     "email": "alexjm0409@snu.ac.kr",
-    "research": "predictive coding, representation, constructed emotion",
+    "research": "Predictive coding, Representation, Constructed emotion",
     "socials": {}
   },
   {
@@ -165,11 +165,11 @@
   {
     "name": "Bonlyu Koo",
     "email": "gomultimajor@snu.ac.kr",
-    "research": "Brain computer interface, memory hierarchy",
+    "research": "Brain computer interface, Memory hierarchy",
     "socials": {}
   },
   {
-    "name": "Saejun Lee",
+    "name": "Sejoon Lee",
     "email": "",
     "research": "",
     "socials": {}
@@ -181,7 +181,7 @@
     "socials": {}
   },
   {
-    "name": "Seongji Wang",
+    "name": "Sungji Wang",
     "email": "",
     "research": "",
     "socials": {}
@@ -199,7 +199,7 @@
     "socials": {}
   },
   {
-    "name": "Saeok Kim",
+    "name": "Seiok Kim",
     "email": "",
     "research": "",
     "socials": {}
