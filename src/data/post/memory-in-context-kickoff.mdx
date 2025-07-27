@@ -48,16 +48,6 @@ references:
     doi: 10.1126/sciadv.adm8470
     url: https://doi.org/10.1126/sciadv.adm8470
 
-  - title: Generalisation in Graph Neural Networks through Equivariance to Subgraph Isomorphism
-    authors:
-      - Dedieu, A.
-      - Yu, L.
-      - et al.
-    year: 2024
-    journal: arXiv
-    doi: 10.48550/arXiv.2401.05946
-    url: https://doi.org/10.48550/arXiv.2401.05946
-
   - title: Relating Transformers to Models and Neural Representations of the Hippocampal Formation
     authors:
       - Whittington, J. C. R.
@@ -105,10 +95,12 @@ We explored **memory in context**, the theme of this year's NABI symposium. Cont
 
 ### **Biological Disentanglement and Theoretical Connections**
 
-- Memory retrieval in the TEM is mathematically equivalent to **transformer self-attention**.
-  $$
-  \text{TEM:} \quad q \leftarrow \sigma(qM), \quad \text{vs. Transformer:} \quad y = \text{softmax}(QK^\top)V
-  $$
+- Memory retrieval in the TEM is mathematically analogous to the **transformer self-attention** mechanism, as shown in the table below.
+
+| TEM                    | Transformer                    |
+| ---------------------- | ------------------------------ |
+| $y = \alpha QK^\top V$ | $y = \text{softmax}(QK^\top)V$ |
+
 - Attention-based mechanisms may unify neural and artificial models of memory.
 
 ## **Learning from Sequences: CSCG**
@@ -131,6 +123,15 @@ Hippocampal circuits serve as **contextual, predictive, and relational memory en
 ---
 
 ## Key Discussion Points
+
+1. **Biological plausability and Model Performance** :
+   The speaker explained that the TEM model's limitations, such as its reliance on an allocentric view and its inability to handle aliasing, restrict its problem-solving capabilities. However, it was also noted that a model's biological plausibility doesn't always correlate with its performance, and that performance alone is not a good indicator of scientific value.
+
+2. **The Role of Computational Neuroscience**:
+   The speaker emphasized that true understanding of the brain requires more than just replicating its behavior; it involves breaking down the system into functional modules and understanding their interactions. While computational models can provide quantitative measures for diagnosis and tracking, these measures cannot explain the underlying mechanisms so far.
+
+3. **Non-linearity in models**:
+   A question was raised about the apparent linearity of the TEM compared to transformers, considering it does not contain a non-linear activation function (`softmax`). The speaker explained that adding the non-linearity to the TEM model improved its learning speed in _Whittington et al. (2022)_, highlighting the complementary relationship between biological inspiration and mathematical functions.
 
 ---
 
