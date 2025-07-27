@@ -1,14 +1,11 @@
-<script lang="ts">
-  import { onMount } from 'svelte';
-  import type DialogPolyfillType from 'dialog-polyfill';
+import React, { useEffect } from 'react';
 
-  interface Props {
-    decorator?: string;
-  }
+interface SearchProps {
+  decorator?: string;
+}
 
-  export let decorator: string | undefined = undefined;
-
-  onMount(() => {
+const Search: React.FC<SearchProps> = ({ decorator }) => {
+  useEffect(() => {
     const searchTriggerId = decorator ? `${decorator}-search-trigger` : 'search-trigger';
     const searchDialogId = decorator ? `${decorator}-search-dialog` : 'search-dialog';
     const closeButtonId = decorator ? `${decorator}-close-search` : 'close-search';
@@ -19,7 +16,7 @@
 
     if (searchDialog && typeof searchDialog.showModal !== 'function') {
       import('dialog-polyfill').then((module) => {
-        (module.default as unknown as typeof DialogPolyfillType).registerDialog(searchDialog);
+        (module.default as { registerDialog: (dialog: HTMLDialogElement) => void }).registerDialog(searchDialog);
       });
     }
 
@@ -122,5 +119,9 @@
       observer.disconnect();
       document.body.style.overflow = '';
     };
-  });
-</script>
+  }, [decorator]);
+
+  return null; // This component doesn't render anything visible
+};
+
+export default Search;

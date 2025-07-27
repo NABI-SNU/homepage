@@ -1,7 +1,7 @@
-<script lang="ts">
-  import { onMount } from 'svelte';
+import React, { useEffect } from 'react';
 
-  onMount(() => {
+const TableOfContents: React.FC = () => {
+  useEffect(() => {
     const toc = document.getElementById('toc');
     const tocToggle = document.getElementById('toc-toggle');
     const list = document.getElementById('toc-list');
@@ -133,7 +133,7 @@
     window.addEventListener('resize', handleResize, { passive: true });
 
     // Smooth scrolling for TOC links
-    links.forEach((link, index) => {
+    links.forEach((link, _index) => {
       link.addEventListener('click', (e) => {
         e.preventDefault();
         const href = link.getAttribute('href');
@@ -169,5 +169,9 @@
       window.removeEventListener('scroll', handleScroll);
       window.removeEventListener('resize', handleResize);
     };
-  });
-</script>
+  }, []);
+
+  return null; // This component doesn't render anything visible
+};
+
+export default TableOfContents;

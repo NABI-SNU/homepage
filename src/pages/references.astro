@@ -2,7 +2,7 @@
 import Layout from '~/layouts/PageLayout.astro';
 import HeroText from '~/components/widgets/HeroText.astro';
 import { getAllPapers } from '~/utils/papers';
-import PaperSearch from '~/components/client/PaperSearch.svelte';
+import PaperSearch from '~/components/client/PaperSearch';
 
 const papers = await getAllPapers();
 const metadata = { title: 'Papers' };
@@ -10,5 +10,5 @@ const metadata = { title: 'Papers' };
 
 <Layout metadata={metadata}>
   <HeroText tagline="Bibliography" title="Archive of NeuroAI Papers" />
-  <PaperSearch papers={papers} client:only="svelte" />
+  <PaperSearch papers={papers} client:load />
 </Layout>

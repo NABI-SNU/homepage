@@ -7,10 +7,7 @@ module.exports = {
   trailingComma: 'es5',
   useTabs: false,
 
-  plugins: [require.resolve('prettier-plugin-astro'), require.resolve('prettier-plugin-svelte')],
+  plugins: [require.resolve('prettier-plugin-astro')],
 
-  overrides: [
-    { files: '*.astro', options: { parser: 'astro' } },
-    { files: '*.svelte', options: { parser: 'svelte' } },
-  ],
+  overrides: [{ files: '*.astro', options: { parser: 'astro' } }],
 };

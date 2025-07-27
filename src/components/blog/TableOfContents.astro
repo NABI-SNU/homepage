@@ -2,7 +2,7 @@
 import type { MarkdownHeading } from 'astro';
 import '~/assets/styles/table-of-contents.css';
 
-import TableOfContentsInit from '~/components/client/TableOfContents.svelte';
+import TableOfContentsInit from '~/components/client/TableOfContents';
 
 export interface Props {
   title?: string;
@@ -88,4 +88,4 @@ const { headings = [] } = Astro.props;
   </button>
 </div>
 
-<TableOfContentsInit client:only="svelte" />
+<TableOfContentsInit client:load />

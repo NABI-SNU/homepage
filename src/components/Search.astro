@@ -3,7 +3,7 @@ import PageFindSearch from 'astro-pagefind/components/Search';
 import { Icon } from 'astro-icon/components';
 import '~/assets/styles/pagefind-ui.css';
 import 'dialog-polyfill/dist/dialog-polyfill.css';
-import SearchInit from '~/components/client/Search.svelte';
+import SearchInit from '~/components/client/Search';
 
 interface Props {
   decorator?: string;
@@ -125,4 +125,4 @@ const closeButtonId = decorator ? `${decorator}-close-search` : 'close-search';
   </div>
 </dialog>
 
-<SearchInit client:only="svelte" decorator={decorator} />
+<SearchInit client:load decorator={decorator} />
