@@ -43,21 +43,15 @@ const closeButtonId = decorator ? `${decorator}-close-search` : 'close-search';
 
 <dialog
   id={searchDialogId}
-  class="animate-scale-down
-         fixed inset-0 z-50
-         w-full max-w-2xl p-0
-         -translate-x-1/2 -translate-y-1/2
-         bg-transparent border-none rounded-2xl overflow-hidden
+  class="fixed inset-0 z-50 flex items-center justify-center
+         p-4 sm:p-6
+         bg-transparent border-none overflow-hidden
          backdrop:bg-gray-950/50 backdrop:backdrop-blur-sm"
 >
   <div
-    class="relative
-           w-full h-full sm:max-h-[80vh]
-           bg-white dark:bg-gray-900
-           rounded-2xl shadow-2xl
-           border border-gray-200 dark:border-gray-700
-           overflow-hidden
-           transform transition-all duration-300"
+    class="relative w-[80vw] sm:w-[60vw] sm:max-h-[80vh] bg-white dark:bg-gray-900
+           rounded-2xl shadow-2xl border border-gray-200 dark:border-gray-700
+           overflow-hidden transform transition-all duration-300"
   >
     <!-- Header -->
     <div
@@ -70,7 +64,10 @@ const closeButtonId = decorator ? `${decorator}-close-search` : 'close-search';
           <div class="flex items-center justify-center w-8 h-8 rounded-lg bg-primary/10 text-primary">
             <Icon name="tabler:search" class="w-4 h-4" />
           </div>
-          <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Search Articles</h2>
+          <h2 class="text-lg font-semibold text-gray-900 dark:text-white">
+            <span class="hidden sm:inline">Search Articles</span>
+            <span class="sm:hidden">Search</span>
+          </h2>
         </div>
 
         <!-- Close Button -->
@@ -91,7 +88,7 @@ const closeButtonId = decorator ? `${decorator}-close-search` : 'close-search';
 
       <!-- Search Hint -->
       <p class="mt-2 text-sm text-gray-600 dark:text-gray-400">
-        Easily find articles and news with pagefind, a exact text search engine.
+        <span class="hidden sm:inline">Easily find articles and news with pagefind, a exact text search engine. </span>
       </p>
     </div>
 
