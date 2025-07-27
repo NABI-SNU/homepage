@@ -2,13 +2,6 @@ dialog[open] {
   position: fixed !important;
   inset: 0 !important;
   margin: 0 !important;
-  padding: 0 !important;
-  width: auto !important;
-  height: auto !important;
-  background: transparent !important;
-  border: none !important;
-
-  /* Manual translate-x/y-1/2 */
   transform: translate(-50%, -50%) !important;
   top: 50% !important;
   left: 50% !important;
