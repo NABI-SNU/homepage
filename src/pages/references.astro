@@ -10,5 +10,5 @@ const metadata = { title: 'Papers' };
 
 <Layout metadata={metadata}>
   <HeroText tagline="Bibliography" title="Archive of NeuroAI Papers" />
-  <PaperSearch papers={papers} client:load />
+  <PaperSearch papers={papers} client:only="svelte" />
 </Layout>
