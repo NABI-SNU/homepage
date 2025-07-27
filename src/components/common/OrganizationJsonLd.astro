@@ -1,0 +1,19 @@
+---
+import { SITE } from 'astrowind:config';
+import { footerData } from '~/navigation';
+import { getAsset } from '~/utils/permalinks';
+
+const sameAs = (footerData?.socialLinks || []).map((link) => link.href).filter((href) => href.startsWith('http'));
+
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'Organization',
+  url: SITE.site,
+  name: SITE.name,
+  logo: new URL(getAsset('/favicon.svg'), SITE.site).toString(),
+  sameAs: sameAs,
+};
+const jsonLdStr = JSON.stringify(jsonLd);
+---
+
+<script is:inline type="application/ld+json" set:html={jsonLdStr} />

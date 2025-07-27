@@ -1,5 +1,6 @@
 <script lang="ts">
   import { onMount } from 'svelte';
+  import type DialogPolyfillType from 'dialog-polyfill';
 
   interface Props {
     decorator?: string;
@@ -15,6 +16,12 @@
     const searchTrigger = document.getElementById(searchTriggerId) as HTMLButtonElement | null;
     const searchDialog = document.getElementById(searchDialogId) as HTMLDialogElement | null;
     const closeButton = document.getElementById(closeButtonId) as HTMLButtonElement | null;
+
+    if (searchDialog && typeof searchDialog.showModal !== 'function') {
+      import('dialog-polyfill').then((module) => {
+        (module.default as unknown as typeof DialogPolyfillType).registerDialog(searchDialog);
+      });
+    }
 
     function getCurrentTheme(): 'light' | 'dark' {
       return document.documentElement.classList.contains('dark') ? 'dark' : 'light';
@@ -34,7 +41,13 @@
 
     function openSearch() {
       updatePagefindTheme();
-      searchDialog?.showModal();
+      if (searchDialog) {
+        if (typeof searchDialog.showModal === 'function') {
+          searchDialog.showModal();
+        } else {
+          searchDialog.setAttribute('open', '');
+        }
+      }
       searchTrigger?.setAttribute('aria-expanded', 'true');
 
       // Focus the search input after a brief delay to ensure it's rendered
@@ -48,7 +61,13 @@
     }
 
     function closeSearch() {
-      searchDialog?.close();
+      if (searchDialog) {
+        if (typeof searchDialog.close === 'function') {
+          searchDialog.close();
+        } else {
+          searchDialog.removeAttribute('open');
+        }
+      }
       searchTrigger?.setAttribute('aria-expanded', 'false');
 
       // Remove body scroll lock
