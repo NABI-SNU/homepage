@@ -1,14 +1,22 @@
 ---
 import Layout from '~/layouts/PageLayout.astro';
 import HeroText from '~/components/widgets/HeroText.astro';
+import { getAllPapers } from '~/utils/papers';
+import PaperSearch from '~/components/client/PaperSearch';
 
 const metadata = {
   title: 'Research',
   description:
     'Explore the research themes and projects pursued by the NABI team in computational neuroscience and NeuroAI.',
 };
+
+const papers = await getAllPapers();
 ---
 
 <Layout metadata={metadata}>
   <HeroText tagline="Research" title="Our Research" />
+
+  <div class="container mx-auto px-4 py-8">
+    <PaperSearch client:load papers={papers} />
+  </div>
 </Layout>

@@ -1,14 +1,13 @@
-<script lang="ts">
-  import { onMount } from 'svelte';
+import React, { useEffect } from 'react';
 
-  onMount(() => {
+const TableOfContents: React.FC = () => {
+  useEffect(() => {
     const toc = document.getElementById('toc');
     const tocToggle = document.getElementById('toc-toggle');
     const list = document.getElementById('toc-list');
     const footer = document.getElementById('blog-footer');
 
     if (!toc || !tocToggle || !list) {
-      console.error('TOC elements not found');
       return;
     }
 
@@ -23,12 +22,9 @@
     let activeIndex = -1;
     let isOpen = false;
 
-    console.log('TOC initialized with', links.length, 'links and', targets.length, 'targets');
-
     // Toggle functionality
     function toggleToc() {
       isOpen = !isOpen;
-      console.log('Toggling TOC, isOpen:', isOpen);
 
       if (!toc || !tocToggle) return;
 
@@ -137,14 +133,13 @@
     window.addEventListener('resize', handleResize, { passive: true });
 
     // Smooth scrolling for TOC links
-    links.forEach((link, index) => {
+    links.forEach((link, _index) => {
       link.addEventListener('click', (e) => {
         e.preventDefault();
         const href = link.getAttribute('href');
         if (href) {
           const target = document.getElementById(href.slice(1));
           if (target) {
-            console.log('Scrolling to:', href);
             target.scrollIntoView({
               behavior: 'smooth',
               block: 'start',
@@ -174,5 +169,9 @@
       window.removeEventListener('scroll', handleScroll);
       window.removeEventListener('resize', handleResize);
     };
-  });
-</script>
+  }, []);
+
+  return null; // This component doesn't render anything visible
+};
+
+export default TableOfContents;

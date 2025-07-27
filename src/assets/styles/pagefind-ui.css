@@ -1,5 +1,16 @@
+dialog[open] {
+  position: fixed !important;
+  inset: 0 !important;
+  margin: 0 !important;
+  transform: translate(-50%, -50%) !important;
+  top: 50% !important;
+  left: 50% !important;
+}
+
+/* Optional: make sure backdrop works */
 dialog::backdrop {
   background-color: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(4px);
 }
 
 /* Remove default dialog styles */

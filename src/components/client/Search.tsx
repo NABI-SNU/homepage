@@ -1,13 +1,11 @@
-<script lang="ts">
-  import { onMount } from 'svelte';
+import React, { useEffect } from 'react';
 
-  interface Props {
-    decorator?: string;
-  }
+interface SearchProps {
+  decorator?: string;
+}
 
-  export let decorator: string | undefined = undefined;
-
-  onMount(() => {
+const Search: React.FC<SearchProps> = ({ decorator }) => {
+  useEffect(() => {
     const searchTriggerId = decorator ? `${decorator}-search-trigger` : 'search-trigger';
     const searchDialogId = decorator ? `${decorator}-search-dialog` : 'search-dialog';
     const closeButtonId = decorator ? `${decorator}-close-search` : 'close-search';
@@ -15,6 +13,12 @@
     const searchTrigger = document.getElementById(searchTriggerId) as HTMLButtonElement | null;
     const searchDialog = document.getElementById(searchDialogId) as HTMLDialogElement | null;
     const closeButton = document.getElementById(closeButtonId) as HTMLButtonElement | null;
+
+    if (searchDialog && typeof searchDialog.showModal !== 'function') {
+      import('dialog-polyfill').then((module) => {
+        (module.default as { registerDialog: (dialog: HTMLDialogElement) => void }).registerDialog(searchDialog);
+      });
+    }
 
     function getCurrentTheme(): 'light' | 'dark' {
       return document.documentElement.classList.contains('dark') ? 'dark' : 'light';
@@ -34,7 +38,13 @@
 
     function openSearch() {
       updatePagefindTheme();
-      searchDialog?.showModal();
+      if (searchDialog) {
+        if (typeof searchDialog.showModal === 'function') {
+          searchDialog.showModal();
+        } else {
+          searchDialog.setAttribute('open', '');
+        }
+      }
       searchTrigger?.setAttribute('aria-expanded', 'true');
 
       // Focus the search input after a brief delay to ensure it's rendered
@@ -48,7 +58,13 @@
     }
 
     function closeSearch() {
-      searchDialog?.close();
+      if (searchDialog) {
+        if (typeof searchDialog.close === 'function') {
+          searchDialog.close();
+        } else {
+          searchDialog.removeAttribute('open');
+        }
+      }
       searchTrigger?.setAttribute('aria-expanded', 'false');
 
       // Remove body scroll lock
@@ -103,5 +119,9 @@
       observer.disconnect();
       document.body.style.overflow = '';
     };
-  });
-</script>
+  }, [decorator]);
+
+  return null; // This component doesn't render anything visible
+};
+
+export default Search;
