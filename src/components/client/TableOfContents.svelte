@@ -8,7 +8,6 @@
     const footer = document.getElementById('blog-footer');
 
     if (!toc || !tocToggle || !list) {
-      console.error('TOC elements not found');
       return;
     }
 
@@ -23,12 +22,9 @@
     let activeIndex = -1;
     let isOpen = false;
 
-    console.log('TOC initialized with', links.length, 'links and', targets.length, 'targets');
-
     // Toggle functionality
     function toggleToc() {
       isOpen = !isOpen;
-      console.log('Toggling TOC, isOpen:', isOpen);
 
       if (!toc || !tocToggle) return;
 
@@ -144,7 +140,6 @@
         if (href) {
           const target = document.getElementById(href.slice(1));
           if (target) {
-            console.log('Scrolling to:', href);
             target.scrollIntoView({
               behavior: 'smooth',
               block: 'start',
