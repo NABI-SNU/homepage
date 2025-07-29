@@ -5,9 +5,9 @@ import Grid from '~/components/blog/Grid.astro';
 
 import { getBlogPermalink } from '~/utils/permalinks';
 import { findLatestPosts } from '~/utils/blog';
-import WidgetWrapper from '~/components/ui/WidgetWrapper.astro';
+import WidgetWrapper from '~/components/primitives/WidgetWrapper.astro';
 import type { Widget } from '~/types';
-import Button from '~/components/ui/Button.astro';
+import Button from '~/components/primitives/Button.astro';
 
 export interface Props extends Widget {
   title?: string;
