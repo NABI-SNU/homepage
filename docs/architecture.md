@@ -184,11 +184,13 @@ Static data files and content:
 Static assets organized by type:
 
 - `images/` – Site images (hero, logos, icons)
-- `styles/` – CSS files:
-  - `base.css` – Base styles and CSS custom properties
-  - `blog-post.css` – Blog-specific styles
-  - `pagefind-ui.css` – Search UI styles
-  - `table-of-contents.css` – TOC styling
+
+#### Styles (`src/styles/`)
+
+- `base.css` – Base styles and CSS custom properties
+- `blog-post.css` – Blog-specific styles
+- `pagefind-ui.css` – Search UI styles
+- `table-of-contents.css` – Table of contents styling
 
 ### Configuration System
 
