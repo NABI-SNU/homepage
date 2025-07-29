@@ -1,6 +1,7 @@
 # 🧠 NABI (Natural and Artificial Brain Intelligence) Website
 
-> ⚠️ **Warning**: This website is currently under active development. Some features may be incomplete or not fully functional.
+> [!WARNING] ⚠️
+> This website is currently under active development. Some features may be incomplete or not fully functional.
 
 This is the new **NABI** website built with [Astro](https://astro.build/).
 
@@ -14,7 +15,8 @@ you find Astrowind useful.
 
 Please check out the following documents for more information: They are all in the `docs` folder.
 
-> 📚 **Important**: Please read through all documentation in the `docs` folder before contributing or making changes to ensure you understand the project architecture and development workflow.
+> [!NOTE] 📚
+> Please read through all documentation in the `docs` folder before contributing or making changes to ensure you understand the project architecture and development workflow.
 
 - [Architecture](docs/architecture.md)
 - [Development](docs/development.md)
