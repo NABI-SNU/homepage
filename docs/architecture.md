@@ -104,21 +104,6 @@ Reusable UI components organized by functionality:
 - `PaginationControls.tsx` – Interactive pagination
 - `TableOfContents.tsx` – Dynamic table of contents
 
-**Common Components (`src/components/common/`)**: Contains the components reused throughout the entire website (mostly in `Layout.astro`)
-
-- `Analytics.astro` – Google Analytics integration
-- `ApplyColorMode.astro` – Theme mode application
-- `BasicScripts.astro` – Essential JavaScript
-- `BreadcrumbsJsonLd.astro` – Structured data for breadcrumbs
-- `CommonMeta.astro` – Common meta tags
-- `Image.astro` – Optimized image component
-- `Metadata.astro` – Page metadata management
-- `OrganizationJsonLd.astro` – Organization structured data
-- `SiteVerification.astro` – Search engine verification
-- `SocialShare.astro` – Social media sharing
-- `ToggleMenu.astro` – Mobile navigation toggle
-- `ToggleTheme.astro` – Theme switching
-
 **Widget Components (`src/components/widgets/`)**: Contains the components for the widgets section of the website, wrapped with `WidgetWrapper.astro`
 
 - `Header.astro` – Site header with navigation
@@ -139,12 +124,24 @@ Reusable UI components organized by functionality:
 - `BlogLatestPosts.astro` – Recent blog posts
 - `Note.astro` – Note/information boxes
 
-**General Components**: Contains components not otherwise categorized (TODO: move to `primitives` or `common`)
+**Common Components (`src/components/common/`)**: Contains the components reused throughout the entire website (mostly in `Layout.astro`)
 
-- `Logo.astro` – Site logo component
+- `Analytics.astro` – Google Analytics integration
+- `ApplyColorMode.astro` – Theme mode application
+- `BasicScripts.astro` – Essential JavaScript
+- `BreadcrumbsJsonLd.astro` – Structured data for breadcrumbs
+- `CommonMeta.astro` – Common meta tags
+- `CustomStyles.astro` – Custom CSS injection and global styles
 - `Favicons.astro` – Favicon management
-- `CustomStyles.astro` – Custom CSS injection
+- `Image.astro` – Optimized image component
+- `Logo.astro` – Site logo component
+- `Metadata.astro` – Page metadata management
+- `OrganizationJsonLd.astro` – Organization structured data
 - `Search.astro` – Search functionality wrapper
+- `SiteVerification.astro` – Search engine verification
+- `SocialShare.astro` – Social media sharing
+- `ToggleMenu.astro` – Mobile navigation toggle
+- `ToggleTheme.astro` – Theme switching
 
 #### Layouts (`src/layouts/`)
 
