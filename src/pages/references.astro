@@ -1,8 +1,8 @@
 ---
-import Layout from '~/layouts/PageLayout.astro';
-import HeroText from '~/components/widgets/HeroText.astro';
-import { getAllPapers } from '~/utils/papers';
 import PaperSearch from '~/components/client/PaperSearch';
+import HeroText from '~/components/widgets/HeroText.astro';
+import Layout from '~/layouts/PageLayout.astro';
+import { getAllPapers } from '~/utils/papers';
 
 const papers = await getAllPapers();
 const metadata = { title: 'Papers' };

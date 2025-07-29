@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
 import { ExternalLink } from 'lucide-react';
+import React, { useState } from 'react';
+
 import type { Paper } from '~/types';
 
 interface PaperTileProps {

@@ -1,9 +1,10 @@
+import js from '@eslint/js';
+import typescriptParser from '@typescript-eslint/parser';
 import astroEslintParser from 'astro-eslint-parser';
 import eslintPluginAstro from 'eslint-plugin-astro';
+import eslintPluginImport from 'eslint-plugin-import';
 import globals from 'globals';
-import js from '@eslint/js';
 import tseslint from 'typescript-eslint';
-import typescriptParser from '@typescript-eslint/parser';
 
 export default [
   js.configs.recommended,
@@ -15,6 +16,24 @@ export default [
         ...globals.browser,
         ...globals.node,
       },
+    },
+    plugins: {
+      import: eslintPluginImport,
+    },
+    rules: {
+      'import/order': [
+        'error',
+        {
+          groups: ['builtin', 'external', 'internal', 'parent', 'sibling', 'index', 'object', 'type', 'unknown'],
+          'newlines-between': 'always',
+          alphabetize: {
+            order: 'asc',
+            caseInsensitive: true,
+          },
+        },
+      ],
+      'import/no-relative-parent-imports': 'error',
+      'import/no-relative-packages': 'error',
     },
   },
   {

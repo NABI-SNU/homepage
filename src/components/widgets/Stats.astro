@@ -1,8 +1,10 @@
 ---
-import type { Stats as Props } from '~/types';
-import WidgetWrapper from '~/components/primitives/WidgetWrapper.astro';
-import Headline from '~/components/primitives/Headline.astro';
 import { Icon } from 'astro-icon/components';
+
+import type { Stats as Props } from '~/types';
+
+import Headline from '~/components/primitives/Headline.astro';
+import WidgetWrapper from '~/components/primitives/WidgetWrapper.astro';
 
 const {
   title = await Astro.slots.render('title'),

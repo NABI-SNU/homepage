@@ -1,10 +1,11 @@
 ---
-import Layout from '~/layouts/PageLayout.astro';
-import Headline from '~/components/blog/Headline.astro';
-import Steps from '~/components/widgets/Steps.astro';
-import Pagination from '~/components/blog/Pagination.astro';
-import { fetchMonthlyItems, groupItemsBySeason, getSeason, getSeasonImage } from '~/utils/monthly';
 import type { News } from '~/types';
+
+import Headline from '~/components/blog/Headline.astro';
+import Pagination from '~/components/blog/Pagination.astro';
+import Steps from '~/components/widgets/Steps.astro';
+import Layout from '~/layouts/PageLayout.astro';
+import { fetchMonthlyItems, groupItemsBySeason, getSeason, getSeasonImage } from '~/utils/monthly';
 
 export const prerender = true;
 

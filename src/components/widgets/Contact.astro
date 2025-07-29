@@ -1,8 +1,9 @@
 ---
+import type { Contact as Props } from '~/types';
+
 import FormContainer from '~/components/primitives/Form.astro';
 import Headline from '~/components/primitives/Headline.astro';
 import WidgetWrapper from '~/components/primitives/WidgetWrapper.astro';
-import type { Contact as Props } from '~/types';
 
 const {
   title = await Astro.slots.render('title'),

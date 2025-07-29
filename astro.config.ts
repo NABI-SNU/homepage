@@ -1,23 +1,22 @@
 import path from 'path';
 import { fileURLToPath } from 'url';
 
-import { defineConfig } from 'astro/config';
-
-import sitemap from '@astrojs/sitemap';
-import tailwind from '@astrojs/tailwind';
 import mdx from '@astrojs/mdx';
 import partytown from '@astrojs/partytown';
 import react from '@astrojs/react';
-import icon from 'astro-icon';
+import sitemap from '@astrojs/sitemap';
+import tailwind from '@astrojs/tailwind';
+import { defineConfig } from 'astro/config';
 import compress from 'astro-compress';
+import icon from 'astro-icon';
 import pagefind from 'astro-pagefind';
-import type { AstroIntegration } from 'astro';
-
-import remarkMath from 'remark-math';
 import rehypeKatex from 'rehype-katex';
-import astrowind from './vendor/integration';
+import remarkMath from 'remark-math';
 
 import { readingTimeRemarkPlugin, responsiveTablesRehypePlugin, lazyImagesRehypePlugin } from './src/utils/frontmatter';
+import astrowind from './vendor/integration';
+
+import type { AstroIntegration } from 'astro';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 

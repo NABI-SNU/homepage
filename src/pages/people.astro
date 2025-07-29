@@ -1,11 +1,13 @@
 ---
-import Layout from '~/layouts/PageLayout.astro';
-import HeroText from '~/components/widgets/HeroText.astro';
 import { Icon } from 'astro-icon/components';
-import { cleanSlug } from '~/utils/permalinks';
-import { getPeople, type RawEntry } from '~/utils/people';
+
 import type { Person } from '~/types';
+
+import HeroText from '~/components/widgets/HeroText.astro';
 import members from '~/data/people.json';
+import Layout from '~/layouts/PageLayout.astro';
+import { getPeople, type RawEntry } from '~/utils/people';
+import { cleanSlug } from '~/utils/permalinks';
 
 const people: Person[] = await getPeople(members as RawEntry[]);
 

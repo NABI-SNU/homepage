@@ -1,9 +1,9 @@
 ---
-import Layout from '~/layouts/PageLayout.astro';
 import Headline from '~/components/blog/Headline.astro';
 import Steps from '~/components/widgets/Steps.astro';
-import { getLatestMonthlyItems } from '~/utils/monthly';
+import Layout from '~/layouts/PageLayout.astro';
 import { type News } from '~/types';
+import { getLatestMonthlyItems } from '~/utils/monthly';
 
 const monthlyItems: News[] = await getLatestMonthlyItems();
 

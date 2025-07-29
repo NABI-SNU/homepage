@@ -1,8 +1,8 @@
 ---
+import type { Hero as Props } from '~/types';
+
 import Image from '~/components/common/Image.astro';
 import Button from '~/components/primitives/Button.astro';
-
-import type { Hero as Props } from '~/types';
 
 const {
   title = await Astro.slots.render('title'),

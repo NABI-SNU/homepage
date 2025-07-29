@@ -1,6 +1,8 @@
 import { getCollection, type CollectionEntry } from 'astro:content';
-import { cleanSlug } from '~/utils/permalinks';
+
 import type { Paper } from '~/types';
+
+import { cleanSlug } from '~/utils/permalinks';
 
 export async function getAllPapers(): Promise<Paper[]> {
   const [posts, news] = await Promise.all([

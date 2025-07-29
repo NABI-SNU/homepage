@@ -1,9 +1,11 @@
 ---
 import { Icon } from 'astro-icon/components';
-import WidgetWrapper from '~/components/primitives/WidgetWrapper.astro';
-import Headline from '~/components/primitives/Headline.astro';
-import Button from '~/components/primitives/Button.astro';
+
 import type { Steps as Props } from '~/types';
+
+import Button from '~/components/primitives/Button.astro';
+import Headline from '~/components/primitives/Headline.astro';
+import WidgetWrapper from '~/components/primitives/WidgetWrapper.astro';
 
 const {
   title = await Astro.slots.render('title'),

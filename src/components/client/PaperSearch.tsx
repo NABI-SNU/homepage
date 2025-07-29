@@ -1,8 +1,10 @@
 import React, { useState, useMemo, useEffect } from 'react';
-import PaperTile from './PaperTile';
+
 import PaginationControls from './PaginationControls';
-import SortTabs from './SortTabs';
+import PaperTile from './PaperTile';
 import SearchBar from './SearchBar';
+import SortTabs from './SortTabs';
+
 import type { Paper } from '~/types';
 
 interface PaperSearchProps {

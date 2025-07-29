@@ -1,8 +1,9 @@
 ---
 import { getCollection, render, type CollectionEntry } from 'astro:content';
-import Layout from '~/layouts/PageLayout.astro';
-import SingleMonth from '~/components/news/SingleMonth.astro';
+
 import SocialShare from '~/components/common/SocialShare.astro';
+import SingleMonth from '~/components/news/SingleMonth.astro';
+import Layout from '~/layouts/PageLayout.astro';
 import { getCanonical } from '~/utils/permalinks';
 
 export async function getStaticPaths() {

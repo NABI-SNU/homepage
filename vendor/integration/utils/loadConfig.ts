@@ -1,4 +1,5 @@
 import fs from 'node:fs';
+
 import yaml from 'js-yaml';
 
 const loadConfig = async (configPathOrData: string | object) => {

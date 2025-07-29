@@ -1,8 +1,9 @@
 ---
-import WidgetWrapper from '~/components/primitives/WidgetWrapper.astro';
-import ItemGrid from '~/components/primitives/ItemGrid.astro';
-import Headline from '~/components/primitives/Headline.astro';
 import type { Features as Props } from '~/types';
+
+import Headline from '~/components/primitives/Headline.astro';
+import ItemGrid from '~/components/primitives/ItemGrid.astro';
+import WidgetWrapper from '~/components/primitives/WidgetWrapper.astro';
 
 const {
   title = await Astro.slots.render('title'),

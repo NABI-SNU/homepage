@@ -1,9 +1,10 @@
 import fs from 'node:fs';
 import os from 'node:os';
-import type { AstroConfig, AstroIntegration } from 'astro';
 
 import configBuilder, { type Config } from './utils/configBuilder';
 import loadConfig from './utils/loadConfig';
+
+import type { AstroConfig, AstroIntegration } from 'astro';
 
 export default ({ config: _themeConfig = 'src/config.yaml' } = {}): AstroIntegration => {
   let cfg: AstroConfig;
