@@ -24,9 +24,15 @@ const {
 
 {
   !(UI.theme && UI.theme.endsWith(':only')) && (
-    <button type="button" class={className} aria-label={label} data-aw-toggle-color-scheme>
+    <button type="button" class={`group relative ${className}`} aria-label={label} data-aw-toggle-color-scheme>
       <Icon name={lightIconName} class={`${iconClass} block dark:!hidden`} />
       <Icon name={darkIconName} class={`${iconClass} !hidden dark:!block`} />
+
+      {/* <!-- Theme toggle hint tooltip --> */}
+      <div class="absolute -bottom-12 left-1/2 -translate-x-1/2 px-2 py-1 bg-gray-900 dark:bg-gray-100 text-white dark:text-gray-900 text-xs rounded-md opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap">
+        Toggle theme
+        <div class="absolute -top-1 left-1/2 -translate-x-1/2 w-2 h-2 bg-gray-900 dark:bg-gray-100 rotate-45" />
+      </div>
     </button>
   )
 }
