@@ -15,8 +15,4 @@ const papers = await getAllPapers();
 
 <Layout metadata={metadata}>
   <HeroText tagline="Research" title="Our Research" />
-
-  <div class="container mx-auto px-4 py-8">
-    <PaperSearch client:load papers={papers} />
-  </div>
 </Layout>
