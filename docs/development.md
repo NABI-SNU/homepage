@@ -48,3 +48,19 @@ npm run preview
 ```
 
 Deploy the contents of `dist/` to your preferred static hosting provider.
+
+## Semantic Versioning
+
+This project uses [Semantic Versioning](https://semver.org/) for versioning. Unfortunately, there is no public facing API for the NABI website (yet), meaning versioning may not _strictly_ be necessary. Nevertheless, it is a good practice to version the site. This is generally how versioning works (_Updated: 2025-07-30_):
+
+1. `x.y.Z` - bump `Z` for bug fixes and minor changes to the site code (but not for content updates).
+2. `x.Y.z` - bump `Y` for minor additions of features, and for addition or removal of dependencies. Note that this does not include updates to dependencies, or dependencies that are used for linting or formatting.
+3. `X.y.z` - bump `X` for major changes to the site code, or for major changes to the content.
+
+(What is the difference between **code** and **content**? This has no strict answer, but if it is stored as plain text in the final product, it is content. If it is in any way executed, it is code.)
+
+### Release Process
+
+1. Bump the version in `package.json` and `package-lock.json`.
+2. Create a new release on GitHub with the new version number.
+3. The release will trigger a GitHub Actions workflow to build the site and deploy it to the GitHub Pages site.
