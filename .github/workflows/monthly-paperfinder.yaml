@@ -4,6 +4,12 @@ on:
   schedule:
     - cron: '0 0 6 * *'
   workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths:
+      - 'paperfinder/**'
+      - '.github/workflows/monthly-paperfinder.yaml'
 
 permissions:
   contents: write
@@ -14,6 +20,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          submodules: recursive
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -40,6 +48,6 @@ jobs:
         with:
           branch: monthly-paperfinder
           title: "Add monthly papers"
-          commit-message: "chore: update monthly papers"
+          commit-message: "content: update monthly papers"
           body: |
             Automated monthly update of recommended papers.
