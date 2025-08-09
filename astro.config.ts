@@ -5,7 +5,7 @@ import mdx from '@astrojs/mdx';
 import partytown from '@astrojs/partytown';
 import react from '@astrojs/react';
 import sitemap from '@astrojs/sitemap';
-import tailwind from '@astrojs/tailwind';
+import tailwind from '@tailwindcss/vite';
 import { defineConfig } from 'astro/config';
 import compress from 'astro-compress';
 import icon from 'astro-icon';
@@ -28,9 +28,6 @@ export default defineConfig({
   output: 'static',
 
   integrations: [
-    tailwind({
-      applyBaseStyles: false,
-    }),
     sitemap({
       filter: (page) => {
         const url = new URL(page);
@@ -91,6 +88,7 @@ export default defineConfig({
   },
 
   vite: {
+    plugins: [tailwind()],
     resolve: {
       alias: {
         '~': path.resolve(__dirname, './src'),

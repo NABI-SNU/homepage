@@ -27,7 +27,7 @@
 /* Active link styles */
 .toc-link.active {
   background-color: rgba(243, 244, 246, 1);
-  border-left-color: #3b82f6;
+  border-left-color: var(--color-blue-500);
 }
 .dark .toc-link.active {
   background-color: rgba(31, 41, 55, 1);
@@ -45,10 +45,10 @@
 .toc-link[data-heading-level='4'] {
   padding-left: 2.25rem;
   font-size: 0.8125rem;
-  color: #6b7280;
+  color: var(--color-gray-500);
 }
 .dark .toc-link[data-heading-level='4'] {
-  color: #9ca3af;
+  color: var(--color-gray-400);
 }
 
 /* Toggle button styles - Enhanced visibility */
@@ -73,14 +73,14 @@
 
 /* Active line highlighting */
 .toggle-line.active {
-  background-color: #3b82f6 !important;
+  background-color: var(--color-blue-500) !important;
   transform: scaleX(1.2) scaleY(1.5);
   box-shadow: 0 0 8px rgba(59, 130, 246, 0.4);
 }
 
 /* Heading level specific toggle lines */
 .toggle-line[data-heading-level='4'] {
-  background-color: #6b7280;
+  background-color: var(--color-gray-500);
 }
 
 /* Smooth transitions */
@@ -117,8 +117,8 @@
   transform: scaleX(1.05);
 }
 #toc-toggle.group:hover .toggle-line[data-heading-level='2'] {
-  background-color: #1f2937;
+  background-color: var(--color-gray-800);
 }
 .dark #toc-toggle.group:hover .toggle-line[data-heading-level='2'] {
-  background-color: #f9fafb;
+  background-color: var(--color-gray-100);
 }

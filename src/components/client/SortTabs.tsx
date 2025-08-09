@@ -21,7 +21,7 @@ const SortTabs: React.FC<SortTabsProps> = ({ sortBy, onSortChange }) => {
             <button
               key={tab.value}
               type="button"
-              className={`px-4 py-2 text-sm font-medium outline-none transition-colors border-0
+              className={`px-4 py-2 text-sm font-medium outine-hidden transition-colors border-0
                 ${i === 0 ? 'rounded-l-full' : ''}
                 ${i === tabs.length - 1 ? 'rounded-r-full' : ''}
                 ${i > 0 ? '-ml-px' : ''}

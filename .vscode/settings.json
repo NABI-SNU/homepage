@@ -12,5 +12,13 @@
   "yaml.schemas": {
     "./.vscode/astrowind/config-schema.json": "/src/config.yaml"
   },
-  "eslint.useFlatConfig": true
+  "eslint.useFlatConfig": true,
+  "tailwindCSS.includeLanguages": {
+    "astro": "html"
+  },
+  "tailwindCSS.experimental.classRegex": [
+    ["@apply\\s+([^;}]+)", "([^;}]+)"],
+    ["@utility\\s+([^;}]+)", "([^;}]+)"]
+  ],
+  "tailwindCSS.files.exclude": ["**/.git/**", "**/node_modules/**", "**/.astro/**", "**/dist/**"]
 }

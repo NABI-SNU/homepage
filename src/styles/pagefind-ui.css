@@ -22,31 +22,31 @@ dialog {
 /* Custom scrollbar styles - Light mode */
 dialog div {
   scrollbar-width: thin;
-  scrollbar-color: #cbd5e0 #edf2f7;
+  scrollbar-color: var(--color-gray-300) var(--color-gray-100);
 }
 
 /* Dark mode scrollbar styles */
 .dark dialog div {
-  scrollbar-color: #4a5568 #2d3748;
+  scrollbar-color: var(--color-gray-600) var(--color-gray-800);
 }
 
 /* Light mode pagefind styles */
 :root {
-  --pagefind-ui-primary: #3b82f6;
-  --pagefind-ui-text: #374151;
-  --pagefind-ui-background: #ffffff;
-  --pagefind-ui-border: #d1d5db;
-  --pagefind-ui-tag: #f3f4f6;
+  --pagefind-ui-primary: var(--color-blue-500);
+  --pagefind-ui-text: var(--color-gray-700);
+  --pagefind-ui-background: var(--color-white);
+  --pagefind-ui-border: var(--color-gray-300);
+  --pagefind-ui-tag: var(--color-gray-100);
   --pagefind-ui-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
 /* Dark mode pagefind styles - applied via class */
 .dark {
-  --pagefind-ui-primary: #63b3ed;
-  --pagefind-ui-text: #e2e8f0;
-  --pagefind-ui-background: #040620;
-  --pagefind-ui-border: #4a5568;
-  --pagefind-ui-tag: #2d3748;
+  --pagefind-ui-primary: var(--color-blue-400);
+  --pagefind-ui-text: var(--color-gray-200);
+  --pagefind-ui-background: var(--color-gray-900);
+  --pagefind-ui-border: var(--color-gray-600);
+  --pagefind-ui-tag: var(--color-gray-800);
   --pagefind-ui-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
 }
 
@@ -111,10 +111,10 @@ dialog div::-webkit-scrollbar-thumb:hover {
 :global(.pagefind-ui__search-input) {
   width: 100% !important;
   padding: 12px 16px 12px 48px !important;
-  border: 2px solid #e5e7eb !important;
+  border: 2px solid var(--color-gray-200) !important;
   border-radius: 12px !important;
   font-size: 16px !important;
-  background: #ffffff !important;
+  background: var(--color-white) !important;
   transition: all 0.2s ease-in-out !important;
   box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1) !important;
 }
@@ -126,9 +126,9 @@ dialog div::-webkit-scrollbar-thumb:hover {
 }
 
 :global(.dark .pagefind-ui__search-input) {
-  background: #1f2937 !important;
-  border-color: #374151 !important;
-  color: #f9fafb !important;
+  background: var(--color-gray-800) !important;
+  border-color: var(--color-gray-600) !important;
+  color: var(--color-gray-100) !important;
 }
 
 :global(.dark .pagefind-ui__search-input:focus) {
@@ -142,11 +142,11 @@ dialog div::-webkit-scrollbar-thumb:hover {
 }
 
 :global(.pagefind-ui__result) {
-  border: 1px solid #e5e7eb !important;
+  border: 1px solid var(--color-gray-200) !important;
   border-radius: 12px !important;
   padding: 16px !important;
   margin-bottom: 12px !important;
-  background: #ffffff !important;
+  background: var(--color-white) !important;
   transition: all 0.2s ease-in-out !important;
   box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05) !important;
 }
@@ -158,8 +158,8 @@ dialog div::-webkit-scrollbar-thumb:hover {
 }
 
 :global(.dark .pagefind-ui__result) {
-  background: #1f2937 !important;
-  border-color: #374151 !important;
+  background: var(--color-gray-800) !important;
+  border-color: var(--color-gray-600) !important;
 }
 
 :global(.dark .pagefind-ui__result:hover) {
@@ -170,32 +170,32 @@ dialog div::-webkit-scrollbar-thumb:hover {
 :global(.pagefind-ui__result-title) {
   font-size: 18px !important;
   font-weight: 600 !important;
-  color: #111827 !important;
+  color: var(--color-gray-900) !important;
   margin-bottom: 8px !important;
 }
 
 :global(.dark .pagefind-ui__result-title) {
-  color: #f9fafb !important;
+  color: var(--color-gray-100) !important;
 }
 
 :global(.pagefind-ui__result-excerpt) {
-  color: #6b7280 !important;
+  color: var(--color-gray-600) !important;
   line-height: 1.6 !important;
 }
 
 :global(.dark .pagefind-ui__result-excerpt) {
-  color: #d1d5db !important;
+  color: var(--color-gray-300) !important;
 }
 
 /* Loading state */
 :global(.pagefind-ui__message) {
   text-align: center !important;
   padding: 2rem !important;
-  color: #6b7280 !important;
+  color: var(--color-gray-600) !important;
 }
 
 :global(.dark .pagefind-ui__message) {
-  color: #d1d5db !important;
+  color: var(--color-gray-300) !important;
 }
 
 /* Hide default search clear button */
