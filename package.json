@@ -1,6 +1,6 @@
 {
   "name": "nabiresearch.org",
-  "version": "0.4.2",
+  "version": "0.5.0",
   "description": "NABI: Natural and Artificial Brain Intelligence",
   "type": "module",
   "engines": {
