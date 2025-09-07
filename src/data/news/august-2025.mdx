@@ -1,0 +1,151 @@
+---
+title: August 2025
+description: 'A tour through the brain’s code: interneuron teamwork, speed-boosted navigation, dopamine-shaped learning, compositional maps, and value-sensitive choices'
+href: '/news/august-2025'
+date: '2025-09-07'
+references:
+  - title: Cooperative actions of interneuron families support the hippocampal spatial code
+    authors:
+      - Valero, M.
+      - Abad-Perez, P.
+      - Gallardo, A.
+      - Picco, M.
+      - García-Hernandez, R.
+      - Brotons, J.
+      - Martínez-Félix, A.
+      - Machold, R.
+      - Rudy, B.
+      - Buzsáki, G.
+    year: 2025
+    journal: Science
+    doi: 10.1126/science.adv5638
+    url: https://doi.org/10.1126/science.adv5638
+  - title: Speed modulations in grid cell information geometry
+    authors:
+      - Ye, Z.
+      - Wessel, R.
+    year: 2025
+    journal: Nature Communications
+    doi: 10.1038/s41467-025-62856-x
+    url: https://doi.org/10.1038/s41467-025-62856-x
+  - title: Tonic dopamine and biases in value learning linked through a biologically inspired reinforcement learning model
+    authors:
+      - Romero Pinto, S.
+      - Uchida, N.
+    year: 2025
+    journal: Nature Communications
+    doi: 10.1038/s41467-025-62280-1
+    url: https://doi.org/10.1038/s41467-025-62280-1
+  - title: Reconciling flexibility and efficiency-medial entorhinal cortex represents a compositional cognitive map
+    authors:
+      - Piray, P.
+      - Daw, N. D.
+    year: 2025
+    journal: Nature Communications
+    doi: 10.1038/s41467-025-62733-7
+    url: https://doi.org/10.1038/s41467-025-62733-7
+  - title: Competitive integration of time and reward explains value-sensitive foraging decisions and frontal cortex ramping dynamics
+    authors:
+      - Bukwich, M.
+      - Campbell, M. G.
+      - Zoltowski, D.
+      - Kingsbury, L.
+      - Tomov, M. S.
+      - Stern, J.
+      - Kim, H. R.
+      - Drugowitsch, J.
+      - Linderman, S. W.
+      - Uchida, N.
+    year: 2025
+    journal: Neuron
+    doi: 10.1016/j.neuron.2025.07.008
+    url: https://doi.org/10.1016/j.neuron.2025.07.008
+---
+
+## Cooperative actions of interneuron families support the hippocampal spatial code
+
+<img
+  src="https://img-svr.nabiresearch.workers.dev/img/webp/sa5638f.webp"
+  alt="Interneuron cooperation"
+  style="width: 90%;"
+  width="800"
+  height="400"
+/>
+
+- **Methods:** Multi-shank silicon probes + optogenetic tagging of four interneuron families (Pvalb, Sst, Vip, Id2) in hippocampus and neocortex.
+- **Classification:** Machine learning on physiological fingerprints achieved >89% accuracy, bridging genetics and in vivo physiology.
+- **Findings:** Distinct interneuron families differentially sculpt pyramidal place fields; _Pvalb_ suppressed early spikes, _Sst/Id2_ suppressed late, suggesting **time-division control**.
+- **Conclusion:** Cooperative interneuron interactions are central to the hippocampal spatial map, beyond excitatory synaptic plasticity.
+
+---
+
+## Speed modulations in grid cell information geometry
+
+<img
+  src="https://img-svr.nabiresearch.workers.dev/img/webp/4162856.webp"
+  alt="Speed modulation of grid coding"
+  style="width: 90%;"
+  width="800"
+  height="400"
+/>
+
+- **Approach:** Introduced Gaussian Process with Kernel Regression (GKR) to model neural manifolds + noise covariance in grid cell populations.
+- **Manifold dilation:** Faster running speed stretched the **toroidal-like manifold** of grid codes.
+- **Noise trade-off:** Noise also increased, but information gain from dilation outpaced noise costs.
+- **Result:** **Fisher information and decoding accuracy improved at higher speeds**, while noise correlations projecting onto the manifold impaired coding.
+- **Implication:** Population-level coding, not just single cells, explains why navigation accuracy improves with movement speed.
+
+---
+
+## Tonic dopamine and biases in value learning
+
+<img
+  src="https://img-svr.nabiresearch.workers.dev/img/webp/4162280.webp"
+  alt="Tonic dopamine and biased value learning"
+  style="width: 90%;"
+  width="800"
+  height="400"
+/>
+
+- **Problem:** Psychiatric disorders often feature biased future predictions (pessimism in depression, optimism in addiction).
+- **Model:** RL framework with **basal ganglia circuit architecture** + dopamine receptor pharmacodynamics.
+- **Mechanism:** Differences in **D1 vs. D2 receptor affinities** and sigmoidal dose–response curves mean tonic dopamine shifts sensitivity to positive vs. negative reward prediction errors.
+- **Evidence:** Explains optimistic and pessimistic learning in both humans and mice.
+- **Significance:** Provides a biologically grounded mechanism linking **tonic dopamine to learning biases** and psychiatric symptoms.
+
+---
+
+## Reconciling flexibility and efficiency: compositional cognitive maps in MEC
+
+<img
+  src="https://img-svr.nabiresearch.workers.dev/img/webp/4162733.webp"
+  alt="Compositional maps in MEC"
+  style="width: 90%;"
+  width="800"
+  height="400"
+/>
+
+- **Model:** Cognitive maps constructed from **predictive object representations (PORs)** perturbing a baseline open-space grid.
+- **Composition:** PORs are translation/rotation invariant and recombinable, enabling **efficient compositional map building**.
+- **Neural mapping:**
+  - **Object vector cells** = encode POR building blocks.
+  - **Grid cells** = baseline efficient spatial metric.
+- **Insight:** MEC supports **planning-ready compositional maps**, reconciling flexible recombination with efficient path planning.
+
+---
+
+## Competitive integration of time and reward in foraging
+
+<img
+  src="https://img-svr.nabiresearch.workers.dev/img/webp/0162578.webp"
+  alt="Frontal cortex integration of time and reward"
+  style="width: 90%;"
+  width="800"
+  height="400"
+/>
+
+- **Task:** Head-fixed mice performed a VR patch-foraging paradigm with probabilistic, diminishing water rewards.
+- **Behavioral model:** Mice integrated **elapsed time (positive contribution) vs. received rewards (negative contribution)**, scaled by a latent patience state.
+- **Deviation from theory:** Decisions systematically diverged from Marginal Value Theorem but were captured by competitive integration models.
+- **Neural evidence:** **Neuropixels across frontal cortex** showed ramping activity encoding the integrated decision variable, oppositely modulated by time vs. reward.
+- **Conclusion:** Frontal ramping dynamics provide a neural substrate for **value-sensitive patch leaving**.
