@@ -1,0 +1,59 @@
+---
+publishDate: 2025-09-06T19:00:00+09:00
+author: Seiok Kim
+title: Learning Produces an Orthogonalized State Machine in the Hippocampus
+image: https://img-svr.nabiresearch.workers.dev/img/webp/HJKLPOI.webp
+excerpt: The hippocampus learns by forming an "orthogonalized state machine," enabling contextual separation and flexible learning.
+category: Monthly Meeting
+tags:
+  - hippocampus
+  - neural circuits
+  - memory in context
+references:
+  - title: Learning Produces an Orthogonalized State Machine in the Hippocampus
+    authors:
+      - Weinan Sun
+      - Johan Winnubst
+      - Maanasa Natrajan
+      - Chongxi Lai
+      - Koichiro Kajikawa
+      - Arco Bast
+      - Michalis Michaelos
+      - Rachel Gattoni
+      - Carsen Stringer
+      - Daniel Flickinger
+      - James E. Fitzgerald
+      - Nelson Spruston
+    journal: Nature
+    year: 2025
+    doi: 10.1038/s41586-024-08548-w
+    url: https://doi.org/10.1038/s41586-024-08548-w
+---
+
+import { YouTube } from 'astro-embed';
+
+_Original Paper: [Learning Produces an Orthogonalized State Machine in the Hippocampus](https://doi.org/10.1038/s41586-024-08548-w)_
+
+We explored a 2025 Nature paper on how the hippocampus learns by forming an "Orthogonalized State Machine" (OSM), which allows for the contextual separation of similar states and facilitates efficient, flexible learning.
+
+## Summary of the Presentation
+
+- **Rat Behavior and Neural Activity:** The video discusses an experiment where rats are trained to navigate a virtual reality track, learning to associate visual cues with a reward. As the rats learn, the neural patterns in their hippocampus, which initially show similar activity for different trial types, become distinct and "orthogonalized".
+
+- **State Space Analysis:** Using a dimensionality reduction technique called UMAP, the high-dimensional neural data is visualized. As the rat learns, the initially disorganized neural states form a structured "closed loop" in the visualization, representing the rat's position, with a separate cluster for the reward phase. The number of "splitter cells," which respond to both location and trial context, increases with learning, indicating a shift from purely spatial to a more contextual representation of the environment.
+
+- **Comparison with AI Models:** The learning trajectory of the rat's brain was compared to several computational models. The results showed that a modified Hidden Markov Model called CSCG (Context-Sensitive Clonal Gaussian) most closely mimicked the observed neural dynamics. This model accurately replicated the sequence in which neural states become orthogonalized during training.
+
+## Discussion Points
+
+- **Learning trajectory of the orthogonalized state machine:** A question was raised about why the R2 (far reward) location appeared to be learned more quickly than the R1 (near reward) location. It was suggested that because R2 is near the end of the deterministic part of the track, its state might be easier for the rat's brain to infer. The discussion also addressed whether the computational model that best fit the data (CSCG) was indeed a biologically accurate representation.
+
+- **Biological interpretability**: The presenter noted that while the results were compelling, further research with connectome or protein expression data would be needed to confirm its biological basis. It was further questioned whether the splitter cells represent a distinct cell population, and how the CSCG model could account for grid cells.
+
+- **The "Diamond-Ring" Structure and Data Visualization:** The "diamond-ring" structure seen in the UMAP plots, which represented the neural network's state during the reward phase, was a point of discussion. A user questioned whether the high variability, which made the plot look like a diamond, was a true reflection of the neural activity or an artifact of the dimensionality reduction technique. The presenter explained that the raw data was available and that further analysis would be needed to verify this.
+
+- **Limitations and Future Research**: The discussion touched on the limitations of the experiment's simple linear track and whether the results would generalize to more complex environments like mazes or social settings. The session concluded with a call for more research to connect the observed neural phenomena with the underlying biological mechanisms, particularly by studying the interactions between different brain regions like the hippocampus and the orbitofrontal cortex (OFC).
+
+## Original Video
+
+<YouTube id="GxLeGx5_iOA" title="Learning Produces an Orthogonalized State Machine in the Hippocampus" />

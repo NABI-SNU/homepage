@@ -1,0 +1,53 @@
+---
+publishDate: 2025-09-06T19:00:00+09:00
+author: Chaebeom Sheen
+title: Geometry of Abstraction in the Brain
+image: https://img-svr.nabiresearch.workers.dev/img/webp/FBNJDHO.webp
+excerpt: Understand how the dimensionality of abstract representation in the brain supports generalization
+category: Monthly Meeting
+tags:
+  - geometry
+  - abstraction
+  - hippocampus
+  - prefrontal cortex
+  - memory in context
+references:
+  - title: A Geometric Approach to Representation and Abstraction in the Hippocampus and Prefrontal Cortex
+    authors:
+      - Silvia Bernardi
+      - Marcus K. Benna
+      - Mattia Rigotti
+      - Jérôme Munuera
+      - Stefano Fusi
+      - C. Daniel Salzman
+    journal: Cell
+    year: 2020
+    doi: 10.1016/j.cell.2020.09.031
+    url: https://doi.org/10.1016/j.cell.2020.09.031
+---
+
+import { YouTube } from 'astro-embed';
+
+_Original Paper: [A Geometric Approach to Representation and Abstraction in the Hippocampus and Prefrontal Cortex](https://doi.org/10.1016/j.cell.2020.09.031)_
+
+We explored how the brain, specifically the hippocampus and prefrontal cortex, represents and abstracts information in a geometric, low-dimensional format while still retaining the richness of the original information. This approach provides a new framework for understanding how neural circuits support flexible behavior.
+
+## Summary of the Presentation
+
+- **Cognitive Maps and Dimensionality Reduction:** The video explains how the brain uses cognitive maps to represent spatial and conceptual information, and it highlights the "curse of dimensionality" as a key challenge the brain overcomes to efficiently learn and generalize. The brain reduces the complexity of data by transforming it into a lower-dimensional representation.
+
+- **Abstraction and Generalization:** The presentation introduces two metrics from a study to quantify this process: "Shuttering Dimensionality" (SD), which measures the ability to distinguish between different categories, and "Cross-Context Generalization Performance" (CCGP), which measures the ability to apply learned information across different contexts.
+
+- **Monkey Experiment and Key Findings:** A key experiment involved monkeys performing a task while their neural activity was recorded in the hippocampus, anterior cingulate cortex, and dorsolateral prefrontal cortex. The study found that while all three regions maintained information, the prefrontal cortex was more involved in the execution of the following action while the hippocampus was more involved in storing the relevant context. Meanwhile, CCGP scores were directly correlated with the monkeys' task performance.
+
+- **Individual Variability:** The presentation discusses a follow-up study showing that individual differences in the brain's geometric representation of variables could explain behavioral differences, such as variations in reaction times. Using recurrent neural networks (RNNs) to model the monkeys' behavior, it was found that networks adopting a "rule-based" strategy were slower to train but more efficient, mirroring the behavior observed in the monkeys.
+
+## Discussion Points
+
+- **Geometric Embeddings and Complex Manifolds:** A question was raised about the potential for visualizing more complex tasks using advanced geometric models. The presenter suggested that understanding the geometry of embedding layers in models like Transformers could be insightful for abstract tasks. A recent paper on Tversky similarity, which proposes an asymmetric geometry for embeddings, was mentioned as a potential avenue for future research.
+
+- **Significance of the Twisted Square Representation:** The discussion explored why the "twisted square" representation was more common than a "perfectly factorized" one. It was proposed that the twisted square's structure allows the brain to retain more detail and generalize more effectively across different tasks, rather than optimizing for a single, specific function. However, it was also noted that the "twisted square" representation, while allowing for linear separability of complex relationships (like XOR), might simply be a stochastic artifact rather than a biologically meaningful structure. They noted that a perfectly flat representation might simply be vanishingly less probable in a noisy system.
+
+## Original Video
+
+<YouTube id="RJnWCnIKhcs" title="Geometry of Abstraction in the Brain" />
