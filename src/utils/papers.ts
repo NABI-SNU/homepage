@@ -5,9 +5,10 @@ import type { Paper } from '~/types';
 import { cleanSlug } from '~/utils/permalinks';
 
 export async function getAllPapers(): Promise<Paper[]> {
-  const [posts, news] = await Promise.all([
+  const [posts, news, research] = await Promise.all([
     getCollection('post') as Promise<CollectionEntry<'post'>[]>,
     getCollection('news') as Promise<CollectionEntry<'news'>[]>,
+    getCollection('research') as Promise<CollectionEntry<'research'>[]>,
   ]);
 
   const papers: Paper[] = [];
@@ -16,6 +17,7 @@ export async function getAllPapers(): Promise<Paper[]> {
     post: (item: CollectionEntry<'post'>, slug: string) => `/posts/${cleanSlug(item.data.category ?? '')}/${slug}`,
     news: (item: CollectionEntry<'news'>, slug: string) =>
       item.data.href ? String(item.data.href) : `/monthly/${slug}`,
+    research: (_item: CollectionEntry<'research'>, slug: string) => `/labs/${slug}`,
   } as const;
 
   function processCollection<T extends keyof typeof defaultUrlFactory>(items: CollectionEntry<T>[], type: T) {
@@ -58,6 +60,7 @@ export async function getAllPapers(): Promise<Paper[]> {
 
   processCollection(posts, 'post');
   processCollection(news, 'news');
+  processCollection(research, 'research');
 
   const paperMap = new Map<string, Paper>();
   for (const paper of papers) {
