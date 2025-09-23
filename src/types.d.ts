@@ -10,7 +10,7 @@ export interface Paper {
   doi?: string;
   url: string;
   sources: Array<{
-    type: 'post' | 'news';
+    type: 'post' | 'news' | 'research';
     title: string;
     url: string;
   }>;
@@ -68,6 +68,23 @@ export interface News {
   href: string;
   date: string;
   references: Paper[];
+}
+
+export interface ResearchItem {
+  /** Title of the research notebook entry */
+  title: string;
+  /** Optional short description */
+  description?: string;
+  /** Optional date string */
+  date?: string;
+  /** Optional preview image */
+  image?: ImageMetadata | string;
+  /** Slug used in URL */
+  slug: string;
+  /** Relative path to the .ipynb file */
+  notebook: string;
+  /** Optional bibliography references */
+  references?: Paper[];
 }
 
 export interface Taxonomy {

@@ -1,0 +1,90 @@
+---
+import { getCollection, render, type CollectionEntry } from 'astro:content';
+
+import SocialShare from '~/components/common/SocialShare.astro';
+import Button from '~/components/primitives/Button.astro';
+import NotebookViewer from '~/components/research/NotebookViewer.astro';
+import Layout from '~/layouts/PageLayout.astro';
+
+export async function getStaticPaths() {
+  const entries = (await getCollection('research')) as CollectionEntry<'research'>[];
+  return entries.map((entry) => ({
+    params: {
+      slug:
+        entry.id
+          .split('/')
+          .pop()
+          ?.replace(/\.(md|mdx)$/i, '') || '',
+    },
+    props: { id: entry.id },
+  }));
+}
+
+const { id } = Astro.props as { id: string };
+const entry = ((await getCollection('research')) as CollectionEntry<'research'>[]).find(
+  (e) => e.id === id
+) as CollectionEntry<'research'>;
+
+const { Content } = await render(entry);
+
+const metadata = {
+  title: entry.data.title,
+  description: entry.data.description,
+  metadata: entry.data.metadata,
+};
+
+// Resolve notebook path relative to this file to `src/data/research`
+const resolvedNotebookPath = new URL(`../../data/research/${entry.data.notebook.replace(/^\.\//, '')}`, import.meta.url)
+  .pathname;
+
+// GitHub URLs to view and fork the notebook
+const REPO_URL = 'https://github.com/NABI-SNU/homepage';
+const notebookFilePath = `src/data/research/${entry.data.notebook.replace(/^\.\//, '')}`;
+const githubNotebookUrl = `${REPO_URL}/blob/main/${notebookFilePath}`;
+---
+
+<Layout metadata={metadata}>
+  <div class="mx-auto max-w-3xl px-6 py-10 sm:py-12">
+    <h1 class="text-3xl font-semibold tracking-tight sm:text-4xl">{entry.data.title}</h1>
+    {entry.data.description && <p class="mt-2 text-base text-gray-600 dark:text-gray-300">{entry.data.description}</p>}
+    {entry.data.date && <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">{entry.data.date}</p>}
+  </div>
+
+  <div class="mx-auto max-w-3xl px-6">
+    <!-- Optional MD/MDX content above the notebook -->
+    <div class="prose dark:prose-invert max-w-none">
+      <Content />
+    </div>
+  </div>
+
+  <div class="mx-auto max-w-3xl px-6 mt-6">
+    <div class="flex flex-wrap gap-3">
+      <Button
+        href={githubNotebookUrl}
+        target="_blank"
+        variant="secondary"
+        icon="tabler:brand-github"
+        class="!py-2 !px-3 text-sm"
+        text="View Notebook on GitHub"
+      />
+    </div>
+  </div>
+
+  <div class="mx-auto max-w-3xl px-6">
+    <hr class="my-10 border-gray-200 dark:border-slate-800" />
+  </div>
+
+  <div class="mx-auto max-w-3xl px-6 py-6">
+    <NotebookViewer notebookPath={resolvedNotebookPath} />
+  </div>
+
+  <div class="max-w-3xl mx-auto mb-12 px-6">
+    <section id="research-footer">
+      <SocialShare
+        url={String(Astro.url)}
+        text={entry.data.title}
+        class="flex items-center gap-3 text-gray-500 dark:text-gray-400"
+      />
+    </section>
+  </div>
+</Layout>

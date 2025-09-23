@@ -56,7 +56,7 @@ const paperSchema = z.object({
   sources: z
     .array(
       z.object({
-        type: z.enum(['post', 'news']),
+        type: z.enum(['post', 'news', 'research']),
         title: z.string(),
         url: z.string(),
       })
@@ -99,4 +99,16 @@ const newsCollection = defineCollection({
 export const collections = {
   post: postCollection,
   news: newsCollection,
+  research: defineCollection({
+    loader: glob({ pattern: ['*.md', '*.mdx'], base: 'src/data/research' }),
+    schema: z.object({
+      title: z.string(),
+      description: z.string().optional(),
+      date: z.string().optional(),
+      image: z.string().optional(),
+      notebook: z.string(), // Path to a .ipynb file relative to this file
+      references: z.array(paperSchema).optional(),
+      metadata: metadataDefinition(),
+    }),
+  }),
 };

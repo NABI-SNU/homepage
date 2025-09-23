@@ -1,0 +1,204 @@
+---
+import fs from 'node:fs/promises';
+
+const { notebookPath } = Astro.props as { notebookPath: string };
+
+// Read and parse the notebook JSON at build time
+let nb: any = null; // eslint-disable-line @typescript-eslint/no-explicit-any
+try {
+  const data = await fs.readFile(notebookPath, 'utf-8');
+  nb = JSON.parse(data);
+} catch (e) {
+  console.error('Failed to read notebook:', notebookPath, e);
+}
+
+// Basic markdown renderer (headings, bold/italic, code, links, images, hr)
+const escapeHtml = (str: string) => str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+
+const renderMarkdown = (lines: string[] | string) => {
+  const input = Array.isArray(lines) ? lines.join('') : lines;
+  const text = input.replace(/\r\n?/g, '\n');
+
+  // Extract fenced code blocks first
+  const codeBlocks: Array<{ lang: string; code: string } | string> = [];
+  let tmp = text.replace(/```([\w+-]*)\n([\s\S]*?)```/g, (_m, lang, code) => {
+    const idx = codeBlocks.push({ lang, code }) - 1;
+    return `@@CODEBLOCK_${idx}@@`;
+  });
+
+  // Extract inline code
+  const inlineCodes: string[] = [];
+  tmp = tmp.replace(/`([^`]+)`/g, (_m, code) => {
+    const idx = inlineCodes.push(code) - 1;
+    return `@@INLINECODE_${idx}@@`;
+  });
+
+  // Headings
+  tmp = tmp
+    .replace(/^######\s+(.*)$/gm, '<h6>$1</h6>')
+    .replace(/^#####\s+(.*)$/gm, '<h5>$1</h5>')
+    .replace(/^####\s+(.*)$/gm, '<h4>$1</h4>')
+    .replace(/^###\s+(.*)$/gm, '<h3>$1</h3>')
+    .replace(/^##\s+(.*)$/gm, '<h2>$1</h2>')
+    .replace(/^#\s+(.*)$/gm, '<h1>$1</h1>');
+
+  // Horizontal rule
+  tmp = tmp.replace(/^\s*[-*_]{3,}\s*$/gm, '<hr/>');
+
+  // Images and links
+  tmp = tmp
+    .replace(/!\[([^\]]*)\]\(([^)\s]+)(?:\s+"([^"]+)")?\)/g, '<img alt="$1" src="$2" title="$3" />')
+    .replace(/\[([^\]]+)\]\(([^)\s]+)(?:\s+"([^"]+)")?\)/g, '<a href="$2" title="$3">$1</a>');
+
+  // Bold and italic (basic)
+  tmp = tmp.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>').replace(/\*(?!\s)([^*]+)\*/g, '<em>$1</em>');
+
+  // Paragraphs: wrap blocks that are not already block tags
+  const blockTags = ['h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'hr'];
+  const linesArr = tmp.split(/\n\n+/);
+  tmp = linesArr
+    .map((chunk) => {
+      const trimmed = chunk.trim();
+      if (!trimmed) return '';
+      const isBlock = blockTags.some((t) => new RegExp(`^<${t}[s>]`).test(trimmed));
+      return isBlock ? trimmed : `<p>${trimmed.replace(/\n/g, '<br/>')}</p>`;
+    })
+    .join('\n');
+
+  // Restore inline code
+  tmp = tmp.replace(/@@INLINECODE_(\d+)@@/g, (_m, i) => `<code>${escapeHtml(inlineCodes[Number(i)] || '')}</code>`);
+
+  // Restore code blocks
+  tmp = tmp.replace(/@@CODEBLOCK_(\d+)@@/g, (_m, i) => {
+    const b = codeBlocks[Number(i)] as { lang: string; code: string };
+    const langClass = b.lang ? ` language-${b.lang}` : '';
+    return `<pre class="overflow-x-auto rounded-lg bg-gray-900 text-gray-100 p-4 text-sm ring-1 ring-gray-800/60"><code class="${langClass}">${escapeHtml(
+      b.code || ''
+    )}</code></pre>`;
+  });
+
+  return tmp;
+};
+
+const renderText = (data: string[] | string) => {
+  const text = Array.isArray(data) ? data.join('') : data;
+  return text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+};
+---
+
+<section class="notebook mx-auto max-w-3xl w-full space-y-8">
+  {
+    nb && nb.cells && Array.isArray(nb.cells) ? (
+      // prettier-ignore
+      nb.cells.map(
+        (cell: any, idx: number) => { // eslint-disable-line @typescript-eslint/no-explicit-any
+        const exec = typeof cell.execution_count === 'number' ? cell.execution_count : idx + 1;
+        return (
+          <div class="cell" data-type={cell.cell_type}>
+            {cell.cell_type === 'markdown' && (
+              <div class="prose max-w-none dark:prose-invert" set:html={renderMarkdown(cell.source)} />
+            )}
+
+            {cell.cell_type === 'code' && (
+              <div class="code-cell grid grid-cols-[max-content,1fr] gap-4 items-start w-full max-w-full min-w-0">
+                <div class="nb-prompt font-mono text-xs text-blue-600 dark:text-blue-400 select-none mt-1">
+                  In [{exec}]:
+                </div>
+                <div class="nb-input w-full min-w-0">
+                  <pre class="w-full max-w-full overflow-x-auto rounded-lg bg-gray-900 text-gray-100 p-4 text-sm ring-1 ring-gray-800/60">
+                    <code>{Array.isArray(cell.source) ? cell.source.join('') : cell.source}</code>
+                  </pre>
+                </div>
+
+                {Array.isArray(cell.outputs) && cell.outputs.length > 0 && (
+                  <>
+                    <div class="nb-prompt font-mono text-xs text-emerald-600 dark:text-emerald-400 select-none mt-2">
+                      Out[{exec}]:
+                    </div>
+                    <div class="nb-output mt-2 space-y-3 border-l-2 border-emerald-300/60 dark:border-emerald-500/50 pl-4 w-full max-w-full min-w-0">
+                      {cell.outputs.map(
+                        (
+                          out: any // eslint-disable-line @typescript-eslint/no-explicit-any
+                        ) => (
+                          <div class="output">
+                            {out.output_type === 'stream' && (
+                              <pre class="w-full max-w-full overflow-x-auto rounded bg-gray-50 dark:bg-gray-800/50 text-gray-800 dark:text-gray-100 p-3 text-sm ring-1 ring-gray-200 dark:ring-gray-700">
+                                <code>{renderText(out.text || '')}</code>
+                              </pre>
+                            )}
+                            {(out.output_type === 'display_data' || out.output_type === 'execute_result') &&
+                              out.data && (
+                                <div class="display-data space-y-3">
+                                  {out.data['text/plain'] && (
+                                    <pre class="w-full max-w-full overflow-x-auto rounded bg-gray-50 dark:bg-gray-800/50 text-gray-800 dark:text-gray-100 p-3 text-sm ring-1 ring-gray-200 dark:ring-gray-700">
+                                      <code>{renderText(out.data['text/plain'])}</code>
+                                    </pre>
+                                  )}
+                                  {out.data['text/markdown'] && (
+                                    <div class="prose dark:prose-invert max-w-none">
+                                      <div set:html={renderMarkdown(out.data['text/markdown'])} />
+                                    </div>
+                                  )}
+                                  {out.data['image/png'] && (
+                                    <img class="rounded-lg border border-gray-200 dark:border-gray-700 shadow-sm max-w-full h-auto" src={`data:image/png;base64,${out.data['image/png']}`} />
+                                  )}
+                                  {out.data['image/jpeg'] && (
+                                    <img class="rounded-lg border border-gray-200 dark:border-gray-700 shadow-sm max-w-full h-auto" src={`data:image/jpeg;base64,${out.data['image/jpeg']}`} />
+                                  )}
+                                  {out.data['text/html'] && (
+                                    <div class="overflow-x-auto max-w-full">
+                                      <div class="prose dark:prose-invert max-w-none" set:html={
+                                          Array.isArray(out.data['text/html'])
+                                            ? out.data['text/html'].join('')
+                                            : out.data['text/html']
+                                        } />
+                                    </div>
+                                  )}
+                                </div>
+                              )}
+                          </div>
+                        )
+                      )}
+                    </div>
+                  </>
+                )}
+              </div>
+            )}
+          </div>
+        );
+      })
+    ) : (
+      <div class="text-red-600">Notebook could not be loaded.</div>
+    )
+  }
+</section>
+
+<style>
+  .notebook .prose :global(h1) {
+    margin-top: 1.5rem;
+  }
+  .notebook .prose :global(h2) {
+    margin-top: 1.25rem;
+  }
+  .notebook .prose :global(h3) {
+    margin-top: 1rem;
+  }
+  .notebook :global(table) {
+    display: block;
+    max-width: 100%;
+    overflow-x: auto;
+  }
+  .dark .notebook .prose {
+    color: rgb(209 213 219);
+  }
+  .dark .notebook .prose :global(p),
+  .dark .notebook .prose :global(li) {
+    color: rgb(209 213 219);
+  }
+  .dark .notebook .prose :global(a) {
+    color: rgb(147 197 253);
+  }
+  .dark .notebook .prose :global(code) {
+    color: rgb(244 114 182);
+  }
+</style>

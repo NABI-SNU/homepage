@@ -25,6 +25,7 @@ Please check out the following documents for more information: They are all in t
 ## Key Usage Information
 
 - Please add new `.mdx` or `.md` files in `src/data/post` to add new blog posts.
+- To add a new research notebook, create an `.mdx` file in `src/data/research` with frontmatter including a `notebook` field pointing to a `.ipynb` file in the same folder. See `src/data/research/hello-notebook.mdx` for an example.
 
 ## Key Development Information
 
