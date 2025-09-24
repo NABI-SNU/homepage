@@ -1,0 +1,45 @@
+---
+import Headline from '~/components/primitives/Headline.astro';
+import ItemGrid2 from '~/components/primitives/ItemGrid2.astro';
+import Layout from '~/layouts/PageLayout.astro';
+import { fetchResearch } from '~/utils/research';
+
+export const prerender = true;
+
+const researchItems = await fetchResearch();
+
+const items = researchItems.map((item) => ({
+  title: item.title,
+  description: item.description || '',
+  href: `/labs/${item.slug}`,
+}));
+
+const metadata = {
+  title: 'Research',
+  description: 'Research notes from NABI, the Natural and Artificial Brain Intelligence study group.',
+};
+---
+
+<Layout {metadata}>
+  <section class="px-6 sm:px-6 py-12 sm:py-16 lg:py-20 mx-auto max-w-5xl">
+    <Headline title="Research" subtitle="Notebooks and notes from our work" />
+
+    {
+      items.length === 0 ? (
+        <p class="text-muted">No research entries yet. Please check back soon.</p>
+      ) : (
+        <ItemGrid2
+          items={items}
+          columns={2}
+          classes={{
+            container: 'max-w-3xl mx-auto gap-4 md:gap-6',
+            panel:
+              'rounded-lg border border-gray-200/70 dark:border-slate-800 bg-white/60 dark:bg-slate-900/60 p-5 transition-shadow hover:shadow-sm',
+            title: 'text-lg font-semibold',
+            description: 'text-sm text-muted',
+          }}
+        />
+      )
+    }
+  </section>
+</Layout>
