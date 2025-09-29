@@ -1,0 +1,79 @@
+---
+publishDate: 2025-09-27T18:50:00+09:00
+author: Dongwon Lee
+title: Compositional Hippocampus Constructs Future Behavior
+image: https://img-svr.nabiresearch.workers.dev/img/webp/w45fw6NW.webp
+excerpt: Hippocampal memory is compositional, and performs consolidation primarily through replay, allowing for zero-shot generalization and the construction of future behavior
+category: Monthly Meeting
+tags:
+  - hippocampus
+  - cognitive map
+  - memory formation
+  - memory in context
+references:
+  - title: 'Constructing future behavior in the hippocampal formation through composition and replay'
+    authors:
+      - Jacob J. W. Bakermans
+      - Joseph Warren
+      - James C. R. Whittington
+      - Timothy E. J. Behrens
+    journal: Nature Neuroscience
+    year: 2025
+    doi: 10.1038/s41593-025-01908-3
+    url: https://doi.org/10.1038/s41593-025-01908-3
+---
+
+import { YouTube } from 'astro-embed';
+
+_Original Paper: [Constructing future behavior in the hippocampal formation through composition and replay](https://doi.org/10.1038/s41593-025-01908-3)_
+
+---
+
+## Core Idea
+
+Traditional State-Space Models (SSMs) are limited by slow, inflexible sequential learning.  
+This paper proposes that hippocampal memory is:
+
+1. **Compositional** (built from reusable building blocks)
+2. **Consolidated via Replay**
+
+---
+
+## Summary of the Paper
+
+### Compositional Memory
+
+- **Building Blocks:** Experiences are decomposed into Grid Cells (absolute location, X) and Vector Cells (relative walls, objects, rewards).
+- **Memory Binding:** Outer product of Grid + Vector activity forms conjoined representations.
+- **Storage:** Attractor (Hopfield) network retrieves full memories from partial cues.
+- **Output:** Landmark Vector Cells (integrating location + relational info).
+
+### Policy Generation
+
+- **Reusable Blocks:** Encodings imply actions (e.g., reward vector → move right).
+- **Generalization:** Unlike traditional agents, compositional agents adapt quickly when rewards/boundaries shift, enabling zero-shot generalization.
+- **Latent Learning:** Agents build maps without rewards, enabling instant policy formation once rewards appear.
+
+### Role of Replay
+
+- **Constructive Replay:** During rest/sleep, Grid + Vector info integrated without physical exploration.
+- **Performance:** Outperforms Q-learning (Bellman Backup), especially in noisy environments and with limited replays.
+
+### Experimental Validation
+
+- **Replay & Ripples:** Home-Away-Well task shows replay-linked hippocampal activity near Home.
+- **Relative Coding:** Cell activity shifts with landmark relocation, showing compositional, relative encoding driven by Replay.
+
+---
+
+## Key Discussion Points
+
+1. **Active Replay:** Must replay occur only at rest, or also during exploration?
+2. **Independence of Cells:** Are Grid/Vector cells truly independent before replay binding?
+3. **Model-Based vs Model-Free:** Is superior efficiency simply due to richer structure encoding?
+4. **Biological Implementation:** How does hippocampus compute the “outer product”?
+5. **Compositional Rules:** Can agents learn explicit reusable behavioral rules (inductive bias)?
+
+## Original Video
+
+<YouTube id="VKElrfMeS24" title="Compositional Hippocampus Constructs Future Behavior" />

@@ -1,0 +1,111 @@
+---
+publishDate: 2025-09-27T18:50:00+09:00
+author: Wonjoon Lee
+title: Vector Hash Memory Model
+image: https://img-svr.nabiresearch.workers.dev/img/webp/8xW53QT4.webp
+excerpt: The VectorHASH model separates memory content from a fixed, stable scaffold derived from hippocampal structure, integrating episodic and spatial memory
+category: Monthly Meeting
+tags:
+  - hippocampus
+  - neural circuits
+  - memory in context
+references:
+  - title: Episodic and associative memory from spatial scaffolds in the hippocampus
+    authors:
+      - Sarthak Chandra
+      - Sugandha Sharma
+      - Rishidev Chaudhuri
+      - Ila Fiete
+    journal: Nature
+    year: 2025
+    doi: 10.1038/s41586-024-08392-y
+    url: https://doi.org/10.1038/s41586-024-08392-y
+---
+
+import { YouTube } from 'astro-embed';
+
+_Original Paper: [Vector Hash Memory Model](https://doi.org/10.1038/s41586-024-08392-y)_
+
+The presentation summarized a new model called **VectorHASH (Vector Hippocampal-Scaffolded Heteroassociative Memory)**, how episodic, associative, and spatial memory can arise from a common hippocampal scaffold.
+
+## Summary of the Paper (VectorHASH Model)
+
+### Core Problem and Solution
+
+- Traditional memory networks (e.g., Hopfield Network) suffer from the **Memory Cliff**: recall accuracy drops abruptly to zero once storage slightly exceeds neuron count.
+- The **VectorHASH model** avoids catastrophic failure by providing a **memory continuum**—recall that gradually degrades near capacity, staying close to the theoretical limit.
+
+### Key Architectural Concepts
+
+1. **Separation of Scaffold and Content**
+   - Scaffold = stable structure (coordinates, grid cells).
+   - Content = variable memory (sensory input).
+   - Architecture grounded in biology: Sensory Input Layer + Hippocampus + Grid Cells in entorhinal cortex
+     - EC → HC connections: fixed and random (scaffold).
+     - HC → Sensory connections: plastic, experience-dependent.
+   - **Heteroassociation**: sensory input linked to hippocampal scaffold.
+
+2. **Low-Dimensional Encoding for Sequences**
+   - Episodic memory stored via **Velocity Shift Mechanism**:
+     - Only changes are stored in a low-dimensional velocity vector (often 2D).
+     - Tracks grid phase shifts instead of high-dimensional states.
+
+### Performance and Capacity
+
+- **Robustness to Noise**: Attractor recovery even with 25% noise in HC state.
+- **Exponential Capacity**: Stable attractors grow exponentially with number of grid modules; HC neurons scale linearly.
+- **Gradual Degradation**: Quality of recall decreases smoothly at high load (vs. collapse).
+- **Efficiency**: Recall of sequences up to **14,000 steps**, vs. ~53 for Hopfield.
+- **AI Comparison**: Outperforms autoencoders in image recall fidelity → biological constraints as powerful inductive biases.
+
+### Spatial and Episodic Memory Functions
+
+- **Spatial Functions**:
+  - Place Cells & Grid Cells reproduced.
+  - **Zero-Shot Inference** for new paths.
+  - Supports remapping → distinct, non-interfering codes across environments.
+
+- **Episodic Functions**:
+  - Sequences maintained, but fidelity of sensory details decays with load.
+
+- **Memory Consolidation**:
+  - Repeated inputs strengthen HC→Sensory weights.
+  - Leads to stronger recall and resilience to HC damage.
+
+### Connection to the Memory Palace
+
+- **Method of Loci** aligns with VectorHASH:
+  - Fixed palace path = stable scaffold.
+  - Linking items to locations = heteroassociative learning.
+- Explains vast storage capacity of mnemonic strategies.
+
+---
+
+## Summary of the Discussion
+
+### Inductive Bias and AI
+
+- **Catastrophic Forgetting Mitigation**: Fixed scaffold serves as inductive bias.
+- **Scaling vs. Bias**:
+  - Debate between brute-force scaling (vision transformers) vs. neuroscience-inspired inductive biases (convolutional neural networks)
+  - Robotics and constrained domains may favor bias-based approaches.
+
+### Neuroscientific Extensions and Implications
+
+- **Beyond Hippocampus**:
+  - Extended to Frontal Cortex (FC) → improved performance in reward-seeking tasks with positional + evidential information.
+
+- **Sensory Input Modalities**:
+  - Different modalities (visual, auditory, motor) may wire uniquely.
+  - Feynman anecdote illustrates individual modality dependence in cognition.
+
+- **Early Fixed Learning**:
+  - HC–EC scaffold connections set early in development, and do not change after that.
+  - Raises questions about critical periods in learning.
+
+- **Pathology**:
+  - Model relevance to Alzheimer’s disease and hippocampal dysfunction.
+
+## Original Video
+
+<YouTube id="DnBRi0xy29o" title="Vector Hash Memory Model" />
