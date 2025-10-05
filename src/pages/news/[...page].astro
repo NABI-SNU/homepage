@@ -44,7 +44,8 @@ const isReversed = page.currentPage % 2 === 0;
       alt: `This Month's Highlights ${page.currentPage > 1 ? `(Page ${page.currentPage})` : ''}`,
     }}
   />
-  <div class="max-w-5xl mx-auto px-4 sm:px-6">
+
+  <div class="max-w-5xl mx-auto px-4 sm:px-6 mb-8">
     <Pagination prevUrl={page.url.prev} nextUrl={page.url.next} />
   </div>
 </Layout>
