@@ -32,7 +32,7 @@
   },
   "dependencies": {
     "@astrojs/node": "^9.4.4",
-    "@astrojs/react": "^4.3.0",
+    "@astrojs/react": "^4.4.0",
     "@astrojs/rss": "^4.0.12",
     "@astrojs/sitemap": "^3.6.0",
     "@astrolib/analytics": "^0.6.1",
