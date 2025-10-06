@@ -47,7 +47,7 @@
     "katex": "^0.16.22",
     "limax": "4.2.0",
     "lodash.merge": "^4.6.2",
-    "lucide-react": "^0.532.0",
+    "lucide-react": "^0.544.0",
     "pagefind": "^1.4.0",
     "rehype-katex": "^7.0.1",
     "remark-math": "^6.0.0",
