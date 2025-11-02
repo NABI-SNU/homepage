@@ -72,7 +72,7 @@ This work challenges the traditional theory that "statistical independence" is t
 ## Key Discussion Points
 
 1. **ReLU as a Biologically Plausible Model:** The group discussed why the ReLU activation function, used in the paper's non-linear models, is a good choice for biological simulations. Unlike sigmoid, ReLU is:
-   - **Biologically Plausible:** Its non-negative output mimics a neuron's firing rate.
+   - **Biologically Plausible:** Its thresholded, all-or-nothing activation mirrors how biological neurons remain silent until input exceeds a threshold, then fire in response.
    - **Sparse and Efficient:** It outputs zero for many inputs, promoting sparsity, which is energy-efficient and similar to brain activity.
    - **Stable for Learning:** It does not suffer from the vanishing gradient problem.
    - **An interesting parallel:** One speaker noted that a Hodgkin-Huxley neuron model behaves like a ReLU under low-noise conditions but like a sigmoid under high-noise conditions.
