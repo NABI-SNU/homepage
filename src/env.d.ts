@@ -3,3 +3,5 @@
 /// <reference types="astro/client" />
 /// <reference types="vite/client" />
 /// <reference types="../vendor/integration/types.d.ts" />
+import './types';
+import './types/limax';
