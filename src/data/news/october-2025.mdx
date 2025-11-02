@@ -1,0 +1,142 @@
+---
+title: October 2025
+description: 'From connectome-constrained dynamics and projection-specific population codes to human–ANN continual learning, and advances in hippocampal replay theory.'
+href: '/news/october-2025'
+date: '2025-11-02'
+references:
+  - title: Between planning and map building - Prioritizing replay when future goals are uncertain
+    authors:
+      - Yotam Sagiv
+      - Thomas Akam
+      - Ilana B. Witten
+      - Nathaniel D. Daw
+    year: 2025
+    journal: Neuron
+    doi: 10.1016/j.neuron.2025.09.021
+    url: https://doi.org/10.1016/j.neuron.2025.09.021
+  - title: Prediction of neural activity in connectome-constrained recurrent networks
+    authors:
+      - Manuel Beiran
+      - Ashok Litwin-Kumar
+    year: 2025
+    journal: Nature Neuroscience
+    doi: 10.1038/s41593-025-02080-4
+    url: https://doi.org/10.1038/s41593-025-02080-4
+  - title: Specialized structure of neural population codes in parietal cortex outputs
+    authors:
+      - Houman Safaai
+      - Alice Y. Wang
+      - Shinichiro Kira
+      - Simone Blanco Malerba
+      - Stefano Panzeri
+      - Christopher D. Harvey
+    year: 2025
+    journal: Nature Neuroscience
+    doi: 10.1038/s41593-025-02095-x
+    url: https://doi.org/10.1038/s41593-025-02095-x
+  - title: Humans and neural networks show similar patterns of transfer and interference during continual learning
+    authors:
+      - Eleanor Holton
+      - Lukas Braun
+      - Jessica A. F. Thompson
+      - Jan Grohn
+      - Christopher Summerfield
+    year: 2025
+    journal: Nature Human Behaviour
+    doi: 10.1038/s41562-025-02318-y
+    url: https://doi.org/10.1038/s41562-025-02318-y
+  - title: Hippocampus supports multi-task reinforcement learning under partial observability
+    authors:
+      - JDabal Pedamonti
+      - Samia Mohinta
+      - Hugo Malagon-Vina
+      - Stephane Ciocchi
+      - Martin V. Dimitrov
+      - Rui Ponte Costa
+    year: 2025
+    journal: Nature Neuroscience
+    doi: 10.1038/s41467-025-64591-9
+    url: https://doi.org/10.1038/s41467-025-64591-9
+---
+
+## Between planning and map building: Prioritizing replay when future goals are uncertain
+
+<img
+  src="https://img-svr.nabiresearch.workers.dev/img/webp/y3mP9e.webp"
+  alt="Between planning and map building"
+  style="width: 90%;"
+  width="800"
+  height="400"
+/>
+
+- **Main Contribution**: Extends reinforcement learning theory of hippocampal replay from planning (single goal) to map building (multiple potential goals) by introducing the geodesic representation (GR)—a stack of value functions encoding optimal routes to all candidate goals.
+- **Key Findings:** Replay priority balances current versus future goals based on their expected relevance, determined by learned goal statistics. This reconciles seemingly contradictory findings:
+  - **Paradoxical Replay** (lagging behavior, favoring past goals) emerges when goal switching is slow and animals use recency-weighted estimates)
+  - **Planning-like replay (leading behavior, favoring current goals)** emerges when one goal predominates or switching dynamics are well-learned
+- **Predictions:** Replay patterns should depend on goal volatility, task complexity, and animals' understanding of goal dynamics—offering concrete experimental tests via manipulated goal-switching statistics.
+
+---
+
+## Prediction of neural activity in connectome-constrained recurrent networks
+
+<img
+  src="https://img-svr.nabiresearch.workers.dev/img/webp/97Keyv.webp"
+  alt="Prediction of neural activity in connectome-constrained recurrent networks"
+  style="width: 90%;"
+  width="800"
+  height="400"
+/>
+
+- **Core idea:** A “teacher–student” theory shows that _knowing the exact synaptic weight matrix (connectome) is often insufficient_ to predict single-neuron dynamics because heterogeneous single-neuron parameters (gains, biases, etc.) create many degenerate solutions.
+- **Key result:** Adding recordings from a _small subset_ of neurons breaks this degeneracy; the number needed scales with the _dynamical dimensionality_, not neuron count.
+- **Implication:** Connectomes best constrain function when paired with targeted activity data, and the framework can _prioritize which neurons to record_ next.
+
+---
+
+## Specialized structure of neural population codes in parietal cortex outputs
+
+<img
+  src="https://img-svr.nabiresearch.workers.dev/img/webp/h7FxdN.webp"
+  alt="Specialized structure of neural population codes in parietal cortex outputs"
+  style="width: 90%;"
+  width="800"
+  height="400"
+/>
+
+- **Main contribution:** Combined two-photon calcium imaging with retrograde labeling to identify neurons in mouse posterior parietal cortex projecting to the same target area (ACC, RSC, or contralateral PPC) during a virtual-reality delayed match-to-sample task, enabling analysis of projection-specific population codes.
+- **Key findings:** Neurons projecting to the same target exhibit (1) elevated pairwise noise correlations compared to unlabeled neighbors; (2) a structured network of information-enhancing (IE) and information-limiting (IL) interactions organized as enriched within-pool IE and across-pool IL connections; (3) enhanced population information about the mouse's choice that scales supra-linearly with population size via "structured interaction information" from triplet motifs. This specialized structure is absent in unlabeled populations and present only during correct, not incorrect, trials.
+- **Methodological advance:** Developed nonparametric vine copula (NPvC) models to robustly estimate multivariate dependencies between neural activity, task variables, and movement variables, accounting for nonlinear relationships and enabling accurate quantification of single-neuron information, pairwise interaction information, and network-level information structures.
+- **Predictions:** The network structure of correlations within projection pathways enhances information transmission to downstream targets and facilitates accurate decision-making. Structured interaction information contributes a substantial fraction (~5–15%) of total choice information in populations of 75+ cells, with contributions growing faster than independent information as population size increases.
+
+---
+
+## Humans and neural networks show similar patterns of transfer and interference during continual learning
+
+<img
+  src="https://img-svr.nabiresearch.workers.dev/img/webp/nTBC5h.webp"
+  alt="Humans and neural networks show similarity"
+  style="width: 90%;"
+  width="800"
+  height="400"
+/>
+
+- **Main contribution:** Direct comparison of humans and twinned linear ANNs on sequential rule-learning tasks (A→B→retest A) with varying rule similarity (Same/Near/Far), revealing shared computational trade-offs between transfer and interference in continual learning.
+- **Key findings:** (1) Both learners show greater transfer to task B when rules are similar, but at the cost of higher interference when retested on task A—driven by representational reuse in similar tasks versus orthogonal subspaces in dissimilar tasks. (2) Individual differences emerge in the Near condition: "lumpers" (47.5% of participants) show high transfer and interference via shared low-dimensional representations (mirrored by rich-regime ANNs), while "splitters" avoid interference but transfer poorly via high-dimensional, task-specific representations (mirrored by lazy-regime ANNs). (3) Lumpers excel at generalizing shared structure (within-task rule generalization, cross-task transfer) but perform worse on memorizing unique features (summer locations, temporal stimulus onset); splitters show the opposite profile.
+- **Implications:** Humans and ANNs face analogous computational constraints during continual learning—balancing knowledge transfer against memory protection. This trade-off depends on both external factors (task similarity) and internal strategies (representational overlap versus separation), suggesting shared principles of generalization and interference across biological and artificial learning systems.
+
+---
+
+## Hippocampus supports multi-task reinforcement learning under partial observability
+
+<img
+  src="https://img-svr.nabiresearch.workers.dev/img/webp/8dBqp9.webp"
+  alt="Hippocampus supports multi-task reinforcement learning under partial observability"
+  style="width: 90%;"
+  width="800"
+  height="400"
+/>
+
+- **Main contribution:** Demonstrates that hippocampal recurrence (e.g., CA3) is essential for goal-directed navigation in _partially observable_ environments by training deep RL agents (hcDRQN) on ego- and allocentric T-maze tasks and comparing them to animal behavior and neural recordings.
+- **Key insight:** Agents with recurrent hippocampal architecture successfully learned both strategies under partial observability (matching animal performance), while feedforward networks (hcDQN) failed—even with continual learning algorithms. Recurrence enables temporal integration of sparse sensory cues for decision-making at later choice points.
+- **Experimental validation:** Using demixed PCA on CA1 recordings, the recurrent model better captured strategy-specific, temporal, and decision-related neural dynamics. Recurrent agents also matched animal trajectories, state-occupancy patterns, and spatial coding properties (place fields, spatial information) more closely than feedforward alternatives.
+- **Predictions:** The model predicts that (1) hippocampal recurrence supports robust generalization to novel maze lengths, stochastic cue removal, and sensory noise; (2) agents trained under _full_ observability fail to replicate experimental data, suggesting partial observability better reflects naturalistic conditions; (3) recurrent plasticity is necessary for multi-task learning and adaptation.
