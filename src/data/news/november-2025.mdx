@@ -1,0 +1,134 @@
+---
+title: November 2025
+description: 'Unifying computational principles underly flexible cognition—from the orbitofrontal cortex to compositional task representations, working-memory–habit mixtures, and recurrent network subspaces.'
+href: '/news/november-2025'
+date: '2025-12-02'
+references:
+  - title: The orbitofrontal cortex updates beliefs for state inference
+    authors:
+      - Shannon S. Schiereck
+      - Danilo Trinidad Pérez-Rivera
+      - Andrew Mah
+      - Margaret L. DeMaegd
+      - David Hocker
+      - Royall McMahon Ward
+      - Cristina Savin
+      - Christine M. Constantinople
+    year: 2025
+    journal: Neuron
+    doi: 10.1016/j.neuron.2025.10.024
+    url: https://doi.org/10.1016/j.neuron.2025.10.024
+
+  - title: A habit and working memory model as an alternative account of human reward-based learning
+    authors:
+      - Anne G. E. Collins
+    year: 2025
+    journal: Nature Human Behaviour
+    doi: 10.1038/s41562-025-02340-0
+    url: https://doi.org/10.1038/s41562-025-02340-0
+
+  - title: Shared computational principles for language processing in humans and deep language models
+    authors:
+      - Ariel Goldstein
+      - Zaid Zada
+      - Eliav Bruchnik
+      - et al.
+    year: 2025
+    journal: Nature Reviews Neuroscience
+    doi: 10.1038/s41593-022-01026-4
+    url: https://doi.org/10.1038/s41593-022-01026-4
+
+  - title: Compositional tasks with subspace structure in recurrent neural networks
+    authors:
+      - Sina Tafazoli
+      - Flora M. Bouchacourt
+      - Adel Ardalan
+      - Nikola T. Markov
+      - Motoaki Uchimura
+      - Marcelo G. Mattar
+      - Nathaniel D. Daw
+      - Timothy J. Buschman
+    year: 2025
+    journal: Nature Neuroscience
+    doi: 10.1038/s41586-025-09805-2
+    url: https://doi.org/10.1038/s41586-025-09805-2
+---
+
+## The orbitofrontal cortex updates beliefs for state inference
+
+<img
+  src="https://img-svr.nabiresearch.workers.dev/img/webp/KYgxXt.webp"
+  alt="The orbitofrontal cortex updates beliefs for state inference"
+  style="width: 90%;"
+  width="800"
+  height="400"
+/>
+
+- **Core Discovery:** The orbitofrontal cortex (OFC) performs **belief updating** for inferring hidden states in dynamic environments.
+- **Method:** Rats performed a _temporal wagering task_ with latent reward blocks. Neural and behavioral evidence showed that expert rats inferred block transitions rather than adapting via reinforcement alone.
+- **Findings:**
+  - OFC inactivation (via muscimol) **impaired belief updating** and slowed behavioral adaptation without affecting reward valuation.
+  - Population dynamics (via hierarchical LDS modeling) revealed **slow latent factors** reflecting inferred states distinct from trial-by-trial reward signals.
+  - Early in training, rats relied on **divisive normalization**, but transitioned to true inference as OFC representations matured.
+- **Conclusion:** OFC supports **recursive Bayesian updating** of subjective beliefs—providing a mechanistic link between neural population dynamics and probabilistic reasoning under partial observability.
+
+---
+
+## A habit and working memory model as an alternative account of human reward-based learning
+
+<img
+  src="https://img-svr.nabiresearch.workers.dev/img/webp/09ELnF.webp"
+  alt="A habit and working memory model as an alternative account of human reward-based learning"
+  style="width: 90%;"
+  width="800"
+  height="400"
+/>
+
+- **Objective:** To test whether human “reward-based learning” actually reflects reinforcement learning (RL) computations.
+- **Approach:** Meta-analysis and computational modeling across seven large datasets (n=594) using the **RLWM paradigm** that separates working memory (WM) from slower processes.
+- **Results:**
+  - Behaviour is best explained by a **mixture of WM and a habit-like (H) process**, not standard RL.
+  - The WM process: fast, capacity-limited, and sensitive to positive/negative feedback.
+  - The H process: slow, outcome-insensitive, Hebbian-like association between stimulus and action.
+  - Together, they mimic an RL agent’s policy but lack reward prediction error computation.
+- **Implications:** Traditional RL models **over-attribute learning to value-based computation**, when in fact **working memory and habit systems jointly drive behavior**, reframing dopaminergic and striatal “RL signals” as emergent from mixed non-RL processes.
+
+---
+
+## Shared computational principles for language processing in humans and deep language models
+
+<img
+  src="https://img-svr.nabiresearch.workers.dev/img/webp/oD6yDP.webp"
+  alt="Shared computational principles for language processing in humans and deep language models"
+  style="width: 90%;"
+  width="800"
+  height="400"
+/>
+
+- **Scope:** This perspective synthesizes parallels between **brains and artificial networks**, identifying shared design principles.
+- **Key Themes:**
+  - **Representation learning:** Both brains and ANNs optimize internal representations for **predictive efficiency** and **energy constraints**.
+  - **Credit assignment:** Synaptic plasticity and gradient-based optimization converge toward biologically plausible **local learning rules** (e.g., dendritic backprop proxies).
+  - **Compositionality and modularity:** Cortical microcircuits mirror **transformer-like hierarchical compositional architectures**, supporting transfer and few-shot learning.
+  - **Stochasticity and exploration:** Neural noise and dropout regularization both enable robust generalization under uncertainty.
+- **Framework Proposal:** A _“shared objective hypothesis”_—that both biological and artificial systems aim to minimize future surprise via predictive coding and efficient resource use, positioning the brain as a **self-regularizing, energy-constrained learner**.
+
+---
+
+## Compositional tasks with subspace structure in recurrent neural networks
+
+<img
+  src="https://img-svr.nabiresearch.workers.dev/img/webp/50OC63.webp"
+  alt="Compositional tasks with subspace structure in recurrent neural networks"
+  style="width: 90%;"
+  width="800"
+  height="400"
+/>
+
+- **Central Question:** How do neural systems represent compositional tasks—combining operations like “add” + “subtract” or “left” + “right”?
+- **Model:** Recurrent neural networks (RNNs) trained on compositional sensorimotor tasks spontaneously organize their activity into **low-dimensional subspaces** corresponding to task components.
+- **Findings:**
+  - Each task variable (rule, stimulus, response) occupies an orthogonal **subspace**, enabling linear composition into novel tasks.
+  - This structure mirrors **factorized representations** in biological neural data (PFC, parietal cortex).
+  - Network geometry predicts generalization: the more **orthogonal** the subspaces, the greater the compositional flexibility.
+- **Implication:** Both artificial and biological recurrent circuits implement **subspace-based modularity**, allowing reuse of neural trajectories for flexible task recombination—linking population geometry to the algorithmic foundations of abstraction.
