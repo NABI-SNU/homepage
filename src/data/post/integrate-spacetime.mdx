@@ -1,0 +1,49 @@
+---
+publishDate: 2025-11-29T19:00:00+09:00
+author: Yubeen Bae
+title: 'Integration and Competition Between Space and Time in the Hippocampus'
+image: https://img-svr.nabiresearch.workers.dev/img/webp/jRKz7R.webp
+excerpt: 'Uncovering the trade-off between space and time in the hippocampus: how single neurons competitively balance these dimensions.'
+category: Monthly Meeting
+tags:
+  - hippocampus
+  - place cells
+  - time cells
+  - memory in context
+references:
+  - title: Integration and competition between space and time in the hippocampus
+    authors:
+      - Shijie Chen
+      - Ning Cheng
+      - Xiaojing Chen
+      - Cheng Wang
+    journal: Neuron
+    year: 2024
+    doi: 10.1016/j.neuron.2024.08.007
+    url: https://doi.org/10.1016/j.neuron.2024.08.007
+---
+
+import { YouTube } from 'astro-embed';
+
+_Original Paper: [Integration and competition between space and time in the hippocampus](https://doi.org/10.1016/j.neuron.2024.08.007)_
+
+This presentation reviews the paper "Integration and Competition Between Space and Time in the Hippocampus," published in _Neuron_. The study investigates how the hippocampus, known for encoding both space (place cells) and time (time cells), manages these two dimensions simultaneously. Through a series of experiments manipulating speed and environmental cues, the authors reveal a competitive yet integrated coding mechanism in single CA1 neurons.
+
+## Summary of the Presentation
+
+- **Concurrent Coding & The Continuum:** The study challenges the strict dichotomy between place and time cells. Instead, it proposes a continuum where neurons can exhibit mixed selectivity. A significant portion of CA1 neurons (conjunctive cells) simultaneously encode both spatial location and elapsed time.
+- **Space-Time Trade-off:** There is a competitive relationship between spatial and temporal coding. When a neuron's spatial selectivity is high, its temporal selectivity tends to be lower, and vice versa. This competition is observed as a "shift" in firing fields: as the duration of a lap increases (slower speed), place fields shift to earlier locations to compensate, maintaining a balance between the two information types.
+- **Non-Linear Integration:** The shift in firing fields is not a simple linear function of speed (which would imply basic path integration). Instead, the relationship is non-linear, suggesting that space and time are distinct but interacting variables rather than one being merely a derivative of the other.
+- **Role of CA3:** Inactivation of CA3 (using DREADDs) led to a decrease in spatial precision and an increase in the "shift" phenomenon. This suggests CA3 acts as a spatial "anchor," stabilizing place fields against the influence of temporal signals. Without CA3 input, temporal dominance increases, causing larger shifts in spatial representation.
+
+## Key Discussion Points
+
+1. **Independence of Fields within Single Neurons**: Even within a single neuron that possesses multiple place fields, the interaction between space and time (e.g., the degree of shift) acts locally and independently for each field. This implies that the integration/competition mechanism operates at a fine-grained, sub-cellular or synaptic input level rather than being a global property of the cell.
+
+2. **Revisiting Path Integration Models**: The observation that rate shifts are non-linear with respect to speed disproves simple "constant time lag" models of path integration. The findings argue for new computational models where space and time are treated as separate, competing variables that dynamically influence firing, rather than speed simply being integrated over time to derive position.
+
+3. **CA3 as a Stabilizer**: The discussion highlighted CA3's critical role in providing "landmark-based" or robust spatial information. By inhibiting CA3, the system relies more on "self-motion" or temporal cues (likely from the entorhinal cortex), resulting in less stable spatial representations (drifting fields) and a stronger influence of time on spatial coding.
+
+## Original Video
+
+<YouTube id="UWPFoQDwT1A" title="[251129] S Chen et al, 2024, Neuron" />

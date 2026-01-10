@@ -1,0 +1,55 @@
+---
+publishDate: 2025-11-29T19:00:00+09:00
+author: Dongwon Lee
+title: 'Hippocampus as a Generative Circuit for Predictive Coding'
+image: https://img-svr.nabiresearch.workers.dev/img/webp/AJbwlV.webp
+excerpt: 'This review explores how theta oscillations guide the spontaneous emergence of ring attractors in the hippocampus.'
+category: Monthly Meeting
+tags:
+  - hippocampus
+  - generative models
+  - predictive coding
+  - theta oscillations
+  - memory in context
+references:
+  - title: A generative model of the hippocampal formation trained with theta driven local learning rules
+    authors:
+      - Tom M George
+      - Caswell Barry
+      - Kimberly Stachenfeld
+      - Claudia Clopath
+      - Tomoki Fukai
+    journal: NeurIPS
+    year: 2023
+    doi: 10.1101/2023.12.12.571268
+    url: https://doi.org/10.1101/2023.12.12.571268
+---
+
+import { YouTube } from 'astro-embed';
+
+_Original Paper: [A generative model of the hippocampal formation trained with theta driven local learning rules](https://doi.org/10.1101/2023.12.12.571268)_
+
+This presentation reviews the NeurIPS 2023 paper by Tom M. George and colleagues, which proposes that the hippocampus functions as a generative circuit (specifically a Helmholtz machine). The authors demonstrate how a model trained with biologically plausible, local Hebbian rules—gated by theta oscillations—can spontaneously develop key cognitive functions like path integration and spatial mapping.
+
+## Summary of the Presentation
+
+- **The Hippocampus as a Helmholtz Machine:** The model structures the hippocampus into sensory (P) and latent (G) layers. It operates in two distinct phases gated by theta oscillations: a "Wake" phase for inference (Sensory $\rightarrow$ Latent) and a "Sleep" phase for generation (Latent $\rightarrow$ Sensory).
+- **Theta-Driven Local Learning:** Unlike traditional deep learning models that use global backpropagation, this model uses local Hebbian learning rules. The phase of theta determines which synaptic weights are updated:
+  - **Wake (Theta=1):** Updates the generative weights ($W_{GA}$) to match sensory reality.
+  - **Sleep (Theta=0):** Updates the inference weights ($W_{GB}$) to align with the model's own internal predictions (generative replay).
+- **Emergence of Path Integration:** The model successfully learns to perform path integration (tracking location via velocity inputs) without explicit supervision. It can maintain accurate location estimates even when sensory inputs are lesioned, relying solely on velocity signals.
+- **Spontaneous Ring Attractors:** A key finding is the spontaneous emergence of "ring attractor" connectivity in the latent layer. Although the model was not hardcoded with this topology, the recurrent connections self-organized into a ring structure to efficiently represent the cyclical nature of the 1D circular track environment.
+
+## Key Discussion Points
+
+1. **Biological Plausible Learning:** The discussion highlighted the significance of using local Hebbian rules over Backpropagation Through Time (BPTT). While BPTT is powerful, it is biologically unrealistic (requires global error signals). The success of this model suggests that the brain could approximate powerful learning algorithms using local, phase-dependent updates.
+
+2. **The Role of Theta Oscillations:** The presentation emphasized that theta oscillations are not merely a clock signal but a functional "gate" that switches the network between learning modes (inference vs. generation). This aligns with theories linking theta to the separate encoding and retrieval of memories.
+
+3. **Generalization to Higher Dimensions:** A major topic of debate was the dimensionality of the learned attractors. While the experiment used a 1D ring track (resulting in a 1D ring attractor), the real world is 2D or 3D. The group discussed whether the model would naturally form toroidal (2D) or spherical (3D) attractors if trained on open-field or volumetric data, similar to the topology of grid cells.
+
+4. **Transfer Learning via Attractors:** The model demonstrated that the latent attractor structure is robust. When the environment changed (sensory remapping), the internal "ring" structure remained stable, while only the mapping to the sensory layer changed. This suggests the hippocampus learns a reusable "structure of space" that can be applied to new environments.
+
+## Original Video
+
+<YouTube id="-7or2xZcMvM" title="[251129] TM George et al, 2023, NeurIPS" />
