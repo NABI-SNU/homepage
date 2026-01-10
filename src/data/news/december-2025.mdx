@@ -1,0 +1,94 @@
+---
+title: December 2025
+description: 'New frameworks for biologically constrained learning: from similarities in humans and transformers and sparse, contrained RNNs to a unified theory of hippocampal replay'
+href: '/news/december-2025'
+date: '2025-01-10'
+references:
+  - title: Shared sensitivity to data distribution during learning in humans and transformer networks
+    authors:
+      - Jacques Pesnot Lerousseau
+      - Christopher Summerfield
+    year: 2025
+    journal: Nature Human Behaviour
+    doi: 10.1038/s41562-025-02359-3
+    url: https://doi.org/10.1038/s41562-025-02359-3
+
+  - title: Between planning and map building; Prioritizing replay when future goals are uncertain
+    authors:
+      - Yotam Sagiv
+      - Thomas Akam
+      - Ilana B. Witten
+      - Nathaniel D. Daw
+    year: 2025
+    journal: Neuron
+    doi: 10.1016/j.neuron.2025.09.021
+    url: https://doi.org/10.1016/j.neuron.2025.09.021
+
+  - title: Constructing biologically constrained RNNs via Dale's backpropagation and topologically informed pruning
+    authors:
+      - Aishwarya Balwani
+      - Alex Q. Wang
+      - Farzaneh Najafi
+      - Hannah Choi
+    year: 2025
+    journal: Science Advances
+    doi: 10.1126/sciadv.adw4970
+    url: https://doi.org/10.1126/sciadv.adw4970
+---
+
+## Shared sensitivity to data distribution during learning in humans and transformer networks
+
+<img
+  src="https://img-svr.nabiresearch.workers.dev/img/webp/H0OJ1Q.webp"
+  alt="Shared sensitivity to data distribution during learning in humans and transformer networks"
+  style="width: 90%;"
+  width="800"
+  height="400"
+/>
+
+- **Core Discovery:** Humans and transformer networks share a specific sensitivity to the statistical distribution of training data, trading off between **"in-context"** (inference-based) and **"in-weights"** (memory-based) learning strategies.
+- **Method:** The study compared humans ($n=530$) and transformers on a rule-learning task, manipulating the **diversity** (Zipfian skewness) and **redundancy** of examples.
+- **Findings:**
+  - Both learners switch strategies at a similar threshold ($\alpha \approx 1$): high diversity promotes in-context generalization, while high redundancy promotes rote memorization.
+  - A **composite distribution** (balanced diversity and redundancy) allows both systems to acquire both strategies simultaneously.
+  - **Critical Divergence:** Humans benefit from a curriculum that emphasizes diversity early, whereas transformers suffer from **catastrophic interference**, overwriting early strategies with later ones.
+- **Conclusion:** While humans and transformers share computational principles regarding data distribution, biological memory constraints allow for flexible curriculum learning that current transformer architectures lack.
+
+---
+
+## Between planning and map building: Prioritizing replay when future goals are uncertain
+
+<img
+  src="https://img-svr.nabiresearch.workers.dev/img/webp/JorQmn.webp"
+  alt="Between planning and map building: Prioritizing replay when future goals are uncertain"
+  style="width: 90%;"
+  width="800"
+  height="400"
+/>
+
+- **Objective:** To reconcile the **"value" hypothesis** (replay plans for current goals) and the **"map" hypothesis** (replay builds structure) of hippocampal function.
+- **Approach:** The authors extended a reinforcement learning planning model to include a **Geodesic Representation (GR)**—a map encoding distances to multiple candidate goals—prioritized by their expected future utility.
+- **Results:**
+  - The model explains **"paradoxical" lagged replay** (focusing on past rather than current goals) observed in goal-switching tasks as a rational response to uncertainty about future goal statistics.
+  - It simultaneously accounts for **predictive replay** in stable environments where the goal structure is well-learned.
+  - Replay prioritization depends on the agent's learned belief about **goal stability and recurrence**.
+- **Implications:** Replay functionally builds a cognitive map (GR) but prioritizes its construction based on **future relevance**, unifying planning and map-building under a single computational framework.
+
+---
+
+## Constructing biologically constrained RNNs via Dale's backpropagation and topologically informed pruning
+
+<img
+  src="https://img-svr.nabiresearch.workers.dev/img/webp/lgffY0.webp"
+  alt="Constructing biologically constrained RNNs via Dale's backpropagation and topologically informed pruning"
+  style="width: 90%;"
+  width="800"
+  height="400"
+/>
+
+- **Scope:** A new framework for training Recurrent Neural Networks (RNNs) that rigorously adhere to biological constraints: **Dale’s principle** (separate E/I neurons) and **sparse connectivity**.
+- **Key Themes:**
+  - **Method:** Introduces **"Dale's backpropagation"** (a projected gradient method) and **"top-prob pruning"** (probabilistically retaining strong weights) to enforce constraints without performance loss.
+  - **Performance:** Constrained models empirically match the learning capability of conventional, unconstrained RNNs.
+  - **Application:** When trained on mouse visual cortex data, the models inferred connectivity patterns that support **predictive coding**: feedforward pathways signaling prediction errors and feedback pathways modulating processing based on context.
+- **Framework Proposal:** This approach provides a mathematically grounded toolkit for constructing **anatomically faithful circuit models**, bridging the gap between artificial network trainability and biological plausibility.
