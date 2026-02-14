@@ -11,8 +11,8 @@ export const headerData = {
       href: getPermalink('/people'),
     },
     {
-      text: 'Activity',
-      href: getPermalink('/activity'),
+      text: 'Symposium',
+      href: getPermalink('/symposium'),
     },
     {
       text: 'Articles',
@@ -69,7 +69,7 @@ export const footerData = {
         { text: 'About Us', href: getPermalink('/about') },
         { text: 'Our People', href: getPermalink('/people') },
         { text: 'Research', href: getPermalink('/labs') },
-        { text: 'Activity', href: getPermalink('/activity') },
+        { text: 'Symposium', href: getPermalink('/symposium') },
       ],
     },
     {
