@@ -1,0 +1,82 @@
+:root {
+  /* Match frontend typography + radius scale */
+  --font-body:
+    'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial,
+    sans-serif;
+  --font-mono: 'Geist Mono', 'SF Mono', Menlo, Consolas, Monaco, monospace;
+  --style-radius-s: 0.5rem;
+  --style-radius-m: 0.625rem;
+  --style-radius-l: 0.875rem;
+
+  /* Frontend-aligned neutrals for Payload elevation system */
+  --theme-elevation-0: oklch(100% 0 0deg);
+  --theme-elevation-50: oklch(98% 0.003 264deg);
+  --theme-elevation-100: oklch(96.8% 0.003 264deg);
+  --theme-elevation-150: oklch(94.5% 0.002 264deg);
+  --theme-elevation-200: oklch(91.3% 0 0deg);
+  --theme-elevation-250: oklch(87.5% 0 0deg);
+  --theme-elevation-300: oklch(82% 0 0deg);
+  --theme-elevation-350: oklch(76% 0 0deg);
+  --theme-elevation-400: oklch(70% 0 0deg);
+  --theme-elevation-450: oklch(63% 0 0deg);
+  --theme-elevation-500: oklch(57% 0 0deg);
+  --theme-elevation-550: oklch(51% 0 0deg);
+  --theme-elevation-600: oklch(45% 0 0deg);
+  --theme-elevation-650: oklch(39% 0 0deg);
+  --theme-elevation-700: oklch(33% 0 0deg);
+  --theme-elevation-750: oklch(27% 0 0deg);
+  --theme-elevation-800: oklch(22% 0 0deg);
+  --theme-elevation-850: oklch(18% 0 0deg);
+  --theme-elevation-900: oklch(14% 0 0deg);
+  --theme-elevation-950: oklch(10% 0 0deg);
+  --theme-elevation-1000: oklch(7% 0 0deg);
+
+  --theme-bg: var(--theme-elevation-0);
+  --theme-input-bg: var(--theme-elevation-0);
+  --theme-text: oklch(17.8% 0 0deg);
+  --theme-border-color: oklch(91.3% 0 0deg);
+
+  /* Reuse site brand color for primary CTAs/focus */
+  --nabi-primary: oklch(57.8% 0.23 259deg);
+  --nabi-primary-hover: oklch(53.5% 0.2 258deg);
+  --nabi-primary-foreground: oklch(98.5% 0 0deg);
+  --accessibility-outline: 2px solid var(--nabi-primary);
+}
+
+html[data-theme='dark'] {
+  /* Frontend dark palette translated to Payload elevation steps */
+  --theme-elevation-0: oklch(19% 0.05 275deg);
+  --theme-elevation-50: oklch(22% 0.05 275deg);
+  --theme-elevation-100: oklch(25% 0.04 272deg);
+  --theme-elevation-150: oklch(27% 0.03 270deg);
+  --theme-elevation-200: oklch(32% 0.03 269deg);
+  --theme-elevation-250: oklch(37% 0.03 269deg);
+  --theme-elevation-300: oklch(42% 0.03 267deg);
+  --theme-elevation-350: oklch(47% 0.028 264deg);
+  --theme-elevation-400: oklch(52% 0.026 260deg);
+  --theme-elevation-450: oklch(57% 0.024 257deg);
+  --theme-elevation-500: oklch(62% 0.022 254deg);
+  --theme-elevation-550: oklch(67% 0.02 252deg);
+  --theme-elevation-600: oklch(72% 0.02 251deg);
+  --theme-elevation-650: oklch(76% 0.02 250deg);
+  --theme-elevation-700: oklch(80% 0.02 250deg);
+  --theme-elevation-750: oklch(84% 0.019 249deg);
+  --theme-elevation-800: oklch(88% 0.019 249deg);
+  --theme-elevation-850: oklch(90.5% 0.019 249deg);
+  --theme-elevation-900: oklch(92.6% 0.019 249deg);
+  --theme-elevation-950: oklch(95% 0.015 249deg);
+  --theme-elevation-1000: oklch(98.5% 0 0deg);
+
+  --theme-bg: #030620;
+  --theme-input-bg: oklch(22% 0.05 275deg);
+  --theme-text: oklch(92.6% 0.019 249deg);
+  --theme-border-color: oklch(37% 0.03 269deg);
+}
+
+/* Keep Payload UI components, but make primary actions match site accent */
+.btn--style-primary {
+  --bg-color: var(--nabi-primary);
+  --hover-bg: var(--nabi-primary-hover);
+  --color: var(--nabi-primary-foreground);
+  --hover-color: var(--nabi-primary-foreground);
+}

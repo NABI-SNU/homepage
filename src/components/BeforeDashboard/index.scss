@@ -1,0 +1,29 @@
+@import '~@payloadcms/ui/scss';
+
+.dashboard .before-dashboard {
+  margin-bottom: base(1.5);
+  max-width: 70ch;
+
+  &__banner {
+    margin-bottom: base(0.5);
+
+    & h4 {
+      margin: 0;
+    }
+  }
+
+  &__instructions {
+    list-style: decimal;
+    margin: base(0.5) 0;
+    padding-left: base(1);
+
+    & li {
+      width: 100%;
+      margin-bottom: base(0.25);
+    }
+  }
+
+  & a:hover {
+    opacity: 0.85;
+  }
+}
