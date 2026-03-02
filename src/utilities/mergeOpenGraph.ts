@@ -7,7 +7,7 @@ const defaultOpenGraph: Metadata['openGraph'] = {
     'Official website of NABI Labs at Seoul National University exploring neuroscience and AI.',
   images: [
     {
-      url: `${getServerSideURL()}/website-template-OG.webp`,
+      url: `${getServerSideURL()}/preview.webp`,
     },
   ],
   siteName: 'NABI Labs',
