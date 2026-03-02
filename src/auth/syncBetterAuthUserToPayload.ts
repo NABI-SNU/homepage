@@ -1,7 +1,8 @@
 import type { Payload } from 'payload'
-import { Pool } from 'pg'
+import type { Pool } from 'pg'
 
 import type { Person, User } from '@/payload-types'
+import { createStoragePool, getStorageDatabaseURL } from '@/utilities/storageDatabase'
 import { toKebabCase } from '@/utilities/toKebabCase'
 
 type BetterAuthUserShape = {
@@ -19,11 +20,9 @@ let betterAuthPool: Pool | null = null
 let payloadPromise: Promise<Payload> | null = null
 
 const getPool = (): Pool | null => {
-  if (!process.env.DATABASE_URL) return null
+  if (!getStorageDatabaseURL()) return null
   if (!betterAuthPool) {
-    betterAuthPool = new Pool({
-      connectionString: process.env.DATABASE_URL,
-    })
+    betterAuthPool = createStoragePool()
   }
 
   return betterAuthPool

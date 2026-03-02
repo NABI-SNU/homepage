@@ -3,8 +3,7 @@ import type { Metadata } from 'next/types'
 import { CollectionArchive } from '@/components/CollectionArchive'
 import { PageRange } from '@/components/PageRange'
 import { Pagination } from '@/components/Pagination'
-import configPromise from '@payload-config'
-import { getPayload } from 'payload'
+import { getCachedPostsPage, POSTS_PER_PAGE } from '@/utilities/getPosts'
 import React from 'react'
 import PageClient from './page.client'
 import { notFound } from 'next/navigation'
@@ -25,30 +24,16 @@ export default async function Page({ params: paramsPromise, searchParams: search
   const { pageNumber } = await paramsPromise
   const searchParams = searchParamsPromise ? await searchParamsPromise : {}
   const searchQuery = searchParams?.q?.trim() || ''
-  const payload = await getPayload({ config: configPromise })
 
   const sanitizedPageNumber = Number(pageNumber)
 
-  if (!Number.isInteger(sanitizedPageNumber)) notFound()
+  if (!Number.isInteger(sanitizedPageNumber) || sanitizedPageNumber < 1) notFound()
 
-  const posts = await payload.find({
-    collection: 'posts',
-    depth: 1,
-    limit: 12,
+  const posts = await getCachedPostsPage({
+    limit: POSTS_PER_PAGE,
     page: sanitizedPageNumber,
-    ...(searchQuery
-      ? {
-          where: {
-            or: [
-              { title: { contains: searchQuery } },
-              { excerpt: { contains: searchQuery } },
-              { 'meta.description': { contains: searchQuery } },
-            ],
-          },
-        }
-      : {}),
-    overrideAccess: false,
-  })
+    searchQuery,
+  })()
 
   return (
     <div className="pb-24 pt-16">
@@ -86,7 +71,7 @@ export default async function Page({ params: paramsPromise, searchParams: search
         <PageRange
           collection="posts"
           currentPage={posts.page}
-          limit={12}
+          limit={POSTS_PER_PAGE}
           totalDocs={posts.totalDocs}
         />
       </div>

@@ -3,8 +3,7 @@ import type { Metadata } from 'next/types'
 import { CollectionArchive } from '@/components/CollectionArchive'
 import { PageRange } from '@/components/PageRange'
 import { Pagination } from '@/components/Pagination'
-import configPromise from '@payload-config'
-import { getPayload } from 'payload'
+import { getCachedPostsPage, POSTS_PER_PAGE } from '@/utilities/getPosts'
 import React from 'react'
 import PageClient from './page.client'
 import Link from 'next/link'
@@ -20,31 +19,11 @@ type Args = {
 export default async function Page({ searchParams: searchParamsPromise }: Args) {
   const searchParams = searchParamsPromise ? await searchParamsPromise : {}
   const searchQuery = searchParams?.q?.trim() || ''
-  const payload = await getPayload({ config: configPromise })
-
-  const posts = await payload.find({
-    collection: 'posts',
-    depth: 1,
-    limit: 12,
-    ...(searchQuery
-      ? {
-          where: {
-            or: [
-              { title: { contains: searchQuery } },
-              { excerpt: { contains: searchQuery } },
-              { 'meta.description': { contains: searchQuery } },
-            ],
-          },
-        }
-      : {}),
-    overrideAccess: false,
-    select: {
-      title: true,
-      slug: true,
-      categories: true,
-      meta: true,
-    },
-  })
+  const posts = await getCachedPostsPage({
+    limit: POSTS_PER_PAGE,
+    page: 1,
+    searchQuery,
+  })()
 
   return (
     <div className="page-shell-wide">
@@ -84,7 +63,7 @@ export default async function Page({ searchParams: searchParamsPromise }: Args) 
         <PageRange
           collection="posts"
           currentPage={posts.page}
-          limit={12}
+          limit={POSTS_PER_PAGE}
           totalDocs={posts.totalDocs}
         />
       </div>

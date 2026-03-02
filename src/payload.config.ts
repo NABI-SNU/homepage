@@ -20,6 +20,7 @@ import { Header } from './Header/config'
 import { HomePage } from './globals/HomePage/config'
 import { plugins } from './plugins'
 import { defaultLexical } from '@/fields/defaultLexical'
+import { getStorageDatabaseURL, getStoragePgDependency } from './utilities/storageDatabase'
 import { getServerSideURL } from './utilities/getURL'
 
 const filename = fileURLToPath(import.meta.url)
@@ -29,6 +30,7 @@ const smtpSecure = process.env.SMTP_SECURE === 'true'
 const smtpConfigured = Boolean(
   process.env.SMTP_HOST && process.env.SMTP_USER && process.env.SMTP_PASS,
 )
+const storageDatabaseURL = getStorageDatabaseURL()
 
 export default buildConfig({
   admin: {
@@ -70,9 +72,10 @@ export default buildConfig({
   // This config helps us configure global or default features that the other editors can inherit
   editor: defaultLexical,
   db: postgresAdapter({
+    pg: getStoragePgDependency() as any,
     push: process.env.PAYLOAD_PUSH_SCHEMA === 'true',
     pool: {
-      connectionString: process.env.DATABASE_URL || '',
+      connectionString: storageDatabaseURL,
     },
   }),
   collections: [Posts, News, Research, People, Tags, Media, Categories, Users],

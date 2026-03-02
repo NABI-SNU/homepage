@@ -15,13 +15,14 @@ import React from 'react'
 export const Pagination: React.FC<{
   className?: string
   page: number
+  pathPrefix?: string
   totalPages: number
 }> = (props) => {
   const router = useRouter()
   const pathname = usePathname()
   const searchParams = useSearchParams()
 
-  const { className, page, totalPages } = props
+  const { className, page, pathPrefix = '/posts', totalPages } = props
   const hasNextPage = page < totalPages
   const hasPrevPage = page > 1
 
@@ -29,15 +30,15 @@ export const Pagination: React.FC<{
   const hasExtraNextPages = page + 1 < totalPages
 
   const buildHref = (targetPage: number) => {
-    const basePath = targetPage === 1 ? '/posts' : `/posts/page/${targetPage}`
+    const basePath = targetPage === 1 ? pathPrefix : `${pathPrefix}/page/${targetPage}`
     const params = new URLSearchParams(searchParams.toString())
     const query = params.toString()
     return query ? `${basePath}?${query}` : basePath
   }
 
   const isTargetActive = (targetPage: number) => {
-    if (targetPage === 1) return pathname === '/posts' || pathname === '/posts/page/1'
-    return pathname === `/posts/page/${targetPage}`
+    if (targetPage === 1) return pathname === pathPrefix || pathname === `${pathPrefix}/page/1`
+    return pathname === `${pathPrefix}/page/${targetPage}`
   }
 
   return (

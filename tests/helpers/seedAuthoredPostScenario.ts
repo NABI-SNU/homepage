@@ -1,8 +1,8 @@
-import { Pool } from 'pg'
 import { getPayload } from 'payload'
 
 import { auth } from '../../src/auth/betterAuth'
 import config from '../../src/payload.config.js'
+import { createStoragePool } from '../../src/utilities/storageDatabase'
 
 type SeededScenario = {
   authorEmail: string
@@ -17,9 +17,7 @@ type SeededScenario = {
   otherPersonID: number
 }
 
-const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
-})
+const pool = createStoragePool()
 
 const buildMinimalRichText = () => ({
   root: {
@@ -285,4 +283,3 @@ export async function cleanupAuthoredPostScenario(scenario: SeededScenario): Pro
 }
 
 export type { SeededScenario }
-

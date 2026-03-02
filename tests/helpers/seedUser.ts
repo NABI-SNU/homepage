@@ -1,8 +1,8 @@
-import { Pool } from 'pg'
 import { getPayload } from 'payload'
 
 import { auth } from '../../src/auth/betterAuth'
 import config from '../../src/payload.config.js'
+import { createStoragePool } from '../../src/utilities/storageDatabase'
 
 export const testUser = {
   email: 'dev@payloadcms.com',
@@ -10,9 +10,7 @@ export const testUser = {
   password: 'test-password-1234',
 }
 
-const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
-})
+const pool = createStoragePool()
 
 const deleteBetterAuthUserByEmail = async (email: string): Promise<void> => {
   const safeQuery = async (statement: string) => {

@@ -4,10 +4,10 @@ import { nextCookies } from 'better-auth/next-js'
 import { genericOAuth } from 'better-auth/plugins/generic-oauth'
 import { createRequire } from 'module'
 import type { Payload } from 'payload'
-import { Pool } from 'pg'
 
 import { syncBetterAuthUserToPayload } from './syncBetterAuthUserToPayload'
 import { resolvePayloadUserFromSession } from './resolvePayloadUserFromSession'
+import { createStoragePool } from '../utilities/storageDatabase'
 
 const parseList = (value: string | undefined): string[] => {
   return (value || '')
@@ -63,9 +63,7 @@ const trustedOrigins = Array.from(
   ),
 )
 
-const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
-})
+const pool = createStoragePool()
 const require = createRequire(import.meta.url)
 const nodemailer = require('nodemailer') as {
   createTransport: (options: Record<string, unknown>) => {

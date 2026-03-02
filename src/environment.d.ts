@@ -2,7 +2,9 @@ declare global {
   namespace NodeJS {
     interface ProcessEnv {
       PAYLOAD_SECRET: string
-      DATABASE_URL: string
+      STORAGE_DATABASE_URL: string
+      DATABASE_URL?: string
+      STORAGE_DATABASE_USE_NEON_SERVERLESS?: string
       NEXT_PUBLIC_SERVER_URL: string
       VERCEL_PROJECT_PRODUCTION_URL: string
       S3_PUBLIC_URL?: string

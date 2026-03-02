@@ -8,21 +8,28 @@ import { notFound } from 'next/navigation'
 
 type Args = {
   params: Promise<{
+    pageNumber: string
     slug: string
   }>
 }
 
-export default async function CategoryPage({ params }: Args) {
-  const { slug } = await params
+export default async function CategoryPagePaginated({ params }: Args) {
+  const { pageNumber, slug } = await params
+  const sanitizedPageNumber = Number(pageNumber)
+
+  if (!Number.isInteger(sanitizedPageNumber) || sanitizedPageNumber < 1) notFound()
+
   const categoryPosts = await getCachedCategoryPostsPage({
     limit: POSTS_PER_PAGE,
-    page: 1,
+    page: sanitizedPageNumber,
     slug,
   })()
 
   if (!categoryPosts) notFound()
 
   const { category, posts } = categoryPosts
+
+  if (posts.totalPages > 0 && sanitizedPageNumber > posts.totalPages) notFound()
 
   return (
     <main className="pb-20 pt-12">
@@ -55,8 +62,8 @@ export default async function CategoryPage({ params }: Args) {
 }
 
 export async function generateMetadata({ params }: Args): Promise<Metadata> {
-  const { slug } = await params
+  const { pageNumber, slug } = await params
   return {
-    title: `Category: ${slug}`,
+    title: `Category: ${slug} - Page ${pageNumber}`,
   }
 }

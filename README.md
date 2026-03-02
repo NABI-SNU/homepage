@@ -29,6 +29,12 @@ pnpm dev
 - Frontend: `http://localhost:3000`
 - Admin: `http://localhost:3000/admin`
 
+### Database Environment
+
+- `STORAGE_DATABASE_URL` is the primary Postgres connection string used by Payload and BetterAuth.
+- `STORAGE_DATABASE_USE_NEON_SERVERLESS` optionally forces Neon serverless pooling (`true` / `false`).
+- `DATABASE_URL` is treated as a deprecated fallback during migration.
+
 ## Core Commands
 
 - `pnpm dev`: start development server

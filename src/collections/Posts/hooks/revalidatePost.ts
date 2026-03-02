@@ -18,6 +18,8 @@ export const revalidatePost: CollectionAfterChangeHook<Post> = ({
 
       safeRevalidate(payload, 'post page', () => revalidatePath(path))
       safeRevalidate(payload, 'posts sitemap', () => revalidateTag('posts-sitemap'))
+      safeRevalidate(payload, 'posts list cache', () => revalidateTag('posts_list'))
+      safeRevalidate(payload, 'category posts cache', () => revalidateTag('posts_by_category'))
     }
 
     // If the post was previously published, we need to revalidate the old path
@@ -28,6 +30,8 @@ export const revalidatePost: CollectionAfterChangeHook<Post> = ({
 
       safeRevalidate(payload, 'old post page', () => revalidatePath(oldPath))
       safeRevalidate(payload, 'posts sitemap', () => revalidateTag('posts-sitemap'))
+      safeRevalidate(payload, 'posts list cache', () => revalidateTag('posts_list'))
+      safeRevalidate(payload, 'category posts cache', () => revalidateTag('posts_by_category'))
     }
   }
   return doc
@@ -39,6 +43,8 @@ export const revalidateDelete: CollectionAfterDeleteHook<Post> = ({ doc, req: { 
 
     safeRevalidate(payload, 'post delete page', () => revalidatePath(path))
     safeRevalidate(payload, 'posts sitemap', () => revalidateTag('posts-sitemap'))
+    safeRevalidate(payload, 'posts list cache', () => revalidateTag('posts_list'))
+    safeRevalidate(payload, 'category posts cache', () => revalidateTag('posts_by_category'))
   }
 
   return doc
