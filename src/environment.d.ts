@@ -6,6 +6,7 @@ declare global {
       NEXT_PUBLIC_SERVER_URL: string
       VERCEL_PROJECT_PRODUCTION_URL: string
       S3_PUBLIC_URL?: string
+      S3_MEDIA_PREFIX?: string
       S3_ENDPOINT?: string
     }
   }

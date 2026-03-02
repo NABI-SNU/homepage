@@ -27,6 +27,9 @@ const generateURL: GenerateURL<Post> = ({ doc }) => {
 const s3Endpoint = process.env.S3_ENDPOINT
 const s3Region = process.env.S3_REGION || (s3Endpoint?.includes('r2.cloudflarestorage.com') ? 'auto' : undefined)
 const s3PublicURL = process.env.S3_PUBLIC_URL?.trim()
+const normalizePathSegment = (value: string | null | undefined): string =>
+  (value || '').trim().replace(/^\/+|\/+$/g, '')
+const s3MediaPrefix = normalizePathSegment(process.env.S3_MEDIA_PREFIX)
 const s3CredentialsConfigured = Boolean(
   process.env.S3_BUCKET && process.env.S3_ACCESS_KEY_ID && process.env.S3_SECRET_ACCESS_KEY && s3Region,
 )
@@ -35,14 +38,31 @@ const s3ForcePathStyle =
   process.env.S3_FORCE_PATH_STYLE === 'true' ||
   (!process.env.S3_FORCE_PATH_STYLE && Boolean(s3Endpoint?.includes('r2.cloudflarestorage.com')))
 const s3ClientUploads = process.env.S3_CLIENT_UPLOADS === 'true'
+const joinPublicBaseAndPath = (baseURL: string, path: string): string => {
+  const normalizedPath = normalizePathSegment(path)
+  const normalizedBaseURL = baseURL.replace(/\/+$/, '')
+
+  try {
+    const url = new URL(normalizedBaseURL)
+    const basePath = normalizePathSegment(url.pathname)
+    const fullPath =
+      basePath && normalizedPath !== basePath && !normalizedPath.startsWith(`${basePath}/`)
+        ? `${basePath}/${normalizedPath}`
+        : normalizedPath
+
+    url.pathname = `/${fullPath}`
+    return url.toString()
+  } catch {
+    return `${normalizedBaseURL}/${normalizedPath}`
+  }
+}
 const s3GenerateFileURL = s3PublicURL
   ? ({ filename, prefix }: { filename: string; prefix?: string }) => {
-      const baseURL = s3PublicURL.replace(/\/+$/, '')
-      const normalizedPrefix = (prefix || '').replace(/^\/+|\/+$/g, '')
+      const normalizedPrefix = normalizePathSegment(prefix) || s3MediaPrefix
       const encodedFilename = encodeURIComponent(filename)
       const pathname = normalizedPrefix ? `${normalizedPrefix}/${encodedFilename}` : encodedFilename
 
-      return `${baseURL}/${pathname}`
+      return joinPublicBaseAndPath(s3PublicURL, pathname)
     }
   : undefined
 

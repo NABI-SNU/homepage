@@ -106,6 +106,7 @@ Optional:
 
 - `S3_ENDPOINT` (required for Cloudflare R2)
 - `S3_PUBLIC_URL` (recommended for R2: custom domain or `*.r2.dev` for browser-accessible file URLs)
+- `S3_MEDIA_PREFIX` (optional folder prefix for keys and public URLs, e.g. `webp`)
 - `S3_FORCE_PATH_STYLE`
 - `S3_CLIENT_UPLOADS=true` (recommended on Vercel for larger uploads)
 
