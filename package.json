@@ -6,6 +6,7 @@
   "type": "module",
   "packageManager": "pnpm@10.13.1",
   "scripts": {
+    "prebuild": "pnpm generate:importmap",
     "build": "cross-env NODE_OPTIONS=--no-deprecation next build",
     "postbuild": "next-sitemap --config next-sitemap.config.cjs",
     "dev": "cross-env NODE_OPTIONS=--no-deprecation next dev --turbopack",
