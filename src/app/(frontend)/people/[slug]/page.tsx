@@ -10,6 +10,7 @@ import { Card } from '@/components/Card'
 import RichText from '@/components/RichText'
 import { PersonAvatar } from '@/components/people/PersonAvatar'
 import { PersonSocialLinks } from '@/components/people/PersonSocialLinks'
+import { generateMeta } from '@/utilities/generateMeta'
 import { parseResearchTags, toTagSlug } from '@/utilities/researchTags'
 
 type Args = {
@@ -214,8 +215,17 @@ export async function generateMetadata({ params }: Args): Promise<Metadata> {
 
   const person = people.docs[0]
 
-  return {
+  return generateMeta({
+    description:
+      parseResearchTags(person?.research).join(', ') || person?.bio || 'NABI member profile',
+    doc: person
+      ? {
+          description: person.bio,
+          slug: ['people', slug],
+          title: person.name,
+        }
+      : null,
+    path: `/people/${slug}`,
     title: person ? person.name : 'Person',
-    description: parseResearchTags(person?.research).join(', ') || person?.bio || 'NABI member profile',
-  }
+  })
 }

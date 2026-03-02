@@ -5,8 +5,8 @@ import configPromise from '@payload-config'
 import { getPayload } from 'payload'
 import React from 'react'
 import { Search } from '@/search/Component'
-import PageClient from './page.client'
 import { CardPostData } from '@/components/Card'
+import { generateMeta } from '@/utilities/generateMeta'
 
 type Args = {
   searchParams: Promise<{
@@ -61,7 +61,6 @@ export default async function Page({ searchParams: searchParamsPromise }: Args) 
 
   return (
     <div className="pt-24 pb-24">
-      <PageClient />
       <div className="container mb-16">
         <div className="prose dark:prose-invert max-w-none text-center">
           <h1 className="mb-8 lg:mb-16">Search</h1>
@@ -81,8 +80,13 @@ export default async function Page({ searchParams: searchParamsPromise }: Args) 
   )
 }
 
-export function generateMetadata(): Metadata {
-  return {
-    title: `Payload Website Template Search`,
-  }
+export async function generateMetadata(): Promise<Metadata> {
+  return generateMeta({
+    path: '/search',
+    robots: {
+      follow: true,
+      index: false,
+    },
+    title: 'Search',
+  })
 }

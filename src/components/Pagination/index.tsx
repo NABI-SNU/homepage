@@ -1,4 +1,3 @@
-'use client'
 import {
   Pagination as PaginationComponent,
   PaginationContent,
@@ -9,20 +8,16 @@ import {
   PaginationPrevious,
 } from '@/components/ui/pagination'
 import { cn } from '@/utilities/ui'
-import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import React from 'react'
 
 export const Pagination: React.FC<{
   className?: string
   page: number
   pathPrefix?: string
+  query?: Record<string, string | undefined>
   totalPages: number
 }> = (props) => {
-  const router = useRouter()
-  const pathname = usePathname()
-  const searchParams = useSearchParams()
-
-  const { className, page, pathPrefix = '/posts', totalPages } = props
+  const { className, page, pathPrefix = '/posts', query: queryParams, totalPages } = props
   const hasNextPage = page < totalPages
   const hasPrevPage = page > 1
 
@@ -31,14 +26,12 @@ export const Pagination: React.FC<{
 
   const buildHref = (targetPage: number) => {
     const basePath = targetPage === 1 ? pathPrefix : `${pathPrefix}/page/${targetPage}`
-    const params = new URLSearchParams(searchParams.toString())
-    const query = params.toString()
-    return query ? `${basePath}?${query}` : basePath
-  }
-
-  const isTargetActive = (targetPage: number) => {
-    if (targetPage === 1) return pathname === pathPrefix || pathname === `${pathPrefix}/page/1`
-    return pathname === `${pathPrefix}/page/${targetPage}`
+    const params = new URLSearchParams()
+    Object.entries(queryParams || {}).forEach(([key, value]) => {
+      if (value) params.set(key, value)
+    })
+    const serializedParams = params.toString()
+    return serializedParams ? `${basePath}?${serializedParams}` : basePath
   }
 
   return (
@@ -46,12 +39,14 @@ export const Pagination: React.FC<{
       <PaginationComponent>
         <PaginationContent>
           <PaginationItem>
-            <PaginationPrevious
-              disabled={!hasPrevPage}
-              onClick={() => {
-                router.push(buildHref(page - 1))
-              }}
-            />
+            {hasPrevPage ? (
+              <PaginationPrevious href={buildHref(page - 1)} />
+            ) : (
+              <PaginationPrevious
+                aria-disabled="true"
+                className="pointer-events-none opacity-50"
+              />
+            )}
           </PaginationItem>
 
           {hasExtraPrevPages && (
@@ -62,34 +57,21 @@ export const Pagination: React.FC<{
 
           {hasPrevPage && (
             <PaginationItem>
-              <PaginationLink
-                onClick={() => {
-                  router.push(buildHref(page - 1))
-                }}
-              >
+              <PaginationLink href={buildHref(page - 1)}>
                 {page - 1}
               </PaginationLink>
             </PaginationItem>
           )}
 
           <PaginationItem>
-            <PaginationLink
-              isActive={isTargetActive(page)}
-              onClick={() => {
-                router.push(buildHref(page))
-              }}
-            >
+            <PaginationLink href={buildHref(page)} isActive>
               {page}
             </PaginationLink>
           </PaginationItem>
 
           {hasNextPage && (
             <PaginationItem>
-              <PaginationLink
-                onClick={() => {
-                  router.push(buildHref(page + 1))
-                }}
-              >
+              <PaginationLink href={buildHref(page + 1)}>
                 {page + 1}
               </PaginationLink>
             </PaginationItem>
@@ -102,12 +84,14 @@ export const Pagination: React.FC<{
           )}
 
           <PaginationItem>
-            <PaginationNext
-              disabled={!hasNextPage}
-              onClick={() => {
-                router.push(buildHref(page + 1))
-              }}
-            />
+            {hasNextPage ? (
+              <PaginationNext href={buildHref(page + 1)} />
+            ) : (
+              <PaginationNext
+                aria-disabled="true"
+                className="pointer-events-none opacity-50"
+              />
+            )}
           </PaginationItem>
         </PaginationContent>
       </PaginationComponent>

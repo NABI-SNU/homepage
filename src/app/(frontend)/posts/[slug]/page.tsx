@@ -13,8 +13,8 @@ import type { Post } from '@/payload-types'
 
 import { PostHero } from '@/heros/PostHero'
 import { generateMeta } from '@/utilities/generateMeta'
-import PageClient from './page.client'
 import { LivePreviewListener } from '@/components/LivePreviewListener'
+import { MathJaxTypeset } from '@/components/MathJax/Typeset.client'
 import { PersonAvatar } from '@/components/people/PersonAvatar'
 import { TableOfContents } from '@/components/TableOfContents'
 import { SocialShare } from '@/components/SocialShare'
@@ -64,7 +64,7 @@ export default async function Post({ params: paramsPromise }: Args) {
 
   return (
     <article className="pb-20 pt-6 md:pt-10">
-      <PageClient />
+      <MathJaxTypeset />
 
       {/* Allows redirects for valid pages too */}
       <PayloadRedirects disableNotFound url={url} />
@@ -205,7 +205,10 @@ export async function generateMetadata({ params: paramsPromise }: Args): Promise
   const decodedSlug = decodeURIComponent(slug)
   const post = await queryPostBySlug({ slug: decodedSlug })
 
-  return generateMeta({ doc: post })
+  return generateMeta({
+    doc: post,
+    path: `/posts/${decodedSlug}`,
+  })
 }
 
 const queryPostBySlug = cache(async ({ slug }: { slug: string }) => {

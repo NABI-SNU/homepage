@@ -27,10 +27,10 @@ const PaginationItem: React.FC<
 type PaginationLinkProps = {
   isActive?: boolean
 } & Pick<ButtonProps, 'size'> &
-  React.ComponentProps<'button'>
+  React.ComponentProps<'a'>
 
 const PaginationLink = ({ className, isActive, size = 'icon', ...props }: PaginationLinkProps) => (
-  <button
+  <a
     aria-current={isActive ? 'page' : undefined}
     className={cn(
       buttonVariants({

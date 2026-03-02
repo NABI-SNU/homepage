@@ -1,0 +1,68 @@
+'use client'
+
+import { useDebounce } from '@/utilities/useDebounce'
+import { usePathname, useRouter, useSearchParams } from 'next/navigation'
+import { useEffect, useMemo, useState } from 'react'
+
+type Props = {
+  ariaLabel?: string
+  className?: string
+  initialValue?: string
+  pathPrefix?: string
+  placeholder?: string
+}
+
+export function PostsSearchInput({
+  ariaLabel = 'Search posts',
+  className,
+  initialValue = '',
+  pathPrefix = '/posts',
+  placeholder = 'Search posts',
+}: Props) {
+  const router = useRouter()
+  const pathname = usePathname()
+  const searchParams = useSearchParams()
+  const [value, setValue] = useState(initialValue)
+  const [hasInteracted, setHasInteracted] = useState(false)
+  const debouncedValue = useDebounce(value, 200)
+  const currentQuery = useMemo(() => searchParams.get('q')?.trim() || '', [searchParams])
+
+  useEffect(() => {
+    if (currentQuery !== value) setValue(currentQuery)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentQuery])
+
+  useEffect(() => {
+    if (!hasInteracted) return
+
+    const normalizedDebouncedValue = debouncedValue.trim()
+    const isAlreadyAtTarget =
+      pathname === pathPrefix && normalizedDebouncedValue === currentQuery
+
+    if (isAlreadyAtTarget) return
+
+    const params = new URLSearchParams()
+    if (normalizedDebouncedValue) params.set('q', normalizedDebouncedValue)
+    const serializedParams = params.toString()
+    const nextURL = serializedParams ? `${pathPrefix}?${serializedParams}` : pathPrefix
+
+    router.replace(nextURL, { scroll: false })
+  }, [currentQuery, debouncedValue, hasInteracted, pathPrefix, pathname, router])
+
+  return (
+    <div className={className}>
+      <input
+        aria-label={ariaLabel}
+        className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground"
+        name="q"
+        onChange={(event) => {
+          setHasInteracted(true)
+          setValue(event.target.value)
+        }}
+        placeholder={placeholder}
+        type="text"
+        value={value}
+      />
+    </div>
+  )
+}

@@ -17,6 +17,13 @@ interface HeaderClientProps {
   data: Header
 }
 
+const shouldForceLightHeader = (pathname: string | null) => {
+  if (!pathname) return false
+  if (pathname === '/posts' || pathname === '/news' || pathname === '/search') return true
+  if (pathname.startsWith('/posts/page/')) return true
+  return false
+}
+
 export const HeaderClient: React.FC<HeaderClientProps> = ({ data }) => {
   const [isHydrated, setIsHydrated] = useState(false)
   const [scrolled, setScrolled] = useState(false)
@@ -32,7 +39,7 @@ export const HeaderClient: React.FC<HeaderClientProps> = ({ data }) => {
   }, [])
 
   useEffect(() => {
-    setHeaderTheme(null)
+    setHeaderTheme(shouldForceLightHeader(pathname) ? 'light' : null)
     setMobileMenuOpen(false)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pathname])

@@ -6,7 +6,6 @@ import configPromise from '@payload-config'
 import { getPayload } from 'payload'
 import Link from 'next/link'
 import React from 'react'
-import PageClient from './page.client'
 import { extractLegacyImageFromLexical } from '@/utilities/legacyImage'
 
 export const revalidate = 600
@@ -185,7 +184,6 @@ export default async function NewsPage({ searchParams: searchParamsPromise }: Ar
 
   return (
     <div className="page-shell-wide">
-      <PageClient />
       <div className="page-header container mb-12 text-center">
         <p className="page-eyebrow">Resources</p>
         <h1 className="page-title">News</h1>

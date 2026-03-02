@@ -14,7 +14,18 @@ export default async function ContactPage() {
         <h1 className="page-title-lg">{contactPage.title}</h1>
       </section>
 
-      <section className="container section-gap grid gap-8 md:grid-cols-[2fr_1fr]">
+      <section className="container section-gap grid gap-8 md:grid-cols-[1fr_2fr]">
+        <aside className="rounded-2xl border border-border bg-card p-6">
+          <h2 className="text-2xl font-semibold">{contactPage.supportTitle}</h2>
+          <div className="mt-4 space-y-4">
+            {(contactPage.supportItems || []).map((item, index) => (
+              <article key={`${item.title}-${index}`}>
+                <h3 className="font-semibold">{item.title}</h3>
+                <p className="text-sm text-muted-foreground">{item.description}</p>
+              </article>
+            ))}
+          </div>
+        </aside>
         <form
           className="rounded-2xl border border-border bg-card p-6"
           action={contactPage.formAction}
@@ -69,18 +80,6 @@ export default async function ContactPage() {
             <p className="mt-3 text-sm text-muted-foreground">{contactPage.formDescription}</p>
           )}
         </form>
-
-        <aside className="rounded-2xl border border-border bg-card p-6">
-          <h2 className="text-2xl font-semibold">{contactPage.supportTitle}</h2>
-          <div className="mt-4 space-y-4">
-            {(contactPage.supportItems || []).map((item, index) => (
-              <article key={`${item.title}-${index}`}>
-                <h3 className="font-semibold">{item.title}</h3>
-                <p className="text-sm text-muted-foreground">{item.description}</p>
-              </article>
-            ))}
-          </div>
-        </aside>
       </section>
     </main>
   )

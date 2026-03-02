@@ -4,12 +4,11 @@ import { cn } from '@/utilities/ui'
 import { GeistMono } from 'geist/font/mono'
 import { Inter } from 'next/font/google'
 import React from 'react'
-import { Analytics } from '@vercel/analytics/react'
+import { Analytics } from '@vercel/analytics/next'
 import { SpeedInsights } from '@vercel/speed-insights/next'
 
 import { Footer } from '@/Footer/Component'
 import { Header } from '@/Header/Component'
-import { MathJaxTypeset } from '@/components/MathJax/Typeset.client'
 import { Providers } from '@/providers'
 import { InitTheme } from '@/providers/Theme/InitTheme'
 import { mergeOpenGraph } from '@/utilities/mergeOpenGraph'
@@ -36,7 +35,6 @@ export default async function RootLayout({ children }: { children: React.ReactNo
       </head>
       <body>
         <Providers>
-          <MathJaxTypeset />
           <Header />
           {children}
           <Footer />
@@ -53,6 +51,5 @@ export const metadata: Metadata = {
   openGraph: mergeOpenGraph(),
   twitter: {
     card: 'summary_large_image',
-    creator: '@payloadcms',
   },
 }

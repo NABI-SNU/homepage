@@ -3,9 +3,10 @@ import type { Metadata } from 'next/types'
 import { CollectionArchive } from '@/components/CollectionArchive'
 import { PageRange } from '@/components/PageRange'
 import { Pagination } from '@/components/Pagination'
+import { PostsSearchInput } from '@/components/PostsSearchInput'
+import { generateMeta } from '@/utilities/generateMeta'
 import { getCachedPostsPage, POSTS_PER_PAGE } from '@/utilities/getPosts'
 import React from 'react'
-import PageClient from './page.client'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
 
@@ -37,7 +38,6 @@ export default async function Page({ params: paramsPromise, searchParams: search
 
   return (
     <div className="pb-24 pt-16">
-      <PageClient />
       <div className="container mb-12">
         <p className="text-sm uppercase tracking-[0.2em] text-primary">Articles</p>
         <h1 className="mt-3 text-4xl font-semibold md:text-5xl">Posts</h1>
@@ -47,16 +47,7 @@ export default async function Page({ params: paramsPromise, searchParams: search
       </div>
 
       <div className="container mb-8 flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-4">
-        <form action="/posts" className="relative w-full sm:w-[260px]" method="get">
-          <input
-            aria-label="Search posts"
-            className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground"
-            defaultValue={searchQuery}
-            name="q"
-            placeholder="Search posts"
-            type="text"
-          />
-        </form>
+        <PostsSearchInput className="relative w-full sm:w-[260px]" initialValue={searchQuery} />
         {searchQuery && (
           <Link
             href="/posts"
@@ -80,7 +71,11 @@ export default async function Page({ params: paramsPromise, searchParams: search
 
       <div className="container">
         {posts?.page && posts?.totalPages > 1 && (
-          <Pagination page={posts.page} totalPages={posts.totalPages} />
+          <Pagination
+            page={posts.page}
+            query={searchQuery ? { q: searchQuery } : undefined}
+            totalPages={posts.totalPages}
+          />
         )}
       </div>
     </div>
@@ -89,7 +84,9 @@ export default async function Page({ params: paramsPromise, searchParams: search
 
 export async function generateMetadata({ params: paramsPromise }: Args): Promise<Metadata> {
   const { pageNumber } = await paramsPromise
-  return {
-    title: `Payload Website Template Posts Page ${pageNumber || ''}`,
-  }
+  return generateMeta({
+    description: `Deep dives, meeting summaries, and notes from NABI. Page ${pageNumber}.`,
+    path: `/posts/page/${pageNumber}`,
+    title: `Posts - Page ${pageNumber || ''}`,
+  })
 }

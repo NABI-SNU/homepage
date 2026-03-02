@@ -11,9 +11,10 @@ import RichText from '@/components/RichText'
 import { TableOfContents } from '@/components/TableOfContents'
 import { LivePreviewListener } from '@/components/LivePreviewListener'
 import { Media } from '@/components/Media'
+import { MathJaxTypeset } from '@/components/MathJax/Typeset.client'
 import { formatDateTime } from '@/utilities/formatDateTime'
-import PageClient from './page.client'
 import { extractLegacyImageFromLexical } from '@/utilities/legacyImage'
+import { generateMeta } from '@/utilities/generateMeta'
 import { SocialShare } from '@/components/SocialShare'
 
 export async function generateStaticParams() {
@@ -53,7 +54,7 @@ export default async function NewsDetailPage({ params: paramsPromise }: Args) {
 
   return (
     <article className="pb-20 pt-6 md:pt-10">
-      <PageClient />
+      <MathJaxTypeset />
 
       <PayloadRedirects disableNotFound url={url} />
 
@@ -167,10 +168,21 @@ export async function generateMetadata({ params: paramsPromise }: Args): Promise
   const decodedSlug = decodeURIComponent(slug)
   const entry = await queryNewsBySlug({ slug: decodedSlug })
 
-  return {
-    title: entry?.title || 'News',
+  return generateMeta({
     description: entry?.description || 'Monthly highlights',
-  }
+    doc: entry
+      ? {
+          meta: {
+            description: entry.description,
+            image: entry.image,
+            title: entry.title,
+          },
+          slug: ['news', decodedSlug],
+        }
+      : null,
+    path: `/news/${decodedSlug}`,
+    title: entry?.title || 'News',
+  })
 }
 
 const queryNewsBySlug = cache(async ({ slug }: { slug: string }) => {

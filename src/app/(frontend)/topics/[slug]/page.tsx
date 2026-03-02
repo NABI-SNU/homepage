@@ -4,6 +4,7 @@ import { CollectionArchive } from '@/components/CollectionArchive'
 import configPromise from '@payload-config'
 import { getPayload } from 'payload'
 import { notFound } from 'next/navigation'
+import { generateMeta } from '@/utilities/generateMeta'
 
 type Args = {
   params: Promise<{
@@ -64,7 +65,24 @@ export default async function TopicPage({ params }: Args) {
 
 export async function generateMetadata({ params }: Args): Promise<Metadata> {
   const { slug } = await params
-  return {
-    title: `Topic: ${slug}`,
-  }
+  const payload = await getPayload({ config: configPromise })
+  const tags = await payload.find({
+    collection: 'tags',
+    limit: 1,
+    overrideAccess: false,
+    pagination: false,
+    where: {
+      slug: {
+        equals: slug,
+      },
+    },
+  })
+  const tag = tags.docs[0]
+  const title = tag?.title || slug
+
+  return generateMeta({
+    description: `Posts filed under topic ${title}.`,
+    path: `/topics/${slug}`,
+    title: `Topic: ${title}`,
+  })
 }

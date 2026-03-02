@@ -3,9 +3,10 @@ import type { Metadata } from 'next/types'
 import { CollectionArchive } from '@/components/CollectionArchive'
 import { PageRange } from '@/components/PageRange'
 import { Pagination } from '@/components/Pagination'
+import { PostsSearchInput } from '@/components/PostsSearchInput'
+import { generateMeta } from '@/utilities/generateMeta'
 import { getCachedPostsPage, POSTS_PER_PAGE } from '@/utilities/getPosts'
 import React from 'react'
-import PageClient from './page.client'
 import Link from 'next/link'
 
 export const revalidate = 600
@@ -27,7 +28,6 @@ export default async function Page({ searchParams: searchParamsPromise }: Args) 
 
   return (
     <div className="page-shell-wide">
-      <PageClient />
       <div className="container">
         <div className="page-header mb-12 text-center">
           <p className="page-eyebrow">Articles</p>
@@ -39,16 +39,7 @@ export default async function Page({ searchParams: searchParamsPromise }: Args) 
       </div>
 
       <div className="container mb-8 flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-4">
-        <form action="/posts" className="relative w-full sm:w-[260px]" method="get">
-          <input
-            aria-label="Search posts"
-            className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground"
-            defaultValue={searchQuery}
-            name="q"
-            placeholder="Search posts"
-            type="text"
-          />
-        </form>
+        <PostsSearchInput className="relative w-full sm:w-[260px]" initialValue={searchQuery} />
         {searchQuery && (
           <Link
             href="/posts"
@@ -72,15 +63,21 @@ export default async function Page({ searchParams: searchParamsPromise }: Args) 
 
       <div className="container">
         {posts.totalPages > 1 && posts.page && (
-          <Pagination page={posts.page} totalPages={posts.totalPages} />
+          <Pagination
+            page={posts.page}
+            query={searchQuery ? { q: searchQuery } : undefined}
+            totalPages={posts.totalPages}
+          />
         )}
       </div>
     </div>
   )
 }
 
-export function generateMetadata(): Metadata {
-  return {
-    title: `Payload Website Template Posts`,
-  }
+export async function generateMetadata(): Promise<Metadata> {
+  return generateMeta({
+    description: 'Deep dives, meeting summaries, and notes from NABI.',
+    path: '/posts',
+    title: 'Posts',
+  })
 }

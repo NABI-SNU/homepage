@@ -7,7 +7,9 @@ import fs from 'node:fs/promises'
 import path from 'node:path'
 
 import RichText from '@/components/RichText'
+import { MathJaxTypeset } from '@/components/MathJax/Typeset.client'
 import { TableOfContents } from '@/components/TableOfContents'
+import { generateMeta } from '@/utilities/generateMeta'
 
 const workspaceRoot = process.cwd()
 
@@ -76,6 +78,7 @@ export default async function ResearchDetailPage({ params }: Args) {
 
   return (
     <article className="pb-20 pt-12">
+      <MathJaxTypeset />
       <header className="container max-w-4xl">
         <h1 className="text-5xl font-semibold">{entry.title}</h1>
         <div className="mt-6 h-1 w-24 rounded-full bg-linear-to-r from-primary to-accent" />
@@ -124,8 +127,16 @@ export async function generateMetadata({ params }: Args): Promise<Metadata> {
   })
   const entry = research.docs[0]
 
-  return {
-    title: entry?.title || 'Research',
+  return generateMeta({
     description: entry?.description || 'Research note',
-  }
+    doc: entry
+      ? {
+          description: entry.description,
+          slug: ['labs', slug],
+          title: entry.title,
+        }
+      : null,
+    path: `/labs/${slug}`,
+    title: entry?.title || 'Research',
+  })
 }
