@@ -7,6 +7,7 @@ import type { Payload } from 'payload'
 import { Pool } from 'pg'
 
 import { syncBetterAuthUserToPayload } from './syncBetterAuthUserToPayload'
+import { resolvePayloadUserFromSession } from './resolvePayloadUserFromSession'
 
 const parseList = (value: string | undefined): string[] => {
   return (value || '')
@@ -26,6 +27,14 @@ const normalizeEmail = (email: string | null | undefined): string | null => {
 }
 
 const isProduction = process.env.NODE_ENV === 'production'
+const authBaseURL = process.env.BETTER_AUTH_URL || process.env.NEXT_PUBLIC_SERVER_URL || ''
+const baseURLUsesHTTPS = authBaseURL.startsWith('https://')
+const configuredSecureCookies = parseOptionalBool(process.env.AUTH_USE_SECURE_COOKIES)
+const useSecureCookies = isProduction
+  ? configuredSecureCookies === undefined
+    ? baseURLUsesHTTPS
+    : configuredSecureCookies && baseURLUsesHTTPS
+  : false
 const githubConfigured = Boolean(process.env.GITHUB_CLIENT_ID && process.env.GITHUB_CLIENT_SECRET)
 const googleConfigured = Boolean(process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET)
 const orcidConfigured = Boolean(process.env.ORCID_CLIENT_ID && process.env.ORCID_CLIENT_SECRET)
@@ -39,12 +48,17 @@ if (isProduction && !smtpConfigured) {
   throw new Error('[auth] SMTP credentials are required in production for email verification.')
 }
 
+const localDevelopmentOrigins = isProduction
+  ? []
+  : ['http://localhost:3000', 'http://127.0.0.1:3000']
+
 const trustedOrigins = Array.from(
   new Set(
     [
       ...parseList(process.env.AUTH_TRUSTED_ORIGINS),
       process.env.NEXT_PUBLIC_SERVER_URL,
       process.env.BETTER_AUTH_URL,
+      ...localDevelopmentOrigins,
     ].filter((entry): entry is string => Boolean(entry)),
   ),
 )
@@ -96,7 +110,7 @@ const getPayloadInstance = async (): Promise<Payload> => {
 
 const getBetterAuthUserForSession = async (
   userId: string,
-): Promise<{ email: string | null; emailVerified: boolean } | null> => {
+): Promise<{ email: string | null; emailVerified: boolean; id: string } | null> => {
   try {
     const result = await pool.query<{ email: string | null; emailVerified: boolean }>(
       'SELECT "email", "emailVerified" FROM "user" WHERE "id" = $1 LIMIT 1',
@@ -107,6 +121,7 @@ const getBetterAuthUserForSession = async (
     if (!row) return null
 
     return {
+      id: userId,
       email: normalizeEmail(row.email),
       emailVerified: row.emailVerified === true,
     }
@@ -114,48 +129,6 @@ const getBetterAuthUserForSession = async (
     console.error('[auth] Failed loading BetterAuth user during session create', error)
     return null
   }
-}
-
-const findPayloadUserForSignIn = async (
-  betterAuthUserId: string,
-  email: string | null,
-): Promise<{ id: number; isApproved?: boolean | null } | null> => {
-  const payload = await getPayloadInstance()
-
-  let users = await payload.find({
-    collection: 'users',
-    depth: 0,
-    limit: 1,
-    overrideAccess: true,
-    pagination: false,
-    where: {
-      betterAuthUserId: {
-        equals: betterAuthUserId,
-      },
-    },
-  })
-
-  if (users.docs.length === 0 && email) {
-    users = await payload.find({
-      collection: 'users',
-      depth: 0,
-      limit: 2,
-      overrideAccess: true,
-      pagination: false,
-      where: {
-        email: {
-          equals: email,
-        },
-      },
-    })
-
-    if (users.docs.length > 1) {
-      console.error('[auth] Duplicate payload users found for email', email)
-      return null
-    }
-  }
-
-  return users.docs[0] ?? null
 }
 
 if (orcidConfigured) {
@@ -177,7 +150,7 @@ if (orcidConfigured) {
 export const auth = betterAuth({
   appName: process.env.APP_NAME || 'NABI Labs',
   basePath: '/api/auth',
-  baseURL: process.env.BETTER_AUTH_URL || process.env.NEXT_PUBLIC_SERVER_URL,
+  baseURL: authBaseURL,
   secret: process.env.BETTER_AUTH_SECRET,
   database: pool,
   trustedOrigins,
@@ -228,7 +201,7 @@ export const auth = betterAuth({
       : {}),
   },
   advanced: {
-    useSecureCookies: parseOptionalBool(process.env.AUTH_USE_SECURE_COOKIES),
+    useSecureCookies,
   },
   plugins,
   databaseHooks: {
@@ -262,13 +235,16 @@ export const auth = betterAuth({
           const betterAuthUser = await getBetterAuthUserForSession(session.userId)
           if (!betterAuthUser) return false
 
-          if (isProduction && betterAuthUser.emailVerified !== true) {
-            return false
-          }
+          const payload = await getPayloadInstance()
+          const payloadUser = await resolvePayloadUserFromSession({
+            payload,
+            betterAuthUser,
+            requireApproval: true,
+            autoApproveByPeopleEmail: true,
+            enforceProductionEmailVerification: true,
+          })
 
-          const payloadUser = await findPayloadUserForSignIn(session.userId, betterAuthUser.email)
           if (!payloadUser) return false
-          if (payloadUser.isApproved !== true) return false
         },
         after: async (session) => {
           await syncBetterAuthUserToPayload({

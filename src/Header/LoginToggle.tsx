@@ -7,7 +7,7 @@ import { cn } from '@/utilities/ui'
 import { CircleUserRound } from 'lucide-react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import React, { useEffect, useId, useRef, useState } from 'react'
+import React, { useEffect, useId, useMemo, useRef, useState } from 'react'
 
 type MeUser = {
   email?: string | null
@@ -23,19 +23,33 @@ type ProfilePayload = {
 export const LoginToggle: React.FC<{
   className?: string
 }> = ({ className }) => {
-  const [user, setUser] = useState<MeUser | null>(null)
   const [profile, setProfile] = useState<ProfilePayload['person']>(null)
   const [personSlug, setPersonSlug] = useState<string | null>(null)
   const [isOpen, setIsOpen] = useState(false)
   const menuId = useId()
   const wrapperRef = useRef<HTMLDivElement | null>(null)
   const pathname = usePathname()
-  const { refetch } = authClient.useSession()
+  const { data: session, refetch } = authClient.useSession()
+  const user = useMemo<MeUser | null>(() => {
+    if (!session?.user) return null
+
+    return {
+      id: session.user.id,
+      email: session.user.email,
+      name: session.user.name,
+    }
+  }, [session?.user])
 
   useEffect(() => {
+    if (!session?.user?.id) {
+      setProfile(null)
+      setPersonSlug(null)
+      return
+    }
+
     let isMounted = true
 
-    const checkAuth = async () => {
+    const loadProfile = async () => {
       try {
         const response = await fetch('/api/account/profile', {
           cache: 'no-store',
@@ -45,31 +59,28 @@ export const LoginToggle: React.FC<{
         if (!isMounted) return
 
         if (!response.ok) {
-          setUser(null)
           setProfile(null)
           setPersonSlug(null)
           return
         }
 
         const payload = (await response.json()) as ProfilePayload
-        setUser(payload.user?.id ? payload.user : null)
         setProfile(payload.person ?? null)
         setPersonSlug(payload.person?.slug ?? null)
       } catch {
         if (isMounted) {
-          setUser(null)
           setProfile(null)
           setPersonSlug(null)
         }
       }
     }
 
-    void checkAuth()
+    void loadProfile()
 
     return () => {
       isMounted = false
     }
-  }, [pathname])
+  }, [session?.user?.id])
 
   useEffect(() => {
     if (!isOpen) return
@@ -112,7 +123,6 @@ export const LoginToggle: React.FC<{
       },
     })
 
-    setUser(null)
     setProfile(null)
     setPersonSlug(null)
     setIsOpen(false)

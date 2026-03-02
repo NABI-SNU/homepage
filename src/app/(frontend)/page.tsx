@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 
 import Link from 'next/link'
 import Image from 'next/image'
-import { ChevronRight, ExternalLink, FileText, Mail } from 'lucide-react'
+import { ChevronRight, ExternalLink, Mail } from 'lucide-react'
 
 import { getCachedGlobal } from '@/utilities/getGlobals'
 import type { HomePage as HomePageGlobal } from '@/payload-types'

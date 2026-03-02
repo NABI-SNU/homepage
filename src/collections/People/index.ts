@@ -1,4 +1,4 @@
-import type { Access, CollectionConfig } from 'payload'
+import type { Access, CollectionConfig, Where } from 'payload'
 
 import { adminOnly } from '../../access/adminOnly'
 import { revalidatePerson, revalidatePersonDelete } from './hooks/revalidatePeople'
@@ -29,14 +29,14 @@ const publicReadablePeople: Access = async ({ req }) => {
           },
         },
       ],
-    } as any
+    } as Where
   }
 
   return {
     isVisible: {
       equals: true,
     },
-  } as any
+  } as Where
 }
 
 const adminOrOwnProfile: Access = async ({ req }) => {

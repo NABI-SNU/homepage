@@ -2,6 +2,7 @@
 import { cn } from '@/utilities/ui'
 import useClickableCard from '@/utilities/useClickableCard'
 import Link from 'next/link'
+import Image, { type ImageLoaderProps } from 'next/image'
 import React, { Fragment } from 'react'
 
 import type { News, Post } from '@/payload-types'
@@ -14,6 +15,8 @@ export type CardDocData = CardPostData & {
   date?: News['date']
   previewImage?: LegacyInlineImage | null
 }
+
+const passthroughImageLoader = ({ src }: ImageLoaderProps) => src
 
 export const Card: React.FC<{
   alignItems?: 'center'
@@ -62,11 +65,16 @@ export const Card: React.FC<{
           />
         )}
         {!hasRenderableImage && hasPreviewImage && (
-          <img
+          <Image
             alt={previewImage?.alt || ''}
             className="h-full w-full rounded-sm object-cover transition-transform duration-300 group-hover:scale-[1.02]"
+            height={previewImage?.height ?? 900}
             loading="lazy"
-            src={previewImage?.src}
+            loader={passthroughImageLoader}
+            sizes="(min-width: 1024px) 30vw, (min-width: 640px) 45vw, 100vw"
+            src={previewImage?.src ?? ''}
+            unoptimized
+            width={previewImage?.width ?? 1600}
           />
         )}
       </div>

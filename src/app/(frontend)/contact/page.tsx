@@ -9,7 +9,7 @@ export default async function ContactPage() {
 
   return (
     <main className="page-shell">
-      <section className="page-header-tight text-center">
+      <section className="page-header container text-center">
         <p className="page-eyebrow">{contactPage.tagline}</p>
         <h1 className="page-title-lg">{contactPage.title}</h1>
       </section>

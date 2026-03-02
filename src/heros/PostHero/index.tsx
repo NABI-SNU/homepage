@@ -4,7 +4,14 @@ import React from 'react'
 
 import { Media } from '@/components/Media'
 import { PersonAvatar } from '@/components/people/PersonAvatar'
-import type { Post } from '@/payload-types'
+import type { Person, Post } from '@/payload-types'
+
+type AuthorEntry = {
+  avatar?: Person['avatar']
+  email?: string | null
+  name: string
+  slug: string
+}
 
 export const PostHero: React.FC<{
   post: Post
@@ -13,7 +20,7 @@ export const PostHero: React.FC<{
   const { authors, categories, excerpt, heroImage, publishedAt, title } = post
 
   const authorEntries = (authors || [])
-    .map((author) => {
+    .map((author): AuthorEntry | null => {
       if (typeof author !== 'object' || !author) return null
 
       return {
@@ -23,7 +30,7 @@ export const PostHero: React.FC<{
         slug: author.slug || '',
       }
     })
-    .filter(Boolean) as { avatar?: unknown; email?: string | null; name: string; slug: string }[]
+    .filter((author): author is AuthorEntry => Boolean(author))
 
   return (
     <section className="relative pt-8 md:pt-12">
@@ -47,7 +54,7 @@ export const PostHero: React.FC<{
                           href={`/people/${author.slug}`}
                         >
                           <PersonAvatar
-                            avatar={author.avatar as any}
+                            avatar={author.avatar}
                             email={author.email}
                             name={author.name}
                             size={20}
@@ -57,7 +64,7 @@ export const PostHero: React.FC<{
                       ) : (
                         <span className="inline-flex items-center gap-1.5 rounded-full border border-border/70 px-2 py-1 text-foreground">
                           <PersonAvatar
-                            avatar={author.avatar as any}
+                            avatar={author.avatar}
                             email={author.email}
                             name={author.name}
                             size={20}

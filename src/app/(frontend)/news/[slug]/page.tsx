@@ -5,6 +5,7 @@ import configPromise from '@payload-config'
 import { getPayload } from 'payload'
 import { draftMode } from 'next/headers'
 import React, { cache } from 'react'
+import Image from 'next/image'
 
 import RichText from '@/components/RichText'
 import { TableOfContents } from '@/components/TableOfContents'
@@ -86,11 +87,15 @@ export default async function NewsDetailPage({ params: paramsPromise }: Args) {
           )}
           {(!entry.image || typeof entry.image !== 'object') && fallbackPreviewImage?.src && (
             <div className="mx-auto mt-10 max-w-4xl overflow-hidden rounded-2xl border border-border shadow-xl shadow-black/10">
-              <img
+              <Image
                 alt={fallbackPreviewImage.alt}
                 className="h-auto w-full bg-muted object-cover"
+                height={fallbackPreviewImage.height ?? 900}
                 loading="lazy"
+                sizes="100vw"
                 src={fallbackPreviewImage.src}
+                unoptimized
+                width={fallbackPreviewImage.width ?? 1600}
               />
             </div>
           )}

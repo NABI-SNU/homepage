@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { ExternalLink } from 'lucide-react'
-import React, { useMemo, useState } from 'react'
+import React, { useDeferredValue, useMemo, useState, useTransition } from 'react'
 
 type ReferenceSource = {
   type: 'posts' | 'news' | 'research'
@@ -24,6 +24,7 @@ type SortOption = 'alphabetical' | 'recent' | 'oldest'
 
 const PAGE_SIZE = 18
 const SOURCE_TITLE_MAX = 28
+const PAGE_WINDOW = 1
 
 const truncate = (value: string, max: number) => (value.length > max ? `${value.slice(0, max)}...` : value)
 
@@ -33,16 +34,57 @@ const sourceLabel: Record<ReferenceSource['type'], string> = {
   research: 'Research',
 }
 
+const getPaginationItems = (page: number, totalPages: number): Array<number | string> => {
+  if (totalPages <= 7) {
+    return Array.from({ length: totalPages }, (_, index) => index + 1)
+  }
+
+  const items: Array<number | string> = [1]
+  const rangeStart = Math.max(2, page - PAGE_WINDOW)
+  const rangeEnd = Math.min(totalPages - 1, page + PAGE_WINDOW)
+
+  if (rangeStart > 2) {
+    items.push('ellipsis-left')
+  }
+
+  for (let value = rangeStart; value <= rangeEnd; value += 1) {
+    items.push(value)
+  }
+
+  if (rangeEnd < totalPages - 1) {
+    items.push('ellipsis-right')
+  }
+
+  items.push(totalPages)
+  return items
+}
+
 export function ReferenceSearch({ references }: { references: ReferenceSearchItem[] }) {
   const [query, setQuery] = useState('')
   const [sortBy, setSortBy] = useState<SortOption>('alphabetical')
   const [currentPage, setCurrentPage] = useState(1)
+  const [isPending, startTransition] = useTransition()
+  const deferredQuery = useDeferredValue(query)
+
+  const sortedByOption = useMemo(() => {
+    const alphabetical = [...references].sort((a, b) => a.title.localeCompare(b.title))
+    const recent = [...references].sort((a, b) => (b.year || 0) - (a.year || 0))
+    const oldest = [...references].sort((a, b) => (a.year || 0) - (b.year || 0))
+
+    return {
+      alphabetical,
+      recent,
+      oldest,
+    } satisfies Record<SortOption, ReferenceSearchItem[]>
+  }, [references])
+
+  const sorted = sortedByOption[sortBy]
 
   const filtered = useMemo(() => {
-    const trimmed = query.toLowerCase().trim()
-    if (!trimmed) return references
+    const trimmed = deferredQuery.toLowerCase().trim()
+    if (!trimmed) return sorted
 
-    return references.filter((reference) => {
+    return sorted.filter((reference) => {
       const fields = [
         reference.title,
         ...reference.authors,
@@ -52,36 +94,28 @@ export function ReferenceSearch({ references }: { references: ReferenceSearchIte
 
       return fields.some((field) => field.toLowerCase().includes(trimmed))
     })
-  }, [query, references])
+  }, [deferredQuery, sorted])
 
-  const sorted = useMemo(() => {
-    const next = [...filtered]
-
-    next.sort((a, b) => {
-      if (sortBy === 'recent') return (b.year || 0) - (a.year || 0)
-      if (sortBy === 'oldest') return (a.year || 0) - (b.year || 0)
-      return a.title.localeCompare(b.title)
-    })
-
-    return next
-  }, [filtered, sortBy])
-
-  const totalPages = Math.max(1, Math.ceil(sorted.length / PAGE_SIZE))
+  const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE))
 
   const page = Math.min(currentPage, totalPages)
-  const paginated = sorted.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE)
+  const paginated = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE)
 
   const onQueryChange = (value: string) => {
     setQuery(value)
-    setCurrentPage(1)
+    startTransition(() => {
+      setCurrentPage(1)
+    })
   }
 
   const onSortChange = (value: SortOption) => {
-    setSortBy(value)
-    setCurrentPage(1)
+    startTransition(() => {
+      setSortBy(value)
+      setCurrentPage(1)
+    })
   }
 
-  const paginationNumbers = Array.from({ length: totalPages }, (_, i) => i + 1)
+  const paginationItems = getPaginationItems(page, totalPages)
 
   return (
     <div>
@@ -113,6 +147,7 @@ export function ReferenceSearch({ references }: { references: ReferenceSearchIte
                       ? 'bg-muted text-foreground'
                       : 'bg-background text-muted-foreground hover:bg-muted/60 hover:text-foreground',
                   ].join(' ')}
+                  disabled={isPending}
                   key={tab.value}
                   onClick={() => onSortChange(tab.value)}
                   type="button"
@@ -230,21 +265,34 @@ export function ReferenceSearch({ references }: { references: ReferenceSearchIte
           >
             ←
           </button>
-          {paginationNumbers.map((number) => (
-            <button
-              className={[
-                'rounded-sm border border-border px-3 py-1 text-sm',
-                number === page
-                  ? 'bg-muted font-semibold text-foreground'
-                  : 'bg-background text-muted-foreground hover:bg-muted/60 hover:text-foreground',
-              ].join(' ')}
-              key={number}
-              onClick={() => setCurrentPage(number)}
-              type="button"
-            >
-              {number}
-            </button>
-          ))}
+          {paginationItems.map((item, index) => {
+            if (typeof item !== 'number') {
+              return (
+                <span
+                  key={`${item}-${index}`}
+                  className="inline-flex h-8 items-center px-2 text-sm text-muted-foreground"
+                >
+                  ...
+                </span>
+              )
+            }
+
+            return (
+              <button
+                className={[
+                  'rounded-sm border border-border px-3 py-1 text-sm',
+                  item === page
+                    ? 'bg-muted font-semibold text-foreground'
+                    : 'bg-background text-muted-foreground hover:bg-muted/60 hover:text-foreground',
+                ].join(' ')}
+                key={item}
+                onClick={() => setCurrentPage(item)}
+                type="button"
+              >
+                {item}
+              </button>
+            )
+          })}
           <button
             aria-label="Next page"
             className="rounded-sm border border-border bg-background px-3 py-1 text-sm text-foreground disabled:opacity-50"

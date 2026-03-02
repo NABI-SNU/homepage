@@ -2,16 +2,18 @@ import type { CollectionConfig } from 'payload'
 
 import { adminOnly, isAdminRequest } from '../../access/adminOnly'
 import { adminOrSelf } from '../../access/adminOrSelf'
+import { authenticated } from '../../access/authenticated'
 import { payloadBetterAuthStrategy } from '@/auth/payloadBetterAuthStrategy'
+import { sendApprovalRequestEmail } from './hooks/sendApprovalRequestEmail'
 
 export const Users: CollectionConfig = {
   slug: 'users',
   access: {
-    admin: ({ req }) => isAdminRequest(req),
+    admin: authenticated,
     create: adminOnly,
     delete: adminOnly,
     read: adminOrSelf,
-    update: adminOrSelf,
+    update: adminOnly,
   },
   admin: {
     defaultColumns: ['name', 'email', 'isApproved', 'roles'],
@@ -68,5 +70,8 @@ export const Users: CollectionConfig = {
       },
     },
   ],
+  hooks: {
+    afterChange: [sendApprovalRequestEmail],
+  },
   timestamps: true,
 }

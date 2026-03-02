@@ -12,10 +12,10 @@ export default async function SymposiumPage() {
           <div className="pointer-events-none pt-0 md:pt-[76px]" />
           <div className="pb-8 py-12 md:pb-8 md:py-20">
             <div className="mx-auto max-w-5xl text-center">
-              <p className="mx-auto inline-flex rounded-full border border-blue-400/40 bg-blue-500/10 px-4 py-1.5 text-sm font-semibold tracking-[0.2em] text-blue-300 uppercase">
+              <p className="mx-auto inline-flex rounded-full border border-blue-400/40 bg-blue-500/10 px-4 py-1.5 text-sm font-semibold tracking-[0.2em] text-blue-300 uppercase dark:border-blue-400/60 dark:bg-blue-500/20 dark:text-blue-200">
                 Symposium 2025
               </p>
-              <h1 className="mb-4 mt-4 text-5xl font-semibold leading-tight tracking-tight text-white drop-shadow-[0_4px_24px_rgba(59,130,246,0.25)] md:text-6xl">
+              <h1 className="mb-4 mt-4 text-5xl font-semibold leading-tight tracking-tight text-black drop-shadow-[0_4px_24px_rgba(59,130,246,0.25)] dark:text-gray-100 dark:drop-shadow-[0_4px_24px_rgba(59,130,246,0.35)] md:text-6xl">
                 Memory in Context
               </h1>
             </div>
@@ -65,13 +65,15 @@ export default async function SymposiumPage() {
                 <li className="flex items-start gap-3">
                   <Users className="mt-0.5 h-5 w-5 shrink-0 text-blue-600 dark:text-blue-400" />
                   <span>
-                    <strong>대상:</strong> NABI 회원 및 관련 분야에 관심 있는 서울대 의대/병원 구성원
+                    <strong>대상:</strong> NABI 회원 및 관련 분야에 관심 있는 서울대 의대/병원
+                    구성원
                   </span>
                 </li>
                 <li className="flex items-start gap-3">
                   <Laptop className="mt-0.5 h-5 w-5 shrink-0 text-blue-600 dark:text-blue-400" />
                   <span>
-                    <strong>준비물:</strong> <strong>개인 노트북 지참 권고</strong> (Methods Deep Dive 세션 실습용)
+                    <strong>준비물:</strong> <strong>개인 노트북 지참 권고</strong> (Methods Deep
+                    Dive 세션 실습용)
                   </span>
                 </li>
                 <li className="flex items-start gap-3">
@@ -106,31 +108,35 @@ export default async function SymposiumPage() {
             >
               <h2>About NABI</h2>
               <p>
-                <strong>NABI (Natural and Artificial Brain Intelligence)</strong>는 신경과학의 작동 원리를 수학적·계산적 모델로
-                탐구하는 <strong>Computational Neuroscience</strong>와 이를 AI에 접목한 <strong>NeuroAI</strong>를 공부하는
-                연구 공동체입니다. 저희의 정체성은 다음과 같습니다:
+                <strong>NABI (Natural and Artificial Brain Intelligence)</strong>는 신경과학의 작동
+                원리를 수학적·계산적 모델로 탐구하는 <strong>Computational Neuroscience</strong>와
+                이를 AI에 접목한 <strong>NeuroAI</strong>를 공부하는 연구 공동체입니다. 저희의
+                정체성은 다음과 같습니다:
               </p>
               <ul>
                 <li>
-                  <strong>Vision:</strong> 뇌과학과 신경의학, 정신의학 임상을 계산적으로 해석하여 새로운 진단적/이론적
-                  프레임을 제시
+                  <strong>Vision:</strong> 뇌과학과 신경의학, 정신의학 임상을 계산적으로 해석하여
+                  새로운 진단적/이론적 프레임을 제시
                 </li>
                 <li>
-                  <strong>Activity:</strong> 시즌제 주제 집중 세션과 정기 심포지엄을 통해 지식을 공유
+                  <strong>Activity:</strong> 시즌제 주제 집중 세션과 정기 심포지엄을 통해 지식을
+                  공유
                 </li>
                 <li>
-                  <strong>Target:</strong> 서울대학교 의과대학 재학생 및 서울대병원 수련의/전문의 중 뇌와 AI의 접점에 열정을
-                  가진 분
+                  <strong>Target:</strong> 서울대학교 의과대학 재학생 및 서울대병원 수련의/전문의 중
+                  뇌와 AI의 접점에 열정을 가진 분
                 </li>
               </ul>
 
               <h2>제1회 NABI 정기 심포지엄 안내</h2>
               <p>
-                이번 심포지엄은 NABI 회원들이 지난 1년 동안 함께 학습하고 연구하며 준비해온 정기 심포지엄으로,{' '}
-                <strong>2026년 그 첫 번째 문</strong>을 엽니다. 올해의 메인 테마는 <strong>&quot;Memory in Context&quot;</strong>
-                입니다. 해마(Hippocampus)를 중심으로 기억의 형성, 저장, 그리고 인출의 메커니즘을 최신 계산 모델링 관점에서
-                심층적으로 다룹니다. 특히 해마가 단순한 기록 장치를 넘어 세상의 통계적 구조를 학습하는 모델로 어떻게
-                기능하는지를 다루며, 맥락이 기억의 인출에 미치는 영향을 분석합니다.
+                이번 심포지엄은 NABI 회원들이 지난 1년 동안 함께 학습하고 연구하며 준비해온 정기
+                심포지엄으로, <strong>2026년 그 첫 번째 문</strong>을 엽니다. 올해의 메인 테마는{' '}
+                <strong>&quot;Memory in Context&quot;</strong>
+                입니다. 해마(Hippocampus)를 중심으로 기억의 형성, 저장, 그리고 인출의 메커니즘을
+                최신 계산 모델링 관점에서 심층적으로 다룹니다. 특히 해마가 단순한 기록 장치를 넘어
+                세상의 통계적 구조를 학습하는 모델로 어떻게 기능하는지를 다루며, 맥락이 기억의
+                인출에 미치는 영향을 분석합니다.
               </p>
 
               <h2>프로그램 구성 (Program)</h2>
@@ -141,8 +147,8 @@ export default async function SymposiumPage() {
                   <strong>주제:</strong> Memory in Context: 최신 지견 및 계산적 프레임워크
                 </li>
                 <li>
-                  <strong>내용:</strong> 해마의 신경 회로와 맥락적 기억(Contextual Memory)에 관한 최신 논문 및 이론적 배경
-                  정리.
+                  <strong>내용:</strong> 해마의 신경 회로와 맥락적 기억(Contextual Memory)에 관한
+                  최신 논문 및 이론적 배경 정리.
                 </li>
               </ul>
 
@@ -152,18 +158,25 @@ export default async function SymposiumPage() {
                   <strong>Part 1. SR의 이해</strong>
                   <ul>
                     <li>
-                      모바일 기반 프로그램을 통해 <strong>Successor Representation(SR)</strong>의 개념을 직관적으로 이해
+                      모바일 기반 프로그램을 통해 <strong>Successor Representation(SR)</strong>의
+                      개념을 직관적으로 이해
                     </li>
-                    <li>상태 공간(State Space)를 어떻게 뇌에서 representation하는지 인터엑티브하게 체험하기</li>
+                    <li>
+                      상태 공간(State Space)를 어떻게 뇌에서 representation하는지 인터엑티브하게
+                      체험하기
+                    </li>
                   </ul>
                 </li>
                 <li>
                   <strong>Part 2. CSCG 실습</strong>
                   <ul>
-                    <li>Google Colab 환경에서 해마에서 측정된 뉴런 데이터를 직접 분석하고 시뮬레이션하기</li>
                     <li>
-                      <strong>Clone-Structured Cognitive Graph (CSCG)</strong> 모델을 활용하여 해마가 맥락을 어떻게
-                      학습하는지 모델링하기
+                      Google Colab 환경에서 해마에서 측정된 뉴런 데이터를 직접 분석하고
+                      시뮬레이션하기
+                    </li>
+                    <li>
+                      <strong>Clone-Structured Cognitive Graph (CSCG)</strong> 모델을 활용하여
+                      해마가 맥락을 어떻게 학습하는지 모델링하기
                     </li>
                   </ul>
                 </li>
@@ -175,8 +188,9 @@ export default async function SymposiumPage() {
                   <strong>내용:</strong> 회원들이 제안하는 차세대 연구 아이디어 발표.
                 </li>
                 <li>
-                  <strong>목표:</strong> 현재 신경과학 및 인공지능 이론에서 해결되지 않은 핵심 과학적 질문(scientific gaps)을
-                  정의하고, 이를 계산적 모델 관점에서 탐구하는 창의적 접근법 논의
+                  <strong>목표:</strong> 현재 신경과학 및 인공지능 이론에서 해결되지 않은 핵심
+                  과학적 질문(scientific gaps)을 정의하고, 이를 계산적 모델 관점에서 탐구하는 창의적
+                  접근법 논의
                 </li>
               </ul>
 

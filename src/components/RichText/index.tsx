@@ -10,6 +10,7 @@ import {
   LinkJSXConverter,
   RichText as ConvertRichText,
 } from '@payloadcms/richtext-lexical/react'
+import Image from 'next/image'
 
 import { CodeBlock, CodeBlockProps } from '@/blocks/Code/Component'
 import { YouTubeEmbedBlock, YouTubeEmbedBlockProps } from '@/blocks/YouTubeEmbed/Component'
@@ -178,7 +179,7 @@ const buildLegacyListTree = (entries: LegacyListEntry[]): LegacyListItem[] => {
 
 const renderLegacyList = (
   items: LegacyListItem[],
-  nodesToJSX: (args: { nodes: any[] }) => ReactNode[],
+  nodesToJSX: (args: { nodes: NodeTypes[] }) => ReactNode[],
   keyPrefix = 'legacy-list',
 ) => (
   <ul className="my-4 list-disc space-y-1 pl-6">
@@ -187,7 +188,7 @@ const renderLegacyList = (
 
       return (
         <li key={key}>
-          {nodesToJSX({ nodes: item.nodes as any[] })}
+          {nodesToJSX({ nodes: item.nodes as NodeTypes[] })}
           {item.children.length > 0 && renderLegacyList(item.children, nodesToJSX, key)}
         </li>
       )
@@ -261,13 +262,15 @@ const jsxConverters: JSXConvertersFunction<NodeTypes> = ({ defaultConverters }) 
     if (legacyImage) {
       return (
         <figure className="my-6">
-          <img
+          <Image
             alt={legacyImage.alt}
             className="mx-auto h-auto max-w-full rounded-[0.8rem] border border-border"
-            height={legacyImage.height}
+            height={legacyImage.height ?? 900}
             loading="lazy"
+            sizes="100vw"
             src={legacyImage.src}
-            width={legacyImage.width}
+            unoptimized
+            width={legacyImage.width ?? 1600}
             style={legacyImage.widthStyle ? { width: legacyImage.widthStyle } : undefined}
           />
         </figure>

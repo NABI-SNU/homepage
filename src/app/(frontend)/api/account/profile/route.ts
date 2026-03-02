@@ -3,91 +3,28 @@ import type { File as PayloadFile } from 'payload'
 
 import { NextRequest } from 'next/server'
 
-import { auth } from '@/auth/betterAuth'
 import configPromise from '@payload-config'
+import { getBetterAuthUserFromHeaders } from '@/auth/getBetterAuthUserFromHeaders'
+import { resolvePayloadUserFromSession } from '@/auth/resolvePayloadUserFromSession'
 
 const editableProfileFields = ['name', 'bio', 'research', 'socials', 'avatar', 'joinedYear'] as const
-const isProduction = process.env.NODE_ENV === 'production'
 const MAX_AVATAR_SIZE_BYTES = 5 * 1024 * 1024
 
 type EditableProfileField = (typeof editableProfileFields)[number]
 
-const getBetterAuthUser = async (headers: Headers) => {
-  const baseURL = process.env.BETTER_AUTH_URL || process.env.NEXT_PUBLIC_SERVER_URL || 'http://localhost:3000'
-  const sessionRequest = new Request(`${baseURL}/api/auth/get-session`, {
-    method: 'GET',
-    headers,
-  })
-  const response = await auth.handler(sessionRequest)
-
-  if (!response.ok) return null
-
-  const session = (await response.json().catch(() => null)) as
-    | {
-        user?: {
-          id?: string
-          email?: string
-          emailVerified?: boolean
-        } | null
-      }
-    | null
-
-  return session?.user ?? null
-}
-
-const resolvePayloadUser = async (payload: Awaited<ReturnType<typeof getPayload>>, req: NextRequest) => {
-  const betterAuthUser = await getBetterAuthUser(req.headers)
-  if (!betterAuthUser?.id || !betterAuthUser.email) return null
-  if (isProduction && betterAuthUser.emailVerified !== true) return null
-
-  const normalizedEmail = betterAuthUser.email.trim().toLowerCase()
-
-  let users = await payload.find({
-    collection: 'users',
-    depth: 0,
-    limit: 1,
-    overrideAccess: true,
-    pagination: false,
-    where: {
-      betterAuthUserId: {
-        equals: betterAuthUser.id,
-      },
-    },
-  })
-
-  if (users.docs.length === 0) {
-    users = await payload.find({
-      collection: 'users',
-      depth: 0,
-      limit: 2,
-      overrideAccess: true,
-      pagination: false,
-      where: {
-        email: {
-          equals: normalizedEmail,
-        },
-      },
-    })
-
-    if (users.docs.length > 1) {
-      payload.logger.error(`[account-profile] Duplicate payload users found for email ${normalizedEmail}`)
-      return null
-    }
-  }
-
-  const user = users.docs[0]
-  if (!user) return null
-  if (user.isApproved !== true) return null
-
-  return user
-}
-
 export async function GET(req: NextRequest): Promise<Response> {
   const payload = await getPayload({ config: configPromise })
-  const user = await resolvePayloadUser(payload, req)
+  const { betterAuthUser, responseHeaders } = await getBetterAuthUserFromHeaders(req.headers)
+  const user = await resolvePayloadUserFromSession({
+    payload,
+    betterAuthUser,
+    requireApproval: true,
+    autoApproveByPeopleEmail: true,
+    enforceProductionEmailVerification: true,
+  })
 
   if (!user) {
-    return Response.json({ error: 'Unauthorized' }, { status: 401 })
+    return Response.json({ error: 'Unauthorized' }, { headers: responseHeaders, status: 401 })
   }
 
   const people = await payload.find({
@@ -104,23 +41,33 @@ export async function GET(req: NextRequest): Promise<Response> {
     },
   })
 
-  return Response.json({
-    user: {
-      id: user.id,
-      email: user.email,
-      name: user.name,
-      roles: user.roles,
+  return Response.json(
+    {
+      user: {
+        id: user.id,
+        email: user.email,
+        name: user.name,
+        roles: user.roles,
+      },
+      person: people.docs[0] ?? null,
     },
-    person: people.docs[0] ?? null,
-  })
+    { headers: responseHeaders },
+  )
 }
 
 export async function PATCH(req: NextRequest): Promise<Response> {
   const payload = await getPayload({ config: configPromise })
-  const user = await resolvePayloadUser(payload, req)
+  const { betterAuthUser, responseHeaders } = await getBetterAuthUserFromHeaders(req.headers)
+  const user = await resolvePayloadUserFromSession({
+    payload,
+    betterAuthUser,
+    requireApproval: true,
+    autoApproveByPeopleEmail: true,
+    enforceProductionEmailVerification: true,
+  })
 
   if (!user) {
-    return Response.json({ error: 'Unauthorized' }, { status: 401 })
+    return Response.json({ error: 'Unauthorized' }, { headers: responseHeaders, status: 401 })
   }
 
   const contentType = req.headers.get('content-type') || ''
@@ -226,5 +173,5 @@ export async function PATCH(req: NextRequest): Promise<Response> {
     user,
   })
 
-  return Response.json({ person: updated })
+  return Response.json({ person: updated }, { headers: responseHeaders })
 }

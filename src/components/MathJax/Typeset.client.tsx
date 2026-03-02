@@ -5,6 +5,7 @@ import { useEffect } from 'react'
 
 const MATHJAX_SCRIPT_ID = 'mathjax-script'
 const MATHJAX_SCRIPT_SRC = 'https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js'
+const MATH_MARKER_PATTERN = /(\$\$|\\\(|\\\[|\$[^$]+\$)/
 
 type MathJaxLike = {
   startup?: {
@@ -82,13 +83,15 @@ const loadMathJax = async () => {
 const typesetPayloadRichText = async () => {
   if (typeof window === 'undefined') return
 
+  const targets = Array.from(document.querySelectorAll('.payload-richtext')).filter((element) =>
+    MATH_MARKER_PATTERN.test(element.textContent || ''),
+  )
+  if (targets.length === 0) return
+
   await loadMathJax()
 
   const mathJax = window.MathJax
   if (!mathJax?.typesetPromise) return
-
-  const targets = Array.from(document.querySelectorAll('.payload-richtext'))
-  if (targets.length === 0) return
 
   mathJax.typesetClear?.(targets)
   await mathJax.typesetPromise(targets)
@@ -103,4 +106,3 @@ export function MathJaxTypeset() {
 
   return null
 }
-

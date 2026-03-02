@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { useSearchParams } from 'next/navigation'
-import { FormEvent, Suspense, useEffect, useMemo, useState } from 'react'
+import { FormEvent, Suspense, useCallback, useEffect, useMemo, useState } from 'react'
 import { Github } from 'lucide-react'
 
 import { authClient } from '@/auth/betterAuthClient'
@@ -13,7 +13,16 @@ const providerOptions = [
   { label: 'Continue with ORCID', provider: 'orcid' },
 ] as const
 const signInRequirementsMessage =
-  'Only members of NABI may join. Sign-in requires email verification and admin approval.'
+  'Only members of NABI may join. Sign-in requires email verification; member emails listed in People can log in without manual approval.'
+
+const approvalStatusMessages: Record<string, string> = {
+  approved: 'User approved successfully.',
+  already: 'That user is already approved.',
+  expired: 'Approval link expired. Request a new approval email.',
+  invalid: 'Approval link is invalid.',
+  'not-found': 'User not found for this approval link.',
+  error: 'Approval request failed. Please try again.',
+}
 
 const GoogleLogo = () => (
   <svg aria-hidden className="h-5 w-5" viewBox="0 0 24 24">
@@ -92,18 +101,56 @@ function AccountPageContent() {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isOAuthPending, setIsOAuthPending] = useState(false)
   const [profile, setProfile] = useState<ProfileResponse | null>(null)
+  const [sessionUserOverride, setSessionUserOverride] = useState<{ email?: string | null } | null>(null)
 
-  const isSignedIn = Boolean(session?.user)
+  const effectiveSessionUser = session?.user ?? sessionUserOverride
+  const isSignedIn = Boolean(effectiveSessionUser)
+  const isSessionCheckPending = isPending && !isSignedIn
   const isAdmin = isAdminRole(profile?.user?.roles)
+  const approvalMessage = useMemo(() => {
+    const approvalStatus = searchParams.get('approval')
+    if (!approvalStatus) return null
+
+    return approvalStatusMessages[approvalStatus] || null
+  }, [searchParams])
 
   useEffect(() => {
     const mode = searchParams.get('mode')
     setIsSignUpMode(mode !== 'login')
   }, [searchParams])
 
+  useEffect(() => {
+    if (session?.user) {
+      setSessionUserOverride(null)
+    }
+  }, [session?.user])
+
   const pageTitle = useMemo(() => {
     return isSignedIn ? 'Account' : 'Sign Up or Log In'
   }, [isSignedIn])
+
+  const loadProfile = useCallback(async () => {
+    try {
+      const response = await fetch('/api/account/profile', {
+        cache: 'no-store',
+        credentials: 'include',
+      })
+
+      if (!response.ok) {
+        setProfile(null)
+        return
+      }
+
+      const data = (await response.json()) as ProfileResponse
+      setProfile(data)
+    } catch {
+      setProfile(null)
+    }
+  }, [])
+
+  useEffect(() => {
+    void loadProfile()
+  }, [loadProfile])
 
   useEffect(() => {
     if (!session?.user) {
@@ -111,32 +158,8 @@ function AccountPageContent() {
       return
     }
 
-    let mounted = true
-
-    const loadProfile = async () => {
-      try {
-        const response = await fetch('/api/account/profile', {
-          cache: 'no-store',
-          credentials: 'include',
-        })
-
-        if (!mounted || !response.ok) return
-
-        const data = (await response.json()) as ProfileResponse
-        setProfile(data)
-      } catch {
-        if (mounted) {
-          setProfile(null)
-        }
-      }
-    }
-
     void loadProfile()
-
-    return () => {
-      mounted = false
-    }
-  }, [session?.user])
+  }, [loadProfile, session?.user])
 
   const submitAuthForm = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
@@ -160,7 +183,7 @@ function AccountPageContent() {
         }
 
         setAuthMessage(
-          'Account created. Verify your email (production) and wait for admin approval before logging in.',
+          'Account created. Verify your email in production. People emails can sign in immediately; others may still need approval.',
         )
       } else {
         const result = await authClient.signIn.email({
@@ -172,15 +195,21 @@ function AccountPageContent() {
         if (result.error) {
           setAuthError(
             result.error.message ||
-              'Unable to log in. Check email verification and admin approval status.',
+              'Unable to log in. Check email verification and whether your email is listed in People or already approved.',
           )
           return
         }
 
+        setSessionUserOverride({ email })
         setAuthMessage('Signed in successfully.')
       }
 
-      await refetch()
+      try {
+        await refetch()
+        await loadProfile()
+      } catch {
+        // Keep auth success state even if client-side refresh request fails.
+      }
       setPassword('')
     } catch {
       setAuthError('Authentication request failed.')
@@ -226,6 +255,7 @@ function AccountPageContent() {
   const handleSignOut = async () => {
     setAuthError(null)
     setAuthMessage(null)
+    setSessionUserOverride(null)
 
     await authClient.signOut({
       fetchOptions: {
@@ -243,11 +273,11 @@ function AccountPageContent() {
         <p className="text-center text-base uppercase tracking-[0.2em] text-primary">Account</p>
         <h1 className="mt-3 text-center text-5xl font-semibold sm:text-6xl">{pageTitle}</h1>
 
-        {isPending ? (
+        {isSessionCheckPending ? (
           <p className="mt-6 text-base text-muted-foreground">Checking your session...</p>
         ) : null}
 
-        {!isPending && !isSignedIn ? (
+        {!isSessionCheckPending && !isSignedIn ? (
           <>
             <p className="mx-auto mt-5 max-w-xl text-center text-base leading-relaxed text-muted-foreground sm:text-lg">
               New users should <b>Sign Up</b>. Returning users can <b>Log In</b>.
@@ -345,10 +375,10 @@ function AccountPageContent() {
           </>
         ) : null}
 
-        {!isPending && isSignedIn ? (
+        {!isSessionCheckPending && isSignedIn ? (
           <div className="mt-6 grid gap-3">
             <p className="text-sm text-muted-foreground">
-              Signed in as {session?.user?.email || 'Unknown user'}.
+              Signed in as {effectiveSessionUser?.email || 'Unknown user'}.
             </p>
             <div className="flex flex-wrap gap-3">
               <Link
@@ -357,7 +387,7 @@ function AccountPageContent() {
               >
                 Edit Profile
               </Link>
-              {isAdmin ? (
+              {session?.user ? (
                 <Link
                   href="/admin"
                   className="rounded-md border border-border px-4 py-2 text-sm hover:bg-muted"
@@ -373,7 +403,7 @@ function AccountPageContent() {
                 Log Out
               </button>
             </div>
-            {!isAdmin ? (
+            {profile?.user && !isAdmin ? (
               <p className="text-xs text-muted-foreground">
                 Your account is a user profile and does not include admin dashboard access.
               </p>
@@ -382,6 +412,7 @@ function AccountPageContent() {
         ) : null}
 
         {authError ? <p className="mt-4 text-sm text-destructive">{authError}</p> : null}
+        {approvalMessage ? <p className="mt-4 text-sm text-primary">{approvalMessage}</p> : null}
         {authMessage ? <p className="mt-4 text-sm text-emerald-600">{authMessage}</p> : null}
       </div>
     </main>
