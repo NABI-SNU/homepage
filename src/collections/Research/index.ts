@@ -105,7 +105,7 @@ export const Research: CollectionConfig<'research'> = {
   versions: {
     drafts: {
       autosave: {
-        interval: 100,
+        interval: 800,
       },
       schedulePublish: true,
     },

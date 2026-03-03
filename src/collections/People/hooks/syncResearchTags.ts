@@ -5,8 +5,12 @@ import { parseResearchTags, toTagSlug } from '@/utilities/researchTags'
 
 const SYNC_CONTEXT_FLAG = 'disableResearchTagSync'
 
+const toNormalizedTagSlugs = (tags: string[]): string[] =>
+  Array.from(new Set(tags.map((tag) => toTagSlug(tag)).filter(Boolean))).sort()
+
 export const syncResearchTagsFromPerson: CollectionAfterChangeHook<Person> = async ({
   doc,
+  previousDoc,
   req,
   req: { payload, context },
 }) => {
@@ -15,29 +19,50 @@ export const syncResearchTagsFromPerson: CollectionAfterChangeHook<Person> = asy
   }
 
   const tagTitles = parseResearchTags(doc.research)
+  const tagSlugs = toNormalizedTagSlugs(tagTitles)
+
+  if (previousDoc) {
+    const previousTagSlugs = toNormalizedTagSlugs(parseResearchTags(previousDoc.research))
+    const didTagsChange =
+      previousTagSlugs.length !== tagSlugs.length ||
+      previousTagSlugs.some((slug, index) => slug !== tagSlugs[index])
+
+    if (!didTagsChange) return doc
+  }
+
   if (tagTitles.length === 0) {
     return doc
   }
 
+  const existingTags = await payload.find({
+    collection: 'tags',
+    depth: 0,
+    limit: tagSlugs.length || 1,
+    overrideAccess: true,
+    pagination: false,
+    req,
+    where: {
+      slug: {
+        in: tagSlugs,
+      },
+    },
+  })
+
+  const existingTagSlugs = new Set(
+    existingTags.docs
+      .map((tag) => (typeof tag === 'object' ? tag.slug : null))
+      .filter((slug): slug is string => typeof slug === 'string'),
+  )
+
+  const titleBySlug = new Map<string, string>()
   for (const title of tagTitles) {
     const slug = toTagSlug(title)
-    if (!slug) continue
+    if (!slug || titleBySlug.has(slug)) continue
+    titleBySlug.set(slug, title)
+  }
 
-    const existing = await payload.find({
-      collection: 'tags',
-      depth: 0,
-      limit: 1,
-      overrideAccess: true,
-      pagination: false,
-      req,
-      where: {
-        slug: {
-          equals: slug,
-        },
-      },
-    })
-
-    if (existing.docs[0]) continue
+  for (const [slug, title] of titleBySlug) {
+    if (existingTagSlugs.has(slug)) continue
 
     await payload.create({
       collection: 'tags',
@@ -53,18 +78,20 @@ export const syncResearchTagsFromPerson: CollectionAfterChangeHook<Person> = asy
       overrideAccess: true,
       req,
     })
+
+    existingTagSlugs.add(slug)
   }
 
   const syncedTags = await payload.find({
     collection: 'tags',
     depth: 0,
-    limit: tagTitles.length || 1,
+    limit: tagSlugs.length || 1,
     overrideAccess: true,
     pagination: false,
     req,
     where: {
       slug: {
-        in: tagTitles.map((title) => toTagSlug(title)).filter(Boolean),
+        in: tagSlugs,
       },
     },
   })

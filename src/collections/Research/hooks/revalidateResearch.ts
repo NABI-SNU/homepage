@@ -11,15 +11,32 @@ export const revalidateResearch: CollectionAfterChangeHook<Research> = ({
   req: { payload, context },
 }) => {
   if (!isRevalidateDisabled(context)) {
-    const path = `/labs/${doc.slug}`
-    payload.logger.info(`Revalidating research at path: ${path}`)
-    safeRevalidate(payload, 'labs list', () => revalidatePath('/labs'))
-    safeRevalidate(payload, 'research page', () => revalidatePath(path))
-    safeRevalidate(payload, 'site sitemap', () => revalidateTag('site-sitemap'))
+    let revalidatedCollectionCaches = false
 
-    if (previousDoc?._status === 'published' && doc._status !== 'published') {
-      safeRevalidate(payload, 'previous research page', () => revalidatePath(`/labs/${previousDoc.slug}`))
+    const revalidateCollectionCaches = (): void => {
+      if (revalidatedCollectionCaches) return
+
+      safeRevalidate(payload, 'labs list', () => revalidatePath('/labs'))
       safeRevalidate(payload, 'site sitemap', () => revalidateTag('site-sitemap'))
+      revalidatedCollectionCaches = true
+    }
+
+    if (doc._status === 'published') {
+      const currentPath = `/labs/${doc.slug}`
+      payload.logger.info(`Revalidating research at path: ${currentPath}`)
+      revalidateCollectionCaches()
+      safeRevalidate(payload, 'research page', () => revalidatePath(currentPath))
+    }
+
+    const shouldRevalidatePreviousPath =
+      previousDoc?._status === 'published' &&
+      (doc._status !== 'published' || previousDoc.slug !== doc.slug)
+
+    if (shouldRevalidatePreviousPath) {
+      const previousPath = `/labs/${previousDoc.slug}`
+      payload.logger.info(`Revalidating previous research path: ${previousPath}`)
+      revalidateCollectionCaches()
+      safeRevalidate(payload, 'previous research page', () => revalidatePath(previousPath))
     }
   }
 

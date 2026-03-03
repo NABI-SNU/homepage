@@ -7,15 +7,32 @@ import { isRevalidateDisabled, safeRevalidate } from '@/utilities/safeRevalidate
 
 export const revalidateNews: CollectionAfterChangeHook<News> = ({ doc, previousDoc, req: { payload, context } }) => {
   if (!isRevalidateDisabled(context)) {
-    const path = `/news/${doc.slug}`
-    payload.logger.info(`Revalidating news at path: ${path}`)
-    safeRevalidate(payload, 'news list', () => revalidatePath('/news'))
-    safeRevalidate(payload, 'news page', () => revalidatePath(path))
-    safeRevalidate(payload, 'site sitemap', () => revalidateTag('site-sitemap'))
+    let revalidatedCollectionCaches = false
 
-    if (previousDoc?._status === 'published' && doc._status !== 'published') {
-      safeRevalidate(payload, 'previous news page', () => revalidatePath(`/news/${previousDoc.slug}`))
+    const revalidateCollectionCaches = (): void => {
+      if (revalidatedCollectionCaches) return
+
+      safeRevalidate(payload, 'news list', () => revalidatePath('/news'))
       safeRevalidate(payload, 'site sitemap', () => revalidateTag('site-sitemap'))
+      revalidatedCollectionCaches = true
+    }
+
+    if (doc._status === 'published') {
+      const currentPath = `/news/${doc.slug}`
+      payload.logger.info(`Revalidating news at path: ${currentPath}`)
+      revalidateCollectionCaches()
+      safeRevalidate(payload, 'news page', () => revalidatePath(currentPath))
+    }
+
+    const shouldRevalidatePreviousPath =
+      previousDoc?._status === 'published' &&
+      (doc._status !== 'published' || previousDoc.slug !== doc.slug)
+
+    if (shouldRevalidatePreviousPath) {
+      const previousPath = `/news/${previousDoc.slug}`
+      payload.logger.info(`Revalidating previous news path: ${previousPath}`)
+      revalidateCollectionCaches()
+      safeRevalidate(payload, 'previous news page', () => revalidatePath(previousPath))
     }
   }
 
