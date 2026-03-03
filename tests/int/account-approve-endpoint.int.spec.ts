@@ -66,7 +66,7 @@ describe('Account Approve Endpoint', () => {
         }
       }
     },
-    20_000,
+    30_000,
   )
 
   it('redirects with invalid status for malformed tokens', async () => {

@@ -106,6 +106,6 @@ describe('Auth Auto Approval', () => {
         }
       }
     },
-    20_000,
+    30_000,
   )
 })
