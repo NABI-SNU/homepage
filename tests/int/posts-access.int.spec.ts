@@ -2,8 +2,10 @@ import { getPayload, type Payload } from 'payload'
 import { beforeAll, describe, expect, it } from 'vitest'
 
 import config from '@/payload.config'
+import { requireTestAccountUsers, userTestAccount } from '../helpers/testAccounts'
 
 let payload: Payload
+let users: Awaited<ReturnType<typeof requireTestAccountUsers>>
 
 const runId = `${Date.now()}-${Math.floor(Math.random() * 1_000_000)}`
 
@@ -42,95 +44,69 @@ describe('Posts Access', () => {
   beforeAll(async () => {
     const payloadConfig = await config
     payload = await getPayload({ config: payloadConfig })
+    users = await requireTestAccountUsers(payload)
   })
 
   it(
     'allows own-post edits, blocks cross-user edits, and allows admins to edit all posts',
     async () => {
-      const emailA = `post-access-a-${runId}@example.com`
-      const emailB = `post-access-b-${runId}@example.com`
-      const emailAdmin = `post-access-admin-${runId}@example.com`
-
-      let userAId: number | null = null
-      let userBId: number | null = null
-      let adminUserID: number | null = null
-      let personAId: number | null = null
-      let personBId: number | null = null
+      let authorPersonId: number | null = null
+      let authorPersonWasCreated = false
+      let otherPersonId: number | null = null
       let postAId: number | null = null
       let postBId: number | null = null
 
       try {
-        const [userA, userB, adminUser] = await Promise.all([
-          payload.create({
-            collection: 'users',
+        const existingAuthorPerson = (
+          await payload.find({
+            collection: 'people',
+            depth: 0,
+            limit: 1,
             overrideAccess: true,
-            data: {
-              email: emailA,
-              name: `Post Access A ${runId}`,
-              roles: 'user',
-              isApproved: true,
-              betterAuthUserId: `better-auth-a-${runId}`,
+            pagination: false,
+            where: {
+              user: {
+                equals: users.user.id,
+              },
             },
-          }),
-          payload.create({
-            collection: 'users',
-            overrideAccess: true,
-            data: {
-              email: emailB,
-              name: `Post Access B ${runId}`,
-              roles: 'user',
-              isApproved: true,
-              betterAuthUserId: `better-auth-b-${runId}`,
-            },
-          }),
-          payload.create({
-            collection: 'users',
-            overrideAccess: true,
-            data: {
-              email: emailAdmin,
-              name: `Post Access Admin ${runId}`,
-              roles: 'admin',
-              isApproved: true,
-              betterAuthUserId: `better-auth-admin-${runId}`,
-            },
-          }),
-        ])
+          })
+        ).docs[0]
 
-        userAId = userA.id
-        userBId = userB.id
-        adminUserID = adminUser.id
-
-        const [personA, personB] = await Promise.all([
-          payload.create({
+        if (existingAuthorPerson) {
+          authorPersonId = existingAuthorPerson.id
+        } else {
+          authorPersonWasCreated = true
+          const createdAuthorPerson = await payload.create({
             collection: 'people',
             overrideAccess: true,
             context: { disableRevalidate: true },
             data: {
-              name: `Post Access Person A ${runId}`,
+              name: userTestAccount.name,
               slug: `post-access-person-a-${runId}`,
-              email: emailA,
+              email: userTestAccount.email,
               joinedYear: 2026,
               memberType: 'user',
-              user: userA.id,
+              user: users.user.id,
             },
-          }),
-          payload.create({
-            collection: 'people',
-            overrideAccess: true,
-            context: { disableRevalidate: true },
-            data: {
-              name: `Post Access Person B ${runId}`,
-              slug: `post-access-person-b-${runId}`,
-              email: emailB,
-              joinedYear: 2026,
-              memberType: 'user',
-              user: userB.id,
-            },
-          }),
-        ])
+          })
+          authorPersonId = createdAuthorPerson.id
+        }
 
-        personAId = personA.id
-        personBId = personB.id
+        const otherPerson = await payload.create({
+          collection: 'people',
+          overrideAccess: true,
+          context: { disableRevalidate: true },
+          data: {
+            name: `Post Access Person B ${runId}`,
+            slug: `post-access-person-b-${runId}`,
+            email: `post-access-b-${runId}@example.com`,
+            joinedYear: 2026,
+            memberType: 'alumni',
+            user: null,
+          },
+        })
+
+        otherPersonId = otherPerson.id
 
         const [postByA, postByB] = await Promise.all([
           payload.create({
@@ -140,7 +116,7 @@ describe('Posts Access', () => {
             data: {
               title: `Authored Post A ${runId}`,
               slug: `authored-post-a-${runId}`,
-              authors: [personA.id],
+              authors: [authorPersonId],
               content: buildMinimalRichText() as any,
               _status: 'draft',
             },
@@ -152,7 +128,7 @@ describe('Posts Access', () => {
             data: {
               title: `Authored Post B ${runId}`,
               slug: `authored-post-b-${runId}`,
-              authors: [personB.id],
+              authors: [otherPerson.id],
               content: buildMinimalRichText() as any,
               _status: 'draft',
             },
@@ -168,7 +144,7 @@ describe('Posts Access', () => {
           data: {
             excerpt: `Updated by author ${runId}`,
           },
-          user: userA,
+          user: users.user,
           overrideAccess: false,
           context: { disableRevalidate: true },
         })
@@ -182,7 +158,7 @@ describe('Posts Access', () => {
             data: {
               excerpt: `Unauthorized update ${runId}`,
             },
-            user: userA,
+            user: users.user,
             overrideAccess: false,
             context: { disableRevalidate: true },
           }),
@@ -194,7 +170,7 @@ describe('Posts Access', () => {
           data: {
             excerpt: `Admin updated A ${runId}`,
           },
-          user: adminUser,
+          user: users.admin,
           overrideAccess: false,
           context: { disableRevalidate: true },
         })
@@ -205,7 +181,7 @@ describe('Posts Access', () => {
           data: {
             excerpt: `Admin updated B ${runId}`,
           },
-          user: adminUser,
+          user: users.admin,
           overrideAccess: false,
           context: { disableRevalidate: true },
         })
@@ -231,42 +207,18 @@ describe('Posts Access', () => {
           })
         }
 
-        if (personAId) {
+        if (otherPersonId) {
           await payload.delete({
             collection: 'people',
-            id: personAId,
+            id: otherPersonId,
             overrideAccess: true,
           })
         }
 
-        if (personBId) {
+        if (authorPersonWasCreated && authorPersonId) {
           await payload.delete({
             collection: 'people',
-            id: personBId,
-            overrideAccess: true,
-          })
-        }
-
-        if (userAId) {
-          await payload.delete({
-            collection: 'users',
-            id: userAId,
-            overrideAccess: true,
-          })
-        }
-
-        if (userBId) {
-          await payload.delete({
-            collection: 'users',
-            id: userBId,
-            overrideAccess: true,
-          })
-        }
-
-        if (adminUserID) {
-          await payload.delete({
-            collection: 'users',
-            id: adminUserID,
+            id: authorPersonId,
             overrideAccess: true,
           })
         }

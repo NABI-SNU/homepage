@@ -2,8 +2,10 @@ import { getPayload, type Payload } from 'payload'
 import { beforeAll, describe, expect, it } from 'vitest'
 
 import config from '@/payload.config'
+import { requireTestAccountUsers, userTestAccount } from '../helpers/testAccounts'
 
 let payload: Payload
+let users: Awaited<ReturnType<typeof requireTestAccountUsers>>
 
 const runID = `${Date.now()}-${Math.floor(Math.random() * 1_000_000)}`
 
@@ -11,103 +13,77 @@ describe('People Access', () => {
   beforeAll(async () => {
     const payloadConfig = await config
     payload = await getPayload({ config: payloadConfig })
+    users = await requireTestAccountUsers(payload)
   })
 
   it(
     'allows editing own bio, blocks editing another bio, and allows admin editing',
     async () => {
-      const emailA = `people-access-a-${runID}@example.com`
-      const emailB = `people-access-b-${runID}@example.com`
-      const emailAdmin = `people-access-admin-${runID}@example.com`
-
-      let userAID: number | null = null
-      let userBID: number | null = null
-      let adminUserID: number | null = null
       let personAID: number | null = null
+      let personAWasCreated = false
       let personBID: number | null = null
 
       try {
-        const [userA, userB, adminUser] = await Promise.all([
-          payload.create({
-            collection: 'users',
+        const existingPersonA = (
+          await payload.find({
+            collection: 'people',
+            depth: 0,
+            limit: 1,
             overrideAccess: true,
-            data: {
-              email: emailA,
-              name: `People Access A ${runID}`,
-              roles: 'user',
-              isApproved: true,
-              betterAuthUserId: `better-auth-people-a-${runID}`,
+            pagination: false,
+            where: {
+              user: {
+                equals: users.user.id,
+              },
             },
-          }),
-          payload.create({
-            collection: 'users',
-            overrideAccess: true,
-            data: {
-              email: emailB,
-              name: `People Access B ${runID}`,
-              roles: 'user',
-              isApproved: true,
-              betterAuthUserId: `better-auth-people-b-${runID}`,
-            },
-          }),
-          payload.create({
-            collection: 'users',
-            overrideAccess: true,
-            data: {
-              email: emailAdmin,
-              name: `People Access Admin ${runID}`,
-              roles: 'admin',
-              isApproved: true,
-              betterAuthUserId: `better-auth-people-admin-${runID}`,
-            },
-          }),
-        ])
+          })
+        ).docs[0]
 
-        userAID = userA.id
-        userBID = userB.id
-        adminUserID = adminUser.id
-
-        const [personA, personB] = await Promise.all([
-          payload.create({
+        if (existingPersonA) {
+          personAID = existingPersonA.id
+        } else {
+          personAWasCreated = true
+          const createdPersonA = await payload.create({
             collection: 'people',
             overrideAccess: true,
             context: { disableRevalidate: true },
             data: {
-              name: `People Access Person A ${runID}`,
+              name: userTestAccount.name,
               slug: `people-access-person-a-${runID}`,
-              email: emailA,
+              email: userTestAccount.email,
               joinedYear: 2026,
               memberType: 'user',
-              user: userA.id,
+              user: users.user.id,
               bio: 'Original bio A',
             },
-          }),
-          payload.create({
-            collection: 'people',
-            overrideAccess: true,
-            context: { disableRevalidate: true },
-            data: {
-              name: `People Access Person B ${runID}`,
-              slug: `people-access-person-b-${runID}`,
-              email: emailB,
-              joinedYear: 2026,
-              memberType: 'user',
-              user: userB.id,
-              bio: 'Original bio B',
-            },
-          }),
-        ])
+          })
+          personAID = createdPersonA.id
+        }
 
-        personAID = personA.id
+        const personB = await payload.create({
+          collection: 'people',
+          overrideAccess: true,
+          context: { disableRevalidate: true },
+          data: {
+            name: `People Access Person B ${runID}`,
+            slug: `people-access-person-b-${runID}`,
+            email: `people-access-b-${runID}@example.com`,
+            joinedYear: 2026,
+            memberType: 'alumni',
+            user: null,
+            bio: 'Original bio B',
+          },
+        })
+
         personBID = personB.id
 
         const ownUpdate = await payload.update({
           collection: 'people',
-          id: personA.id,
+          id: personAID,
           data: {
             bio: `Updated own bio ${runID}`,
           },
-          user: userA,
+          user: users.user,
           overrideAccess: false,
           context: { disableRevalidate: true },
         })
@@ -121,7 +97,7 @@ describe('People Access', () => {
             data: {
               bio: `Unauthorized update ${runID}`,
             },
-            user: userA,
+            user: users.user,
             overrideAccess: false,
             context: { disableRevalidate: true },
           }),
@@ -133,21 +109,13 @@ describe('People Access', () => {
           data: {
             bio: `Admin updated bio ${runID}`,
           },
-          user: adminUser,
+          user: users.admin,
           overrideAccess: false,
           context: { disableRevalidate: true },
         })
 
         expect(adminUpdated.bio).toBe(`Admin updated bio ${runID}`)
       } finally {
-        if (personAID) {
-          await payload.delete({
-            collection: 'people',
-            id: personAID,
-            overrideAccess: true,
-          })
-        }
-
         if (personBID) {
           await payload.delete({
             collection: 'people',
@@ -156,26 +124,10 @@ describe('People Access', () => {
           })
         }
 
-        if (userAID) {
+        if (personAWasCreated && personAID) {
           await payload.delete({
-            collection: 'users',
-            id: userAID,
-            overrideAccess: true,
-          })
-        }
-
-        if (userBID) {
-          await payload.delete({
-            collection: 'users',
-            id: userBID,
-            overrideAccess: true,
-          })
-        }
-
-        if (adminUserID) {
-          await payload.delete({
-            collection: 'users',
-            id: adminUserID,
+            collection: 'people',
+            id: personAID,
             overrideAccess: true,
           })
         }
@@ -184,4 +136,3 @@ describe('People Access', () => {
     30_000,
   )
 })
-

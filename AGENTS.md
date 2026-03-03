@@ -16,6 +16,13 @@ You are an expert Payload CMS developer. When working with Payload projects, fol
 - To validate typescript correctness after modifying code run `tsc --noEmit`
 - Generate import maps after creating or modifying components.
 
+### Test Accounts (Project Policy)
+
+- Use pre-seeded shared accounts for all tests:
+  - User testing account: `test@example.com` with password `test`
+  - Admin testing account: `dev@payloadcms.com` with password `test`
+- Do not create, sign up, or delete users inside tests. Tests must reuse the shared accounts.
+
 ## Project Structure
 
 ```

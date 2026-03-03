@@ -5,66 +5,34 @@ import { beforeAll, describe, expect, it } from 'vitest'
 import { createUserApprovalToken } from '@/auth/approvalToken'
 import config from '@/payload.config'
 import { GET as approveUserGET } from '@/app/(frontend)/api/account/approve/route'
+import { requireTestAccountUsers, userTestAccount } from '../helpers/testAccounts'
 
 let payload: Payload
-
-const runID = `${Date.now()}-${Math.floor(Math.random() * 1_000_000)}`
+let users: Awaited<ReturnType<typeof requireTestAccountUsers>>
 
 describe('Account Approve Endpoint', () => {
   beforeAll(async () => {
     const payloadConfig = await config
     payload = await getPayload({ config: payloadConfig })
+    users = await requireTestAccountUsers(payload)
   })
 
   it(
-    'approves user and redirects with approved status',
+    'redirects with already status for the pre-approved fixed user account',
     async () => {
-      const email = `approve-endpoint-${runID}@example.com`
-
-      let userID: number | null = null
-
-      try {
-        const user = await payload.create({
-          collection: 'users',
-          overrideAccess: true,
-          data: {
-            email,
-            name: `Approve Endpoint ${runID}`,
-            roles: 'user',
-            isApproved: false,
-            betterAuthUserId: `better-auth-approve-endpoint-${runID}`,
-          },
-        })
-
-        userID = user.id
-
-        const token = createUserApprovalToken(user.id)
-        const response = await approveUserGET(
-          new NextRequest(
-            `http://localhost:3000/api/account/approve?token=${encodeURIComponent(token)}`,
-          ),
+      if (users.user.isApproved !== true) {
+        throw new Error(
+          `"${userTestAccount.email}" must be approved for this test. Tests must use pre-seeded accounts.`,
         )
-
-        expect(response.status).toBe(302)
-        expect(response.headers.get('location')).toContain('/account?approval=approved')
-
-        const updatedUser = await payload.findByID({
-          collection: 'users',
-          id: user.id,
-          depth: 0,
-          overrideAccess: true,
-        })
-
-        expect(updatedUser.isApproved).toBe(true)
-      } finally {
-        if (userID) {
-          await payload.delete({
-            collection: 'users',
-            id: userID,
-            overrideAccess: true,
-          })
-        }
       }
+
+      const token = createUserApprovalToken(users.user.id)
+      const response = await approveUserGET(
+        new NextRequest(`http://localhost:3000/api/account/approve?token=${encodeURIComponent(token)}`),
+      )
+
+      expect(response.status).toBe(302)
+      expect(response.headers.get('location')).toContain('/account?approval=already')
     },
     30_000,
   )
