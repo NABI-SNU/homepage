@@ -11,7 +11,7 @@ export type Props = {
 }
 
 export const CollectionArchive: React.FC<Props> = (props) => {
-  const { posts, relationTo = 'posts', showCategories = true, showDate = false } = props
+  const { posts, relationTo, showCategories = true, showDate = false } = props
 
   return (
     <div className={cn('container')}>
@@ -21,7 +21,13 @@ export const CollectionArchive: React.FC<Props> = (props) => {
             if (typeof result === 'object' && result !== null) {
               return (
                 <div className="col-span-4" key={index}>
-                  <Card className="h-full" doc={result} relationTo={relationTo} showCategories={showCategories} showDate={showDate} />
+                  <Card
+                    className="h-full"
+                    doc={result}
+                    relationTo={relationTo}
+                    showCategories={showCategories}
+                    showDate={showDate}
+                  />
                 </div>
               )
             }

@@ -2,7 +2,7 @@
 
 import { useDebounce } from '@/utilities/useDebounce'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 
 type Props = {
   ariaLabel?: string
@@ -26,6 +26,7 @@ export function PostsSearchInput({
   const [hasInteracted, setHasInteracted] = useState(false)
   const debouncedValue = useDebounce(value, 200)
   const currentQuery = useMemo(() => searchParams.get('q')?.trim() || '', [searchParams])
+  const previousQueryRef = useRef(currentQuery)
 
   useEffect(() => {
     if (currentQuery !== value) setValue(currentQuery)
@@ -35,7 +36,17 @@ export function PostsSearchInput({
   useEffect(() => {
     if (!hasInteracted) return
 
+    const hasQueryChanged = previousQueryRef.current !== currentQuery
+    previousQueryRef.current = currentQuery
+
+    if (hasQueryChanged) return
+
     const normalizedDebouncedValue = debouncedValue.trim()
+    const normalizedCurrentInputValue = value.trim()
+
+    // Ignore stale debounced snapshots while the input is still settling.
+    if (normalizedDebouncedValue !== normalizedCurrentInputValue) return
+
     const isAlreadyAtTarget =
       pathname === pathPrefix && normalizedDebouncedValue === currentQuery
 
@@ -47,7 +58,7 @@ export function PostsSearchInput({
     const nextURL = serializedParams ? `${pathPrefix}?${serializedParams}` : pathPrefix
 
     router.replace(nextURL, { scroll: false })
-  }, [currentQuery, debouncedValue, hasInteracted, pathPrefix, pathname, router])
+  }, [currentQuery, debouncedValue, hasInteracted, pathPrefix, pathname, router, value])
 
   return (
     <div className={className}>

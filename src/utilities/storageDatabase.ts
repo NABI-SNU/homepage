@@ -28,8 +28,6 @@ const isNeonHost = (connectionString: string): boolean => {
 const configureNeonServerless = (): void => {
   if (configuredNeon) return
 
-  neonConfig.fetchConnectionCache = true
-
   if (typeof globalThis.WebSocket !== 'undefined') {
     neonConfig.webSocketConstructor = globalThis.WebSocket
   }

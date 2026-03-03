@@ -11,6 +11,7 @@ export type CardPostData = Pick<Post, 'slug' | 'categories' | 'meta' | 'title'>
 export type CardDocData = CardPostData & {
   date?: News['date']
   previewImage?: LegacyInlineImage | null
+  relationTo?: 'posts' | 'news'
 }
 
 export const Card: React.FC<{
@@ -32,7 +33,8 @@ export const Card: React.FC<{
   const hasCategories = categories && Array.isArray(categories) && categories.length > 0
   const titleToUse = titleFromProps || title
   const sanitizedDescription = description?.replace(/\s/g, ' ') // replace non-breaking space with white space
-  const href = slug ? `/${relationTo || 'posts'}/${slug}` : ''
+  const relationToForHref = relationTo || doc?.relationTo || 'posts'
+  const href = slug ? `/${relationToForHref}/${slug}` : ''
 
   return (
     <article

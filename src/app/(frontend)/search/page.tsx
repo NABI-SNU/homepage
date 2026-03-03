@@ -5,7 +5,7 @@ import configPromise from '@payload-config'
 import { getPayload } from 'payload'
 import React from 'react'
 import { Search } from '@/search/Component'
-import { CardPostData } from '@/components/Card'
+import { mapSearchResultsToCardDocs } from '@/search/mapSearchResultsToCardDocs'
 import { generateMeta } from '@/utilities/generateMeta'
 
 type Args = {
@@ -17,7 +17,7 @@ export default async function Page({ searchParams: searchParamsPromise }: Args) 
   const { q: query } = await searchParamsPromise
   const payload = await getPayload({ config: configPromise })
 
-  const posts = await payload.find({
+  const results = await payload.find({
     collection: 'search',
     depth: 1,
     limit: 12,
@@ -26,6 +26,7 @@ export default async function Page({ searchParams: searchParamsPromise }: Args) 
       slug: true,
       categories: true,
       meta: true,
+      doc: true,
     },
     // pagination: false reduces overhead if you don't need totalDocs
     pagination: false,
@@ -58,6 +59,10 @@ export default async function Page({ searchParams: searchParamsPromise }: Args) 
         }
       : {}),
   })
+  const mappedResults = await mapSearchResultsToCardDocs({
+    payload,
+    results: results.docs,
+  })
 
   return (
     <div className="pt-24 pb-24">
@@ -71,8 +76,8 @@ export default async function Page({ searchParams: searchParamsPromise }: Args) 
         </div>
       </div>
 
-      {posts.totalDocs > 0 ? (
-        <CollectionArchive posts={posts.docs as CardPostData[]} />
+      {results.totalDocs > 0 ? (
+        <CollectionArchive posts={mappedResults} />
       ) : (
         <div className="container">No results found.</div>
       )}
