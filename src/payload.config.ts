@@ -22,6 +22,7 @@ import { Header } from './Header/config'
 import { HomePage } from './globals/HomePage/config'
 import { plugins } from './plugins'
 import { defaultLexical } from '@/fields/defaultLexical'
+import { backfillUsersToPeople } from '@/auth/backfillUsersToPeople'
 import { getStorageDatabaseURL, getStoragePgDependency } from './utilities/storageDatabase'
 import { getServerSideURL } from './utilities/getURL'
 
@@ -40,11 +41,11 @@ const pgDependency = getStoragePgDependency() as unknown as NonNullable<
 export default buildConfig({
   admin: {
     components: {
-      // The `BeforeLogin` component renders a message that you see while logging into your admin panel.
-      // Feel free to delete this at any time. Simply remove the line below.
+      graphics: {
+        Icon: '@/components/admin/AdminIcon',
+        Logo: '@/components/admin/AdminLogo',
+      },
       beforeLogin: ['@/components/BeforeLogin'],
-      // The `BeforeDashboard` component renders the 'welcome' block that you see after logging into your admin panel.
-      // Feel free to delete this at any time. Simply remove the line below.
       beforeDashboard: ['@/components/BeforeDashboard'],
     },
     importMap: {
@@ -127,6 +128,18 @@ export default buildConfig({
     },
     tasks: [],
   },
+  i18n: {
+    translations: {
+      en: {
+        error: {
+          notAllowedToAccessPage:
+            'You are not allowed to access this page. If you need access, contact admin@nabilab.org.',
+          notAllowedToPerformAction:
+            'You are not allowed to perform this action. If you need access, contact admin@nabilab.org.',
+        },
+      },
+    },
+  },
   onInit: async (payload) => {
     if (
       process.env.NODE_ENV === 'test' ||
@@ -136,5 +149,6 @@ export default buildConfig({
       return
     }
     await ensureDefaultSymposiumActivity(payload)
+    await backfillUsersToPeople(payload)
   },
 })

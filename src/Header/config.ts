@@ -28,7 +28,9 @@ export const Header: GlobalConfig = {
           link: { type: 'custom', label: 'Articles', url: '/posts' },
           links: [
             { link: { type: 'custom', label: 'All Posts', url: '/posts' } },
-            { link: { type: 'custom', label: 'Monthly Meetings', url: '/category/monthly-meeting' } },
+            {
+              link: { type: 'custom', label: 'Monthly Meetings', url: '/category/monthly-meeting' },
+            },
             { link: { type: 'custom', label: 'Opinions', url: '/category/opinions' } },
           ],
         },

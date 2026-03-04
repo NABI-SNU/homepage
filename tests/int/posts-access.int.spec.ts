@@ -40,6 +40,12 @@ const buildMinimalRichText = () => ({
   },
 })
 
+const normalizeRelationshipID = (value: number | { id: number } | null | undefined): number | null => {
+  if (!value) return null
+  if (typeof value === 'number') return value
+  return typeof value.id === 'number' ? value.id : null
+}
+
 describe('Posts Access', () => {
   beforeAll(async () => {
     const payloadConfig = await config
@@ -55,6 +61,7 @@ describe('Posts Access', () => {
       let otherPersonId: number | null = null
       let postAId: number | null = null
       let postBId: number | null = null
+      let userCreatedPostId: number | null = null
 
       try {
         const existingAuthorPerson = (
@@ -138,6 +145,40 @@ describe('Posts Access', () => {
         postAId = postByA.id
         postBId = postByB.id
 
+        const createdByUser = await payload.create({
+          collection: 'posts',
+          user: users.user,
+          overrideAccess: false,
+          context: { disableRevalidate: true },
+          data: {
+            title: `Authored Post User Create ${runId}`,
+            slug: `authored-post-user-create-${runId}`,
+            content: buildMinimalRichText() as any,
+            _status: 'draft',
+          },
+        })
+
+        userCreatedPostId = createdByUser.id
+
+        const createdPostAuthorIDs = (createdByUser.authors || [])
+          .map((author) => normalizeRelationshipID(author as number | { id: number }))
+          .filter((id): id is number => id !== null)
+
+        expect(createdPostAuthorIDs).toContain(authorPersonId)
+
+        const updatedUserCreatedPost = await payload.update({
+          collection: 'posts',
+          id: createdByUser.id,
+          data: {
+            excerpt: `Updated own created post ${runId}`,
+          },
+          user: users.user,
+          overrideAccess: false,
+          context: { disableRevalidate: true },
+        })
+
+        expect(updatedUserCreatedPost.excerpt).toBe(`Updated own created post ${runId}`)
+
         const updatedOwnPost = await payload.update({
           collection: 'posts',
           id: postByA.id,
@@ -189,6 +230,15 @@ describe('Posts Access', () => {
         expect(adminUpdatedA.excerpt).toBe(`Admin updated A ${runId}`)
         expect(adminUpdatedB.excerpt).toBe(`Admin updated B ${runId}`)
       } finally {
+        if (userCreatedPostId) {
+          await payload.delete({
+            collection: 'posts',
+            id: userCreatedPostId,
+            overrideAccess: true,
+            context: { disableRevalidate: true },
+          })
+        }
+
         if (postAId) {
           await payload.delete({
             collection: 'posts',
@@ -224,6 +274,6 @@ describe('Posts Access', () => {
         }
       }
     },
-    30_000,
+    60_000,
   )
 })

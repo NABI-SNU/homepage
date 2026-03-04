@@ -187,9 +187,7 @@ export const Activities: CollectionConfig<'activities'> = {
   },
   versions: {
     drafts: {
-      autosave: {
-        interval: 800,
-      },
+      autosave: false,
       schedulePublish: true,
     },
     maxPerDoc: 50,

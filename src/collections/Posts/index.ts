@@ -11,14 +11,16 @@ import {
 } from '@payloadcms/richtext-lexical'
 
 import { adminOnly } from '../../access/adminOnly'
+import { adminOrLinkedPerson } from '../../access/adminOrLinkedPerson'
 import { adminOrAuthoredPost } from '../../access/adminOrAuthoredPost'
-import { authenticatedOrPublished } from '../../access/authenticatedOrPublished'
+import { authoredOrPublishedPost } from '../../access/authoredOrPublishedPost'
 import { Banner } from '../../blocks/Banner/config'
 import { Code } from '../../blocks/Code/config'
 import { MediaBlock } from '../../blocks/MediaBlock/config'
 import { YouTubeEmbed } from '../../blocks/YouTubeEmbed/config'
 import { referenceFields } from '../../fields/referenceFields'
 import { generatePreviewPath } from '../../utilities/generatePreviewPath'
+import { ensurePostAuthors } from './hooks/ensurePostAuthors'
 import { revalidateDelete, revalidatePost } from './hooks/revalidatePost'
 
 import {
@@ -33,9 +35,9 @@ import { slugField } from 'payload'
 export const Posts: CollectionConfig<'posts'> = {
   slug: 'posts',
   access: {
-    create: adminOnly,
+    create: adminOrLinkedPerson,
     delete: adminOnly,
-    read: authenticatedOrPublished,
+    read: authoredOrPublishedPost,
     update: adminOrAuthoredPost,
   },
   defaultPopulate: {
@@ -53,14 +55,6 @@ export const Posts: CollectionConfig<'posts'> = {
   },
   admin: {
     defaultColumns: ['title', 'slug', 'updatedAt'],
-    livePreview: {
-      url: ({ data, req }) =>
-        generatePreviewPath({
-          slug: data?.slug,
-          collection: 'posts',
-          req,
-        }),
-    },
     preview: (data, { req }) =>
       generatePreviewPath({
         slug: data?.slug as string,
@@ -222,14 +216,13 @@ export const Posts: CollectionConfig<'posts'> = {
     slugField(),
   ],
   hooks: {
+    beforeValidate: [ensurePostAuthors],
     afterChange: [revalidatePost],
     afterDelete: [revalidateDelete],
   },
   versions: {
     drafts: {
-      autosave: {
-        interval: 800,
-      },
+      autosave: false,
       schedulePublish: true,
     },
     maxPerDoc: 50,

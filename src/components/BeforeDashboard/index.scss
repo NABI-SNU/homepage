@@ -1,29 +1,116 @@
 @import '~@payloadcms/ui/scss';
 
+/* Card-style dashboard consistent with frontend posts/ */
 .dashboard .before-dashboard {
-  margin-bottom: base(1.5);
-  max-width: 70ch;
+  max-width: 56rem;
+  margin-bottom: base(2);
 
-  &__banner {
-    margin-bottom: base(0.5);
+  &__card {
+    padding: base(2) base(2.5);
+    border-radius: var(--style-radius-xl);
+    border: 1px solid var(--theme-border-color);
+    background-color: var(--theme-elevation-50);
+    box-shadow: 0 1px 3px rgb(0 0 0 / 0.06);
+    transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
 
-    & h4 {
-      margin: 0;
+    &:hover {
+      transform: translateY(-4px);
+      border-color: oklch(57.8% 0.23 259deg / 0.35);
+      box-shadow: 0 12px 24px rgb(0 0 0 / 0.1);
     }
   }
 
-  &__instructions {
-    list-style: decimal;
-    margin: base(0.5) 0;
-    padding-left: base(1);
+  &__title {
+    margin: 0 0 base(0.5) 0;
+    font-size: 1.8rem;
+    font-weight: 600;
+    color: var(--theme-text);
+    line-height: 1.25;
+  }
 
-    & li {
-      width: 100%;
-      margin-bottom: base(0.25);
+  &__intro {
+    margin: 0 0 base(1.5) 0;
+    font-size: 1.3rem;
+    color: var(--theme-elevation-600);
+    line-height: 1.5;
+  }
+
+  &__steps {
+    margin: 0;
+    padding-left: 0;
+    list-style: none;
+  }
+
+  &__step {
+    display: flex;
+    align-items: flex-start;
+    gap: base(0.75);
+    margin-bottom: base(1.25);
+    font-size: 1.25rem;
+    line-height: 1.55;
+    color: var(--theme-text);
+
+    &:last-child {
+      margin-bottom: 0;
     }
   }
 
-  & a:hover {
-    opacity: 0.85;
+  &__step-number {
+    flex-shrink: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.75rem;
+    height: 1.75rem;
+    border-radius: 9999px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    background: oklch(57.8% 0.23 259deg / 0.15);
+    color: oklch(57.8% 0.23 259deg);
+  }
+
+  &__step-title {
+    font-weight: 600;
+    color: var(--theme-text);
+  }
+
+  &__step-description {
+    color: var(--theme-elevation-600);
+  }
+
+  &__step-links {
+    display: inline;
+  }
+
+  &__link {
+    font-size: 1.17rem;
+    color: oklch(57.8% 0.23 259deg);
+    text-decoration: none;
+    transition: opacity 0.15s ease;
+
+    &:hover {
+      opacity: 0.8;
+      text-decoration: underline;
+    }
+  }
+}
+
+html[data-theme='dark'] .dashboard .before-dashboard {
+  &__card {
+    background-color: var(--theme-elevation-100);
+    border-color: var(--theme-elevation-250);
+
+    &:hover {
+      border-color: oklch(72% 0.2 259deg / 0.4);
+    }
+  }
+
+  &__step-number {
+    background: oklch(72% 0.2 259deg / 0.2);
+    color: oklch(80% 0.15 259deg);
+  }
+
+  &__link {
+    color: oklch(72% 0.2 259deg);
   }
 }

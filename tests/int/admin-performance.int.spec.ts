@@ -1,20 +1,15 @@
 import { describe, expect, it } from 'vitest'
 
+import { Activities } from '@/collections/Activities'
 import { News } from '@/collections/News'
 import { Posts } from '@/collections/Posts'
 import { Research } from '@/collections/Research'
 
-const DEFAULT_AUTOSAVE_INTERVAL_MS = 800
-
-const getAutosaveInterval = (collection: { versions?: unknown }): number | null => {
+const getAutosaveConfig = (collection: { versions?: unknown }): unknown => {
   const drafts = (collection.versions as { drafts?: unknown } | undefined)?.drafts
   if (!drafts || typeof drafts !== 'object') return null
 
-  const autosave = (drafts as { autosave?: unknown }).autosave
-  if (autosave === true) return DEFAULT_AUTOSAVE_INTERVAL_MS
-  if (!autosave || typeof autosave !== 'object') return null
-
-  return (autosave as { interval?: number }).interval ?? DEFAULT_AUTOSAVE_INTERVAL_MS
+  return (drafts as { autosave?: unknown }).autosave
 }
 
 describe('Admin autosave performance defaults', () => {
@@ -22,9 +17,9 @@ describe('Admin autosave performance defaults', () => {
     ['posts', Posts],
     ['news', News],
     ['research', Research],
-  ])('uses a non-aggressive autosave interval for %s', (_slug, collection) => {
-    const interval = getAutosaveInterval(collection)
-    expect(interval).not.toBeNull()
-    expect(interval).toBeGreaterThanOrEqual(DEFAULT_AUTOSAVE_INTERVAL_MS)
+    ['activities', Activities],
+  ])('disables autosave for %s to prevent mid-edit overwrite conflicts', (_slug, collection) => {
+    const autosave = getAutosaveConfig(collection)
+    expect(autosave).toBe(false)
   })
 })

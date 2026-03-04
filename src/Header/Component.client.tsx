@@ -4,7 +4,7 @@ import { useTheme } from '@/providers/Theme'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import React, { useEffect, useState } from 'react'
-import { Menu, SearchIcon, X } from 'lucide-react'
+import { CircleUserRound, Menu, SearchIcon, X } from 'lucide-react'
 
 import type { Header } from '@/payload-types'
 
@@ -33,10 +33,20 @@ const shouldForceLightHeader = (pathname: string | null) => {
   return false
 }
 
+/** When inside Payload's live preview iframe, skip LoginToggle to avoid constant Better Auth session requests. */
+const useIsInLivePreviewIframe = () => {
+  const [isInIframe, setIsInIframe] = useState(false)
+  useEffect(() => {
+    setIsInIframe(window.self !== window.top)
+  }, [])
+  return isInIframe
+}
+
 export const HeaderClient: React.FC<HeaderClientProps> = ({ data }) => {
   const [isHydrated, setIsHydrated] = useState(false)
   const [scrolled, setScrolled] = useState(false)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const isInLivePreviewIframe = useIsInLivePreviewIframe()
   const { headerTheme, setHeaderTheme } = useHeaderTheme()
   const { theme: globalTheme } = useTheme()
   const pathname = usePathname()
@@ -115,7 +125,19 @@ export const HeaderClient: React.FC<HeaderClientProps> = ({ data }) => {
                 <span className="sr-only">Search</span>
                 <SearchIcon className="h-5 w-5" />
               </Link>
-              <LoginToggle />
+              {isInLivePreviewIframe ? (
+                <Link
+                  aria-label="Sign in"
+                  className="inline-flex items-center rounded-lg p-2.5 text-muted-foreground transition-colors hover:bg-muted hover:text-primary"
+                  href="/account"
+                  title="Sign in"
+                >
+                  <CircleUserRound className="h-5 w-5" />
+                  <span className="sr-only">Sign in</span>
+                </Link>
+              ) : (
+                <LoginToggle />
+              )}
               <ThemeToggle />
               <button
                 aria-expanded={mobileMenuOpen}
@@ -147,7 +169,19 @@ export const HeaderClient: React.FC<HeaderClientProps> = ({ data }) => {
                 <span className="sr-only">Search</span>
                 <SearchIcon className="h-5 w-5" />
               </Link>
-              <LoginToggle />
+              {isInLivePreviewIframe ? (
+                <Link
+                  aria-label="Sign in"
+                  className="inline-flex items-center rounded-lg p-2.5 text-muted-foreground transition-colors hover:bg-muted hover:text-primary"
+                  href="/account"
+                  title="Sign in"
+                >
+                  <CircleUserRound className="h-5 w-5" />
+                  <span className="sr-only">Sign in</span>
+                </Link>
+              ) : (
+                <LoginToggle />
+              )}
               <ThemeToggle />
             </div>
           </div>

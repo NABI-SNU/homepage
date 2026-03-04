@@ -98,9 +98,7 @@ export const News: CollectionConfig<'news'> = {
   },
   versions: {
     drafts: {
-      autosave: {
-        interval: 800,
-      },
+      autosave: false,
       schedulePublish: true,
     },
     maxPerDoc: 50,

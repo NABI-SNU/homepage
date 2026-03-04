@@ -7,6 +7,7 @@
   --style-radius-s: 0.5rem;
   --style-radius-m: 0.625rem;
   --style-radius-l: 0.875rem;
+  --style-radius-xl: 1rem;
 
   /* Frontend-aligned neutrals for Payload elevation system */
   --theme-elevation-0: oklch(100% 0 0deg);
@@ -79,4 +80,78 @@ html[data-theme='dark'] {
   --hover-bg: var(--nabi-primary-hover);
   --color: var(--nabi-primary-foreground);
   --hover-color: var(--nabi-primary-foreground);
+}
+
+/* CollectionCards: match frontend card style + purple section badges */
+.dashboard .collections {
+  &__group {
+    margin-bottom: 1rem;
+  }
+
+  &__label {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 0.75rem;
+    font-size: 1.25rem;
+    font-weight: 600;
+
+    &::before {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 2rem;
+      height: 2rem;
+      flex-shrink: 0;
+      border-radius: 9999px;
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: white;
+      background: linear-gradient(to right, var(--nabi-primary), oklch(65% 0.2 280deg));
+    }
+  }
+
+  &__group:nth-of-type(1) .collections__label::before {
+    content: '1';
+  }
+
+  &__group:nth-of-type(2) .collections__label::before {
+    content: '2';
+  }
+
+  &__card-list {
+    gap: 1rem;
+  }
+
+  &__card-list .card {
+    padding: 1rem 1.25rem;
+    min-height: auto;
+    border-radius: var(--style-radius-xl);
+    border: 1px solid var(--theme-border-color);
+    background-color: var(--theme-elevation-50);
+    box-shadow: 0 1px 3px rgb(0 0 0 / 0.06);
+    transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+
+    &:hover {
+      transform: translateY(-4px);
+      border-color: oklch(57.8% 0.23 259deg / 0.35);
+      box-shadow: 0 12px 24px rgb(0 0 0 / 0.1);
+    }
+  }
+
+  &__card-list .card__title {
+    font-size: 1.0625rem;
+    font-weight: 600;
+  }
+}
+
+html[data-theme='dark'] .dashboard .collections {
+  &__card-list .card {
+    background-color: var(--theme-elevation-100);
+    border-color: var(--theme-elevation-200);
+
+    &:hover {
+      border-color: oklch(72% 0.2 259deg / 0.4);
+    }
+  }
 }

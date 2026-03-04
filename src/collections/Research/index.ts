@@ -104,9 +104,7 @@ export const Research: CollectionConfig<'research'> = {
   },
   versions: {
     drafts: {
-      autosave: {
-        interval: 800,
-      },
+      autosave: false,
       schedulePublish: true,
     },
     maxPerDoc: 50,

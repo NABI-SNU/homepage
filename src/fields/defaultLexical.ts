@@ -1,10 +1,21 @@
 import type { TextFieldSingleValidation } from 'payload'
 import {
+  AlignFeature,
+  BlockquoteFeature,
   BoldFeature,
+  ChecklistFeature,
+  defaultColors,
+  IndentFeature,
+  InlineCodeFeature,
   ItalicFeature,
   LinkFeature,
   OrderedListFeature,
   ParagraphFeature,
+  RelationshipFeature,
+  StrikethroughFeature,
+  SubscriptFeature,
+  SuperscriptFeature,
+  TextStateFeature,
   UnorderedListFeature,
   UploadFeature,
   lexicalEditor,
@@ -17,14 +28,36 @@ export const defaultLexical = lexicalEditor({
     ParagraphFeature(),
     UnorderedListFeature(),
     OrderedListFeature(),
+    ChecklistFeature(),
+    AlignFeature(),
+    IndentFeature(),
+    BlockquoteFeature(),
     UploadFeature({
       enabledCollections: ['media'],
+    }),
+    RelationshipFeature({
+      enabledCollections: ['activities', 'news', 'people', 'posts', 'research'],
+      maxDepth: 1,
+    }),
+    TextStateFeature({
+      state: {
+        color: {
+          ...defaultColors.text,
+        },
+        background: {
+          ...defaultColors.background,
+        },
+      },
     }),
     UnderlineFeature(),
     BoldFeature(),
     ItalicFeature(),
+    StrikethroughFeature(),
+    InlineCodeFeature(),
+    SubscriptFeature(),
+    SuperscriptFeature(),
     LinkFeature({
-      enabledCollections: ['posts', 'people', 'news', 'research'],
+      enabledCollections: ['activities', 'news', 'people', 'posts', 'research'],
       fields: ({ defaultFields }) => {
         const defaultFieldsWithoutUrl = defaultFields.filter((field) => {
           if ('name' in field && field.name === 'url') return false

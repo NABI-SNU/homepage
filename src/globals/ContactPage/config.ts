@@ -1,7 +1,7 @@
 import type { GlobalConfig } from 'payload'
 
 import { adminOnly } from '@/access/adminOnly'
-import { revalidateContactPage } from './hooks/revalidateContactPage'
+// import { revalidateContactPage } from './hooks/revalidateContactPage'  // TEMP: disabled to test if afterChange causes form overwrite
 
 export const ContactPage: GlobalConfig = {
   slug: 'contactPage',
@@ -67,6 +67,6 @@ export const ContactPage: GlobalConfig = {
     },
   ],
   hooks: {
-    afterChange: [revalidateContactPage],
+    // afterChange: [revalidateContactPage],  // TEMP: disabled to test form overwrite
   },
 }
