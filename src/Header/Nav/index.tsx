@@ -95,8 +95,8 @@ export const HeaderNav: React.FC<{
       aria-label="Main navigation"
       className={cn(
         mobile
-          ? 'flex flex-col gap-2 text-xl leading-[1.25] font-semibold'
-          : 'hidden min-w-0 w-full items-center justify-center lg:flex',
+          ? 'flex flex-col gap-5 text-xl leading-[1.25] font-semibold'
+          : 'hidden min-w-0 w-full items-center justify-center gap-2.5 lg:flex',
       )}
       onClick={mobile ? onNavigate : undefined}
     >
@@ -126,14 +126,14 @@ export const HeaderNav: React.FC<{
                 {link.label}
                 <ChevronDown className="ml-1 h-4 w-4" />
               </button>
-              <ul className="invisible absolute left-0 top-full z-50 min-w-[220px] rounded-lg border border-border/80 bg-background/95 py-2 opacity-0 shadow-xl backdrop-blur-md transition-all duration-200 group-hover:visible group-hover:opacity-100 group-focus-within:visible group-focus-within:opacity-100">
+              <ul className="invisible absolute left-0 top-full z-50 min-w-[220px] rounded-lg border border-border/80 bg-background/95 py-3.5 opacity-0 shadow-xl backdrop-blur-md transition-all duration-200 group-hover:visible group-hover:opacity-100 group-focus-within:visible group-focus-within:opacity-100">
                 {subLinks.map((subLink, subIndex) => (
                   <li key={`${subLink.link.label}-${subIndex}`}>
                     <CMSLink
                       {...subLink.link}
                       appearance="inline"
                       className={cn(
-                        'block whitespace-nowrap px-5 py-2 text-base transition-colors duration-200',
+                        'block whitespace-nowrap px-5 py-3 text-base transition-colors duration-200',
                         isPathActive(pathname, getNavHref(subLink.link))
                           ? 'text-primary'
                           : 'text-foreground hover:text-primary',
@@ -147,26 +147,26 @@ export const HeaderNav: React.FC<{
         }
 
         return (
-          <div className={cn(mobile && subLinks.length > 0 ? 'mb-1.5' : '')} key={i}>
+          <div className={cn(mobile && subLinks.length > 0 ? 'mb-4' : '')} key={i}>
             <CMSLink
               {...link}
               appearance="inline"
               className={cn(
                 mobile
-                  ? 'px-4 py-3.5 text-foreground transition-colors hover:text-primary'
-                  : 'flex items-center whitespace-nowrap px-3 py-3 text-[1.125rem] tracking-[0.01rem] transition-colors duration-200',
+                  ? 'px-4 py-5 text-foreground transition-colors hover:text-primary'
+                  : 'flex items-center whitespace-nowrap px-3 py-4 text-[1.125rem] tracking-[0.01rem] transition-colors duration-200',
                 isActive ? 'text-primary' : 'text-foreground hover:text-primary',
               )}
             />
             {mobile && subLinks.length > 0 && (
-              <div className="ml-5 border-l border-border/60 py-1.5 pl-4">
+              <div className="ml-5 border-l border-border/60 py-2.5 pl-4">
                 {subLinks.map((subLink, subIndex) => (
                   <CMSLink
                     key={`${subLink.link.label}-${subIndex}`}
                     {...subLink.link}
                     appearance="inline"
                     className={cn(
-                      'block py-1.5 text-lg leading-[1.3] text-muted-foreground transition-colors hover:text-primary',
+                      'block py-2.5 text-lg leading-[1.3] text-muted-foreground transition-colors hover:text-primary',
                       isPathActive(pathname, getNavHref(subLink.link)) ? 'text-primary' : '',
                     )}
                   />
