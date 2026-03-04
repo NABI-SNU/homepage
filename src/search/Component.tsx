@@ -1,19 +1,37 @@
 'use client'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import React, { useState, useEffect } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import { useDebounce } from '@/utilities/useDebounce'
-import { useRouter } from 'next/navigation'
+import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 
 export const Search: React.FC = () => {
-  const [value, setValue] = useState('')
   const router = useRouter()
+  const pathname = usePathname()
+  const searchParams = useSearchParams()
+  const currentQuery = useMemo(() => searchParams.get('q')?.trim() || '', [searchParams])
+  const [value, setValue] = useState(currentQuery)
 
   const debouncedValue = useDebounce(value)
 
   useEffect(() => {
-    router.push(`/search${debouncedValue ? `?q=${debouncedValue}` : ''}`)
-  }, [debouncedValue, router])
+    if (currentQuery !== value) setValue(currentQuery)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentQuery])
+
+  useEffect(() => {
+    const normalizedDebouncedValue = debouncedValue.trim()
+    if (normalizedDebouncedValue === currentQuery) return
+
+    const nextParams = new URLSearchParams(searchParams.toString())
+    if (normalizedDebouncedValue) nextParams.set('q', normalizedDebouncedValue)
+    else nextParams.delete('q')
+
+    const nextQuery = nextParams.toString()
+    const nextURL = nextQuery ? `${pathname}?${nextQuery}` : pathname
+
+    router.replace(nextURL, { scroll: false })
+  }, [currentQuery, debouncedValue, pathname, router, searchParams])
 
   return (
     <div>
@@ -31,6 +49,7 @@ export const Search: React.FC = () => {
             setValue(event.target.value)
           }}
           placeholder="Search"
+          value={value}
         />
         <button type="submit" className="sr-only">
           submit

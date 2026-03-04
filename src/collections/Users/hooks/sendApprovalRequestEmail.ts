@@ -4,7 +4,7 @@ import type { User } from '@/payload-types'
 import { createUserApprovalToken } from '@/auth/approvalToken'
 import { getServerSideURL } from '@/utilities/getURL'
 
-const approvalInbox = process.env.USER_APPROVAL_EMAIL_TO || 'nabi.members@gmail.com'
+const approvalInbox = process.env.USER_APPROVAL_EMAIL_TO || 'admin@nabi.org'
 
 export const sendApprovalRequestEmail: CollectionAfterChangeHook<User> = async ({
   doc,

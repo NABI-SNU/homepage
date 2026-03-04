@@ -17,6 +17,8 @@ export const revalidateResearch: CollectionAfterChangeHook<Research> = ({
       if (revalidatedCollectionCaches) return
 
       safeRevalidate(payload, 'labs list', () => revalidatePath('/labs'))
+      safeRevalidate(payload, 'references page', () => revalidatePath('/references'))
+      safeRevalidate(payload, 'references cache', () => revalidateTag('references_list'))
       safeRevalidate(payload, 'site sitemap', () => revalidateTag('site-sitemap'))
       revalidatedCollectionCaches = true
     }
@@ -49,6 +51,8 @@ export const revalidateResearchDelete: CollectionAfterDeleteHook<Research> = ({
 }) => {
   if (!isRevalidateDisabled(context)) {
     safeRevalidate(payload, 'labs list', () => revalidatePath('/labs'))
+    safeRevalidate(payload, 'references page', () => revalidatePath('/references'))
+    safeRevalidate(payload, 'references cache', () => revalidateTag('references_list'))
     safeRevalidate(payload, 'research delete page', () => revalidatePath(`/labs/${doc?.slug}`))
     safeRevalidate(payload, 'site sitemap', () => revalidateTag('site-sitemap'))
   }

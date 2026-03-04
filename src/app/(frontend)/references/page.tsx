@@ -1,12 +1,12 @@
 import type { Metadata } from 'next'
 
 import { ReferenceSearch } from '@/components/references/ReferenceSearch'
-import { getAllReferences } from '@/utilities/references'
+import { getCachedAllReferences } from '@/utilities/references'
 
 export const revalidate = 600
 
 export default async function ReferencesPage() {
-  const references = await getAllReferences()
+  const references = await getCachedAllReferences()()
 
   return (
     <main className="page-shell">

@@ -1,4 +1,5 @@
 import configPromise from '@payload-config'
+import { unstable_cache } from 'next/cache'
 import { getPayload } from 'payload'
 
 type Source = {
@@ -20,7 +21,7 @@ export type ReferenceItem = {
 const referenceKey = (title: string, authors: string[]) =>
   `${title.toLowerCase().trim()}|${authors.map((a) => a.toLowerCase().trim()).sort().join('|')}`
 
-export const getAllReferences = async (): Promise<ReferenceItem[]> => {
+const getAllReferences = async (): Promise<ReferenceItem[]> => {
   const payload = await getPayload({ config: configPromise })
 
   const [posts, news, research] = await Promise.all([
@@ -138,3 +139,9 @@ export const getAllReferences = async (): Promise<ReferenceItem[]> => {
 
   return Array.from(merged.values()).sort((a, b) => a.title.localeCompare(b.title))
 }
+
+export const getCachedAllReferences = () =>
+  unstable_cache(getAllReferences, ['references-list'], {
+    revalidate: 600,
+    tags: ['references_list'],
+  })

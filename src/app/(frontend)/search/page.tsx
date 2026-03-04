@@ -1,69 +1,21 @@
 import type { Metadata } from 'next/types'
 
 import { CollectionArchive } from '@/components/CollectionArchive'
-import configPromise from '@payload-config'
-import { getPayload } from 'payload'
 import React from 'react'
 import { Search } from '@/search/Component'
-import { mapSearchResultsToCardDocs } from '@/search/mapSearchResultsToCardDocs'
-import type { PayloadLike } from '@/search/mapSearchResultsToCardDocs'
 import { generateMeta } from '@/utilities/generateMeta'
+import { getCachedSearchResults } from '@/utilities/getSearchResults'
 
 type Args = {
   searchParams: Promise<{
-    q: string
+    q?: string
   }>
 }
 export default async function Page({ searchParams: searchParamsPromise }: Args) {
   const { q: query } = await searchParamsPromise
-  const payload = await getPayload({ config: configPromise })
-
-  const results = await payload.find({
-    collection: 'search',
-    depth: 1,
-    limit: 12,
-    select: {
-      title: true,
-      slug: true,
-      categories: true,
-      meta: true,
-      doc: true,
-    },
-    // pagination: false reduces overhead if you don't need totalDocs
-    pagination: false,
-    ...(query
-      ? {
-          where: {
-            or: [
-              {
-                title: {
-                  like: query,
-                },
-              },
-              {
-                'meta.description': {
-                  like: query,
-                },
-              },
-              {
-                'meta.title': {
-                  like: query,
-                },
-              },
-              {
-                slug: {
-                  like: query,
-                },
-              },
-            ],
-          },
-        }
-      : {}),
-  })
-  const mappedResults = await mapSearchResultsToCardDocs({
-    payload: payload as unknown as PayloadLike,
-    results: results.docs,
-  })
+  const normalizedQuery = query?.trim() || ''
+  const mappedResults = await getCachedSearchResults(normalizedQuery)()
+  const hasResults = mappedResults.length > 0
 
   return (
     <div className="pt-24 pb-24">
@@ -77,7 +29,7 @@ export default async function Page({ searchParams: searchParamsPromise }: Args) 
         </div>
       </div>
 
-      {results.totalDocs > 0 ? (
+      {hasResults ? (
         <CollectionArchive posts={mappedResults} />
       ) : (
         <div className="container">No results found.</div>

@@ -13,6 +13,10 @@ export const revalidateNews: CollectionAfterChangeHook<News> = ({ doc, previousD
       if (revalidatedCollectionCaches) return
 
       safeRevalidate(payload, 'news list', () => revalidatePath('/news'))
+      safeRevalidate(payload, 'news list cache', () => revalidateTag('news_list'))
+      safeRevalidate(payload, 'search results cache', () => revalidateTag('search_results'))
+      safeRevalidate(payload, 'references page', () => revalidatePath('/references'))
+      safeRevalidate(payload, 'references cache', () => revalidateTag('references_list'))
       safeRevalidate(payload, 'site sitemap', () => revalidateTag('site-sitemap'))
       revalidatedCollectionCaches = true
     }
@@ -42,7 +46,11 @@ export const revalidateNews: CollectionAfterChangeHook<News> = ({ doc, previousD
 export const revalidateNewsDelete: CollectionAfterDeleteHook<News> = ({ doc, req: { context, payload } }) => {
   if (!isRevalidateDisabled(context)) {
     safeRevalidate(payload, 'news list', () => revalidatePath('/news'))
+    safeRevalidate(payload, 'news list cache', () => revalidateTag('news_list'))
     safeRevalidate(payload, 'news delete page', () => revalidatePath(`/news/${doc?.slug}`))
+    safeRevalidate(payload, 'search results cache', () => revalidateTag('search_results'))
+    safeRevalidate(payload, 'references page', () => revalidatePath('/references'))
+    safeRevalidate(payload, 'references cache', () => revalidateTag('references_list'))
     safeRevalidate(payload, 'site sitemap', () => revalidateTag('site-sitemap'))
   }
 

@@ -211,7 +211,7 @@ const defaultSymposiumContent: DefaultTypedEditorState = {
             format: 0,
             mode: 'normal',
             style: '',
-            text: 'For inquiries: nabi.members@gmail.com',
+            text: 'For inquiries: admin@nabi.org',
             version: 1,
           },
         ],
@@ -270,7 +270,9 @@ export const ensureDefaultSymposiumActivity = async (payload: Payload): Promise<
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error)
     const cause =
-      error && typeof error === 'object' && 'cause' in error ? (error as { cause?: unknown }).cause : null
+      error && typeof error === 'object' && 'cause' in error
+        ? (error as { cause?: unknown }).cause
+        : null
     const causeMessage = cause instanceof Error ? cause.message : String(cause || '')
     const causeCode =
       cause && typeof cause === 'object' && 'code' in cause

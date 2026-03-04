@@ -3,7 +3,7 @@ import type { Metadata } from 'next'
 import { CollectionArchive } from '@/components/CollectionArchive'
 import { PageRange } from '@/components/PageRange'
 import { Pagination } from '@/components/Pagination'
-import { getCachedCategoryPostsPage, POSTS_PER_PAGE } from '@/utilities/getPosts'
+import { getCachedCategoryBySlug, getCachedCategoryPostsPage, POSTS_PER_PAGE } from '@/utilities/getPosts'
 import { generateMeta } from '@/utilities/generateMeta'
 import { notFound } from 'next/navigation'
 
@@ -64,12 +64,8 @@ export default async function CategoryPagePaginated({ params }: Args) {
 
 export async function generateMetadata({ params }: Args): Promise<Metadata> {
   const { pageNumber, slug } = await params
-  const categoryPosts = await getCachedCategoryPostsPage({
-    limit: POSTS_PER_PAGE,
-    page: 1,
-    slug,
-  })()
-  const title = categoryPosts?.category?.title || slug
+  const category = await getCachedCategoryBySlug(slug)()
+  const title = category?.title || slug
 
   return generateMeta({
     description: `Posts filed under ${title}, page ${pageNumber}.`,

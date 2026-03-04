@@ -8,6 +8,8 @@ const postCardSelect = {
   categories: true,
   meta: true,
 } as const
+const postsSortByPublishedDate = '-publishedAt' as const
+const postsCacheVersion = 'published-at-sort-v2' as const
 
 export const POSTS_PER_PAGE = 12
 
@@ -23,36 +25,18 @@ type CategoryPostsPageArgs = {
   slug: string
 }
 
-const normalizeSearchQuery = (searchQuery?: string): string => searchQuery?.trim() || ''
-
-async function getPostsPage({ limit = POSTS_PER_PAGE, page = 1, searchQuery = '' }: PostsPageArgs) {
-  const payload = await getPayload({ config: configPromise })
-  const normalizedSearchQuery = normalizeSearchQuery(searchQuery)
-
-  return payload.find({
-    collection: 'posts',
-    depth: 1,
-    limit,
-    page,
-    ...(normalizedSearchQuery
-      ? {
-          where: {
-            or: [
-              { title: { contains: normalizedSearchQuery } },
-              { excerpt: { contains: normalizedSearchQuery } },
-              { 'meta.description': { contains: normalizedSearchQuery } },
-            ],
-          },
-        }
-      : {}),
-    overrideAccess: false,
-    select: postCardSelect,
-  })
+type CategorySummary = {
+  id: number
+  slug?: string | null
+  title: string
 }
 
-async function getCategoryPostsPage({ limit = POSTS_PER_PAGE, page = 1, slug }: CategoryPostsPageArgs) {
+const normalizeSearchQuery = (searchQuery?: string): string => searchQuery?.trim() || ''
+const normalizeCategorySlug = (slug: string): string => slug.trim()
+
+async function getCategoryBySlug(slug: string): Promise<CategorySummary | null> {
   const payload = await getPayload({ config: configPromise })
-  const normalizedSlug = slug.trim()
+  const normalizedSlug = normalizeCategorySlug(slug)
 
   const categories = await payload.find({
     collection: 'categories',
@@ -71,7 +55,39 @@ async function getCategoryPostsPage({ limit = POSTS_PER_PAGE, page = 1, slug }: 
     },
   })
 
-  const category = categories.docs[0]
+  return (categories.docs[0] as CategorySummary | undefined) || null
+}
+
+async function getPostsPage({ limit = POSTS_PER_PAGE, page = 1, searchQuery = '' }: PostsPageArgs) {
+  const payload = await getPayload({ config: configPromise })
+  const normalizedSearchQuery = normalizeSearchQuery(searchQuery)
+
+  return payload.find({
+    collection: 'posts',
+    depth: 1,
+    limit,
+    page,
+    sort: postsSortByPublishedDate,
+    ...(normalizedSearchQuery
+      ? {
+          where: {
+            or: [
+              { title: { contains: normalizedSearchQuery } },
+              { excerpt: { contains: normalizedSearchQuery } },
+              { 'meta.description': { contains: normalizedSearchQuery } },
+            ],
+          },
+        }
+      : {}),
+    overrideAccess: false,
+    select: postCardSelect,
+  })
+}
+
+async function getCategoryPostsPage({ limit = POSTS_PER_PAGE, page = 1, slug }: CategoryPostsPageArgs) {
+  const payload = await getPayload({ config: configPromise })
+  const normalizedSlug = normalizeCategorySlug(slug)
+  const category = await getCachedCategoryBySlug(normalizedSlug)()
   if (!category) return null
 
   const posts = await payload.find({
@@ -79,6 +95,7 @@ async function getCategoryPostsPage({ limit = POSTS_PER_PAGE, page = 1, slug }: 
     depth: 1,
     limit,
     page,
+    sort: postsSortByPublishedDate,
     overrideAccess: false,
     where: {
       and: [
@@ -107,6 +124,7 @@ export const getCachedPostsPage = ({ limit = POSTS_PER_PAGE, page = 1, searchQue
   const normalizedSearchQuery = normalizeSearchQuery(searchQuery)
 
   return unstable_cache(() => getPostsPage({ limit, page, searchQuery: normalizedSearchQuery }), [
+    postsCacheVersion,
     'posts-page',
     String(limit),
     String(page),
@@ -117,14 +135,24 @@ export const getCachedPostsPage = ({ limit = POSTS_PER_PAGE, page = 1, searchQue
 }
 
 export const getCachedCategoryPostsPage = ({ limit = POSTS_PER_PAGE, page = 1, slug }: CategoryPostsPageArgs) => {
-  const normalizedSlug = slug.trim()
+  const normalizedSlug = normalizeCategorySlug(slug)
 
   return unstable_cache(() => getCategoryPostsPage({ limit, page, slug: normalizedSlug }), [
+    postsCacheVersion,
     'category-posts-page',
     normalizedSlug,
     String(limit),
     String(page),
   ], {
+    tags: ['posts_by_category', `posts_by_category_${normalizedSlug}`],
+  })
+}
+
+export const getCachedCategoryBySlug = (slug: string) => {
+  const normalizedSlug = normalizeCategorySlug(slug)
+
+  return unstable_cache(() => getCategoryBySlug(normalizedSlug), ['category-by-slug', normalizedSlug], {
+    revalidate: 600,
     tags: ['posts_by_category', `posts_by_category_${normalizedSlug}`],
   })
 }

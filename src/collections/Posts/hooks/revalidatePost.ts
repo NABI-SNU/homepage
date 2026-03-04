@@ -20,6 +20,9 @@ export const revalidatePost: CollectionAfterChangeHook<Post> = ({
       safeRevalidate(payload, 'posts sitemap', () => revalidateTag('posts-sitemap'))
       safeRevalidate(payload, 'posts list cache', () => revalidateTag('posts_list'))
       safeRevalidate(payload, 'category posts cache', () => revalidateTag('posts_by_category'))
+      safeRevalidate(payload, 'search results cache', () => revalidateTag('search_results'))
+      safeRevalidate(payload, 'references page', () => revalidatePath('/references'))
+      safeRevalidate(payload, 'references cache', () => revalidateTag('references_list'))
     }
 
     // If the post was previously published, we need to revalidate the old path
@@ -32,6 +35,9 @@ export const revalidatePost: CollectionAfterChangeHook<Post> = ({
       safeRevalidate(payload, 'posts sitemap', () => revalidateTag('posts-sitemap'))
       safeRevalidate(payload, 'posts list cache', () => revalidateTag('posts_list'))
       safeRevalidate(payload, 'category posts cache', () => revalidateTag('posts_by_category'))
+      safeRevalidate(payload, 'search results cache', () => revalidateTag('search_results'))
+      safeRevalidate(payload, 'references page', () => revalidatePath('/references'))
+      safeRevalidate(payload, 'references cache', () => revalidateTag('references_list'))
     }
   }
   return doc
@@ -45,6 +51,9 @@ export const revalidateDelete: CollectionAfterDeleteHook<Post> = ({ doc, req: { 
     safeRevalidate(payload, 'posts sitemap', () => revalidateTag('posts-sitemap'))
     safeRevalidate(payload, 'posts list cache', () => revalidateTag('posts_list'))
     safeRevalidate(payload, 'category posts cache', () => revalidateTag('posts_by_category'))
+    safeRevalidate(payload, 'search results cache', () => revalidateTag('search_results'))
+    safeRevalidate(payload, 'references page', () => revalidatePath('/references'))
+    safeRevalidate(payload, 'references cache', () => revalidateTag('references_list'))
   }
 
   return doc

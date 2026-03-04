@@ -23,7 +23,7 @@ describe('Users Approval Email Hook', () => {
 
     expect(sendEmail).toHaveBeenCalledTimes(1)
     expect(sendEmail.mock.calls[0][0]).toMatchObject({
-      to: process.env.USER_APPROVAL_EMAIL_TO || 'nabi.members@gmail.com',
+      to: process.env.USER_APPROVAL_EMAIL_TO || 'admin@nabi.org',
       subject: expect.stringContaining('new-user@example.com'),
     })
   })

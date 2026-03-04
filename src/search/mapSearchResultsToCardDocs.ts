@@ -43,11 +43,12 @@ export const mapSearchResultsToCardDocs = async ({
   payload: PayloadLike
   results: SearchResult[]
 }): Promise<CardDocData[]> => {
-  const newsIDs = Array.from(
+  const newsIDsNeedingFallback = Array.from(
     new Set(
       results
         .map((result) => {
           if (result.doc?.relationTo !== 'news') return null
+          if (result.meta?.image) return null
           return getSearchDocID(result)
         })
         .filter((id): id is number => typeof id === 'number'),
@@ -56,16 +57,16 @@ export const mapSearchResultsToCardDocs = async ({
 
   const newsDocByID = new Map<number, NewsDocForSearch>()
 
-  if (newsIDs.length > 0) {
+  if (newsIDsNeedingFallback.length > 0) {
     const newsDocs = await payload.find({
       collection: 'news',
       depth: 0,
-      limit: newsIDs.length,
+      limit: newsIDsNeedingFallback.length,
       overrideAccess: false,
       pagination: false,
       where: {
         id: {
-          in: newsIDs,
+          in: newsIDsNeedingFallback,
         },
       },
       select: {
