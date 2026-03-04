@@ -65,10 +65,17 @@ const s3GenerateFileURL = s3PublicURL
       return joinPublicBaseAndPath(s3PublicURL, pathname)
     }
   : undefined
+const mediaS3CollectionConfig =
+  s3GenerateFileURL || s3MediaPrefix
+    ? {
+        ...(s3MediaPrefix ? { prefix: s3MediaPrefix } : {}),
+        ...(s3GenerateFileURL ? { generateFileURL: s3GenerateFileURL } : {}),
+      }
+    : true
 
 export const plugins: Plugin[] = [
   redirectsPlugin({
-    collections: ['posts', 'people', 'news', 'research'],
+    collections: ['posts', 'people', 'news', 'research', 'activities'],
     overrides: {
       // @ts-expect-error - This is a valid override, mapped fields don't resolve to the same type
       fields: ({ defaultFields }) => {
@@ -137,11 +144,7 @@ export const plugins: Plugin[] = [
         s3Storage({
           bucket: process.env.S3_BUCKET!,
           collections: {
-            media: s3GenerateFileURL
-              ? {
-                  generateFileURL: s3GenerateFileURL,
-                }
-              : true,
+            media: mediaS3CollectionConfig,
           },
           config: {
             credentials: {

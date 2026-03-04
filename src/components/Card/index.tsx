@@ -1,4 +1,5 @@
 import { cn } from '@/utilities/ui'
+import Image from 'next/image'
 import Link from 'next/link'
 import React, { Fragment } from 'react'
 
@@ -11,19 +12,28 @@ export type CardPostData = Pick<Post, 'slug' | 'categories' | 'meta' | 'title'>
 export type CardDocData = CardPostData & {
   date?: News['date']
   previewImage?: LegacyInlineImage | null
-  relationTo?: 'posts' | 'news'
+  relationTo?: 'posts' | 'news' | 'conferences' | 'symposium' | 'labs'
 }
 
 export const Card: React.FC<{
   alignItems?: 'center'
   className?: string
   doc?: CardDocData
-  relationTo?: 'posts' | 'news'
+  imageAspect?: 'landscape' | 'portrait'
+  relationTo?: 'posts' | 'news' | 'conferences' | 'symposium' | 'labs'
   showCategories?: boolean
   showDate?: boolean
   title?: string
 }> = (props) => {
-  const { className, doc, relationTo, showCategories, showDate, title: titleFromProps } = props
+  const {
+    className,
+    doc,
+    imageAspect = 'landscape',
+    relationTo,
+    showCategories,
+    showDate,
+    title: titleFromProps,
+  } = props
 
   const { slug, categories, date, meta, previewImage, title } = doc || {}
   const { description, image: metaImage } = meta || {}
@@ -54,7 +64,12 @@ export const Card: React.FC<{
       <div className="absolute -left-1 -top-1 h-8 w-8 rounded-full bg-linear-to-br from-primary/20 to-accent/20 opacity-0 blur-sm transition-all duration-500 ease-out group-hover:scale-150 group-hover:opacity-100" />
       <div className="absolute bottom-4 right-4 h-2 w-2 rounded-full bg-linear-to-r from-green-400 to-primary opacity-0 transition-all duration-300 ease-out group-hover:scale-125 group-hover:opacity-100 group-hover:shadow-lg group-hover:shadow-primary/40" />
 
-      <div className="relative w-full overflow-hidden bg-muted/40 aspect-[16/10]">
+      <div
+        className={cn(
+          'relative w-full overflow-hidden bg-muted/40',
+          imageAspect === 'portrait' ? 'aspect-[2/3]' : 'aspect-[3/2]',
+        )}
+      >
         {!hasRenderableImage && !hasPreviewImage && (
           <div className="flex h-full items-center justify-center text-sm text-muted-foreground">No image</div>
         )}
@@ -67,13 +82,14 @@ export const Card: React.FC<{
           />
         )}
         {!hasRenderableImage && hasPreviewImage && (
-          <img
+          <Image
             alt={previewImage?.alt || ''}
             className="h-full w-full rounded-sm object-cover transition-transform duration-300 group-hover:scale-[1.02]"
             height={previewImage?.height ?? 900}
             loading="lazy"
             sizes="(min-width: 1024px) 30vw, (min-width: 640px) 45vw, 100vw"
             src={previewImage?.src ?? ''}
+            unoptimized
             width={previewImage?.width ?? 1600}
           />
         )}

@@ -1,236 +1,86 @@
 import type { Metadata } from 'next'
-import { Calendar, CalendarDays, Laptop, MapPin, Users, Wifi } from 'lucide-react'
 
-import { SocialShare } from '@/components/SocialShare'
+import configPromise from '@payload-config'
+import { getPayload } from 'payload'
+import React from 'react'
+
+import { CollectionArchive } from '@/components/CollectionArchive'
+
+export const revalidate = 600
 
 export default async function SymposiumPage() {
+  const payload = await getPayload({ config: configPromise })
+
+  const symposium = await payload.find({
+    collection: 'activities',
+    depth: 1,
+    limit: 200,
+    overrideAccess: false,
+    pagination: false,
+    sort: '-date',
+    where: {
+      and: [
+        {
+          _status: {
+            equals: 'published',
+          },
+        },
+        {
+          activityType: {
+            equals: 'symposium',
+          },
+        },
+      ],
+    },
+    select: {
+      title: true,
+      slug: true,
+      date: true,
+      heroImage: true,
+      meta: true,
+      description: true,
+    },
+  })
+
+  const mappedSymposium = symposium.docs.map((item) => {
+    const heroImage = item.heroImage && typeof item.heroImage === 'object' ? item.heroImage : null
+    const metaImage = item.meta?.image && typeof item.meta.image === 'object' ? item.meta.image : null
+
+    return {
+      slug: item.slug,
+      title: item.title,
+      date: item.date,
+      relationTo: 'symposium' as const,
+      meta: {
+        ...(item.meta || {}),
+        description: item.meta?.description || item.description,
+        image: metaImage || heroImage,
+      },
+    }
+  })
+
   return (
-    <main className="page-shell pb-12 md:pb-16">
-      <section className="relative md:-mt-[76px] not-prose">
-        <div className="pointer-events-none absolute inset-0" aria-hidden="true" />
-        <div className="relative mx-auto max-w-7xl px-4 sm:px-6">
-          <div className="pointer-events-none pt-0 md:pt-[76px]" />
-          <div className="pb-8 py-12 md:pb-8 md:py-20">
-            <div className="mx-auto max-w-5xl text-center">
-              <p className="mx-auto inline-flex rounded-full border border-blue-400/40 bg-blue-500/10 px-4 py-1.5 text-sm font-semibold tracking-[0.2em] text-blue-300 uppercase dark:border-blue-400/60 dark:bg-blue-500/20 dark:text-blue-200">
-                Symposium 2025
-              </p>
-              <h1 className="mb-4 mt-4 text-5xl font-semibold leading-tight tracking-tight text-black drop-shadow-[0_4px_24px_rgba(59,130,246,0.25)] dark:text-gray-100 dark:drop-shadow-[0_4px_24px_rgba(59,130,246,0.35)] md:text-6xl">
-                Memory in Context
-              </h1>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section className="relative mx-auto max-w-7xl pt-2 pb-8 sm:pt-6 sm:pb-16 lg:pt-8 lg:pb-20">
-        <div className="pointer-events-none absolute inset-0 overflow-hidden">
-          <div className="absolute top-0 left-1/4 h-72 w-72 rounded-full bg-blue-400/5 blur-3xl" />
-          <div className="absolute right-1/4 bottom-0 h-96 w-96 rounded-full bg-purple-400/5 blur-3xl" />
-        </div>
-
-        <article className="relative mx-auto max-w-3xl px-4 sm:px-6 lg:px-8">
-          <header className="mb-12">
-            <div className="space-y-6 text-center lg:text-left">
-              <p className="mx-auto max-w-3xl text-xl leading-relaxed text-gray-600 sm:text-2xl dark:text-gray-300 lg:mx-0">
-                제1회 NABI 정기 심포지엄 — 해마와 맥락적 기억의 계산 모델링
-              </p>
-              <div className="mx-auto h-1 w-24 rounded-full bg-linear-to-r from-blue-500 to-purple-600 lg:mx-0" />
-            </div>
-          </header>
-
-          <div className="relative">
-            <div className="mb-12 rounded-2xl border border-gray-200 bg-gray-50 p-6 dark:border-gray-700 dark:bg-gray-800/50 sm:p-8">
-              <div className="mb-6 flex items-center gap-4">
-                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-linear-to-r from-blue-500 to-purple-600">
-                  <CalendarDays className="h-4 w-4 text-white" />
-                </div>
-                <h2 className="text-2xl font-semibold tracking-tight text-gray-900 dark:text-white sm:text-3xl">
-                  Event Details
-                </h2>
-              </div>
-              <ul className="space-y-3 text-gray-700 dark:text-gray-300">
-                <li className="flex items-start gap-3">
-                  <Calendar className="mt-0.5 h-5 w-5 shrink-0 text-blue-600 dark:text-blue-400" />
-                  <span>
-                    <strong>일시:</strong> 2026년 2월 24일 (화) 오후 6:00
-                  </span>
-                </li>
-                <li className="flex items-start gap-3">
-                  <MapPin className="mt-0.5 h-5 w-5 shrink-0 text-blue-600 dark:text-blue-400" />
-                  <span>
-                    <strong>장소:</strong> 서울대학교 의학도서관 2층 <strong>우봉홀</strong>
-                  </span>
-                </li>
-                <li className="flex items-start gap-3">
-                  <Users className="mt-0.5 h-5 w-5 shrink-0 text-blue-600 dark:text-blue-400" />
-                  <span>
-                    <strong>대상:</strong> NABI 회원 및 관련 분야에 관심 있는 서울대 의대/병원
-                    구성원
-                  </span>
-                </li>
-                <li className="flex items-start gap-3">
-                  <Laptop className="mt-0.5 h-5 w-5 shrink-0 text-blue-600 dark:text-blue-400" />
-                  <span>
-                    <strong>준비물:</strong> <strong>개인 노트북 지참 권고</strong> (Methods Deep
-                    Dive 세션 실습용)
-                  </span>
-                </li>
-                <li className="flex items-start gap-3">
-                  <Wifi className="mt-0.5 h-5 w-5 shrink-0 text-blue-600 dark:text-blue-400" />
-                  <span>
-                    <strong>기타:</strong> WiFi 혹은 인터넷 접속이 필요하므로 미리 연결해두세요.
-                  </span>
-                </li>
-              </ul>
-            </div>
-
-            <div
-              className="prose prose-lg sm:prose-xl dark:prose-invert max-w-none
-                prose-headings:leading-tight prose-headings:tracking-tight prose-headings:font-semibold
-                prose-headings:text-gray-900 dark:prose-headings:text-gray-100
-                prose-h1:text-4xl prose-h2:text-3xl prose-h3:text-2xl prose-h4:text-xl
-                prose-h2:mt-12 prose-h2:mb-6 prose-h3:mt-8 prose-h3:mb-4 prose-h4:mt-6 prose-h4:mb-3
-                prose-p:text-gray-700 dark:prose-p:text-gray-300 prose-p:leading-relaxed prose-p:mb-6
-                prose-a:text-primary dark:prose-a:text-blue-400 prose-a:no-underline hover:prose-a:underline prose-a:font-medium prose-a:transition-colors prose-a:duration-200
-                prose-strong:text-gray-900 dark:prose-strong:text-gray-100 prose-strong:font-semibold
-                prose-em:text-gray-800 dark:prose-em:text-gray-200
-                prose-code:text-pink-600 dark:prose-code:text-pink-400 prose-code:bg-gray-100 dark:prose-code:bg-gray-800 prose-code:px-2 prose-code:py-1 prose-code:rounded-sm prose-code:text-sm
-                prose-pre:bg-gray-900 dark:prose-pre:bg-gray-950 prose-pre:border prose-pre:border-gray-200 dark:prose-pre:border-gray-700 prose-pre:rounded-xl prose-pre:shadow-lg
-                prose-blockquote:border-l-4 prose-blockquote:border-primary prose-blockquote:bg-blue-50 dark:prose-blockquote:bg-blue-900/20 prose-blockquote:py-4 prose-blockquote:px-6 prose-blockquote:rounded-r-lg prose-blockquote:my-6
-                prose-ul:space-y-2 prose-ol:space-y-2 prose-li:text-gray-700 dark:prose-li:text-gray-300
-                prose-img:rounded-xl prose-img:shadow-lg prose-img:border prose-img:border-gray-200 dark:prose-img:border-gray-700 prose-img:mx-auto
-                prose-hr:border-gray-300 dark:prose-hr:border-gray-600 prose-hr:my-12
-                prose-table:border-collapse prose-table:border prose-table:border-gray-300 dark:prose-table:border-gray-600 prose-table:rounded-lg prose-table:overflow-hidden
-                prose-th:bg-gray-50 dark:prose-th:bg-gray-800 prose-th:border prose-th:border-gray-300 dark:prose-th:border-gray-600 prose-th:px-4 prose-th:py-3 prose-th:font-semibold
-                prose-td:border prose-td:border-gray-300 dark:prose-td:border-gray-600 prose-td:px-4 prose-td:py-3
-                prose-headings:scroll-mt-24"
-            >
-              <h2>About NABI</h2>
-              <p>
-                <strong>NABI (Natural and Artificial Brain Intelligence)</strong>는 신경과학의 작동
-                원리를 수학적·계산적 모델로 탐구하는 <strong>Computational Neuroscience</strong>와
-                이를 AI에 접목한 <strong>NeuroAI</strong>를 공부하는 연구 공동체입니다. 저희의
-                정체성은 다음과 같습니다:
-              </p>
-              <ul>
-                <li>
-                  <strong>Vision:</strong> 뇌과학과 신경의학, 정신의학 임상을 계산적으로 해석하여
-                  새로운 진단적/이론적 프레임을 제시
-                </li>
-                <li>
-                  <strong>Activity:</strong> 시즌제 주제 집중 세션과 정기 심포지엄을 통해 지식을
-                  공유
-                </li>
-                <li>
-                  <strong>Target:</strong> 서울대학교 의과대학 재학생 및 서울대병원 수련의/전문의 중
-                  뇌와 AI의 접점에 열정을 가진 분
-                </li>
-              </ul>
-
-              <h2>제1회 NABI 정기 심포지엄 안내</h2>
-              <p>
-                이번 심포지엄은 NABI 회원들이 지난 1년 동안 함께 학습하고 연구하며 준비해온 정기
-                심포지엄으로, <strong>2026년 그 첫 번째 문</strong>을 엽니다. 올해의 메인 테마는{' '}
-                <strong>&quot;Memory in Context&quot;</strong>
-                입니다. 해마(Hippocampus)를 중심으로 기억의 형성, 저장, 그리고 인출의 메커니즘을
-                최신 계산 모델링 관점에서 심층적으로 다룹니다. 특히 해마가 단순한 기록 장치를 넘어
-                세상의 통계적 구조를 학습하는 모델로 어떻게 기능하는지를 다루며, 맥락이 기억의
-                인출에 미치는 영향을 분석합니다.
-              </p>
-
-              <h2>프로그램 구성 (Program)</h2>
-
-              <h3>Section 1: Topic Review</h3>
-              <ul>
-                <li>
-                  <strong>주제:</strong> Memory in Context: 최신 지견 및 계산적 프레임워크
-                </li>
-                <li>
-                  <strong>내용:</strong> 해마의 신경 회로와 맥락적 기억(Contextual Memory)에 관한
-                  최신 논문 및 이론적 배경 정리.
-                </li>
-              </ul>
-
-              <h3>Section 2: Methods Deep Dive (Interactive Workshop)</h3>
-              <ul>
-                <li>
-                  <strong>Part 1. SR의 이해</strong>
-                  <ul>
-                    <li>
-                      모바일 기반 프로그램을 통해 <strong>Successor Representation(SR)</strong>의
-                      개념을 직관적으로 이해
-                    </li>
-                    <li>
-                      상태 공간(State Space)를 어떻게 뇌에서 representation하는지 인터엑티브하게
-                      체험하기
-                    </li>
-                  </ul>
-                </li>
-                <li>
-                  <strong>Part 2. CSCG 실습</strong>
-                  <ul>
-                    <li>
-                      Google Colab 환경에서 해마에서 측정된 뉴런 데이터를 직접 분석하고
-                      시뮬레이션하기
-                    </li>
-                    <li>
-                      <strong>Clone-Structured Cognitive Graph (CSCG)</strong> 모델을 활용하여
-                      해마가 맥락을 어떻게 학습하는지 모델링하기
-                    </li>
-                  </ul>
-                </li>
-              </ul>
-
-              <h3>Section 3: Research Proposal</h3>
-              <ul>
-                <li>
-                  <strong>내용:</strong> 회원들이 제안하는 차세대 연구 아이디어 발표.
-                </li>
-                <li>
-                  <strong>목표:</strong> 현재 신경과학 및 인공지능 이론에서 해결되지 않은 핵심
-                  과학적 질문(scientific gaps)을 정의하고, 이를 계산적 모델 관점에서 탐구하는 창의적
-                  접근법 논의
-                </li>
-              </ul>
-
-              <h2>문의 및 상세 정보</h2>
-              <ul>
-                <li>
-                  <strong>문의:</strong> nabi.members@gmail.com
-                </li>
-                <li>
-                  <strong>NABI에 대해 더 자세히 알고 싶다면:</strong>{' '}
-                  <a href="https://nabiresearch.org" target="_blank" rel="noopener noreferrer">
-                    nabiresearch.org
-                  </a>
-                </li>
-              </ul>
-
-              <blockquote>
-                <strong>NABI 의 첫 번째 정기 심포지엄은 여러분의 참여로 완성됩니다.</strong>
-                <br />
-                <strong>2월 24일, 서울대학교 의학도서관 우봉홀에서 뵙겠습니다.</strong>
-              </blockquote>
-            </div>
-          </div>
-        </article>
-      </section>
-
-      <div className="mx-auto mb-12 max-w-3xl px-4 sm:px-6 lg:px-8">
-        <section id="symposium-footer">
-          <SocialShare
-            className="flex items-center gap-3 text-gray-500 dark:text-gray-400"
-            text="NABI 2026 Symposium: Memory in Context"
-            url="/symposium"
-          />
-        </section>
+    <div className="page-shell-wide">
+      <div className="page-header container mb-12 text-center">
+        <p className="page-eyebrow">Activities</p>
+        <h1 className="page-title">Symposium</h1>
+        <p className="page-subtitle mx-auto max-w-2xl">
+          NABI symposium posters, sessions, and highlights.
+        </p>
       </div>
-    </main>
+
+      <CollectionArchive
+        posts={mappedSymposium}
+        relationTo="symposium"
+        showCategories={false}
+        showDate
+        cardImageAspect="portrait"
+      />
+    </div>
   )
 }
 
 export const metadata: Metadata = {
   title: 'Symposium',
-  description: 'Updates on NABI events, seminars, and collaborative activities.',
+  description: 'NABI symposium posters, sessions, and highlights.',
 }

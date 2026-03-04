@@ -6,6 +6,7 @@ import { getPayload } from 'payload'
 import React from 'react'
 import { Search } from '@/search/Component'
 import { mapSearchResultsToCardDocs } from '@/search/mapSearchResultsToCardDocs'
+import type { PayloadLike } from '@/search/mapSearchResultsToCardDocs'
 import { generateMeta } from '@/utilities/generateMeta'
 
 type Args = {
@@ -60,7 +61,7 @@ export default async function Page({ searchParams: searchParamsPromise }: Args) 
       : {}),
   })
   const mappedResults = await mapSearchResultsToCardDocs({
-    payload,
+    payload: payload as unknown as PayloadLike,
     results: results.docs,
   })
 

@@ -13,6 +13,12 @@ import { adminOnly } from '../access/adminOnly'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
+const webpFormatOptions = {
+  format: 'webp',
+  options: {
+    quality: 82,
+  },
+} as const
 
 export const Media: CollectionConfig = {
   slug: 'media',
@@ -44,37 +50,45 @@ export const Media: CollectionConfig = {
     staticDir: path.resolve(dirname, '../../public/media'),
     adminThumbnail: 'thumbnail',
     focalPoint: true,
+    formatOptions: webpFormatOptions,
     imageSizes: [
       {
         name: 'thumbnail',
         width: 300,
+        formatOptions: webpFormatOptions,
       },
       {
         name: 'square',
         width: 500,
         height: 500,
+        formatOptions: webpFormatOptions,
       },
       {
         name: 'small',
         width: 600,
+        formatOptions: webpFormatOptions,
       },
       {
         name: 'medium',
         width: 900,
+        formatOptions: webpFormatOptions,
       },
       {
         name: 'large',
         width: 1400,
+        formatOptions: webpFormatOptions,
       },
       {
         name: 'xlarge',
         width: 1920,
+        formatOptions: webpFormatOptions,
       },
       {
         name: 'og',
         width: 1200,
         height: 630,
         crop: 'center',
+        formatOptions: webpFormatOptions,
       },
     ],
   },

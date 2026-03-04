@@ -70,6 +70,7 @@ export interface Config {
     posts: Post;
     news: News;
     research: Research;
+    activities: Activity;
     people: Person;
     tags: Tag;
     media: Media;
@@ -95,6 +96,7 @@ export interface Config {
     posts: PostsSelect<false> | PostsSelect<true>;
     news: NewsSelect<false> | NewsSelect<true>;
     research: ResearchSelect<false> | ResearchSelect<true>;
+    activities: ActivitiesSelect<false> | ActivitiesSelect<true>;
     people: PeopleSelect<false> | PeopleSelect<true>;
     tags: TagsSelect<false> | TagsSelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
@@ -254,6 +256,7 @@ export interface Media {
     };
     [k: string]: unknown;
   } | null;
+  prefix?: string | null;
   folder?: (number | null) | FolderInterface;
   updatedAt: string;
   createdAt: string;
@@ -578,6 +581,68 @@ export interface Research {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "activities".
+ */
+export interface Activity {
+  id: number;
+  title: string;
+  activityType: 'symposium' | 'conference';
+  description?: string | null;
+  date: string;
+  location?: string | null;
+  heroImage?: (number | null) | Media;
+  content: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  };
+  relatedPosts?: (number | Post)[] | null;
+  relatedResearch?: (number | Research)[] | null;
+  references?:
+    | {
+        title: string;
+        authors?:
+          | {
+              name: string;
+              id?: string | null;
+            }[]
+          | null;
+        journal?: string | null;
+        year?: number | null;
+        doi?: string | null;
+        url?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  meta?: {
+    title?: string | null;
+    /**
+     * Maximum upload file size: 12MB. Recommended file size for images is <500KB.
+     */
+    image?: (number | null) | Media;
+    description?: string | null;
+  };
+  /**
+   * When enabled, the slug will auto-generate from the title field on save and autosave.
+   */
+  generateSlug?: boolean | null;
+  slug: string;
+  updatedAt: string;
+  createdAt: string;
+  _status?: ('draft' | 'published') | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "redirects".
  */
 export interface Redirect {
@@ -604,6 +669,10 @@ export interface Redirect {
       | ({
           relationTo: 'research';
           value: number | Research;
+        } | null)
+      | ({
+          relationTo: 'activities';
+          value: number | Activity;
         } | null);
     url?: string | null;
   };
@@ -966,6 +1035,10 @@ export interface PayloadLockedDocument {
         value: number | Research;
       } | null)
     | ({
+        relationTo: 'activities';
+        value: number | Activity;
+      } | null)
+    | ({
         relationTo: 'people';
         value: number | Person;
       } | null)
@@ -1158,6 +1231,49 @@ export interface ResearchSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "activities_select".
+ */
+export interface ActivitiesSelect<T extends boolean = true> {
+  title?: T;
+  activityType?: T;
+  description?: T;
+  date?: T;
+  location?: T;
+  heroImage?: T;
+  content?: T;
+  relatedPosts?: T;
+  relatedResearch?: T;
+  references?:
+    | T
+    | {
+        title?: T;
+        authors?:
+          | T
+          | {
+              name?: T;
+              id?: T;
+            };
+        journal?: T;
+        year?: T;
+        doi?: T;
+        url?: T;
+        id?: T;
+      };
+  meta?:
+    | T
+    | {
+        title?: T;
+        image?: T;
+        description?: T;
+      };
+  generateSlug?: T;
+  slug?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  _status?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "people_select".
  */
 export interface PeopleSelect<T extends boolean = true> {
@@ -1202,6 +1318,7 @@ export interface TagsSelect<T extends boolean = true> {
 export interface MediaSelect<T extends boolean = true> {
   alt?: T;
   caption?: T;
+  prefix?: T;
   folder?: T;
   updatedAt?: T;
   createdAt?: T;
@@ -1637,6 +1754,10 @@ export interface Header {
             | ({
                 relationTo: 'research';
                 value: number | Research;
+              } | null)
+            | ({
+                relationTo: 'activities';
+                value: number | Activity;
               } | null);
           url?: string | null;
           label: string;
@@ -1665,6 +1786,10 @@ export interface Header {
                   | ({
                       relationTo: 'research';
                       value: number | Research;
+                    } | null)
+                  | ({
+                      relationTo: 'activities';
+                      value: number | Activity;
                     } | null);
                 url?: string | null;
                 label: string;
@@ -1706,6 +1831,10 @@ export interface Footer {
             | ({
                 relationTo: 'research';
                 value: number | Research;
+              } | null)
+            | ({
+                relationTo: 'activities';
+                value: number | Activity;
               } | null);
           url?: string | null;
           label: string;
@@ -1737,6 +1866,10 @@ export interface Footer {
                   | ({
                       relationTo: 'research';
                       value: number | Research;
+                    } | null)
+                  | ({
+                      relationTo: 'activities';
+                      value: number | Activity;
                     } | null);
                 url?: string | null;
                 label: string;
@@ -1781,6 +1914,10 @@ export interface Footer {
             | ({
                 relationTo: 'research';
                 value: number | Research;
+              } | null)
+            | ({
+                relationTo: 'activities';
+                value: number | Activity;
               } | null);
           url?: string | null;
           label: string;
@@ -2120,6 +2257,10 @@ export interface TaskSchedulePublish {
       | ({
           relationTo: 'research';
           value: number | Research;
+        } | null)
+      | ({
+          relationTo: 'activities';
+          value: number | Activity;
         } | null);
     global?: string | null;
     user?: (number | null) | User;

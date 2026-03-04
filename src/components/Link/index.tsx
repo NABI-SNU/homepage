@@ -1,9 +1,10 @@
 import { Button, type ButtonProps } from '@/components/ui/button'
+import { getActivityPathFromReferenceValue } from '@/utilities/activityURL'
 import { cn } from '@/utilities/ui'
 import Link from 'next/link'
 import React from 'react'
 
-import type { News, Person, Post, Research } from '@/payload-types'
+import type { Activity, News, Person, Post, Research } from '@/payload-types'
 
 type CMSLinkType = {
   appearance?: 'inline' | ButtonProps['variant']
@@ -12,8 +13,8 @@ type CMSLinkType = {
   label?: string | null
   newTab?: boolean | null
   reference?: {
-    relationTo: 'posts' | 'people' | 'news' | 'research'
-    value: Post | Person | News | Research | string | number
+    relationTo: 'posts' | 'people' | 'news' | 'research' | 'activities'
+    value: Post | Person | News | Research | Activity | string | number
   } | null
   size?: ButtonProps['size'] | null
   type?: 'custom' | 'reference' | null
@@ -35,7 +36,11 @@ export const CMSLink: React.FC<CMSLinkType> = (props) => {
 
   const href =
     type === 'reference' && typeof reference?.value === 'object' && reference.value.slug
-      ? `${reference?.relationTo === 'research' ? '/labs' : `/${reference?.relationTo}`}/${reference.value.slug}`
+      ? reference?.relationTo === 'research'
+        ? `/labs/${reference.value.slug}`
+        : reference?.relationTo === 'activities'
+          ? getActivityPathFromReferenceValue(reference.value)
+          : `/${reference?.relationTo}/${reference.value.slug}`
       : url
 
   if (!href) return null

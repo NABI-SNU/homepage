@@ -2,8 +2,8 @@ import type { CardDocData } from '@/components/Card'
 import type { Media, Search } from '@/payload-types'
 import { extractLegacyImageFromLexical } from '@/utilities/legacyImage'
 
-type PayloadLike = {
-  find: (...args: any[]) => Promise<{ docs: unknown[] }>
+export type PayloadLike = {
+  find: (args: Record<string, unknown>) => Promise<{ docs: unknown[] }>
 }
 
 type NewsDocForSearch = {

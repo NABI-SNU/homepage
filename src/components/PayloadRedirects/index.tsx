@@ -1,6 +1,7 @@
 import type React from 'react'
 
 import { getCachedDocument } from '@/utilities/getDocument'
+import { getActivityPathFromReferenceValue } from '@/utilities/activityURL'
 import { getCachedRedirects } from '@/utilities/getRedirects'
 import { notFound, redirect } from 'next/navigation'
 
@@ -30,19 +31,32 @@ export const PayloadRedirects: React.FC<Props> = async ({ disableNotFound, url }
       const relationPrefix =
         redirectItem.to?.reference?.relationTo === 'research'
           ? '/labs'
-          : `/${redirectItem.to?.reference?.relationTo}`
-
-      redirectUrl = `${relationPrefix}/${document?.slug}`
+          : redirectItem.to?.reference?.relationTo === 'activities'
+            ? getActivityPathFromReferenceValue(document)
+            : `/${redirectItem.to?.reference?.relationTo}`
+      redirectUrl =
+        relationPrefix && redirectItem.to?.reference?.relationTo === 'activities'
+          ? relationPrefix
+          : relationPrefix
+            ? `${relationPrefix}/${document?.slug}`
+            : ''
     } else {
       const relationPrefix =
         redirectItem.to?.reference?.relationTo === 'research'
           ? '/labs'
-          : `/${redirectItem.to?.reference?.relationTo}`
-      redirectUrl = `${relationPrefix}/${
-        typeof redirectItem.to?.reference?.value === 'object'
-          ? redirectItem.to?.reference?.value?.slug
-          : ''
-      }`
+          : redirectItem.to?.reference?.relationTo === 'activities'
+            ? getActivityPathFromReferenceValue(redirectItem.to?.reference?.value)
+            : `/${redirectItem.to?.reference?.relationTo}`
+      redirectUrl =
+        relationPrefix && redirectItem.to?.reference?.relationTo === 'activities'
+          ? relationPrefix
+          : relationPrefix
+            ? `${relationPrefix}/${
+                typeof redirectItem.to?.reference?.value === 'object'
+                  ? redirectItem.to?.reference?.value?.slug
+                  : ''
+              }`
+            : ''
     }
 
     if (redirectUrl) redirect(redirectUrl)

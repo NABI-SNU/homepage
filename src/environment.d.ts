@@ -4,6 +4,7 @@ declare global {
       PAYLOAD_SECRET: string
       STORAGE_DATABASE_URL: string
       DATABASE_URL?: string
+      PAYLOAD_PUSH_SCHEMA?: string
       STORAGE_DATABASE_USE_NEON_SERVERLESS?: string
       NEXT_PUBLIC_SERVER_URL: string
       VERCEL_PROJECT_PRODUCTION_URL: string

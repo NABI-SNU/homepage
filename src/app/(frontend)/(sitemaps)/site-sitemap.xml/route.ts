@@ -11,7 +11,7 @@ const getSiteSitemap = unstable_cache(
       process.env.VERCEL_PROJECT_PRODUCTION_URL ||
       'https://example.com'
 
-    const [peopleResults, newsResults, researchResults] = await Promise.all([
+    const [peopleResults, newsResults, researchResults, activitiesResults] = await Promise.all([
       payload.find({
         collection: 'people',
         overrideAccess: false,
@@ -57,9 +57,37 @@ const getSiteSitemap = unstable_cache(
           updatedAt: true,
         },
       }),
+      payload.find({
+        collection: 'activities',
+        overrideAccess: false,
+        draft: false,
+        depth: 0,
+        limit: 1000,
+        pagination: false,
+        where: {
+          _status: {
+            equals: 'published',
+          },
+        },
+        select: {
+          slug: true,
+          updatedAt: true,
+          activityType: true,
+        },
+      }),
     ])
 
     const dateFallback = new Date().toISOString()
+    const symposiumUpdatedAt =
+      activitiesResults.docs
+        .filter((item) => item.activityType === 'symposium')
+        .map((item) => item.updatedAt || dateFallback)
+        .sort((a, b) => (a > b ? -1 : 1))[0] || dateFallback
+    const latestConferenceUpdatedAt =
+      activitiesResults.docs
+        .filter((item) => item.activityType === 'conference')
+        .map((item) => item.updatedAt || dateFallback)
+        .sort((a, b) => (a > b ? -1 : 1))[0] || dateFallback
 
     const defaultSitemap = [
       {
@@ -96,7 +124,11 @@ const getSiteSitemap = unstable_cache(
       },
       {
         loc: `${SITE_URL}/symposium`,
-        lastmod: dateFallback,
+        lastmod: symposiumUpdatedAt,
+      },
+      {
+        loc: `${SITE_URL}/conferences`,
+        lastmod: latestConferenceUpdatedAt,
       },
     ]
 
@@ -127,7 +159,32 @@ const getSiteSitemap = unstable_cache(
           }))
       : []
 
-    return [...defaultSitemap, ...peopleSitemap, ...newsSitemap, ...researchSitemap]
+    const conferencesSitemap = activitiesResults.docs
+      ? activitiesResults.docs
+          .filter((item) => item?.activityType === 'conference' && Boolean(item?.slug))
+          .map((item) => ({
+            loc: `${SITE_URL}/conferences/${item.slug}`,
+            lastmod: item.updatedAt || dateFallback,
+          }))
+      : []
+
+    const symposiumSitemap = activitiesResults.docs
+      ? activitiesResults.docs
+          .filter((item) => item?.activityType === 'symposium' && Boolean(item?.slug))
+          .map((item) => ({
+            loc: `${SITE_URL}/symposium/${item.slug}`,
+            lastmod: item.updatedAt || dateFallback,
+          }))
+      : []
+
+    return [
+      ...defaultSitemap,
+      ...peopleSitemap,
+      ...newsSitemap,
+      ...researchSitemap,
+      ...symposiumSitemap,
+      ...conferencesSitemap,
+    ]
   },
   ['site-sitemap'],
   {

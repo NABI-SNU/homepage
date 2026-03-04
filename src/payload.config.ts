@@ -6,6 +6,7 @@ import { buildConfig, PayloadRequest } from 'payload'
 import { fileURLToPath } from 'url'
 
 import { Categories } from './collections/Categories'
+import { Activities } from './collections/Activities'
 import { Media } from './collections/Media'
 import { News } from './collections/News'
 import { People } from './collections/People'
@@ -13,6 +14,7 @@ import { Posts } from './collections/Posts'
 import { Research } from './collections/Research'
 import { Tags } from './collections/Tags'
 import { Users } from './collections/Users'
+import { ensureDefaultSymposiumActivity } from './collections/Activities/seedDefaultSymposium'
 import { AboutPage } from './globals/AboutPage/config'
 import { ContactPage } from './globals/ContactPage/config'
 import { Footer } from './Footer/config'
@@ -31,6 +33,9 @@ const smtpConfigured = Boolean(
   process.env.SMTP_HOST && process.env.SMTP_USER && process.env.SMTP_PASS,
 )
 const storageDatabaseURL = getStorageDatabaseURL()
+const pgDependency = getStoragePgDependency() as unknown as NonNullable<
+  Parameters<typeof postgresAdapter>[0]['pg']
+>
 
 export default buildConfig({
   admin: {
@@ -72,13 +77,13 @@ export default buildConfig({
   // This config helps us configure global or default features that the other editors can inherit
   editor: defaultLexical,
   db: postgresAdapter({
-    pg: getStoragePgDependency() as any,
+    pg: pgDependency,
     push: process.env.PAYLOAD_PUSH_SCHEMA === 'true',
     pool: {
       connectionString: storageDatabaseURL,
     },
   }),
-  collections: [Posts, News, Research, People, Tags, Media, Categories, Users],
+  collections: [Posts, News, Research, Activities, People, Tags, Media, Categories, Users],
   cors: [getServerSideURL()].filter(Boolean),
   email: nodemailerAdapter({
     defaultFromAddress: process.env.SMTP_FROM_ADDRESS || 'no-reply@nabi.local',
@@ -121,5 +126,15 @@ export default buildConfig({
       },
     },
     tasks: [],
+  },
+  onInit: async (payload) => {
+    if (
+      process.env.NODE_ENV === 'test' ||
+      process.env.VITEST === 'true' ||
+      process.env.NEXT_PHASE === 'phase-production-build'
+    ) {
+      return
+    }
+    await ensureDefaultSymposiumActivity(payload)
   },
 })

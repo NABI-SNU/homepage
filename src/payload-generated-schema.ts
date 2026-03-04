@@ -39,6 +39,19 @@ export const enum__research_v_version_status = pgEnum('enum__research_v_version_
   'draft',
   'published',
 ])
+export const enum_activities_activity_type = pgEnum('enum_activities_activity_type', [
+  'symposium',
+  'conference',
+])
+export const enum_activities_status = pgEnum('enum_activities_status', ['draft', 'published'])
+export const enum__activities_v_version_activity_type = pgEnum(
+  'enum__activities_v_version_activity_type',
+  ['symposium', 'conference'],
+)
+export const enum__activities_v_version_status = pgEnum('enum__activities_v_version_status', [
+  'draft',
+  'published',
+])
 export const enum_people_socials_platform = pgEnum('enum_people_socials_platform', [
   'x',
   'github',
@@ -703,6 +716,189 @@ export const _research_v = pgTable(
   ],
 )
 
+export const activities_references_authors = pgTable(
+  'activities_references_authors',
+  {
+    _order: integer('_order').notNull(),
+    _parentID: varchar('_parent_id').notNull(),
+    id: varchar('id').primaryKey(),
+    name: varchar('name'),
+  },
+  (columns) => [
+    index('activities_references_authors_order_idx').on(columns._order),
+    index('activities_references_authors_parent_id_idx').on(columns._parentID),
+    foreignKey({
+      columns: [columns['_parentID']],
+      foreignColumns: [activities_references.id],
+      name: 'activities_references_authors_parent_id_fk',
+    }).onDelete('cascade'),
+  ],
+)
+
+export const activities_references = pgTable(
+  'activities_references',
+  {
+    _order: integer('_order').notNull(),
+    _parentID: integer('_parent_id').notNull(),
+    id: varchar('id').primaryKey(),
+    title: varchar('title'),
+    journal: varchar('journal'),
+    year: numeric('year', { mode: 'number' }),
+    doi: varchar('doi'),
+    url: varchar('url'),
+  },
+  (columns) => [
+    index('activities_references_order_idx').on(columns._order),
+    index('activities_references_parent_id_idx').on(columns._parentID),
+    foreignKey({
+      columns: [columns['_parentID']],
+      foreignColumns: [activities.id],
+      name: 'activities_references_parent_id_fk',
+    }).onDelete('cascade'),
+  ],
+)
+
+export const activities = pgTable(
+  'activities',
+  {
+    id: serial('id').primaryKey(),
+    title: varchar('title'),
+    activityType: enum_activities_activity_type('activity_type').default('conference'),
+    description: varchar('description'),
+    date: timestamp('date', { mode: 'string', withTimezone: true, precision: 3 }),
+    location: varchar('location'),
+    heroImage: integer('hero_image_id').references(() => media.id, {
+      onDelete: 'set null',
+    }),
+    content: jsonb('content'),
+    meta_title: varchar('meta_title'),
+    meta_image: integer('meta_image_id').references(() => media.id, {
+      onDelete: 'set null',
+    }),
+    meta_description: varchar('meta_description'),
+    generateSlug: boolean('generate_slug').default(true),
+    slug: varchar('slug'),
+    updatedAt: timestamp('updated_at', { mode: 'string', withTimezone: true, precision: 3 })
+      .defaultNow()
+      .notNull(),
+    createdAt: timestamp('created_at', { mode: 'string', withTimezone: true, precision: 3 })
+      .defaultNow()
+      .notNull(),
+    _status: enum_activities_status('_status').default('draft'),
+  },
+  (columns) => [
+    index('activities_hero_image_idx').on(columns.heroImage),
+    index('activities_meta_meta_image_idx').on(columns.meta_image),
+    uniqueIndex('activities_slug_idx').on(columns.slug),
+    index('activities_updated_at_idx').on(columns.updatedAt),
+    index('activities_created_at_idx').on(columns.createdAt),
+    index('activities__status_idx').on(columns._status),
+  ],
+)
+
+export const _activities_v_version_references_authors = pgTable(
+  '_activities_v_version_references_authors',
+  {
+    _order: integer('_order').notNull(),
+    _parentID: integer('_parent_id').notNull(),
+    id: serial('id').primaryKey(),
+    name: varchar('name'),
+    _uuid: varchar('_uuid'),
+  },
+  (columns) => [
+    index('_activities_v_version_references_authors_order_idx').on(columns._order),
+    index('_activities_v_version_references_authors_parent_id_idx').on(columns._parentID),
+    foreignKey({
+      columns: [columns['_parentID']],
+      foreignColumns: [_activities_v_version_references.id],
+      name: '_activities_v_version_references_authors_parent_id_fk',
+    }).onDelete('cascade'),
+  ],
+)
+
+export const _activities_v_version_references = pgTable(
+  '_activities_v_version_references',
+  {
+    _order: integer('_order').notNull(),
+    _parentID: integer('_parent_id').notNull(),
+    id: serial('id').primaryKey(),
+    title: varchar('title'),
+    journal: varchar('journal'),
+    year: numeric('year', { mode: 'number' }),
+    doi: varchar('doi'),
+    url: varchar('url'),
+    _uuid: varchar('_uuid'),
+  },
+  (columns) => [
+    index('_activities_v_version_references_order_idx').on(columns._order),
+    index('_activities_v_version_references_parent_id_idx').on(columns._parentID),
+    foreignKey({
+      columns: [columns['_parentID']],
+      foreignColumns: [_activities_v.id],
+      name: '_activities_v_version_references_parent_id_fk',
+    }).onDelete('cascade'),
+  ],
+)
+
+export const _activities_v = pgTable(
+  '_activities_v',
+  {
+    id: serial('id').primaryKey(),
+    parent: integer('parent_id').references(() => activities.id, {
+      onDelete: 'set null',
+    }),
+    version_title: varchar('version_title'),
+    version_activityType:
+      enum__activities_v_version_activity_type('version_activity_type').default('conference'),
+    version_description: varchar('version_description'),
+    version_date: timestamp('version_date', { mode: 'string', withTimezone: true, precision: 3 }),
+    version_location: varchar('version_location'),
+    version_heroImage: integer('version_hero_image_id').references(() => media.id, {
+      onDelete: 'set null',
+    }),
+    version_content: jsonb('version_content'),
+    version_meta_title: varchar('version_meta_title'),
+    version_meta_image: integer('version_meta_image_id').references(() => media.id, {
+      onDelete: 'set null',
+    }),
+    version_meta_description: varchar('version_meta_description'),
+    version_generateSlug: boolean('version_generate_slug').default(true),
+    version_slug: varchar('version_slug'),
+    version_updatedAt: timestamp('version_updated_at', {
+      mode: 'string',
+      withTimezone: true,
+      precision: 3,
+    }),
+    version_createdAt: timestamp('version_created_at', {
+      mode: 'string',
+      withTimezone: true,
+      precision: 3,
+    }),
+    version__status: enum__activities_v_version_status('version__status').default('draft'),
+    createdAt: timestamp('created_at', { mode: 'string', withTimezone: true, precision: 3 })
+      .defaultNow()
+      .notNull(),
+    updatedAt: timestamp('updated_at', { mode: 'string', withTimezone: true, precision: 3 })
+      .defaultNow()
+      .notNull(),
+    latest: boolean('latest'),
+    autosave: boolean('autosave'),
+  },
+  (columns) => [
+    index('_activities_v_parent_idx').on(columns.parent),
+    index('_activities_v_version_version_hero_image_idx').on(columns.version_heroImage),
+    index('_activities_v_version_meta_version_meta_image_idx').on(columns.version_meta_image),
+    index('_activities_v_version_version_slug_idx').on(columns.version_slug),
+    index('_activities_v_version_version_updated_at_idx').on(columns.version_updatedAt),
+    index('_activities_v_version_version_created_at_idx').on(columns.version_createdAt),
+    index('_activities_v_version_version__status_idx').on(columns.version__status),
+    index('_activities_v_created_at_idx').on(columns.createdAt),
+    index('_activities_v_updated_at_idx').on(columns.updatedAt),
+    index('_activities_v_latest_idx').on(columns.latest),
+    index('_activities_v_autosave_idx').on(columns.autosave),
+  ],
+)
+
 export const people_socials = pgTable(
   'people_socials',
   {
@@ -1025,6 +1221,7 @@ export const redirects_rels = pgTable(
     peopleID: integer('people_id'),
     newsID: integer('news_id'),
     researchID: integer('research_id'),
+    activitiesID: integer('activities_id'),
   },
   (columns) => [
     index('redirects_rels_order_idx').on(columns.order),
@@ -1034,6 +1231,7 @@ export const redirects_rels = pgTable(
     index('redirects_rels_people_id_idx').on(columns.peopleID),
     index('redirects_rels_news_id_idx').on(columns.newsID),
     index('redirects_rels_research_id_idx').on(columns.researchID),
+    index('redirects_rels_activities_id_idx').on(columns.activitiesID),
     foreignKey({
       columns: [columns['parent']],
       foreignColumns: [redirects.id],
@@ -1058,6 +1256,11 @@ export const redirects_rels = pgTable(
       columns: [columns['researchID']],
       foreignColumns: [research.id],
       name: 'redirects_rels_research_fk',
+    }).onDelete('cascade'),
+    foreignKey({
+      columns: [columns['activitiesID']],
+      foreignColumns: [activities.id],
+      name: 'redirects_rels_activities_fk',
     }).onDelete('cascade'),
   ],
 )
@@ -1456,12 +1659,14 @@ export const search_rels = pgTable(
     parent: integer('parent_id').notNull(),
     path: varchar('path').notNull(),
     postsID: integer('posts_id'),
+    newsID: integer('news_id'),
   },
   (columns) => [
     index('search_rels_order_idx').on(columns.order),
     index('search_rels_parent_idx').on(columns.parent),
     index('search_rels_path_idx').on(columns.path),
     index('search_rels_posts_id_idx').on(columns.postsID),
+    index('search_rels_news_id_idx').on(columns.newsID),
     foreignKey({
       columns: [columns['parent']],
       foreignColumns: [search.id],
@@ -1471,6 +1676,11 @@ export const search_rels = pgTable(
       columns: [columns['postsID']],
       foreignColumns: [posts.id],
       name: 'search_rels_posts_fk',
+    }).onDelete('cascade'),
+    foreignKey({
+      columns: [columns['newsID']],
+      foreignColumns: [news.id],
+      name: 'search_rels_news_fk',
     }).onDelete('cascade'),
   ],
 )
@@ -1623,6 +1833,7 @@ export const payload_locked_documents_rels = pgTable(
     postsID: integer('posts_id'),
     newsID: integer('news_id'),
     researchID: integer('research_id'),
+    activitiesID: integer('activities_id'),
     peopleID: integer('people_id'),
     tagsID: integer('tags_id'),
     mediaID: integer('media_id'),
@@ -1641,6 +1852,7 @@ export const payload_locked_documents_rels = pgTable(
     index('payload_locked_documents_rels_posts_id_idx').on(columns.postsID),
     index('payload_locked_documents_rels_news_id_idx').on(columns.newsID),
     index('payload_locked_documents_rels_research_id_idx').on(columns.researchID),
+    index('payload_locked_documents_rels_activities_id_idx').on(columns.activitiesID),
     index('payload_locked_documents_rels_people_id_idx').on(columns.peopleID),
     index('payload_locked_documents_rels_tags_id_idx').on(columns.tagsID),
     index('payload_locked_documents_rels_media_id_idx').on(columns.mediaID),
@@ -1672,6 +1884,11 @@ export const payload_locked_documents_rels = pgTable(
       columns: [columns['researchID']],
       foreignColumns: [research.id],
       name: 'payload_locked_documents_rels_research_fk',
+    }).onDelete('cascade'),
+    foreignKey({
+      columns: [columns['activitiesID']],
+      foreignColumns: [activities.id],
+      name: 'payload_locked_documents_rels_activities_fk',
     }).onDelete('cascade'),
     foreignKey({
       columns: [columns['peopleID']],
@@ -1853,6 +2070,7 @@ export const header_rels = pgTable(
     peopleID: integer('people_id'),
     newsID: integer('news_id'),
     researchID: integer('research_id'),
+    activitiesID: integer('activities_id'),
   },
   (columns) => [
     index('header_rels_order_idx').on(columns.order),
@@ -1862,6 +2080,7 @@ export const header_rels = pgTable(
     index('header_rels_people_id_idx').on(columns.peopleID),
     index('header_rels_news_id_idx').on(columns.newsID),
     index('header_rels_research_id_idx').on(columns.researchID),
+    index('header_rels_activities_id_idx').on(columns.activitiesID),
     foreignKey({
       columns: [columns['parent']],
       foreignColumns: [header.id],
@@ -1886,6 +2105,11 @@ export const header_rels = pgTable(
       columns: [columns['researchID']],
       foreignColumns: [research.id],
       name: 'header_rels_research_fk',
+    }).onDelete('cascade'),
+    foreignKey({
+      columns: [columns['activitiesID']],
+      foreignColumns: [activities.id],
+      name: 'header_rels_activities_fk',
     }).onDelete('cascade'),
   ],
 )
@@ -2016,6 +2240,7 @@ export const footer_rels = pgTable(
     peopleID: integer('people_id'),
     newsID: integer('news_id'),
     researchID: integer('research_id'),
+    activitiesID: integer('activities_id'),
   },
   (columns) => [
     index('footer_rels_order_idx').on(columns.order),
@@ -2025,6 +2250,7 @@ export const footer_rels = pgTable(
     index('footer_rels_people_id_idx').on(columns.peopleID),
     index('footer_rels_news_id_idx').on(columns.newsID),
     index('footer_rels_research_id_idx').on(columns.researchID),
+    index('footer_rels_activities_id_idx').on(columns.activitiesID),
     foreignKey({
       columns: [columns['parent']],
       foreignColumns: [footer.id],
@@ -2049,6 +2275,11 @@ export const footer_rels = pgTable(
       columns: [columns['researchID']],
       foreignColumns: [research.id],
       name: 'footer_rels_research_fk',
+    }).onDelete('cascade'),
+    foreignKey({
+      columns: [columns['activitiesID']],
+      foreignColumns: [activities.id],
+      name: 'footer_rels_activities_fk',
     }).onDelete('cascade'),
   ],
 )
@@ -2460,6 +2691,87 @@ export const relations__research_v = relations(_research_v, ({ one, many }) => (
     relationName: 'version_references',
   }),
 }))
+export const relations_activities_references_authors = relations(
+  activities_references_authors,
+  ({ one }) => ({
+    _parentID: one(activities_references, {
+      fields: [activities_references_authors._parentID],
+      references: [activities_references.id],
+      relationName: 'authors',
+    }),
+  }),
+)
+export const relations_activities_references = relations(
+  activities_references,
+  ({ one, many }) => ({
+    _parentID: one(activities, {
+      fields: [activities_references._parentID],
+      references: [activities.id],
+      relationName: 'references',
+    }),
+    authors: many(activities_references_authors, {
+      relationName: 'authors',
+    }),
+  }),
+)
+export const relations_activities = relations(activities, ({ one, many }) => ({
+  heroImage: one(media, {
+    fields: [activities.heroImage],
+    references: [media.id],
+    relationName: 'heroImage',
+  }),
+  references: many(activities_references, {
+    relationName: 'references',
+  }),
+  meta_image: one(media, {
+    fields: [activities.meta_image],
+    references: [media.id],
+    relationName: 'meta_image',
+  }),
+}))
+export const relations__activities_v_version_references_authors = relations(
+  _activities_v_version_references_authors,
+  ({ one }) => ({
+    _parentID: one(_activities_v_version_references, {
+      fields: [_activities_v_version_references_authors._parentID],
+      references: [_activities_v_version_references.id],
+      relationName: 'authors',
+    }),
+  }),
+)
+export const relations__activities_v_version_references = relations(
+  _activities_v_version_references,
+  ({ one, many }) => ({
+    _parentID: one(_activities_v, {
+      fields: [_activities_v_version_references._parentID],
+      references: [_activities_v.id],
+      relationName: 'version_references',
+    }),
+    authors: many(_activities_v_version_references_authors, {
+      relationName: 'authors',
+    }),
+  }),
+)
+export const relations__activities_v = relations(_activities_v, ({ one, many }) => ({
+  parent: one(activities, {
+    fields: [_activities_v.parent],
+    references: [activities.id],
+    relationName: 'parent',
+  }),
+  version_heroImage: one(media, {
+    fields: [_activities_v.version_heroImage],
+    references: [media.id],
+    relationName: 'version_heroImage',
+  }),
+  version_references: many(_activities_v_version_references, {
+    relationName: 'version_references',
+  }),
+  version_meta_image: one(media, {
+    fields: [_activities_v.version_meta_image],
+    references: [media.id],
+    relationName: 'version_meta_image',
+  }),
+}))
 export const relations_people_socials = relations(people_socials, ({ one }) => ({
   _parentID: one(people, {
     fields: [people_socials._parentID],
@@ -2559,6 +2871,11 @@ export const relations_redirects_rels = relations(redirects_rels, ({ one }) => (
     fields: [redirects_rels.researchID],
     references: [research.id],
     relationName: 'research',
+  }),
+  activitiesID: one(activities, {
+    fields: [redirects_rels.activitiesID],
+    references: [activities.id],
+    relationName: 'activities',
   }),
 }))
 export const relations_redirects = relations(redirects, ({ many }) => ({
@@ -2719,6 +3036,11 @@ export const relations_search_rels = relations(search_rels, ({ one }) => ({
     references: [posts.id],
     relationName: 'posts',
   }),
+  newsID: one(news, {
+    fields: [search_rels.newsID],
+    references: [news.id],
+    relationName: 'news',
+  }),
 }))
 export const relations_search = relations(search, ({ one, many }) => ({
   meta_image: one(media, {
@@ -2788,6 +3110,11 @@ export const relations_payload_locked_documents_rels = relations(
       fields: [payload_locked_documents_rels.researchID],
       references: [research.id],
       relationName: 'research',
+    }),
+    activitiesID: one(activities, {
+      fields: [payload_locked_documents_rels.activitiesID],
+      references: [activities.id],
+      relationName: 'activities',
     }),
     peopleID: one(people, {
       fields: [payload_locked_documents_rels.peopleID],
@@ -2913,6 +3240,11 @@ export const relations_header_rels = relations(header_rels, ({ one }) => ({
     references: [research.id],
     relationName: 'research',
   }),
+  activitiesID: one(activities, {
+    fields: [header_rels.activitiesID],
+    references: [activities.id],
+    relationName: 'activities',
+  }),
 }))
 export const relations_header = relations(header, ({ many }) => ({
   navItems: many(header_nav_items, {
@@ -2985,6 +3317,11 @@ export const relations_footer_rels = relations(footer_rels, ({ one }) => ({
     fields: [footer_rels.researchID],
     references: [research.id],
     relationName: 'research',
+  }),
+  activitiesID: one(activities, {
+    fields: [footer_rels.activitiesID],
+    references: [activities.id],
+    relationName: 'activities',
   }),
 }))
 export const relations_footer = relations(footer, ({ many }) => ({
@@ -3066,6 +3403,10 @@ type DatabaseSchema = {
   enum__news_v_version_status: typeof enum__news_v_version_status
   enum_research_status: typeof enum_research_status
   enum__research_v_version_status: typeof enum__research_v_version_status
+  enum_activities_activity_type: typeof enum_activities_activity_type
+  enum_activities_status: typeof enum_activities_status
+  enum__activities_v_version_activity_type: typeof enum__activities_v_version_activity_type
+  enum__activities_v_version_status: typeof enum__activities_v_version_status
   enum_people_socials_platform: typeof enum_people_socials_platform
   enum_people_member_type: typeof enum_people_member_type
   enum_users_roles: typeof enum_users_roles
@@ -3100,6 +3441,12 @@ type DatabaseSchema = {
   _research_v_version_references_authors: typeof _research_v_version_references_authors
   _research_v_version_references: typeof _research_v_version_references
   _research_v: typeof _research_v
+  activities_references_authors: typeof activities_references_authors
+  activities_references: typeof activities_references
+  activities: typeof activities
+  _activities_v_version_references_authors: typeof _activities_v_version_references_authors
+  _activities_v_version_references: typeof _activities_v_version_references
+  _activities_v: typeof _activities_v
   people_socials: typeof people_socials
   people: typeof people
   people_texts: typeof people_texts
@@ -3176,6 +3523,12 @@ type DatabaseSchema = {
   relations__research_v_version_references_authors: typeof relations__research_v_version_references_authors
   relations__research_v_version_references: typeof relations__research_v_version_references
   relations__research_v: typeof relations__research_v
+  relations_activities_references_authors: typeof relations_activities_references_authors
+  relations_activities_references: typeof relations_activities_references
+  relations_activities: typeof relations_activities
+  relations__activities_v_version_references_authors: typeof relations__activities_v_version_references_authors
+  relations__activities_v_version_references: typeof relations__activities_v_version_references
+  relations__activities_v: typeof relations__activities_v
   relations_people_socials: typeof relations_people_socials
   relations_people_texts: typeof relations_people_texts
   relations_people: typeof relations_people

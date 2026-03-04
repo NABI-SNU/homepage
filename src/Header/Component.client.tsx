@@ -19,8 +19,17 @@ interface HeaderClientProps {
 
 const shouldForceLightHeader = (pathname: string | null) => {
   if (!pathname) return false
-  if (pathname === '/posts' || pathname === '/news' || pathname === '/search') return true
+  if (
+    pathname === '/posts' ||
+    pathname === '/news' ||
+    pathname === '/search' ||
+    pathname === '/conferences' ||
+    pathname === '/symposium'
+  ) {
+    return true
+  }
   if (pathname.startsWith('/posts/page/')) return true
+  if (pathname.startsWith('/conferences/')) return true
   return false
 }
 

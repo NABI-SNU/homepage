@@ -5,6 +5,7 @@ import React from 'react'
 import type { Header as HeaderType } from '@/payload-types'
 
 import { CMSLink } from '@/components/Link'
+import { getActivityPathFromReferenceValue } from '@/utilities/activityURL'
 import { cn } from '@/utilities/ui'
 import { ChevronDown } from 'lucide-react'
 import { usePathname } from 'next/navigation'
@@ -16,7 +17,13 @@ type HeaderSubNavItem = NonNullable<NonNullable<HeaderNavItem['links']>[number]>
 const fallbackNavItems: HeaderNavItem[] = [
   { link: { type: 'custom', label: 'About', url: '/about' } },
   { link: { type: 'custom', label: 'People', url: '/people' } },
-  { link: { type: 'custom', label: 'Symposium', url: '/symposium' } },
+  {
+    link: { type: 'custom', label: 'Activities', url: '/conferences' },
+    links: [
+      { link: { type: 'custom', label: 'Symposium', url: '/symposium' } },
+      { link: { type: 'custom', label: 'Conferences', url: '/conferences' } },
+    ],
+  },
   {
     link: { type: 'custom', label: 'Articles', url: '/posts' },
     links: [
@@ -59,9 +66,10 @@ const getNavHref = (link: HeaderNavLink | undefined) => {
 
   if (link.type === 'reference' && typeof link.reference?.value === 'object' && link.reference.value?.slug) {
     const relationTo = link.reference.relationTo
-    const base = relationTo === 'research' ? '/labs' : `/${relationTo}`
+    if (relationTo === 'research') return `/labs/${link.reference.value.slug}`
+    if (relationTo === 'activities') return getActivityPathFromReferenceValue(link.reference.value) || ''
 
-    return `${base}/${link.reference.value.slug}`
+    return `/${relationTo}/${link.reference.value.slug}`
   }
 
   return ''

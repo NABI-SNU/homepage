@@ -20,6 +20,7 @@ import type {
   MediaBlock as MediaBlockProps,
 } from '@/payload-types'
 import { BannerBlock } from '@/blocks/Banner/Component'
+import { getActivityPathFromReferenceValue } from '@/utilities/activityURL'
 import { parseLegacyImageTag } from '@/utilities/legacyImage'
 import { cn } from '@/utilities/ui'
 import type { ReactNode } from 'react'
@@ -248,6 +249,7 @@ const internalDocToHref = ({ linkNode }: { linkNode: SerializedLinkNode }) => {
   if (relationTo === 'people') return `/people/${slug}`
   if (relationTo === 'news') return `/news/${slug}`
   if (relationTo === 'research') return `/labs/${slug}`
+  if (relationTo === 'activities') return getActivityPathFromReferenceValue(value) || `/conferences/${slug}`
   return `/${slug}`
 }
 

@@ -17,7 +17,13 @@ export const Header: GlobalConfig = {
       defaultValue: [
         { link: { type: 'custom', label: 'About', url: '/about' } },
         { link: { type: 'custom', label: 'People', url: '/people' } },
-        { link: { type: 'custom', label: 'Symposium', url: '/symposium' } },
+        {
+          link: { type: 'custom', label: 'Activities', url: '/conferences' },
+          links: [
+            { link: { type: 'custom', label: 'Symposium', url: '/symposium' } },
+            { link: { type: 'custom', label: 'Conferences', url: '/conferences' } },
+          ],
+        },
         {
           link: { type: 'custom', label: 'Articles', url: '/posts' },
           links: [

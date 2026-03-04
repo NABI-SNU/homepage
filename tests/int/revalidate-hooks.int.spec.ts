@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
+import { revalidateActivities } from '@/collections/Activities/hooks/revalidateActivities'
 import { revalidateNews } from '@/collections/News/hooks/revalidateNews'
 import { revalidateResearch } from '@/collections/Research/hooks/revalidateResearch'
 
@@ -54,6 +55,18 @@ describe('Revalidate hooks', () => {
 
     expect(revalidatePath).toHaveBeenCalledWith('/news')
     expect(revalidatePath).toHaveBeenCalledWith('/news/release')
+    expect(revalidateTag).toHaveBeenCalledWith('site-sitemap')
+  })
+
+  it('revalidates conference list and detail paths for published conference docs', () => {
+    revalidateActivities({
+      doc: { _status: 'published', activityType: 'conference', slug: 'iclr-2026' },
+      previousDoc: { _status: 'draft', activityType: 'conference', slug: 'iclr-2026' },
+      req: { payload: buildPayload(), context: {} },
+    } as any)
+
+    expect(revalidatePath).toHaveBeenCalledWith('/conferences')
+    expect(revalidatePath).toHaveBeenCalledWith('/conferences/iclr-2026')
     expect(revalidateTag).toHaveBeenCalledWith('site-sitemap')
   })
 })
