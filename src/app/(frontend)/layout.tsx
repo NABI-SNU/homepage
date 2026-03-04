@@ -3,6 +3,7 @@ import type { Metadata } from 'next'
 import { cn } from '@/utilities/ui'
 import { GeistMono } from 'geist/font/mono'
 import { Inter } from 'next/font/google'
+import Script from 'next/script'
 import React from 'react'
 import { Analytics } from '@vercel/analytics/next'
 import { SpeedInsights } from '@vercel/speed-insights/next'
@@ -27,6 +28,17 @@ export default async function RootLayout({ children }: { children: React.ReactNo
     <html className={cn(inter.variable, GeistMono.variable)} lang="en" suppressHydrationWarning>
       <head>
         <InitTheme />
+        <Script
+          async
+          src="https://www.googletagmanager.com/gtag/js?id=G-L1VV9LYT03"
+          strategy="afterInteractive"
+        />
+        <Script id="google-analytics" strategy="afterInteractive">
+          {`window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+gtag('config', 'G-L1VV9LYT03');`}
+        </Script>
         <link href="/favicon.ico" rel="shortcut icon" />
         <link href="/favicon.ico" rel="icon" sizes="32x32" />
         <link href="/favicon.svg" rel="icon" type="image/svg+xml" />
