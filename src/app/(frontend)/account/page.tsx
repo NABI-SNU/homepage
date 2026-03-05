@@ -3,9 +3,20 @@
 import Link from 'next/link'
 import { useSearchParams } from 'next/navigation'
 import { FormEvent, Suspense, useCallback, useEffect, useMemo, useState } from 'react'
-import { Github } from 'lucide-react'
+import {
+  Github,
+  LogOut,
+  Pencil,
+  ExternalLink,
+  FileText,
+  Shield,
+  Mail,
+  User,
+  ChevronRight,
+} from 'lucide-react'
 
 import { authClient } from '@/auth/betterAuthClient'
+import { PersonAvatar } from '@/components/people/PersonAvatar'
 
 const providerOptions = [
   { label: 'Continue with GitHub', provider: 'github' },
@@ -126,7 +137,7 @@ function AccountPageContent() {
   }, [session?.user])
 
   const pageTitle = useMemo(() => {
-    return isSignedIn ? 'Account' : 'Sign Up or Log In'
+    return isSignedIn ? 'Your Account' : 'Sign Up or Log In'
   }, [isSignedIn])
 
   const loadProfile = useCallback(async () => {
@@ -376,38 +387,158 @@ function AccountPageContent() {
         ) : null}
 
         {!isSessionCheckPending && isSignedIn ? (
-          <div className="mt-6 grid gap-3">
-            <p className="text-sm text-muted-foreground">
-              Signed in as {effectiveSessionUser?.email || 'Unknown user'}.
-            </p>
-            <div className="flex flex-wrap gap-3">
+          <div className="mt-8">
+            {/* Profile Header */}
+            <div className="flex items-center gap-5">
+              <PersonAvatar
+                name={profile?.person?.name || session?.user?.name || effectiveSessionUser?.email}
+                email={effectiveSessionUser?.email}
+                size={80}
+                className="shrink-0 ring-2 ring-primary/20 ring-offset-2 ring-offset-background"
+              />
+              <div className="min-w-0">
+                <div className="flex flex-wrap items-center gap-2.5">
+                  <h2 className="truncate text-2xl font-semibold tracking-tight">
+                    {profile?.person?.name || session?.user?.name || 'User'}
+                  </h2>
+                  <span
+                    className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-medium ${
+                      isAdmin
+                        ? 'bg-primary/10 text-primary'
+                        : 'bg-muted text-muted-foreground'
+                    }`}
+                  >
+                    {isAdmin ? (
+                      <>
+                        <Shield className="h-3 w-3" />
+                        Admin
+                      </>
+                    ) : (
+                      <>
+                        <User className="h-3 w-3" />
+                        Member
+                      </>
+                    )}
+                  </span>
+                </div>
+                <div className="mt-1 flex items-center gap-1.5 text-sm text-muted-foreground">
+                  <Mail className="h-3.5 w-3.5 shrink-0" />
+                  <span className="truncate">{effectiveSessionUser?.email || 'No email'}</span>
+                </div>
+                {profile?.person?.name && (
+                  <p className="mt-0.5 text-sm text-muted-foreground">
+                    Linked to member profile
+                  </p>
+                )}
+              </div>
+            </div>
+
+            {/* Gradient accent */}
+            <div className="mt-5 h-0.5 rounded-full bg-gradient-to-r from-primary via-secondary to-accent opacity-60" />
+
+            {/* Action Cards Grid */}
+            <div className="mt-7 grid gap-3 sm:grid-cols-2">
+              {/* Edit Profile */}
               <Link
                 href="/account/profile"
-                className="rounded-md border border-border px-4 py-2 text-sm hover:bg-muted"
+                className="group flex items-start gap-4 rounded-xl border border-border bg-card p-4 transition-all hover:border-primary/30 hover:bg-primary/[0.03] hover:shadow-sm"
               >
-                Edit Profile
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary transition-colors group-hover:bg-primary/15">
+                  <Pencil className="h-5 w-5" />
+                </div>
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm font-medium text-foreground">Edit Profile</span>
+                    <ChevronRight className="h-4 w-4 text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100" />
+                  </div>
+                  <p className="mt-0.5 text-xs leading-relaxed text-muted-foreground">
+                    Update your name, bio, and avatar
+                  </p>
+                </div>
               </Link>
-              {session?.user ? (
+
+              {/* View Public Profile */}
+              {profile?.person?.slug && (
+                <Link
+                  href={`/people/${profile.person.slug}`}
+                  className="group flex items-start gap-4 rounded-xl border border-border bg-card p-4 transition-all hover:border-primary/30 hover:bg-primary/[0.03] hover:shadow-sm"
+                >
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary transition-colors group-hover:bg-primary/15">
+                    <ExternalLink className="h-5 w-5" />
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm font-medium text-foreground">Public Profile</span>
+                      <ChevronRight className="h-4 w-4 text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100" />
+                    </div>
+                    <p className="mt-0.5 text-xs leading-relaxed text-muted-foreground">
+                      See your profile as others see it
+                    </p>
+                  </div>
+                </Link>
+              )}
+
+              {/* My Posts */}
+              {profile?.person?.slug && (
+                <Link
+                  href={`/people/${profile.person.slug}#posts`}
+                  className="group flex items-start gap-4 rounded-xl border border-border bg-card p-4 transition-all hover:border-primary/30 hover:bg-primary/[0.03] hover:shadow-sm"
+                >
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary transition-colors group-hover:bg-primary/15">
+                    <FileText className="h-5 w-5" />
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm font-medium text-foreground">My Posts</span>
+                      <ChevronRight className="h-4 w-4 text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100" />
+                    </div>
+                    <p className="mt-0.5 text-xs leading-relaxed text-muted-foreground">
+                      View and manage your publications
+                    </p>
+                  </div>
+                </Link>
+              )}
+
+              {/* Admin Dashboard */}
+              {isAdmin && session?.user && (
                 <Link
                   href="/admin"
-                  className="rounded-md border border-border px-4 py-2 text-sm hover:bg-muted"
+                  className="group flex items-start gap-4 rounded-xl border border-border bg-card p-4 transition-all hover:border-primary/30 hover:bg-primary/[0.03] hover:shadow-sm"
                 >
-                  Open Admin
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary transition-colors group-hover:bg-primary/15">
+                    <Shield className="h-5 w-5" />
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm font-medium text-foreground">Admin Dashboard</span>
+                      <ChevronRight className="h-4 w-4 text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100" />
+                    </div>
+                    <p className="mt-0.5 text-xs leading-relaxed text-muted-foreground">
+                      Manage site content and users
+                    </p>
+                  </div>
                 </Link>
-              ) : null}
+              )}
+            </div>
+
+            {/* Non-admin note */}
+            {profile?.user && !isAdmin && (
+              <p className="mt-4 text-center text-xs text-muted-foreground">
+                Your account does not include admin dashboard access.
+              </p>
+            )}
+
+            {/* Sign Out */}
+            <div className="mt-8 border-t border-border pt-6">
               <button
                 type="button"
-                className="rounded-md border border-border px-4 py-2 text-sm hover:bg-muted"
+                className="flex w-full items-center justify-center gap-2 rounded-xl border border-border px-4 py-3 text-sm text-muted-foreground transition-all hover:border-destructive/40 hover:bg-destructive/5 hover:text-destructive"
                 onClick={() => void handleSignOut()}
               >
-                Log Out
+                <LogOut className="h-4 w-4" />
+                Sign Out
               </button>
             </div>
-            {profile?.user && !isAdmin ? (
-              <p className="text-xs text-muted-foreground">
-                Your account is a user profile and does not include admin dashboard access.
-              </p>
-            ) : null}
           </div>
         ) : null}
 
