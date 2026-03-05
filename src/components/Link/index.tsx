@@ -4,7 +4,7 @@ import { cn } from '@/utilities/ui'
 import Link from 'next/link'
 import React from 'react'
 
-import type { Activity, News, Person, Post, Research } from '@/payload-types'
+import type { Activity, News, Person, Post, Research, Wiki } from '@/payload-types'
 
 type CMSLinkType = {
   appearance?: 'inline' | ButtonProps['variant']
@@ -13,8 +13,8 @@ type CMSLinkType = {
   label?: string | null
   newTab?: boolean | null
   reference?: {
-    relationTo: 'posts' | 'people' | 'news' | 'research' | 'activities'
-    value: Post | Person | News | Research | Activity | string | number
+    relationTo: 'posts' | 'people' | 'news' | 'research' | 'wiki' | 'activities'
+    value: Post | Person | News | Research | Wiki | Activity | string | number
   } | null
   size?: ButtonProps['size'] | null
   type?: 'custom' | 'reference' | null
@@ -38,6 +38,8 @@ export const CMSLink: React.FC<CMSLinkType> = (props) => {
     type === 'reference' && typeof reference?.value === 'object' && reference.value.slug
       ? reference?.relationTo === 'research'
         ? `/labs/${reference.value.slug}`
+        : reference?.relationTo === 'wiki'
+          ? `/wiki/${reference.value.slug}`
         : reference?.relationTo === 'activities'
           ? getActivityPathFromReferenceValue(reference.value)
           : `/${reference?.relationTo}/${reference.value.slug}`

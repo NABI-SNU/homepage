@@ -14,6 +14,7 @@ import { Posts } from './collections/Posts'
 import { Research } from './collections/Research'
 import { Tags } from './collections/Tags'
 import { Users } from './collections/Users'
+import { Wiki } from './collections/Wiki'
 import { ensureDefaultSymposiumActivity } from './collections/Activities/seedDefaultSymposium'
 import { AboutPage } from './globals/AboutPage/config'
 import { ContactPage } from './globals/ContactPage/config'
@@ -84,7 +85,7 @@ export default buildConfig({
       connectionString: storageDatabaseURL,
     },
   }),
-  collections: [Posts, News, Research, Activities, People, Tags, Media, Categories, Users],
+  collections: [Posts, News, Research, Wiki, Activities, People, Tags, Media, Categories, Users],
   cors: [getServerSideURL()].filter(Boolean),
   email: nodemailerAdapter({
     defaultFromAddress: process.env.SMTP_FROM_ADDRESS || 'no-reply@nabi.local',

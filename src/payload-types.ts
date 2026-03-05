@@ -70,6 +70,7 @@ export interface Config {
     posts: Post;
     news: News;
     research: Research;
+    wiki: Wiki;
     activities: Activity;
     people: Person;
     tags: Tag;
@@ -96,6 +97,7 @@ export interface Config {
     posts: PostsSelect<false> | PostsSelect<true>;
     news: NewsSelect<false> | NewsSelect<true>;
     research: ResearchSelect<false> | ResearchSelect<true>;
+    wiki: WikiSelect<false> | WikiSelect<true>;
     activities: ActivitiesSelect<false> | ActivitiesSelect<true>;
     people: PeopleSelect<false> | PeopleSelect<true>;
     tags: TagsSelect<false> | TagsSelect<true>;
@@ -581,6 +583,57 @@ export interface Research {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "wiki".
+ */
+export interface Wiki {
+  id: number;
+  title: string;
+  summary?: string | null;
+  /**
+   * Optional names used when resolving [[Wiki Links]].
+   */
+  aliases?: string[] | null;
+  tags?: (number | Tag)[] | null;
+  content: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  };
+  createdBy?: (number | null) | User;
+  /**
+   * Auto-generated from internal links and [[Wiki Links]] in content.
+   */
+  outgoingLinks?: (number | Wiki)[] | null;
+  /**
+   * Wiki links that could not be resolved to an existing page.
+   */
+  unresolvedWikiLinks?:
+    | {
+        target: string;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * When enabled, the slug will auto-generate from the title field on save and autosave.
+   */
+  generateSlug?: boolean | null;
+  slug: string;
+  updatedAt: string;
+  createdAt: string;
+  _status?: ('draft' | 'published') | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "activities".
  */
 export interface Activity {
@@ -669,6 +722,10 @@ export interface Redirect {
       | ({
           relationTo: 'research';
           value: number | Research;
+        } | null)
+      | ({
+          relationTo: 'wiki';
+          value: number | Wiki;
         } | null)
       | ({
           relationTo: 'activities';
@@ -888,6 +945,10 @@ export interface Search {
     | {
         relationTo: 'news';
         value: number | News;
+      }
+    | {
+        relationTo: 'wiki';
+        value: number | Wiki;
       };
   slug?: string | null;
   meta?: {
@@ -1033,6 +1094,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'research';
         value: number | Research;
+      } | null)
+    | ({
+        relationTo: 'wiki';
+        value: number | Wiki;
       } | null)
     | ({
         relationTo: 'activities';
@@ -1221,6 +1286,30 @@ export interface ResearchSelect<T extends boolean = true> {
         year?: T;
         doi?: T;
         url?: T;
+        id?: T;
+      };
+  generateSlug?: T;
+  slug?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  _status?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "wiki_select".
+ */
+export interface WikiSelect<T extends boolean = true> {
+  title?: T;
+  summary?: T;
+  aliases?: T;
+  tags?: T;
+  content?: T;
+  createdBy?: T;
+  outgoingLinks?: T;
+  unresolvedWikiLinks?:
+    | T
+    | {
+        target?: T;
         id?: T;
       };
   generateSlug?: T;
@@ -1756,6 +1845,10 @@ export interface Header {
                 value: number | Research;
               } | null)
             | ({
+                relationTo: 'wiki';
+                value: number | Wiki;
+              } | null)
+            | ({
                 relationTo: 'activities';
                 value: number | Activity;
               } | null);
@@ -1786,6 +1879,10 @@ export interface Header {
                   | ({
                       relationTo: 'research';
                       value: number | Research;
+                    } | null)
+                  | ({
+                      relationTo: 'wiki';
+                      value: number | Wiki;
                     } | null)
                   | ({
                       relationTo: 'activities';
@@ -1833,6 +1930,10 @@ export interface Footer {
                 value: number | Research;
               } | null)
             | ({
+                relationTo: 'wiki';
+                value: number | Wiki;
+              } | null)
+            | ({
                 relationTo: 'activities';
                 value: number | Activity;
               } | null);
@@ -1866,6 +1967,10 @@ export interface Footer {
                   | ({
                       relationTo: 'research';
                       value: number | Research;
+                    } | null)
+                  | ({
+                      relationTo: 'wiki';
+                      value: number | Wiki;
                     } | null)
                   | ({
                       relationTo: 'activities';
@@ -1914,6 +2019,10 @@ export interface Footer {
             | ({
                 relationTo: 'research';
                 value: number | Research;
+              } | null)
+            | ({
+                relationTo: 'wiki';
+                value: number | Wiki;
               } | null)
             | ({
                 relationTo: 'activities';
@@ -2257,6 +2366,10 @@ export interface TaskSchedulePublish {
       | ({
           relationTo: 'research';
           value: number | Research;
+        } | null)
+      | ({
+          relationTo: 'wiki';
+          value: number | Wiki;
         } | null)
       | ({
           relationTo: 'activities';

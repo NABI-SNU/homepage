@@ -31,6 +31,7 @@ const fallbackNavItems: NonNullable<Header['navItems']> = [
       { link: { type: 'custom', label: 'Research', url: '/labs' } },
       { link: { type: 'custom', label: 'News', url: '/news' } },
       { link: { type: 'custom', label: 'Bibliography', url: '/references' } },
+      { link: { type: 'custom', label: 'Wiki', url: '/wiki' } },
     ],
   },
   { link: { type: 'custom', label: 'Contact', url: '/contact' } },
@@ -46,7 +47,26 @@ const resourcesDropdownLinks: HeaderSubNavItems = [
   { link: { type: 'custom', label: 'Research', url: '/labs' } },
   { link: { type: 'custom', label: 'News', url: '/news' } },
   { link: { type: 'custom', label: 'Bibliography', url: '/references' } },
+  { link: { type: 'custom', label: 'Wiki', url: '/wiki' } },
 ]
+
+const ensureResourcesIncludesWiki = (
+  navItems: NonNullable<Header['navItems']>,
+): NonNullable<Header['navItems']> =>
+  navItems.map((item) => {
+    if (normalizedLabel(item) !== 'resources') return item
+
+    const links = item.links || []
+    const hasWiki = links.some(
+      (subItem) => (subItem?.link?.url || '').toLowerCase().trim() === '/wiki',
+    )
+    if (hasWiki) return item
+
+    return {
+      ...item,
+      links: [...links, { link: { type: 'custom', label: 'Wiki', url: '/wiki' } }],
+    }
+  })
 
 const normalizedLabel = (item: HeaderNavItem) => (item.link.label || '').toLowerCase().trim()
 
@@ -73,7 +93,11 @@ const normalizeActivitiesNavigation = (
     .filter((index) => index >= 0)
     .sort((a, b) => a - b)[0]
 
-  const symposiumLink = symposiumItem?.link || { type: 'custom', label: 'Symposium', url: '/symposium' }
+  const symposiumLink = symposiumItem?.link || {
+    type: 'custom',
+    label: 'Symposium',
+    url: '/symposium',
+  }
   const conferencesLink = conferencesItem?.link || {
     type: 'custom',
     label: 'Conferences',
@@ -95,15 +119,16 @@ const normalizeNavItems = (items: Header['navItems']): NonNullable<Header['navIt
   if (source.length === 0) return fallbackNavItems
 
   const withActivities = normalizeActivitiesNavigation(source)
-  const hasAnyDropdown = withActivities.some((item) => (item.links || []).length > 0)
-  if (hasAnyDropdown) return withActivities
+  const withWikiInResources = ensureResourcesIncludesWiki(withActivities)
+  const hasAnyDropdown = withWikiInResources.some((item) => (item.links || []).length > 0)
+  if (hasAnyDropdown) return withWikiInResources
 
-  const labels = new Set(withActivities.map((item) => normalizedLabel(item)))
+  const labels = new Set(withWikiInResources.map((item) => normalizedLabel(item)))
   const legacyFlatNav = labels.has('posts') && labels.has('news') && labels.has('research')
 
-  if (!legacyFlatNav) return withActivities
+  if (!legacyFlatNav) return withWikiInResources
 
-  const keep = withActivities.filter((item) => {
+  const keep = withWikiInResources.filter((item) => {
     const label = normalizedLabel(item)
     return label !== 'posts' && label !== 'news' && label !== 'research'
   })

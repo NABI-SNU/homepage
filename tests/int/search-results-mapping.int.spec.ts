@@ -129,4 +129,39 @@ describe('mapSearchResultsToCardDocs', () => {
       ),
     ).toBe(false)
   })
+
+  it('maps wiki search results to wiki cards', async () => {
+    const results = [
+      buildSearchDoc({
+        id: 303,
+        title: 'Wiki result',
+        slug: 'memory-models',
+        doc: {
+          relationTo: 'wiki',
+          value: 64,
+        },
+        meta: {
+          title: 'Memory Models',
+          description: 'Linked wiki summary',
+          image: null,
+        },
+      }),
+    ]
+
+    const find = vi.fn(async (args: Record<string, unknown>) => {
+      if (args.collection === 'news') return { docs: [] }
+      if (args.collection === 'media') return { docs: [] }
+      throw new Error(`Unexpected collection: ${String(args.collection)}`)
+    })
+
+    const mapped = await mapSearchResultsToCardDocs({
+      payload: { find },
+      results,
+    })
+
+    expect(mapped).toHaveLength(1)
+    expect(mapped[0]?.relationTo).toBe('wiki')
+    expect(mapped[0]?.slug).toBe('memory-models')
+    expect(mapped[0]?.meta?.description).toBe('Linked wiki summary')
+  })
 })

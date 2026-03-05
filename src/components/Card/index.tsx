@@ -12,7 +12,7 @@ export type CardPostData = Pick<Post, 'slug' | 'categories' | 'meta' | 'title'>
 export type CardDocData = CardPostData & {
   date?: News['date']
   previewImage?: LegacyInlineImage | null
-  relationTo?: 'posts' | 'news' | 'conferences' | 'symposium' | 'labs'
+  relationTo?: 'posts' | 'news' | 'wiki' | 'conferences' | 'symposium' | 'labs'
 }
 
 export const Card: React.FC<{
@@ -20,7 +20,7 @@ export const Card: React.FC<{
   className?: string
   doc?: CardDocData
   imageAspect?: 'landscape' | 'portrait'
-  relationTo?: 'posts' | 'news' | 'conferences' | 'symposium' | 'labs'
+  relationTo?: 'posts' | 'news' | 'wiki' | 'conferences' | 'symposium' | 'labs'
   showCategories?: boolean
   showDate?: boolean
   title?: string

@@ -5,7 +5,7 @@ export const beforeSyncWithSearch: BeforeSync = async ({ req, originalDoc, searc
     doc: { relationTo: collection },
   } = searchDoc
 
-  const { slug, id, categories, title, meta, description, image } = originalDoc
+  const { slug, id, categories, title, meta, description, summary, image } = originalDoc
   const normalizedMetaImage =
     (meta?.image && typeof meta.image === 'object' ? meta.image.id : meta?.image) ||
     (image && typeof image === 'object' ? image.id : image)
@@ -17,7 +17,7 @@ export const beforeSyncWithSearch: BeforeSync = async ({ req, originalDoc, searc
       ...meta,
       title: meta?.title || title,
       image: normalizedMetaImage,
-      description: meta?.description || description,
+      description: meta?.description || description || summary,
     },
     categories: [],
   }

@@ -10,6 +10,9 @@ import { Logo } from '@/components/Logo/Logo'
 
 export async function Footer() {
   const footerData: Footer = await getCachedGlobal('footer', 1)()
+  const wikiLinkItem: { link: { label: string; type: 'custom'; url: string } } = {
+    link: { label: 'Wiki', type: 'custom', url: '/wiki' },
+  }
 
   const navItems = footerData?.navItems || []
   const secondaryLinks =
@@ -36,6 +39,35 @@ export async function Footer() {
   const legacyColumns = [navItems.slice(2, 5), navItems.slice(5)].filter(
     (column) => column.length > 0,
   )
+  const hasWikiInColumn = (column: any) =>
+    Boolean((column?.links || []).some((item: any) => item?.link?.url === '/wiki'))
+  const hasWikiInLegacyColumns = legacyColumns.some((column) =>
+    column.some((item) => item?.link?.url === '/wiki'),
+  )
+  const normalizedLinkColumns =
+    linkColumns.length > 0
+      ? linkColumns.map((column, index) => {
+          const isResourcesColumn =
+            (column.title || '').toLowerCase().includes('resource') ||
+            index === linkColumns.length - 1
+          if (!isResourcesColumn || hasWikiInColumn(column)) return column
+
+          return {
+            ...column,
+            links: [...(column.links || []), wikiLinkItem],
+          }
+        })
+      : legacyColumns.map((links, index) => {
+          const title = index === 0 ? 'Explore' : 'Resources'
+          if (title !== 'Resources' || hasWikiInLegacyColumns) {
+            return { title, links }
+          }
+
+          return {
+            title,
+            links: [...links, wikiLinkItem],
+          }
+        })
   const year = new Date().getFullYear()
 
   return (
@@ -56,20 +88,14 @@ export async function Footer() {
                   {index !== 0 && <span aria-hidden="true">·</span>}
                   <CMSLink
                     className="text-muted-foreground transition-colors duration-150 ease-in-out hover:text-foreground hover:underline"
-                    {...link}
+                    {...(link as any)}
                   />
                 </React.Fragment>
               ))}
             </div>
           </div>
 
-          {(linkColumns.length > 0
-            ? linkColumns
-            : legacyColumns.map((links, index) => ({
-                title: index === 0 ? 'Explore' : 'Resources',
-                links,
-              }))
-          ).map((column, columnIndex) => (
+          {normalizedLinkColumns.map((column, columnIndex) => (
             <div className="col-span-6 md:col-span-3 lg:col-span-2" key={`column-${columnIndex}`}>
               <div className="mb-2 font-medium text-foreground">
                 {column.title || (columnIndex === 0 ? 'Explore' : 'Resources')}
@@ -79,7 +105,7 @@ export async function Footer() {
                   <li className="mb-2" key={`${link?.label || 'link'}-${linkIndex}`}>
                     <CMSLink
                       className="text-muted-foreground transition-colors duration-150 ease-in-out hover:text-foreground hover:underline"
-                      {...link}
+                      {...(link as any)}
                     />
                   </li>
                 ))}

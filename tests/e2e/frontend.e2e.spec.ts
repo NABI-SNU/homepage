@@ -13,6 +13,25 @@ test.describe('Frontend', () => {
     const heading = page.locator('h1').first()
     await expect(heading).toContainText('NABI')
   })
+
+  test('resources dropdown exposes wiki', async ({ page }) => {
+    await page.goto('http://localhost:3000')
+
+    const resourcesButton = page.getByRole('button', { name: 'Resources' })
+    await resourcesButton.hover()
+
+    const wikiLink = page.getByRole('link', { name: 'Wiki' })
+    await expect(wikiLink).toBeVisible()
+    await wikiLink.click()
+
+    await expect(page).toHaveURL('http://localhost:3000/wiki')
+    await expect(page.getByRole('heading', { name: 'Connected concepts' })).toBeVisible()
+  })
+
+  test('can load wiki graph page', async ({ page }) => {
+    await page.goto('http://localhost:3000/wiki/graph')
+    await expect(page.getByRole('heading', { name: 'Global wiki graph' })).toBeVisible()
+  })
 })
 
 test.describe('Post edit visibility', () => {
@@ -51,7 +70,10 @@ test.describe('Post edit visibility', () => {
     })
     const editOwnPostLink = page.getByRole('link', { name: 'Edit this post' })
     await expect(editOwnPostLink).toBeVisible({ timeout: 15_000 })
-    await expect(editOwnPostLink).toHaveAttribute('href', `/admin/collections/posts/${scenario.authorPostID}`)
+    await expect(editOwnPostLink).toHaveAttribute(
+      'href',
+      `/admin/collections/posts/${scenario.authorPostID}`,
+    )
 
     await page.goto(`http://localhost:3000/posts/${scenario.otherPostSlug}`, {
       timeout: 60_000,

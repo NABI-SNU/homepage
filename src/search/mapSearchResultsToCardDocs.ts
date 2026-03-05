@@ -111,7 +111,12 @@ export const mapSearchResultsToCardDocs = async ({
   }
 
   return results.map((result) => {
-    const relationTo = result.doc?.relationTo === 'news' ? 'news' : 'posts'
+    const relationTo =
+      result.doc?.relationTo === 'news'
+        ? 'news'
+        : result.doc?.relationTo === 'wiki'
+          ? 'wiki'
+          : 'posts'
     const newsID = relationTo === 'news' ? getSearchDocID(result) : null
     const newsDoc = typeof newsID === 'number' ? newsDocByID.get(newsID) : null
 

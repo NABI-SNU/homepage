@@ -40,6 +40,7 @@ export const Header: GlobalConfig = {
             { link: { type: 'custom', label: 'Research', url: '/labs' } },
             { link: { type: 'custom', label: 'News', url: '/news' } },
             { link: { type: 'custom', label: 'Bibliography', url: '/references' } },
+            { link: { type: 'custom', label: 'Wiki', url: '/wiki' } },
           ],
         },
         { link: { type: 'custom', label: 'Contact', url: '/contact' } },

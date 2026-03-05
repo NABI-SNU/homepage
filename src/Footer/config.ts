@@ -93,6 +93,14 @@ export const Footer: GlobalConfig = {
     {
       name: 'navItems',
       type: 'array',
+      defaultValue: [
+        { link: { type: 'custom', label: 'About', url: '/about' } },
+        { link: { type: 'custom', label: 'People', url: '/people' } },
+        { link: { type: 'custom', label: 'Research', url: '/labs' } },
+        { link: { type: 'custom', label: 'News', url: '/news' } },
+        { link: { type: 'custom', label: 'Bibliography', url: '/references' } },
+        { link: { type: 'custom', label: 'Wiki', url: '/wiki' } },
+      ],
       fields: [
         link({
           appearances: false,

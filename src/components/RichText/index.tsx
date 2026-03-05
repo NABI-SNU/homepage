@@ -11,6 +11,7 @@ import {
   RichText as ConvertRichText,
 } from '@payloadcms/richtext-lexical/react'
 import Image from 'next/image'
+import Link from 'next/link'
 
 import { CodeBlock, CodeBlockProps } from '@/blocks/Code/Component'
 import { YouTubeEmbedBlock, YouTubeEmbedBlockProps } from '@/blocks/YouTubeEmbed/Component'
@@ -23,6 +24,7 @@ import { BannerBlock } from '@/blocks/Banner/Component'
 import { getActivityPathFromReferenceValue } from '@/utilities/activityURL'
 import { parseLegacyImageTag } from '@/utilities/legacyImage'
 import { cn } from '@/utilities/ui'
+import { findWikiLinkMatches, normalizeWikiLookupKey } from '@/utilities/wikiLinks'
 import type { ReactNode } from 'react'
 
 type NodeTypes =
@@ -249,14 +251,83 @@ const internalDocToHref = ({ linkNode }: { linkNode: SerializedLinkNode }) => {
   if (relationTo === 'people') return `/people/${slug}`
   if (relationTo === 'news') return `/news/${slug}`
   if (relationTo === 'research') return `/labs/${slug}`
+  if (relationTo === 'wiki') return `/wiki/${slug}`
   if (relationTo === 'activities') return getActivityPathFromReferenceValue(value) || `/conferences/${slug}`
   return `/${slug}`
 }
 
-const jsxConverters: JSXConvertersFunction<NodeTypes> = ({ defaultConverters }) => ({
-  ...defaultConverters,
-  ...LinkJSXConverter({ internalDocToHref }),
-  paragraph: ({ node, nodesToJSX }) => {
+const createJSXConverters = (wikiLinkMap?: Record<string, string>): JSXConvertersFunction<NodeTypes> => {
+  return ({ defaultConverters }) => ({
+    ...defaultConverters,
+    ...LinkJSXConverter({ internalDocToHref }),
+    text: (args: any) => {
+      const { node } = args as { node: { text?: string } }
+      const renderText = (textValue: string) => {
+        const maybeConverter = defaultConverters.text
+        if (typeof maybeConverter === 'function') {
+          return maybeConverter({
+            ...args,
+            node: { ...node, text: textValue },
+          })
+        }
+
+        return textValue
+      }
+
+      const originalText = typeof node.text === 'string' ? node.text : ''
+      if (!wikiLinkMap || Object.keys(wikiLinkMap).length === 0 || !originalText.includes('[[')) {
+        return renderText(originalText)
+      }
+
+      const matches = findWikiLinkMatches(originalText)
+      if (matches.length === 0) {
+        return renderText(originalText)
+      }
+
+      const parts: ReactNode[] = []
+      let pointer = 0
+
+      matches.forEach((match, index) => {
+        if (match.start > pointer) {
+          const plainText = originalText.slice(pointer, match.start)
+          if (plainText) {
+            parts.push(renderText(plainText))
+          }
+        }
+
+        const normalizedTarget = normalizeWikiLookupKey(match.target)
+        const slug = wikiLinkMap[normalizedTarget] || null
+        if (slug) {
+          parts.push(
+            <Link
+              className="text-primary underline decoration-primary/50 underline-offset-2 transition-colors hover:text-primary/80"
+              href={`/wiki/${slug}`}
+              key={`wiki-link-${match.start}-${index}`}
+            >
+              {match.label}
+            </Link>,
+          )
+        } else {
+          parts.push(
+            <span className="text-muted-foreground" key={`wiki-link-unresolved-${match.start}-${index}`}>
+              [[{match.label}]]
+            </span>,
+          )
+        }
+
+        pointer = match.end
+      })
+
+      if (pointer < originalText.length) {
+        const trailing = originalText.slice(pointer)
+        if (trailing) {
+          parts.push(renderText(trailing))
+        }
+      }
+
+      return parts
+    },
+    paragraph: ({ node, nodesToJSX }) => {
     const children = Array.isArray(node.children) ? (node.children as LegacyTextNode[]) : []
     const paragraphText = children.map(getNodeText).join('')
 
@@ -334,35 +405,37 @@ const jsxConverters: JSXConvertersFunction<NodeTypes> = ({ defaultConverters }) 
     }
 
     return <p>{renderedChildren}</p>
-  },
-  blocks: {
-    banner: ({ node }) => <BannerBlock className="col-start-2 mb-4" {...node.fields} />,
-    mediaBlock: ({ node }) => (
-      <MediaBlock
-        className="col-start-1 col-span-3"
-        imgClassName="m-0"
-        {...node.fields}
-        captionClassName="mx-auto max-w-[48rem]"
-        enableGutter={false}
-        disableInnerContainer={true}
-      />
-    ),
-    code: ({ node }) => <CodeBlock className="col-start-2" {...node.fields} />,
-    youtubeEmbed: ({ node }) => <YouTubeEmbedBlock className="col-start-1 col-span-3" {...node.fields} />,
-  },
-})
+    },
+    blocks: {
+      banner: ({ node }) => <BannerBlock className="col-start-2 mb-4" {...node.fields} />,
+      mediaBlock: ({ node }) => (
+        <MediaBlock
+          className="col-start-1 col-span-3"
+          imgClassName="m-0"
+          {...node.fields}
+          captionClassName="mx-auto max-w-[48rem]"
+          enableGutter={false}
+          disableInnerContainer={true}
+        />
+      ),
+      code: ({ node }) => <CodeBlock className="col-start-2" {...node.fields} />,
+      youtubeEmbed: ({ node }) => <YouTubeEmbedBlock className="col-start-1 col-span-3" {...node.fields} />,
+    },
+  })
+}
 
 type Props = {
   data: DefaultTypedEditorState
   enableGutter?: boolean
   enableProse?: boolean
+  wikiLinkMap?: Record<string, string>
 } & React.HTMLAttributes<HTMLDivElement>
 
 export default function RichText(props: Props) {
-  const { className, enableProse = true, enableGutter = true, ...rest } = props
+  const { className, enableProse = true, enableGutter = true, wikiLinkMap, ...rest } = props
   return (
     <ConvertRichText
-      converters={jsxConverters}
+      converters={createJSXConverters(wikiLinkMap)}
       className={cn(
         'payload-richtext',
         {

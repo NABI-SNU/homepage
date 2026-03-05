@@ -11,7 +11,7 @@ const getSiteSitemap = unstable_cache(
       process.env.VERCEL_PROJECT_PRODUCTION_URL ||
       'https://example.com'
 
-    const [peopleResults, newsResults, researchResults, activitiesResults] = await Promise.all([
+    const [peopleResults, newsResults, researchResults, wikiResults, activitiesResults] = await Promise.all([
       payload.find({
         collection: 'people',
         overrideAccess: false,
@@ -42,6 +42,23 @@ const getSiteSitemap = unstable_cache(
       }),
       payload.find({
         collection: 'research',
+        overrideAccess: false,
+        draft: false,
+        depth: 0,
+        limit: 1000,
+        pagination: false,
+        where: {
+          _status: {
+            equals: 'published',
+          },
+        },
+        select: {
+          slug: true,
+          updatedAt: true,
+        },
+      }),
+      payload.find({
+        collection: 'wiki',
         overrideAccess: false,
         draft: false,
         depth: 0,
@@ -123,6 +140,14 @@ const getSiteSitemap = unstable_cache(
         lastmod: dateFallback,
       },
       {
+        loc: `${SITE_URL}/wiki`,
+        lastmod: dateFallback,
+      },
+      {
+        loc: `${SITE_URL}/wiki/graph`,
+        lastmod: dateFallback,
+      },
+      {
         loc: `${SITE_URL}/symposium`,
         lastmod: symposiumUpdatedAt,
       },
@@ -159,6 +184,15 @@ const getSiteSitemap = unstable_cache(
           }))
       : []
 
+    const wikiSitemap = wikiResults.docs
+      ? wikiResults.docs
+          .filter((item) => Boolean(item?.slug))
+          .map((item) => ({
+            loc: `${SITE_URL}/wiki/${item.slug}`,
+            lastmod: item.updatedAt || dateFallback,
+          }))
+      : []
+
     const conferencesSitemap = activitiesResults.docs
       ? activitiesResults.docs
           .filter((item) => item?.activityType === 'conference' && Boolean(item?.slug))
@@ -182,6 +216,7 @@ const getSiteSitemap = unstable_cache(
       ...peopleSitemap,
       ...newsSitemap,
       ...researchSitemap,
+      ...wikiSitemap,
       ...symposiumSitemap,
       ...conferencesSitemap,
     ]

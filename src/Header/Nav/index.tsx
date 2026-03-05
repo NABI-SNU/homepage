@@ -38,6 +38,7 @@ const fallbackNavItems: HeaderNavItem[] = [
       { link: { type: 'custom', label: 'Research', url: '/labs' } },
       { link: { type: 'custom', label: 'News', url: '/news' } },
       { link: { type: 'custom', label: 'Bibliography', url: '/references' } },
+      { link: { type: 'custom', label: 'Wiki', url: '/wiki' } },
     ],
   },
   { link: { type: 'custom', label: 'Contact', url: '/contact' } },
@@ -64,10 +65,15 @@ const getNavHref = (link: HeaderNavLink | undefined) => {
     return link.url || ''
   }
 
-  if (link.type === 'reference' && typeof link.reference?.value === 'object' && link.reference.value?.slug) {
+  if (
+    link.type === 'reference' &&
+    typeof link.reference?.value === 'object' &&
+    link.reference.value?.slug
+  ) {
     const relationTo = link.reference.relationTo
     if (relationTo === 'research') return `/labs/${link.reference.value.slug}`
-    if (relationTo === 'activities') return getActivityPathFromReferenceValue(link.reference.value) || ''
+    if (relationTo === 'activities')
+      return getActivityPathFromReferenceValue(link.reference.value) || ''
 
     return `/${relationTo}/${link.reference.value.slug}`
   }
@@ -119,7 +125,9 @@ export const HeaderNav: React.FC<{
               <button
                 className={cn(
                   'flex items-center whitespace-nowrap px-3 py-3 text-[1.125rem] tracking-[0.01rem] transition-colors duration-200',
-                  isActive || hasActiveChild ? 'text-primary' : 'text-foreground hover:text-primary',
+                  isActive || hasActiveChild
+                    ? 'text-primary'
+                    : 'text-foreground hover:text-primary',
                 )}
                 type="button"
               >
