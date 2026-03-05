@@ -10,7 +10,7 @@ const AdminLogo: React.FC = () => {
         alignItems: 'center',
         gap: '0.375rem',
         fontWeight: 600,
-        fontSize: '1.125rem',
+        fontSize: '1rem',
         color: 'var(--theme-text)',
         whiteSpace: 'nowrap',
       }}
