@@ -29,7 +29,9 @@ type WikiGraphLink = {
 
 type RenderNode = {
   gfx: Graphics
+  isCurrent: boolean
   label: Text
+  radius: number
   simulationData: WikiGraphNode & SimulationNodeDatum
 }
 
@@ -42,6 +44,58 @@ type RenderLink = {
 }
 
 const getNodeRadius = (degree: number) => 4 + Math.min(10, Math.sqrt(degree + 1) * 1.6)
+
+type GraphPalette = {
+  label: number
+  linkNear: number
+  linkFar: number
+  nodeDefaultFill: number
+  nodeDefaultStroke: number
+  nodeCurrentFill: number
+  nodeCurrentStroke: number
+}
+
+const colorFromRGBString = (value: string): number => {
+  const channels = value.match(/\d+(\.\d+)?/g)
+  if (!channels || channels.length < 3) return 0
+
+  const [r, g, b] = channels.slice(0, 3).map((channel) => {
+    const parsed = Math.round(Number(channel))
+    return Math.max(0, Math.min(255, Number.isFinite(parsed) ? parsed : 0))
+  })
+
+  return (r << 16) | (g << 8) | b
+}
+
+const resolveCSSColor = (value: string, fallback: string): string => {
+  const probe = document.createElement('span')
+  probe.style.color = fallback
+  probe.style.color = value
+  document.body.appendChild(probe)
+  const resolved = window.getComputedStyle(probe).color
+  probe.remove()
+  return resolved || fallback
+}
+
+const getColorFromVar = (styles: CSSStyleDeclaration, variable: string, fallback: string): number => {
+  const cssVarValue = styles.getPropertyValue(variable).trim()
+  const normalizedColor = resolveCSSColor(cssVarValue || fallback, fallback)
+  return colorFromRGBString(normalizedColor)
+}
+
+const resolveGraphPalette = (): GraphPalette => {
+  const styles = window.getComputedStyle(document.documentElement)
+
+  return {
+    label: getColorFromVar(styles, '--muted-foreground', 'rgb(120 120 120)'),
+    linkNear: getColorFromVar(styles, '--muted-foreground', 'rgb(120 120 120)'),
+    linkFar: getColorFromVar(styles, '--border', 'rgb(180 180 180)'),
+    nodeDefaultFill: getColorFromVar(styles, '--primary', 'rgb(99 102 241)'),
+    nodeDefaultStroke: getColorFromVar(styles, '--primary', 'rgb(99 102 241)'),
+    nodeCurrentFill: getColorFromVar(styles, '--accent', 'rgb(236 72 153)'),
+    nodeCurrentStroke: getColorFromVar(styles, '--foreground', 'rgb(35 35 35)'),
+  }
+}
 
 export function WikiGraph({
   currentNodeId,
@@ -100,6 +154,7 @@ export function WikiGraph({
 
     const app = new Application()
     let raf = 0
+    let themeObserver: MutationObserver | null = null
     const hoverTweens = new TweenGroup()
 
     const setup = async () => {
@@ -129,6 +184,31 @@ export function WikiGraph({
 
       const renderedNodes: RenderNode[] = []
       const renderedLinks: RenderLink[] = []
+      let palette = resolveGraphPalette()
+
+      const applyNodeStyles = (renderedNode: RenderNode) => {
+        const fillColor = renderedNode.isCurrent ? palette.nodeCurrentFill : palette.nodeDefaultFill
+        const strokeColor = renderedNode.isCurrent
+          ? palette.nodeCurrentStroke
+          : palette.nodeDefaultStroke
+        const strokeWidth = renderedNode.isCurrent ? 2 : 1
+        const existingAlpha = renderedNode.gfx.alpha
+
+        renderedNode.gfx.clear()
+        renderedNode.gfx.circle(0, 0, renderedNode.radius)
+        renderedNode.gfx.fill({ color: fillColor })
+        renderedNode.gfx.stroke({ color: strokeColor, width: strokeWidth })
+        renderedNode.gfx.alpha = existingAlpha
+
+        renderedNode.label.style.fill = palette.label
+      }
+
+      const refreshPalette = () => {
+        palette = resolveGraphPalette()
+        renderedNodes.forEach((renderedNode) => {
+          applyNodeStyles(renderedNode)
+        })
+      }
 
       const updateFocus = (hoveredID: string | null) => {
         const activeNodeIDs = new Set<string>()
@@ -171,16 +251,13 @@ export function WikiGraph({
           eventMode: 'static',
           interactive: true,
         })
-          .circle(0, 0, radius)
-          .fill({ color: isCurrent ? '#6657f8' : '#4f46e5' })
-          .stroke({ color: isCurrent ? '#fafafa' : '#8b8ef7', width: isCurrent ? 2 : 1 })
 
         const label = new Text({
           alpha: 0.65,
           anchor: { x: 0.5, y: 1.45 },
           eventMode: 'none',
           style: {
-            fill: '#c9cbe0',
+            fill: palette.label,
             fontFamily: 'var(--font-geist-mono)',
             fontSize: 11,
           },
@@ -194,11 +271,15 @@ export function WikiGraph({
         nodesContainer.addChild(gfx)
         labelsContainer.addChild(label)
 
-        renderedNodes.push({
+        const renderedNode: RenderNode = {
           gfx,
+          isCurrent,
           label,
+          radius,
           simulationData: node,
-        })
+        }
+        applyNodeStyles(renderedNode)
+        renderedNodes.push(renderedNode)
       })
 
       simulatedLinks.forEach((link) => {
@@ -212,6 +293,19 @@ export function WikiGraph({
       })
 
       let transform = zoomIdentity
+      themeObserver = new MutationObserver((mutations) => {
+        const themeChanged = mutations.some(
+          (mutation) => mutation.type === 'attributes' && mutation.attributeName === 'data-theme',
+        )
+        if (themeChanged) {
+          refreshPalette()
+        }
+      })
+      themeObserver.observe(document.documentElement, {
+        attributeFilter: ['data-theme'],
+        attributes: true,
+      })
+
       select<HTMLCanvasElement, unknown>(app.canvas).call(
         zoom<HTMLCanvasElement, unknown>()
           .extent([
@@ -249,7 +343,7 @@ export function WikiGraph({
           renderedLink.gfx.lineTo(targetX, targetY)
           renderedLink.gfx.stroke({
             alpha: renderedLink.gfx.alpha,
-            color: transform.k > 1.4 ? '#7075a9' : '#5f658f',
+            color: transform.k > 1.4 ? palette.linkNear : palette.linkFar,
             width: transform.k > 1.4 ? 1.4 : 1,
           })
         })
@@ -268,6 +362,7 @@ export function WikiGraph({
     return () => {
       disposed = true
       if (raf) cancelAnimationFrame(raf)
+      themeObserver?.disconnect()
       simulation.stop()
       app.destroy()
     }

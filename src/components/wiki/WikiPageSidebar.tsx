@@ -66,8 +66,8 @@ export function WikiPageSidebar({
       </section>
 
       {unresolvedTargets.length > 0 && (
-        <section className="rounded-2xl border border-amber-500/30 bg-amber-500/5 p-4">
-          <h2 className="text-sm font-semibold uppercase tracking-[0.12em] text-amber-700 dark:text-amber-300">
+        <section className="rounded-2xl border border-warning bg-warning/30 p-4">
+          <h2 className="text-sm font-semibold uppercase tracking-[0.12em] text-foreground">
             Unresolved Wiki Links
           </h2>
           <ul className="mt-3 space-y-1">
@@ -82,4 +82,3 @@ export function WikiPageSidebar({
     </aside>
   )
 }
-

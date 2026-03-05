@@ -134,14 +134,14 @@ export const HeaderNav: React.FC<{
                 {link.label}
                 <ChevronDown className="ml-1 h-4 w-4" />
               </button>
-              <ul className="invisible absolute left-0 top-full z-50 min-w-[220px] rounded-lg border border-border/80 bg-background/95 py-3.5 opacity-0 shadow-xl backdrop-blur-md transition-all duration-200 group-hover:visible group-hover:opacity-100 group-focus-within:visible group-focus-within:opacity-100">
+              <ul className="invisible absolute left-0 top-full z-50 min-w-[180px] rounded-lg border border-border/80 bg-background/95 py-3.5 opacity-0 shadow-xl backdrop-blur-md transition-all duration-200 group-hover:visible group-hover:opacity-100 group-focus-within:visible group-focus-within:opacity-100">
                 {subLinks.map((subLink, subIndex) => (
                   <li key={`${subLink.link.label}-${subIndex}`}>
                     <CMSLink
                       {...subLink.link}
                       appearance="inline"
                       className={cn(
-                        'block whitespace-nowrap px-5 py-3 text-base transition-colors duration-200',
+                        'block whitespace-nowrap px-5 py-2.5 text-base leading-tight transition-colors duration-200',
                         isPathActive(pathname, getNavHref(subLink.link))
                           ? 'text-primary'
                           : 'text-foreground hover:text-primary',

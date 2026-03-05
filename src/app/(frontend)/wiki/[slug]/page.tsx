@@ -99,9 +99,9 @@ export default async function WikiDetailPage({ params }: Args) {
     <article className="page-shell">
       <header className="container max-w-5xl">
         <p className="page-eyebrow">Wiki</p>
-        <h1 className="mt-3 text-5xl font-semibold leading-tight tracking-tight">{entry.title}</h1>
+        <h1 className="page-title-lg">{entry.title}</h1>
         {entry.summary && (
-          <p className="mt-4 max-w-3xl text-lg text-muted-foreground">{entry.summary}</p>
+          <p className="page-subtitle">{entry.summary}</p>
         )}
       </header>
       <TableOfContents />
