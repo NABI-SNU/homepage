@@ -8,9 +8,12 @@ import { ThemeSelector } from '@/providers/Theme/ThemeSelector'
 import { CMSLink } from '@/components/Link'
 import { Logo } from '@/components/Logo/Logo'
 
+type FooterNavItem = NonNullable<Footer['navItems']>[number]
+type FooterColumn = NonNullable<Footer['columns']>[number]
+
 export async function Footer() {
   const footerData: Footer = await getCachedGlobal('footer', 1)()
-  const wikiLinkItem: { link: { label: string; type: 'custom'; url: string } } = {
+  const wikiLinkItem: FooterNavItem = {
     link: { label: 'Wiki', type: 'custom', url: '/wiki' },
   }
 
@@ -39,8 +42,8 @@ export async function Footer() {
   const legacyColumns = [navItems.slice(2, 5), navItems.slice(5)].filter(
     (column) => column.length > 0,
   )
-  const hasWikiInColumn = (column: any) =>
-    Boolean((column?.links || []).some((item: any) => item?.link?.url === '/wiki'))
+  const hasWikiInColumn = (column: FooterColumn) =>
+    Boolean((column.links || []).some((item) => item?.link?.url === '/wiki'))
   const hasWikiInLegacyColumns = legacyColumns.some((column) =>
     column.some((item) => item?.link?.url === '/wiki'),
   )
@@ -88,7 +91,11 @@ export async function Footer() {
                   {index !== 0 && <span aria-hidden="true">·</span>}
                   <CMSLink
                     className="text-muted-foreground transition-colors duration-150 ease-in-out hover:text-foreground hover:underline"
-                    {...(link as any)}
+                    type={link?.type}
+                    newTab={link?.newTab}
+                    reference={link?.reference}
+                    url={link?.url}
+                    label={link?.label}
                   />
                 </React.Fragment>
               ))}
@@ -105,7 +112,11 @@ export async function Footer() {
                   <li className="mb-2" key={`${link?.label || 'link'}-${linkIndex}`}>
                     <CMSLink
                       className="text-muted-foreground transition-colors duration-150 ease-in-out hover:text-foreground hover:underline"
-                      {...(link as any)}
+                      type={link?.type}
+                      newTab={link?.newTab}
+                      reference={link?.reference}
+                      url={link?.url}
+                      label={link?.label}
                     />
                   </li>
                 ))}

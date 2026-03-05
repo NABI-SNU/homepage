@@ -260,8 +260,8 @@ const createJSXConverters = (wikiLinkMap?: Record<string, string>): JSXConverter
   return ({ defaultConverters }) => ({
     ...defaultConverters,
     ...LinkJSXConverter({ internalDocToHref }),
-    text: (args: any) => {
-      const { node } = args as { node: { text?: string } }
+    text: (args) => {
+      const { node } = args
       const renderText = (textValue: string) => {
         const maybeConverter = defaultConverters.text
         if (typeof maybeConverter === 'function') {
@@ -274,7 +274,7 @@ const createJSXConverters = (wikiLinkMap?: Record<string, string>): JSXConverter
         return textValue
       }
 
-      const originalText = typeof node.text === 'string' ? node.text : ''
+      const originalText = node.text
       if (!wikiLinkMap || Object.keys(wikiLinkMap).length === 0 || !originalText.includes('[[')) {
         return renderText(originalText)
       }

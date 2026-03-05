@@ -1,8 +1,9 @@
+import Image from 'next/image'
 import React from 'react'
 
 const AdminIcon: React.FC = () => {
   return (
-    <img
+    <Image
       alt="NABI"
       src="/favicon.svg"
       width={24}

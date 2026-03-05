@@ -1,3 +1,4 @@
+import Image from 'next/image'
 import React from 'react'
 
 const AdminLogo: React.FC = () => {
@@ -14,7 +15,7 @@ const AdminLogo: React.FC = () => {
         whiteSpace: 'nowrap',
       }}
     >
-      <img
+      <Image
         alt="NABI"
         src="/favicon.svg"
         width={24}

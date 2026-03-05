@@ -9,6 +9,7 @@ import {
   select,
   zoom,
   zoomIdentity,
+  type D3ZoomEvent,
   type SimulationLinkDatum,
   type SimulationNodeDatum,
 } from 'd3'
@@ -218,7 +219,7 @@ export function WikiGraph({
             [width, graphHeight],
           ])
           .scaleExtent([0.4, 3.5])
-          .on('zoom', (event: any) => {
+          .on('zoom', (event: D3ZoomEvent<HTMLCanvasElement, unknown>) => {
             const nextTransform = event.transform as typeof zoomIdentity
             transform = nextTransform
             stage.scale.set(nextTransform.k, nextTransform.k)
