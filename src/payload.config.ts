@@ -38,6 +38,10 @@ const storageDatabaseURL = getStorageDatabaseURL()
 const pgDependency = getStoragePgDependency() as unknown as NonNullable<
   Parameters<typeof postgresAdapter>[0]['pg']
 >
+const disableDocumentLocks = <T extends { lockDocuments?: unknown }>(config: T): T => ({
+  ...config,
+  lockDocuments: false,
+})
 
 export default buildConfig({
   admin: {
@@ -85,7 +89,9 @@ export default buildConfig({
       connectionString: storageDatabaseURL,
     },
   }),
-  collections: [Posts, News, Research, Wiki, Activities, People, Tags, Media, Categories, Users],
+  collections: [Posts, News, Research, Wiki, Activities, People, Tags, Media, Categories, Users].map(
+    disableDocumentLocks,
+  ),
   cors: [getServerSideURL()].filter(Boolean),
   email: nodemailerAdapter({
     defaultFromAddress: process.env.SMTP_FROM_ADDRESS || 'no-reply@nabi.local',
@@ -104,7 +110,7 @@ export default buildConfig({
           jsonTransport: true,
         },
   }),
-  globals: [Header, Footer, HomePage, AboutPage, ContactPage],
+  globals: [Header, Footer, HomePage, AboutPage, ContactPage].map(disableDocumentLocks),
   plugins,
   secret: process.env.PAYLOAD_SECRET,
   sharp,

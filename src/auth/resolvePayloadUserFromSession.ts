@@ -25,8 +25,13 @@ type AuthResolutionCacheEntry = {
   user: User | null
 }
 
+type AuthResolutionResult = {
+  cacheable: boolean
+  user: User | null
+}
+
 const authResolutionCache = new Map<string, AuthResolutionCacheEntry>()
-const inFlightAuthResolutions = new Map<string, Promise<User | null>>()
+const inFlightAuthResolutions = new Map<string, Promise<AuthResolutionResult>>()
 
 const buildAuthResolutionCacheKey = ({
   autoApproveByPeopleEmail,
@@ -73,6 +78,9 @@ const writeAuthResolutionCache = (key: string, user: User | null): void => {
   })
 }
 
+const authDebugLogsEnabled = (): boolean =>
+  ['1', 'true', 'yes', 'on'].includes((process.env.AUTH_DEBUG_LOGS || '').toLowerCase())
+
 const normalizeEmail = (email: string | null | undefined): string | null => {
   const normalized = email?.trim().toLowerCase()
   return normalized && normalized.length > 0 ? normalized : null
@@ -111,10 +119,11 @@ export const resolvePayloadUserFromSession = async ({
 
   const inFlight = inFlightAuthResolutions.get(cacheKey)
   if (inFlight) {
-    return inFlight
+    const inFlightResult = await inFlight
+    return inFlightResult.user
   }
 
-  const resolutionPromise = (async (): Promise<User | null> => {
+  const resolutionPromise = (async (): Promise<AuthResolutionResult> => {
     let users = await payload.find({
       collection: 'users',
       depth: 0,
@@ -144,12 +153,12 @@ export const resolvePayloadUserFromSession = async ({
 
       if (users.docs.length > 1) {
         payload.logger.error(`[auth] Duplicate payload users found for email ${normalizedEmail}`)
-        return null
+        return { user: null, cacheable: true }
       }
     }
 
     let payloadUser = users.docs[0]
-    if (!payloadUser) return null
+    if (!payloadUser) return { user: null, cacheable: true }
 
     if (payloadUser.betterAuthUserId !== betterAuthUser.id) {
       payloadUser = await payload.update({
@@ -208,7 +217,7 @@ export const resolvePayloadUserFromSession = async ({
     }
 
     if (requireApproval && payloadUser.isApproved !== true) {
-      return null
+      return { user: null, cacheable: true }
     }
 
     if (denyAlumni) {
@@ -235,19 +244,29 @@ export const resolvePayloadUserFromSession = async ({
       })
 
       if (alumniCheck.docs.length > 0) {
-        return null
+        return { user: null, cacheable: true }
       }
     }
 
-    return payloadUser
+    return { user: payloadUser, cacheable: true }
   })()
 
   inFlightAuthResolutions.set(cacheKey, resolutionPromise)
 
   try {
-    const resolvedUser = await resolutionPromise
-    writeAuthResolutionCache(cacheKey, resolvedUser)
-    return resolvedUser
+    const resolved = await resolutionPromise
+    if (resolved.cacheable) {
+      writeAuthResolutionCache(cacheKey, resolved.user)
+    } else if (authDebugLogsEnabled()) {
+      payload.logger.info(`[auth] Skipped auth resolution cache for key ${cacheKey}.`)
+    }
+
+    return resolved.user
+  } catch (error) {
+    payload.logger.error(
+      `[auth] Failed resolving payload user from BetterAuth session: ${error instanceof Error ? error.message : String(error)}`,
+    )
+    return null
   } finally {
     inFlightAuthResolutions.delete(cacheKey)
   }

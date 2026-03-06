@@ -34,6 +34,8 @@ pnpm dev
 - `STORAGE_DATABASE_URL` is the primary Postgres connection string used by Payload and BetterAuth.
 - `STORAGE_DATABASE_USE_NEON_SERVERLESS` optionally forces Neon serverless pooling (`true` / `false`).
 - `DATABASE_URL` is treated as a deprecated fallback during migration.
+- `AUTH_DEBUG_LOGS=true` enables verbose auth-bridge diagnostics (default `false`).
+- `AUTH_SESSION_CACHE_TTL_MS` controls short-lived BetterAuth session lookup caching (default `60000` ms).
 
 ## Core Commands
 

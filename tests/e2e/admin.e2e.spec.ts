@@ -83,4 +83,67 @@ test.describe('Admin editor stability', () => {
 
     await context.close()
   })
+
+  test('admin save response for contact global keeps updated text value stable after 30+ seconds', async ({
+    browser,
+  }) => {
+    const context = await browser.newContext()
+    const page = await context.newPage()
+
+    await login({
+      page,
+      user: adminTestAccount,
+    })
+
+    await page.goto('http://localhost:3000/admin/globals/contactPage')
+
+    const titleInput = page.locator('input[name="title"]').first()
+    await expect(titleInput).toBeVisible()
+
+    const originalTitle = await titleInput.inputValue()
+    const editedTitle = `Admin Stable Save ${Date.now()}`
+
+    try {
+      await titleInput.fill(editedTitle)
+      await expect(titleInput).toHaveValue(editedTitle)
+
+      const saveResponsePromise = page.waitForResponse((response) => {
+        return (
+          response.request().method() === 'POST' &&
+          response.status() === 200 &&
+          response.url().includes('/api/globals/contactPage')
+        )
+      })
+
+      await page.getByRole('button', { name: /^Save$/ }).first().click()
+      const saveResponse = await saveResponsePromise
+      const savedGlobal = (await saveResponse.json().catch(() => null)) as { title?: string } | null
+      expect(savedGlobal?.title).toBe(editedTitle)
+
+      await page.waitForTimeout(32_000)
+      await expect(titleInput).toHaveValue(editedTitle)
+      await expect(page.getByText(/out of date/i)).toHaveCount(0)
+
+      await page.reload()
+      await expect(page.locator('input[name="title"]').first()).toHaveValue(editedTitle)
+    } finally {
+      const currentValue = await titleInput.inputValue().catch(() => originalTitle)
+      if (currentValue !== originalTitle) {
+        await titleInput.fill(originalTitle)
+
+        const restoreResponsePromise = page.waitForResponse((response) => {
+          return (
+            response.request().method() === 'POST' &&
+            response.status() === 200 &&
+            response.url().includes('/api/globals/contactPage')
+          )
+        })
+
+        await page.getByRole('button', { name: /^Save$/ }).first().click()
+        await restoreResponsePromise
+      }
+    }
+
+    await context.close()
+  })
 })
