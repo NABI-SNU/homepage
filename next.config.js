@@ -33,6 +33,7 @@ const IMAGE_REMOTE_PATTERNS = Array.from(new Set(IMAGE_REMOTE_SOURCES)).flatMap(
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  output: 'standalone',
   images: {
     remotePatterns: IMAGE_REMOTE_PATTERNS,
   },

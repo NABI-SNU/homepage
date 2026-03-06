@@ -26,6 +26,7 @@ const normalizeEmail = (email: string | null | undefined): string | null => {
 }
 
 const isProduction = process.env.NODE_ENV === 'production'
+const isProductionBuildPhase = process.env.NEXT_PHASE === 'phase-production-build'
 const authBaseURL = process.env.BETTER_AUTH_URL || process.env.NEXT_PUBLIC_SERVER_URL || ''
 const baseURLUsesHTTPS = authBaseURL.startsWith('https://')
 const configuredSecureCookies = parseOptionalBool(process.env.AUTH_USE_SECURE_COOKIES)
@@ -42,7 +43,7 @@ const smtpConfigured = Boolean(
 const smtpPort = Number(process.env.SMTP_PORT || 587)
 const smtpSecure = process.env.SMTP_SECURE === 'true'
 
-if (isProduction && !smtpConfigured) {
+if (isProduction && !isProductionBuildPhase && !smtpConfigured) {
   throw new Error('[auth] SMTP credentials are required in production for email verification.')
 }
 

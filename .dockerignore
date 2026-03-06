@@ -1,0 +1,17 @@
+node_modules
+.next
+.pnpm-store
+playwright-report
+test-results
+coverage
+.git
+.github
+.husky
+.vscode
+.cursor
+.DS_Store
+*.log
+*.tsbuildinfo
+.env
+.env.*
+!.env.example
