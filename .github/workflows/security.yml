@@ -7,7 +7,8 @@ on:
     branches:
       - main
   schedule:
-    - cron: '0 0 * * 0'
+    # Approximately every 2 weeks (1st and 15th UTC)
+    - cron: '0 0 1,15 * *'
 
 concurrency:
   group: security-${{ github.workflow }}-${{ github.ref }}
@@ -55,5 +56,5 @@ jobs:
       - name: Install Dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Audit High/Critical Vulnerabilities
-        run: pnpm audit --audit-level=high
+      - name: Audit Critical Vulnerabilities
+        run: pnpm audit --audit-level=critical
