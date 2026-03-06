@@ -1,6 +1,7 @@
 'use client'
 
 import Link from 'next/link'
+import Image from 'next/image'
 import { useDeferredValue, useMemo, useState } from 'react'
 import { Search, ArrowRight, BookOpen, Clock, Users } from 'lucide-react'
 
@@ -103,9 +104,11 @@ function ContributorCard({ contributor }: { contributor: ContributorInfo }) {
 
       <div className="relative flex h-11 w-11 shrink-0 items-center justify-center overflow-hidden rounded-full border border-border/70 bg-muted text-sm font-semibold text-muted-foreground">
         {contributor.avatar ? (
-          <img
+          <Image
             alt={`${contributor.name} avatar`}
             className="h-full w-full object-cover"
+            fill
+            sizes="44px"
             src={contributor.avatar}
           />
         ) : (
