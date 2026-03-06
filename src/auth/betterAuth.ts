@@ -1,7 +1,6 @@
 import { betterAuth } from 'better-auth'
 import type { BetterAuthPlugin } from 'better-auth'
 import { nextCookies } from 'better-auth/next-js'
-import { genericOAuth } from 'better-auth/plugins/generic-oauth'
 import { createRequire } from 'module'
 import type { Payload } from 'payload'
 
@@ -37,7 +36,6 @@ const useSecureCookies = isProduction
   : false
 const githubConfigured = Boolean(process.env.GITHUB_CLIENT_ID && process.env.GITHUB_CLIENT_SECRET)
 const googleConfigured = Boolean(process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET)
-const orcidConfigured = Boolean(process.env.ORCID_CLIENT_ID && process.env.ORCID_CLIENT_SECRET)
 const smtpConfigured = Boolean(
   process.env.SMTP_HOST && process.env.SMTP_USER && process.env.SMTP_PASS,
 )
@@ -129,22 +127,6 @@ const getBetterAuthUserForSession = async (
   }
 }
 
-if (orcidConfigured) {
-  plugins.push(
-    genericOAuth({
-      config: [
-        {
-          providerId: 'orcid',
-          clientId: process.env.ORCID_CLIENT_ID!,
-          clientSecret: process.env.ORCID_CLIENT_SECRET!,
-          discoveryUrl: 'https://orcid.org/.well-known/openid-configuration',
-          scopes: ['openid', 'profile', 'email'],
-        },
-      ],
-    }),
-  )
-}
-
 export const auth = betterAuth({
   appName: process.env.APP_NAME || 'NABI Labs',
   basePath: '/api/auth',
@@ -154,7 +136,7 @@ export const auth = betterAuth({
   trustedOrigins,
   account: {
     accountLinking: {
-      trustedProviders: ['github', 'google', 'orcid'],
+      trustedProviders: ['github', 'google'],
       allowDifferentEmails: false,
     },
   },

@@ -1,5 +1,4 @@
 import { createAuthClient } from 'better-auth/react'
-import { genericOAuthClient } from 'better-auth/client/plugins'
 
 const resolveBaseURL = () => {
   if (typeof window !== 'undefined') {
@@ -11,5 +10,4 @@ const resolveBaseURL = () => {
 
 export const authClient = createAuthClient({
   baseURL: resolveBaseURL(),
-  plugins: [genericOAuthClient()],
 })

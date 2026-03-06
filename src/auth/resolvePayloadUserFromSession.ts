@@ -1,5 +1,6 @@
 import type { Payload } from 'payload'
 
+import type { AuthGateReason } from './authGateReason'
 import type { User } from '@/payload-types'
 
 export type BetterAuthSessionUser = {
@@ -15,6 +16,11 @@ type ResolvePayloadUserFromSessionArgs = {
   autoApproveByPeopleEmail?: boolean
   enforceProductionEmailVerification?: boolean
   denyAlumni?: boolean
+}
+
+export type PayloadUserResolutionWithReason = {
+  reason: AuthGateReason
+  user: User | null
 }
 
 const isProduction = process.env.NODE_ENV === 'production'
@@ -84,6 +90,161 @@ const authDebugLogsEnabled = (): boolean =>
 const normalizeEmail = (email: string | null | undefined): string | null => {
   const normalized = email?.trim().toLowerCase()
   return normalized && normalized.length > 0 ? normalized : null
+}
+
+export const resolvePayloadUserFromSessionWithReason = async ({
+  payload,
+  betterAuthUser,
+  requireApproval = true,
+  autoApproveByPeopleEmail = true,
+  enforceProductionEmailVerification = true,
+  denyAlumni = false,
+}: ResolvePayloadUserFromSessionArgs): Promise<PayloadUserResolutionWithReason> => {
+  if (!betterAuthUser?.id) {
+    return { user: null, reason: 'account_not_found' }
+  }
+
+  const normalizedEmail = normalizeEmail(betterAuthUser.email)
+  if (!normalizedEmail) {
+    return { user: null, reason: 'account_not_found' }
+  }
+
+  if (isProduction && enforceProductionEmailVerification && betterAuthUser.emailVerified !== true) {
+    return { user: null, reason: 'email_not_verified' }
+  }
+
+  try {
+    let users = await payload.find({
+      collection: 'users',
+      depth: 0,
+      limit: 1,
+      overrideAccess: true,
+      pagination: false,
+      where: {
+        betterAuthUserId: {
+          equals: betterAuthUser.id,
+        },
+      },
+    })
+
+    if (users.docs.length === 0) {
+      users = await payload.find({
+        collection: 'users',
+        depth: 0,
+        limit: 2,
+        overrideAccess: true,
+        pagination: false,
+        where: {
+          email: {
+            equals: normalizedEmail,
+          },
+        },
+      })
+
+      if (users.docs.length > 1) {
+        payload.logger.error(`[auth] Duplicate payload users found for email ${normalizedEmail}`)
+        return { user: null, reason: 'unknown' }
+      }
+    }
+
+    let payloadUser = users.docs[0]
+    if (!payloadUser) return { user: null, reason: 'account_not_found' }
+
+    if (payloadUser.betterAuthUserId !== betterAuthUser.id) {
+      payloadUser = await payload.update({
+        collection: 'users',
+        id: payloadUser.id,
+        data: {
+          betterAuthUserId: betterAuthUser.id,
+        },
+        depth: 0,
+        overrideAccess: true,
+      })
+    }
+
+    if (requireApproval && payloadUser.isApproved !== true && autoApproveByPeopleEmail) {
+      const people = await payload.find({
+        collection: 'people',
+        depth: 0,
+        limit: 1,
+        overrideAccess: true,
+        pagination: false,
+        where: {
+          email: {
+            equals: normalizedEmail,
+          },
+        },
+      })
+
+      const matchingPerson = people.docs[0]
+
+      if (matchingPerson) {
+        payloadUser = await payload.update({
+          collection: 'users',
+          id: payloadUser.id,
+          data: {
+            isApproved: true,
+          },
+          depth: 0,
+          overrideAccess: true,
+        })
+
+        const linkedUserID =
+          typeof matchingPerson.user === 'object' ? matchingPerson.user?.id : matchingPerson.user
+
+        if (!linkedUserID) {
+          await payload.update({
+            collection: 'people',
+            id: matchingPerson.id,
+            data: {
+              user: payloadUser.id,
+            },
+            depth: 0,
+            overrideAccess: true,
+          })
+        }
+      }
+    }
+
+    if (requireApproval && payloadUser.isApproved !== true) {
+      return { user: null, reason: 'admin_approval_required' }
+    }
+
+    if (denyAlumni) {
+      const alumniCheck = await payload.find({
+        collection: 'people',
+        depth: 0,
+        limit: 1,
+        overrideAccess: true,
+        pagination: false,
+        where: {
+          and: [
+            {
+              user: {
+                equals: payloadUser.id,
+              },
+            },
+            {
+              memberType: {
+                equals: 'alumni',
+              },
+            },
+          ],
+        },
+      })
+
+      if (alumniCheck.docs.length > 0) {
+        return { user: null, reason: 'unknown' }
+      }
+    }
+
+    return { user: payloadUser, reason: 'allowed' }
+  } catch (error) {
+    payload.logger.error(
+      `[auth] Failed resolving payload user from BetterAuth session with reason: ${error instanceof Error ? error.message : String(error)}`,
+    )
+    return { user: null, reason: 'unknown' }
+  }
 }
 
 export const resolvePayloadUserFromSession = async ({

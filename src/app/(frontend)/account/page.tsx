@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { useSearchParams } from 'next/navigation'
-import { FormEvent, Suspense, useCallback, useEffect, useMemo, useState } from 'react'
+import { FormEvent, Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import {
   Github,
   LogOut,
@@ -15,13 +15,20 @@ import {
   ChevronRight,
 } from 'lucide-react'
 
+import {
+  getAuthFeedbackForReason,
+  inferAuthGateReasonFromError,
+  inferAuthGateReasonFromOAuthErrorQuery,
+  isAuthGateReason,
+  shouldLookupAuthState,
+  type AuthGateReason,
+} from '@/auth/authGateReason'
 import { authClient } from '@/auth/betterAuthClient'
 import { PersonAvatar } from '@/components/people/PersonAvatar'
 
 const providerOptions = [
   { label: 'Continue with GitHub', provider: 'github' },
   { label: 'Continue with Google', provider: 'google' },
-  { label: 'Continue with ORCID', provider: 'orcid' },
 ] as const
 const signInRequirementsMessage =
   'Only members of NABI may join. Sign-in requires email verification; member emails listed in People can log in without manual approval.'
@@ -56,20 +63,9 @@ const GoogleLogo = () => (
   </svg>
 )
 
-const OrcidLogo = () => (
-  <svg aria-hidden className="h-5 w-5" viewBox="0 0 24 24">
-    <circle cx="12" cy="12" r="10" fill="#A6CE39" />
-    <path
-      d="M8.6 8.8a1.1 1.1 0 1 0 0-2.2 1.1 1.1 0 0 0 0 2.2zm-1 1.2h2v7h-2v-7zm3.1 0h2.6c2.3 0 3.8 1.3 3.8 3.5S15.6 17 13.3 17h-2.6v-7zm2 1.7v3.6h.6c1.2 0 2-.6 2-1.8s-.8-1.8-2-1.8h-.6z"
-      fill="#fff"
-    />
-  </svg>
-)
-
 const providerIconMap = {
   github: <Github className="h-5 w-5" />,
   google: <GoogleLogo />,
-  orcid: <OrcidLogo />,
 } as const
 
 type ProfileResponse = {
@@ -82,6 +78,12 @@ type ProfileResponse = {
     id: number
     roles?: string | string[] | null
   } | null
+}
+
+type AuthStateLookupResponse = {
+  allowed?: boolean
+  message?: string
+  reason?: string
 }
 
 const isAdminRole = (roles: string | string[] | null | undefined): boolean => {
@@ -102,6 +104,8 @@ const AccountPageFallback = () => (
 function AccountPageContent() {
   const { data: session, isPending, refetch } = authClient.useSession()
   const searchParams = useSearchParams()
+  const oauthError = searchParams.get('error')
+  const lastHandledOAuthError = useRef<string | null>(null)
 
   const [isSignUpMode, setIsSignUpMode] = useState(true)
   const [name, setName] = useState('')
@@ -113,6 +117,10 @@ function AccountPageContent() {
   const [isOAuthPending, setIsOAuthPending] = useState(false)
   const [profile, setProfile] = useState<ProfileResponse | null>(null)
   const [sessionUserOverride, setSessionUserOverride] = useState<{ email?: string | null } | null>(null)
+  const [authGateReason, setAuthGateReason] = useState<AuthGateReason | null>(null)
+  const [toastID, setToastID] = useState(0)
+  const [showUnverifiedToast, setShowUnverifiedToast] = useState(false)
+  const [showApprovalRequiredToast, setShowApprovalRequiredToast] = useState(false)
 
   const effectiveSessionUser = session?.user ?? sessionUserOverride
   const isSignedIn = Boolean(effectiveSessionUser)
@@ -130,9 +138,95 @@ function AccountPageContent() {
     setIsSignUpMode(mode !== 'login')
   }, [searchParams])
 
+  const trackAuthEvent = useCallback((eventName: string, properties: Record<string, unknown>) => {
+    if (typeof window === 'undefined') return
+
+    const windowWithDataLayer = window as Window & {
+      dataLayer?: Array<Record<string, unknown>>
+    }
+
+    if (!Array.isArray(windowWithDataLayer.dataLayer)) return
+
+    windowWithDataLayer.dataLayer.push({
+      event: eventName,
+      ...properties,
+    })
+  }, [])
+
+  const applyAuthFeedback = useCallback((reason: AuthGateReason) => {
+    if (reason === 'allowed') {
+      setAuthGateReason(null)
+      setShowUnverifiedToast(false)
+      setShowApprovalRequiredToast(false)
+      return
+    }
+
+    setAuthGateReason(reason)
+
+    if (reason === 'email_not_verified') {
+      setToastID((current) => current + 1)
+      setShowApprovalRequiredToast(false)
+      setShowUnverifiedToast(true)
+      return
+    }
+
+    if (reason === 'admin_approval_required') {
+      setToastID((current) => current + 1)
+      setShowUnverifiedToast(false)
+      setShowApprovalRequiredToast(true)
+      return
+    }
+
+    setShowUnverifiedToast(false)
+    setShowApprovalRequiredToast(false)
+  }, [])
+
+  const resetAuthFeedback = useCallback(() => {
+    setAuthGateReason(null)
+    setShowUnverifiedToast(false)
+    setShowApprovalRequiredToast(false)
+  }, [])
+
+  useEffect(() => {
+    if (!showUnverifiedToast && !showApprovalRequiredToast) return
+
+    const timeout = window.setTimeout(() => {
+      setShowUnverifiedToast(false)
+      setShowApprovalRequiredToast(false)
+    }, 5000)
+
+    return () => {
+      window.clearTimeout(timeout)
+    }
+  }, [showApprovalRequiredToast, showUnverifiedToast, toastID])
+
+  useEffect(() => {
+    if (!oauthError) {
+      lastHandledOAuthError.current = null
+      return
+    }
+
+    if (lastHandledOAuthError.current === oauthError) return
+    lastHandledOAuthError.current = oauthError
+
+    const reason = inferAuthGateReasonFromOAuthErrorQuery(oauthError)
+    applyAuthFeedback(reason)
+
+    const feedback = getAuthFeedbackForReason(reason)
+    setAuthError(feedback.description)
+    setAuthMessage(null)
+
+    trackAuthEvent('auth_failure', {
+      method: 'oauth',
+      reason,
+      source: 'oauth-callback',
+    })
+  }, [applyAuthFeedback, oauthError, trackAuthEvent])
+
   useEffect(() => {
     if (session?.user) {
       setSessionUserOverride(null)
+      setAuthGateReason(null)
     }
   }, [session?.user])
 
@@ -172,15 +266,45 @@ function AccountPageContent() {
     void loadProfile()
   }, [loadProfile, session?.user])
 
+  const lookupAuthStateByEmail = useCallback(async (emailAddress: string): Promise<AuthGateReason | null> => {
+    try {
+      const response = await fetch('/api/account/auth-state', {
+        method: 'POST',
+        headers: {
+          'content-type': 'application/json',
+        },
+        body: JSON.stringify({
+          email: emailAddress,
+          intent: 'login',
+        }),
+      })
+
+      if (!response.ok) return null
+
+      const payload = (await response.json().catch(() => ({}))) as AuthStateLookupResponse
+      if (!isAuthGateReason(payload.reason)) return null
+
+      return payload.reason
+    } catch {
+      return null
+    }
+  }, [])
+
   const submitAuthForm = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
 
     setAuthError(null)
     setAuthMessage(null)
+    resetAuthFeedback()
     setIsSubmitting(true)
 
     try {
       if (isSignUpMode) {
+        trackAuthEvent('auth_attempt', {
+          method: 'email',
+          mode: 'signup',
+        })
+
         const result = await authClient.signUp.email({
           email,
           name,
@@ -189,14 +313,32 @@ function AccountPageContent() {
         })
 
         if (result.error) {
+          const reason = inferAuthGateReasonFromError(result.error)
+          applyAuthFeedback(reason)
+          trackAuthEvent('auth_failure', {
+            method: 'email',
+            mode: 'signup',
+            reason,
+          })
+
           setAuthError(result.error.message || 'Unable to sign up.')
           return
         }
+
+        trackAuthEvent('auth_success', {
+          method: 'email',
+          mode: 'signup',
+        })
 
         setAuthMessage(
           'Account created. Verify your email in production. People emails can sign in immediately; others may still need approval.',
         )
       } else {
+        trackAuthEvent('auth_attempt', {
+          method: 'email',
+          mode: 'login',
+        })
+
         const result = await authClient.signIn.email({
           email,
           password,
@@ -204,12 +346,31 @@ function AccountPageContent() {
         })
 
         if (result.error) {
-          setAuthError(
-            result.error.message ||
-              'Unable to log in. Check email verification and whether your email is listed in People or already approved.',
-          )
+          let reason = inferAuthGateReasonFromError(result.error)
+
+          if (shouldLookupAuthState(reason)) {
+            const lookedUpReason = await lookupAuthStateByEmail(email)
+            if (lookedUpReason) {
+              reason = lookedUpReason
+            }
+          }
+
+          applyAuthFeedback(reason)
+          trackAuthEvent('auth_failure', {
+            method: 'email',
+            mode: 'login',
+            reason,
+          })
+
+          const feedback = getAuthFeedbackForReason(reason)
+          setAuthError(reason === 'unknown' ? result.error.message || feedback.description : feedback.description)
           return
         }
+
+        trackAuthEvent('auth_success', {
+          method: 'email',
+          mode: 'login',
+        })
 
         setSessionUserOverride({ email })
         setAuthMessage('Signed in successfully.')
@@ -223,6 +384,12 @@ function AccountPageContent() {
       }
       setPassword('')
     } catch {
+      applyAuthFeedback('unknown')
+      trackAuthEvent('auth_failure', {
+        method: 'email',
+        mode: isSignUpMode ? 'signup' : 'login',
+        reason: 'unknown',
+      })
       setAuthError('Authentication request failed.')
     } finally {
       setIsSubmitting(false)
@@ -232,31 +399,39 @@ function AccountPageContent() {
   const signInWithProvider = async (provider: (typeof providerOptions)[number]['provider']) => {
     setAuthError(null)
     setAuthMessage(null)
+    resetAuthFeedback()
     setIsOAuthPending(true)
+    trackAuthEvent('auth_attempt', {
+      method: provider,
+      mode: 'oauth',
+    })
 
     try {
-      if (provider === 'orcid') {
-        const result = await authClient.signIn.oauth2({
-          providerId: 'orcid',
-          callbackURL: '/account',
+      const result = await authClient.signIn.social({
+        provider,
+        callbackURL: '/account',
+        errorCallbackURL: '/account?mode=login',
+      })
+
+      if (result?.error) {
+        const reason = inferAuthGateReasonFromError(result.error)
+        applyAuthFeedback(reason)
+        trackAuthEvent('auth_failure', {
+          method: provider,
+          mode: 'oauth',
+          reason,
         })
 
-        if (result?.error) {
-          setAuthError(result.error.message || 'Unable to authenticate with ORCID.')
-        }
-      } else {
-        const result = await authClient.signIn.social({
-          provider,
-          callbackURL: '/account',
-        })
-
-        if (result?.error) {
-          setAuthError(
-            result.error.message || `Unable to authenticate with ${provider.toUpperCase()}.`,
-          )
-        }
+        const feedback = getAuthFeedbackForReason(reason)
+        setAuthError(reason === 'unknown' ? result.error.message || feedback.description : feedback.description)
       }
     } catch {
+      applyAuthFeedback('unknown')
+      trackAuthEvent('auth_failure', {
+        method: provider,
+        mode: 'oauth',
+        reason: 'unknown',
+      })
       setAuthError(`Unable to authenticate with ${provider.toUpperCase()}.`)
     } finally {
       setIsOAuthPending(false)
@@ -266,6 +441,7 @@ function AccountPageContent() {
   const handleSignOut = async () => {
     setAuthError(null)
     setAuthMessage(null)
+    resetAuthFeedback()
     setSessionUserOverride(null)
 
     await authClient.signOut({
@@ -280,6 +456,30 @@ function AccountPageContent() {
 
   return (
     <main className="container py-16">
+      {showUnverifiedToast || showApprovalRequiredToast ? (
+        <div
+          aria-live="assertive"
+          className="pointer-events-none fixed inset-x-4 top-5 z-50 flex justify-center sm:inset-x-auto sm:right-5"
+        >
+          {(() => {
+            const toastReason: AuthGateReason = showApprovalRequiredToast
+              ? 'admin_approval_required'
+              : 'email_not_verified'
+            const toastFeedback = getAuthFeedbackForReason(toastReason)
+
+            return (
+              <div
+                role="alert"
+                className="pointer-events-auto w-full max-w-sm rounded-xl border border-destructive/35 bg-background px-4 py-3 shadow-lg"
+              >
+                <p className="text-sm font-semibold text-destructive">{toastFeedback.title}</p>
+                <p className="mt-1 text-sm text-muted-foreground">{toastFeedback.description}</p>
+              </div>
+            )
+          })()}
+        </div>
+      ) : null}
+
       <div className="mx-auto max-w-2xl rounded-2xl border border-border p-8 shadow-sm sm:p-10">
         <p className="text-center text-base uppercase tracking-[0.2em] text-primary">Account</p>
         <h1 className="mt-3 text-center text-5xl font-semibold sm:text-6xl">{pageTitle}</h1>
@@ -363,6 +563,31 @@ function AccountPageContent() {
                 {isSubmitting ? 'Submitting...' : isSignUpMode ? 'Sign Up' : 'Log In'}
               </button>
             </form>
+
+            {authGateReason ? (
+              <div className="mx-auto mt-5 max-w-xl rounded-xl border border-border bg-muted/40 p-4">
+                <p className="text-sm font-semibold text-foreground">
+                  {getAuthFeedbackForReason(authGateReason).title}
+                </p>
+                <p className="mt-1 text-sm text-muted-foreground">
+                  {getAuthFeedbackForReason(authGateReason).description}
+                </p>
+                {authGateReason === 'admin_approval_required' ? (
+                  <a
+                    className="mt-3 inline-flex text-sm font-medium text-primary hover:underline"
+                    href="mailto:admin@nabilab.org"
+                    onClick={() =>
+                      trackAuthEvent('auth_recovery_action', {
+                        action: 'contact_admin',
+                        reason: authGateReason,
+                      })
+                    }
+                  >
+                    Contact admin@nabilab.org
+                  </a>
+                ) : null}
+              </div>
+            ) : null}
 
             <div className="mx-auto mt-10 max-w-xl">
               <p className="text-sm uppercase tracking-[0.2em] text-muted-foreground">

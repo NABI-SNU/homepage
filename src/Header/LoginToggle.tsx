@@ -174,7 +174,7 @@ export const LoginToggle: React.FC<{
                 onClick={() => setIsOpen(false)}
                 role="menuitem"
               >
-                Sign In
+                Sign Up
               </Link>
               <Link
                 className="block rounded-lg px-3 py-2 text-sm text-foreground transition-colors hover:bg-muted"
