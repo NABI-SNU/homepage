@@ -31,7 +31,8 @@ jobs:
         uses: actions/dependency-review-action@v4
 
   npm-audit:
-    name: PNPM Audit
+    name: PNPM Audit (Main/Schedule)
+    if: github.event_name != 'pull_request'
     runs-on: ubuntu-latest
     timeout-minutes: 15
     env:

@@ -73,13 +73,13 @@ pnpm prepare
 GitHub Actions workflows:
 
 - `CI` (`.github/workflows/ci.yml`)
-  - Runs lint, generated-file checks, and typecheck
-  - Runs integration tests against Postgres after seeding fixed test accounts
-  - Runs e2e tests (Playwright) on `main` pushes and manual dispatches
-  - Runs production build
+  - Pull requests: runs fast quality checks (`pnpm lint` + `pnpm typecheck`)
+  - `main` pushes / manual dispatch: additionally verifies generated files (`importMap.js`, `payload-types.ts`)
+  - `main` pushes / manual dispatch: runs production build
+  - Optional non-blocking Docker smoke build runs only when a `Dockerfile` exists
 - `Security` (`.github/workflows/security.yml`)
   - Runs dependency review on pull requests
-  - Runs `pnpm audit --audit-level=high` on PRs, `main`, and weekly schedule
+  - Runs `pnpm audit --audit-level=critical` on `main`, manual dispatch, and biweekly schedule
 - `Dependabot` (`.github/dependabot.yml`)
   - Checks npm and GitHub Actions dependencies every 2 weeks and opens update PRs with security/dependency labels
 
