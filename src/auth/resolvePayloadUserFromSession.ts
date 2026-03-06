@@ -1,6 +1,7 @@
 import type { Payload } from 'payload'
 
 import type { AuthGateReason } from './authGateReason'
+import { isProductionBlockedAuthEmail } from './productionBlockedAuth'
 import type { User } from '@/payload-types'
 
 export type BetterAuthSessionUser = {
@@ -34,6 +35,12 @@ type AuthResolutionCacheEntry = {
 type AuthResolutionResult = {
   cacheable: boolean
   user: User | null
+}
+
+type PersonVisibilityDoc = {
+  id: number
+  isVisible?: boolean | null
+  user?: number | { id: number } | null
 }
 
 const authResolutionCache = new Map<string, AuthResolutionCacheEntry>()
@@ -92,6 +99,32 @@ const normalizeEmail = (email: string | null | undefined): string | null => {
   return normalized && normalized.length > 0 ? normalized : null
 }
 
+const hasHiddenLinkedPersonProfile = async ({
+  payload,
+  userID,
+}: {
+  payload: Payload
+  userID: number
+}): Promise<boolean> => {
+  if (process.env.NODE_ENV !== 'production') return false
+
+  const people = await payload.find({
+    collection: 'people',
+    depth: 0,
+    limit: 1,
+    overrideAccess: true,
+    pagination: false,
+    where: {
+      user: {
+        equals: userID,
+      },
+    },
+  })
+
+  const linkedPerson = people.docs[0] as PersonVisibilityDoc | undefined
+  return linkedPerson?.isVisible === false
+}
+
 export const resolvePayloadUserFromSessionWithReason = async ({
   payload,
   betterAuthUser,
@@ -107,6 +140,10 @@ export const resolvePayloadUserFromSessionWithReason = async ({
   const normalizedEmail = normalizeEmail(betterAuthUser.email)
   if (!normalizedEmail) {
     return { user: null, reason: 'account_not_found' }
+  }
+
+  if (isProductionBlockedAuthEmail(normalizedEmail)) {
+    return { user: null, reason: 'invalid_credentials' }
   }
 
   if (isProduction && enforceProductionEmailVerification && betterAuthUser.emailVerified !== true) {
@@ -162,6 +199,10 @@ export const resolvePayloadUserFromSessionWithReason = async ({
       })
     }
 
+    if (await hasHiddenLinkedPersonProfile({ payload, userID: payloadUser.id })) {
+      return { user: null, reason: 'invalid_credentials' }
+    }
+
     if (requireApproval && payloadUser.isApproved !== true && autoApproveByPeopleEmail) {
       const people = await payload.find({
         collection: 'people',
@@ -170,9 +211,18 @@ export const resolvePayloadUserFromSessionWithReason = async ({
         overrideAccess: true,
         pagination: false,
         where: {
-          email: {
-            equals: normalizedEmail,
-          },
+          and: [
+            {
+              email: {
+                equals: normalizedEmail,
+              },
+            },
+            {
+              isVisible: {
+                equals: true,
+              },
+            },
+          ],
         },
       })
 
@@ -260,6 +310,8 @@ export const resolvePayloadUserFromSession = async ({
   const normalizedEmail = normalizeEmail(betterAuthUser.email)
   if (!normalizedEmail) return null
 
+  if (isProductionBlockedAuthEmail(normalizedEmail)) return null
+
   if (isProduction && enforceProductionEmailVerification && betterAuthUser.emailVerified !== true) {
     return null
   }
@@ -333,6 +385,10 @@ export const resolvePayloadUserFromSession = async ({
       })
     }
 
+    if (await hasHiddenLinkedPersonProfile({ payload, userID: payloadUser.id })) {
+      return { user: null, cacheable: true }
+    }
+
     if (requireApproval && payloadUser.isApproved !== true && autoApproveByPeopleEmail) {
       const people = await payload.find({
         collection: 'people',
@@ -341,9 +397,18 @@ export const resolvePayloadUserFromSession = async ({
         overrideAccess: true,
         pagination: false,
         where: {
-          email: {
-            equals: normalizedEmail,
-          },
+          and: [
+            {
+              email: {
+                equals: normalizedEmail,
+              },
+            },
+            {
+              isVisible: {
+                equals: true,
+              },
+            },
+          ],
         },
       })
 

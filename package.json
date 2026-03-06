@@ -20,11 +20,15 @@
     "db:check:activity-indexes": "cross-env NODE_OPTIONS=\"--no-deprecation --import=tsx/esm\" tsx scripts/check-activity-indexes.ts",
     "migrate:neon": "cross-env NODE_OPTIONS=\"--no-deprecation --import=tsx/esm\" tsx scripts/migrations.ts",
     "payload": "cross-env NODE_OPTIONS=--no-deprecation payload",
+    "prepare": "husky",
     "reinstall": "cross-env NODE_OPTIONS=--no-deprecation rm -rf node_modules && rm pnpm-lock.yaml && pnpm --ignore-workspace install",
+    "seed:test-accounts": "cross-env NODE_OPTIONS=\"--no-deprecation --import=tsx/esm\" tsx scripts/seed-test-accounts.ts",
     "start": "cross-env NODE_OPTIONS=--no-deprecation next start",
     "test": "pnpm run test:int && pnpm run test:e2e",
     "test:e2e": "cross-env NODE_OPTIONS=\"--no-deprecation --import=tsx/esm\" playwright test --config=playwright.config.ts",
-    "test:int": "cross-env NODE_OPTIONS=--no-deprecation vitest run --config ./vitest.config.mts"
+    "test:int": "cross-env NODE_OPTIONS=--no-deprecation vitest run --config ./vitest.config.mts",
+    "typecheck": "cross-env NODE_OPTIONS=--no-deprecation tsc --noEmit",
+    "format:check": "cross-env NODE_OPTIONS=--no-deprecation prettier --check ."
   },
   "dependencies": {
     "@neondatabase/serverless": "^1.0.2",
@@ -57,7 +61,7 @@
     "graphql": "^16.8.2",
     "gray-matter": "^4.0.3",
     "lucide-react": "0.563.0",
-    "next": "15.4.11",
+    "next": "15.5.10",
     "next-sitemap": "^4.2.3",
     "nodemailer": "^8.0.1",
     "payload": "3.78.0",
@@ -85,9 +89,11 @@
     "@vitejs/plugin-react": "4.5.2",
     "autoprefixer": "^10.4.19",
     "eslint": "^9.16.0",
-    "eslint-config-next": "15.4.11",
+    "eslint-config-next": "15.5.10",
     "eslint-plugin-react-hooks": "^5.2.0",
+    "husky": "^9.1.7",
     "jsdom": "28.0.0",
+    "lint-staged": "^16.3.2",
     "postcss": "^8.4.38",
     "prettier": "^3.4.2",
     "tailwindcss": "^4.1.18",
@@ -98,16 +104,35 @@
     "vitest": "4.0.18"
   },
   "engines": {
-    "node": "25.x",
+    "node": "24.x",
     "pnpm": "10.x"
   },
   "pnpm": {
+    "overrides": {
+      "@hono/node-server": "^1.19.10",
+      "dompurify": "^3.3.2",
+      "esbuild": "^0.25.0",
+      "fast-xml-parser": "^5.3.8",
+      "hono": "^4.12.4",
+      "immutable": "^4.3.8",
+      "lodash": "^4.17.23",
+      "payload>ajv": "^8.18.0"
+    },
     "onlyBuiltDependencies": [
       "sharp",
       "esbuild",
       "unrs-resolver",
       "@prisma/engines",
       "prisma"
+    ]
+  },
+  "lint-staged": {
+    "*.{js,jsx,ts,tsx,mjs,cjs}": [
+      "pnpm exec eslint --max-warnings=0 --no-warn-ignored --fix",
+      "pnpm exec prettier --write"
+    ],
+    "*.{json,md,css,scss,yml,yaml}": [
+      "pnpm exec prettier --write"
     ]
   }
 }

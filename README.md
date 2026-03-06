@@ -36,6 +36,7 @@ pnpm dev
 - `DATABASE_URL` is treated as a deprecated fallback during migration.
 - `AUTH_DEBUG_LOGS=true` enables verbose auth-bridge diagnostics (default `false`).
 - `AUTH_SESSION_CACHE_TTL_MS` controls short-lived BetterAuth session lookup caching (default `60000` ms).
+- Production blocks shared test logins (`test@example.com`, `dev@payloadcms.com`) by default; extend with `AUTH_PRODUCTION_BLOCKED_EMAILS`.
 
 ## Core Commands
 
@@ -44,13 +45,43 @@ pnpm dev
 - `pnpm start`: run production server
 - `pnpm lint`: run Next lint
 - `pnpm lint:fix`: run lint with fixes
+- `pnpm typecheck`: run TypeScript checks
 - `pnpm test`: run integration + e2e test suites
 - `pnpm test:int`: run integration tests (Vitest)
 - `pnpm test:e2e`: run e2e tests (Playwright)
 - `pnpm generate:types`: regenerate `src/payload-types.ts`
 - `pnpm generate:importmap`: regenerate Payload admin import map
+- `pnpm seed:test-accounts`: upsert fixed shared test accounts used by tests
 - `pnpm payload migrate:create`: create DB migration
 - `pnpm payload migrate`: run DB migrations
+
+## Git Hooks
+
+Pre-commit hooks are managed with Husky + lint-staged.
+
+- Hook: `.husky/pre-commit`
+- Behavior: runs ESLint + Prettier on staged files only
+
+If hooks are not installed yet, run:
+
+```bash
+pnpm prepare
+```
+
+## CI/CD
+
+GitHub Actions workflows:
+
+- `CI` (`.github/workflows/ci.yml`)
+  - Runs lint, generated-file checks, and typecheck
+  - Runs integration tests against Postgres after seeding fixed test accounts
+  - Runs e2e tests (Playwright) on `main` pushes and manual dispatches
+  - Runs production build
+- `Security` (`.github/workflows/security.yml`)
+  - Runs dependency review on pull requests
+  - Runs `pnpm audit --audit-level=high` on PRs, `main`, and weekly schedule
+- `Dependabot` (`.github/dependabot.yml`)
+  - Checks npm and GitHub Actions dependencies every 2 weeks and opens update PRs with security/dependency labels
 
 ## Content Model Overview
 
