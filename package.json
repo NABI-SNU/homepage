@@ -70,7 +70,7 @@
     "prism-react-renderer": "^2.3.1",
     "react": "19.2.4",
     "react-dom": "19.2.1",
-    "react-hook-form": "7.71.1",
+    "react-hook-form": "7.71.2",
     "sharp": "0.34.2",
     "tailwind-merge": "^3.4.0"
   },
