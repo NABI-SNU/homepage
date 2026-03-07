@@ -1,3 +1,7 @@
+html {
+  font-size: 85%;
+}
+
 :root {
   /* Match frontend typography + radius scale */
   --font-body:
@@ -130,7 +134,9 @@ html[data-theme='dark'] {
     border: 1px solid var(--theme-border-color);
     background-color: var(--theme-elevation-50);
     box-shadow: 0 1px 3px rgb(0 0 0 / 0.06);
-    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    transition:
+      border-color 0.2s ease,
+      box-shadow 0.2s ease;
 
     &:hover {
       border-color: oklch(57.8% 0.23 259deg / 0.25);

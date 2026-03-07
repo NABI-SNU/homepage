@@ -38,7 +38,12 @@ const BeforeDashboard: React.FC = () => {
       <div className={`${baseClass}__card`}>
         <h2 className={`${baseClass}__title`}>Welcome to the NABI admin dashboard</h2>
         <p className={`${baseClass}__intro`}>
-          Recommended next steps to keep the site current and maintain data integrity.
+          This is the admin dashboard for the NABI website. Here users can manage the content of the
+          website, including their posts and bio.
+        </p>
+        <p className={`${baseClass}__intro`}>
+          Recommended next steps to update the site and keep the data current. (for site
+          administrators)
         </p>
         <ol className={`${baseClass}__steps`}>
           {STEPS.map((step, index) => (
