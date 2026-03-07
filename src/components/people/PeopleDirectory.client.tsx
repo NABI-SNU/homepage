@@ -27,7 +27,7 @@ const parseQueryParam = (value: string | null): string => {
 
 export type PeopleDirectoryPerson = Pick<
   Person,
-  'avatar' | 'email' | 'id' | 'joinedYear' | 'name' | 'research' | 'slug' | 'socials'
+  'avatar' | 'email' | 'id' | 'name' | 'research' | 'slug' | 'socials' | 'years'
 >
 
 export function PeopleDirectory({ people }: { people: PeopleDirectoryPerson[] }) {
@@ -42,7 +42,7 @@ export function PeopleDirectory({ people }: { people: PeopleDirectoryPerson[] })
       Array.from(
         new Set(
           people
-            .map((person) => person.joinedYear)
+            .flatMap((person) => person.years || [])
             .filter((year): year is number => typeof year === 'number' && Number.isFinite(year)),
         ),
       ).sort((a, b) => b - a),
@@ -101,8 +101,8 @@ export function PeopleDirectory({ people }: { people: PeopleDirectoryPerson[] })
 
   const filteredPeople = useMemo(() => {
     const filteredByYear = people.filter((person) => {
-      const joinedYear = typeof person.joinedYear === 'number' ? person.joinedYear : DEFAULT_YEAR
-      return joinedYear === activeYear
+      const years = Array.isArray(person.years) ? person.years : []
+      return years.includes(activeYear)
     })
 
     if (!normalizedSearchQuery) {

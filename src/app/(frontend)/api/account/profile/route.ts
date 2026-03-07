@@ -7,8 +7,27 @@ import configPromise from '@payload-config'
 import { getBetterAuthUserFromHeaders } from '@/auth/getBetterAuthUserFromHeaders'
 import { resolvePayloadUserFromSession } from '@/auth/resolvePayloadUserFromSession'
 
-const editableProfileFields = ['name', 'bio', 'research', 'socials', 'avatar', 'joinedYear'] as const
+const editableProfileFields = ['name', 'bio', 'research', 'socials', 'avatar', 'years'] as const
 const MAX_AVATAR_SIZE_BYTES = 5 * 1024 * 1024
+
+const parseYearsInput = (value: unknown): number[] | null => {
+  const rawValues = Array.isArray(value)
+    ? value
+    : String(value ?? '')
+        .split(',')
+        .map((item) => item.trim())
+        .filter(Boolean)
+
+  const normalized = Array.from(
+    new Set(
+      rawValues
+        .map((item) => (typeof item === 'number' ? item : Number(item)))
+        .filter((item) => Number.isInteger(item) && item >= 1900 && item <= 2100),
+    ),
+  ).sort((a, b) => b - a)
+
+  return normalized.length > 0 ? normalized : null
+}
 
 type EditableProfileField = (typeof editableProfileFields)[number]
 
@@ -86,9 +105,8 @@ export async function PATCH(req: NextRequest): Promise<Response> {
       const value = formData.get(key)
       if (value === null) continue
 
-      if (key === 'joinedYear') {
-        const normalized = String(value).trim()
-        updateData[key] = normalized ? Number(normalized) : null
+      if (key === 'years') {
+        updateData[key] = parseYearsInput(value)
         continue
       }
 
@@ -101,13 +119,16 @@ export async function PATCH(req: NextRequest): Promise<Response> {
     }
   } else {
     const body = (await req.json().catch(() => ({}))) as Record<string, unknown>
-    updateData = editableProfileFields.reduce<Record<string, unknown>>((acc, key: EditableProfileField) => {
-      if (Object.prototype.hasOwnProperty.call(body, key)) {
-        acc[key] = body[key]
-      }
+    updateData = editableProfileFields.reduce<Record<string, unknown>>(
+      (acc, key: EditableProfileField) => {
+        if (Object.prototype.hasOwnProperty.call(body, key)) {
+          acc[key] = key === 'years' ? parseYearsInput(body[key]) : body[key]
+        }
 
-      return acc
-    }, {})
+        return acc
+      },
+      {},
+    )
   }
 
   if (!avatarUpload && Object.keys(updateData).length === 0) {

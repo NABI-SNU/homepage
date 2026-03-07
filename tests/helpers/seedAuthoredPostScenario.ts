@@ -1,3 +1,4 @@
+import type { DefaultTypedEditorState } from '@payloadcms/richtext-lexical'
 import { getPayload } from 'payload'
 
 import config from '../../src/payload.config.js'
@@ -15,7 +16,7 @@ type SeededScenario = {
   otherPersonID: number
 }
 
-const buildMinimalRichText = () => ({
+const buildMinimalRichText = (): DefaultTypedEditorState => ({
   root: {
     type: 'root',
     children: [
@@ -78,7 +79,7 @@ export async function seedAuthoredPostScenario(): Promise<SeededScenario> {
         name: userTestAccount.name,
         slug: `post-author-person-${runID}`,
         email: userTestAccount.email,
-        joinedYear: 2026,
+        years: [2026],
         memberType: 'user',
         user: authorUser.id,
       },
@@ -93,7 +94,7 @@ export async function seedAuthoredPostScenario(): Promise<SeededScenario> {
       name: `Post Other ${runID}`,
       slug: `post-other-person-${runID}`,
       email: `post-other-${runID}@example.com`,
-      joinedYear: 2026,
+      years: [2026],
       memberType: 'alumni',
       user: null,
     },
@@ -107,7 +108,7 @@ export async function seedAuthoredPostScenario(): Promise<SeededScenario> {
       title: `Author Post ${runID}`,
       slug: `post-author-${runID}`,
       authors: [authorPerson.id],
-      content: buildMinimalRichText() as any,
+      content: buildMinimalRichText(),
       _status: 'published',
     },
   })
@@ -120,7 +121,7 @@ export async function seedAuthoredPostScenario(): Promise<SeededScenario> {
       title: `Other Post ${runID}`,
       slug: `post-other-${runID}`,
       authors: [otherPerson.id],
-      content: buildMinimalRichText() as any,
+      content: buildMinimalRichText(),
       _status: 'published',
     },
   })

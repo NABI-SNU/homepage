@@ -422,9 +422,9 @@ export interface Person {
   research?: string[] | null;
   isAuthor?: boolean | null;
   /**
-   * Year this member joined the group.
+   * Years in which this person has participated in the group.
    */
-  joinedYear: number;
+  years: number[];
   socials?:
     | {
         platform: 'x' | 'github' | 'linkedin' | 'orcid' | 'website';
@@ -1334,7 +1334,7 @@ export interface PeopleSelect<T extends boolean = true> {
   bio?: T;
   research?: T;
   isAuthor?: T;
-  joinedYear?: T;
+  years?: T;
   socials?:
     | T
     | {

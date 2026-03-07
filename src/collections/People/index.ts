@@ -61,7 +61,7 @@ export const People: CollectionConfig<'people'> = {
   },
   admin: {
     useAsTitle: 'name',
-    defaultColumns: ['name', 'memberType', 'joinedYear', 'isAuthor', 'updatedAt'],
+    defaultColumns: ['name', 'memberType', 'years', 'isAuthor', 'updatedAt'],
   },
   fields: [
     {
@@ -142,15 +142,16 @@ export const People: CollectionConfig<'people'> = {
       index: true,
     },
     {
-      name: 'joinedYear',
+      name: 'years',
       type: 'number',
+      hasMany: true,
       required: true,
-      defaultValue: 2025,
+      defaultValue: [2025],
       index: true,
       min: 1900,
       max: 2100,
       admin: {
-        description: 'Year this member joined the group.',
+        description: 'Years in which this person has participated in the group.',
       },
     },
     {
@@ -190,15 +191,29 @@ export const People: CollectionConfig<'people'> = {
   hooks: {
     beforeValidate: [
       ({ data }) => {
-        if (!data || typeof data !== 'object' || !('research' in data)) return data
+        if (!data || typeof data !== 'object') return data
 
         const normalizedResearch = parseResearchTags(
           (data as { research?: string | string[] | null }).research,
         )
 
+        const rawYears = (data as { years?: number[] | number | null }).years
+        const yearValues = Array.isArray(rawYears) ? rawYears : rawYears != null ? [rawYears] : []
+        const normalizedYears = Array.from(
+          new Set(
+            yearValues
+              .map((value): number => (typeof value === 'number' ? value : Number(value)))
+              .filter(
+                (value): value is number =>
+                  Number.isInteger(value) && value >= 1900 && value <= 2100,
+              ),
+          ),
+        ).sort((a: number, b: number) => b - a)
+
         return {
           ...data,
           research: normalizedResearch.length > 0 ? normalizedResearch : null,
+          years: normalizedYears.length > 0 ? normalizedYears : null,
         }
       },
     ],

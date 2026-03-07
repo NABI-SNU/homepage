@@ -31,7 +31,10 @@ const getPool = (): Pool | null => {
 const getPayloadInstance = async (): Promise<Payload> => {
   if (!payloadPromise) {
     payloadPromise = (async () => {
-      const [{ getPayload }, configModule] = await Promise.all([import('payload'), import('@payload-config')])
+      const [{ getPayload }, configModule] = await Promise.all([
+        import('payload'),
+        import('@payload-config'),
+      ])
       return getPayload({ config: configModule.default })
     })()
   }
@@ -243,7 +246,10 @@ export const syncBetterAuthUserToPayload = async ({
     if (normalizedEmail && payloadUser.email !== normalizedEmail) {
       const lookup = await findPayloadUserByEmail(payload, normalizedEmail)
       if (lookup.duplicateEmail || (lookup.user && lookup.user.id !== payloadUser.id)) {
-        console.error('[auth-sync] Refusing email update due to duplicate payload user email', normalizedEmail)
+        console.error(
+          '[auth-sync] Refusing email update due to duplicate payload user email',
+          normalizedEmail,
+        )
         return
       }
 
@@ -284,7 +290,7 @@ export const syncBetterAuthUserToPayload = async ({
         name: normalizedName,
         email: normalizedEmail ?? undefined,
         slug: `${slugBase}-${payloadUser.id}`,
-        joinedYear: new Date().getUTCFullYear(),
+        years: [new Date().getUTCFullYear()],
         isVisible: true,
         memberType: 'user',
         user: payloadUser.id,

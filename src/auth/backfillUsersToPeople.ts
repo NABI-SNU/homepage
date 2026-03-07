@@ -31,7 +31,10 @@ const inferPersonName = (user: PayloadUser): string => {
   return localPart || `User ${user.id}`
 }
 
-const findExistingPersonByUser = async (payload: Payload, userID: number): Promise<PayloadPerson | null> => {
+const findExistingPersonByUser = async (
+  payload: Payload,
+  userID: number,
+): Promise<PayloadPerson | null> => {
   const people = await payload.find({
     collection: 'people',
     depth: 0,
@@ -120,7 +123,7 @@ export const backfillUsersToPeople = async (payload: Payload): Promise<void> => 
           name: personName,
           email: normalizedEmail ?? undefined,
           isVisible: true,
-          joinedYear: currentYear,
+          years: [currentYear],
           memberType: 'user',
           slug: `${slugBase}-${user.id}`,
           user: user.id,

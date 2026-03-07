@@ -1223,7 +1223,6 @@ export const people = pgTable(
     }),
     bio: varchar('bio'),
     isAuthor: boolean('is_author').default(false),
-    joinedYear: numeric('joined_year', { mode: 'number' }).notNull().default(2025),
     avatar: integer('avatar_id').references(() => media.id, {
       onDelete: 'set null',
     }),
@@ -1240,7 +1239,6 @@ export const people = pgTable(
     index('people_is_visible_idx').on(columns.isVisible),
     uniqueIndex('people_user_idx').on(columns.user),
     index('people_is_author_idx').on(columns.isAuthor),
-    index('people_joined_year_idx').on(columns.joinedYear),
     index('people_avatar_idx').on(columns.avatar),
     uniqueIndex('people_slug_idx').on(columns.slug),
     index('people_updated_at_idx').on(columns.updatedAt),
@@ -1263,6 +1261,26 @@ export const people_texts = pgTable(
       columns: [columns['parent']],
       foreignColumns: [people.id],
       name: 'people_texts_parent_fk',
+    }).onDelete('cascade'),
+  ],
+)
+
+export const people_numbers = pgTable(
+  'people_numbers',
+  {
+    id: serial('id').primaryKey(),
+    number: numeric('number', { mode: 'number' }),
+    order: integer('order').notNull(),
+    parent: integer('parent_id').notNull(),
+    path: varchar('path').notNull(),
+  },
+  (columns) => [
+    index('people_numbers_order_parent_idx').on(columns.order, columns.parent),
+    index('people_numbers_number_idx').on(columns.number),
+    foreignKey({
+      columns: [columns['parent']],
+      foreignColumns: [people.id],
+      name: 'people_numbers_parent_fk',
     }).onDelete('cascade'),
   ],
 )
@@ -2135,36 +2153,17 @@ export const payload_locked_documents_rels = pgTable(
     order: integer('order'),
     parent: integer('parent_id').notNull(),
     path: varchar('path').notNull(),
-    postsID: integer('posts_id'),
-    newsID: integer('news_id'),
-    researchID: integer('research_id'),
-    wikiID: integer('wiki_id'),
-    activitiesID: integer('activities_id'),
-    peopleID: integer('people_id'),
-    tagsID: integer('tags_id'),
-    mediaID: integer('media_id'),
-    categoriesID: integer('categories_id'),
-    usersID: integer('users_id'),
     redirectsID: integer('redirects_id'),
     formsID: integer('forms_id'),
     'form-submissionsID': integer('form_submissions_id'),
     searchID: integer('search_id'),
     'payload-foldersID': integer('payload_folders_id'),
+    usersID: integer('users_id'),
   },
   (columns) => [
     index('payload_locked_documents_rels_order_idx').on(columns.order),
     index('payload_locked_documents_rels_parent_idx').on(columns.parent),
     index('payload_locked_documents_rels_path_idx').on(columns.path),
-    index('payload_locked_documents_rels_posts_id_idx').on(columns.postsID),
-    index('payload_locked_documents_rels_news_id_idx').on(columns.newsID),
-    index('payload_locked_documents_rels_research_id_idx').on(columns.researchID),
-    index('payload_locked_documents_rels_wiki_id_idx').on(columns.wikiID),
-    index('payload_locked_documents_rels_activities_id_idx').on(columns.activitiesID),
-    index('payload_locked_documents_rels_people_id_idx').on(columns.peopleID),
-    index('payload_locked_documents_rels_tags_id_idx').on(columns.tagsID),
-    index('payload_locked_documents_rels_media_id_idx').on(columns.mediaID),
-    index('payload_locked_documents_rels_categories_id_idx').on(columns.categoriesID),
-    index('payload_locked_documents_rels_users_id_idx').on(columns.usersID),
     index('payload_locked_documents_rels_redirects_id_idx').on(columns.redirectsID),
     index('payload_locked_documents_rels_forms_id_idx').on(columns.formsID),
     index('payload_locked_documents_rels_form_submissions_id_idx').on(
@@ -2172,60 +2171,11 @@ export const payload_locked_documents_rels = pgTable(
     ),
     index('payload_locked_documents_rels_search_id_idx').on(columns.searchID),
     index('payload_locked_documents_rels_payload_folders_id_idx').on(columns['payload-foldersID']),
+    index('payload_locked_documents_rels_users_id_idx').on(columns.usersID),
     foreignKey({
       columns: [columns['parent']],
       foreignColumns: [payload_locked_documents.id],
       name: 'payload_locked_documents_rels_parent_fk',
-    }).onDelete('cascade'),
-    foreignKey({
-      columns: [columns['postsID']],
-      foreignColumns: [posts.id],
-      name: 'payload_locked_documents_rels_posts_fk',
-    }).onDelete('cascade'),
-    foreignKey({
-      columns: [columns['newsID']],
-      foreignColumns: [news.id],
-      name: 'payload_locked_documents_rels_news_fk',
-    }).onDelete('cascade'),
-    foreignKey({
-      columns: [columns['researchID']],
-      foreignColumns: [research.id],
-      name: 'payload_locked_documents_rels_research_fk',
-    }).onDelete('cascade'),
-    foreignKey({
-      columns: [columns['wikiID']],
-      foreignColumns: [wiki.id],
-      name: 'payload_locked_documents_rels_wiki_fk',
-    }).onDelete('cascade'),
-    foreignKey({
-      columns: [columns['activitiesID']],
-      foreignColumns: [activities.id],
-      name: 'payload_locked_documents_rels_activities_fk',
-    }).onDelete('cascade'),
-    foreignKey({
-      columns: [columns['peopleID']],
-      foreignColumns: [people.id],
-      name: 'payload_locked_documents_rels_people_fk',
-    }).onDelete('cascade'),
-    foreignKey({
-      columns: [columns['tagsID']],
-      foreignColumns: [tags.id],
-      name: 'payload_locked_documents_rels_tags_fk',
-    }).onDelete('cascade'),
-    foreignKey({
-      columns: [columns['mediaID']],
-      foreignColumns: [media.id],
-      name: 'payload_locked_documents_rels_media_fk',
-    }).onDelete('cascade'),
-    foreignKey({
-      columns: [columns['categoriesID']],
-      foreignColumns: [categories.id],
-      name: 'payload_locked_documents_rels_categories_fk',
-    }).onDelete('cascade'),
-    foreignKey({
-      columns: [columns['usersID']],
-      foreignColumns: [users.id],
-      name: 'payload_locked_documents_rels_users_fk',
     }).onDelete('cascade'),
     foreignKey({
       columns: [columns['redirectsID']],
@@ -2251,6 +2201,11 @@ export const payload_locked_documents_rels = pgTable(
       columns: [columns['payload-foldersID']],
       foreignColumns: [payload_folders.id],
       name: 'payload_locked_documents_rels_payload_folders_fk',
+    }).onDelete('cascade'),
+    foreignKey({
+      columns: [columns['usersID']],
+      foreignColumns: [users.id],
+      name: 'payload_locked_documents_rels_users_fk',
     }).onDelete('cascade'),
   ],
 )
@@ -3257,6 +3212,13 @@ export const relations_people_texts = relations(people_texts, ({ one }) => ({
     relationName: '_texts',
   }),
 }))
+export const relations_people_numbers = relations(people_numbers, ({ one }) => ({
+  parent: one(people, {
+    fields: [people_numbers.parent],
+    references: [people.id],
+    relationName: '_numbers',
+  }),
+}))
 export const relations_people = relations(people, ({ one, many }) => ({
   user: one(users, {
     fields: [people.user],
@@ -3273,6 +3235,9 @@ export const relations_people = relations(people, ({ one, many }) => ({
   }),
   _texts: many(people_texts, {
     relationName: '_texts',
+  }),
+  _numbers: many(people_numbers, {
+    relationName: '_numbers',
   }),
 }))
 export const relations_tags = relations(tags, () => ({}))
@@ -3577,56 +3542,6 @@ export const relations_payload_locked_documents_rels = relations(
       references: [payload_locked_documents.id],
       relationName: '_rels',
     }),
-    postsID: one(posts, {
-      fields: [payload_locked_documents_rels.postsID],
-      references: [posts.id],
-      relationName: 'posts',
-    }),
-    newsID: one(news, {
-      fields: [payload_locked_documents_rels.newsID],
-      references: [news.id],
-      relationName: 'news',
-    }),
-    researchID: one(research, {
-      fields: [payload_locked_documents_rels.researchID],
-      references: [research.id],
-      relationName: 'research',
-    }),
-    wikiID: one(wiki, {
-      fields: [payload_locked_documents_rels.wikiID],
-      references: [wiki.id],
-      relationName: 'wiki',
-    }),
-    activitiesID: one(activities, {
-      fields: [payload_locked_documents_rels.activitiesID],
-      references: [activities.id],
-      relationName: 'activities',
-    }),
-    peopleID: one(people, {
-      fields: [payload_locked_documents_rels.peopleID],
-      references: [people.id],
-      relationName: 'people',
-    }),
-    tagsID: one(tags, {
-      fields: [payload_locked_documents_rels.tagsID],
-      references: [tags.id],
-      relationName: 'tags',
-    }),
-    mediaID: one(media, {
-      fields: [payload_locked_documents_rels.mediaID],
-      references: [media.id],
-      relationName: 'media',
-    }),
-    categoriesID: one(categories, {
-      fields: [payload_locked_documents_rels.categoriesID],
-      references: [categories.id],
-      relationName: 'categories',
-    }),
-    usersID: one(users, {
-      fields: [payload_locked_documents_rels.usersID],
-      references: [users.id],
-      relationName: 'users',
-    }),
     redirectsID: one(redirects, {
       fields: [payload_locked_documents_rels.redirectsID],
       references: [redirects.id],
@@ -3651,6 +3566,11 @@ export const relations_payload_locked_documents_rels = relations(
       fields: [payload_locked_documents_rels['payload-foldersID']],
       references: [payload_folders.id],
       relationName: 'payload-folders',
+    }),
+    usersID: one(users, {
+      fields: [payload_locked_documents_rels.usersID],
+      references: [users.id],
+      relationName: 'users',
     }),
   }),
 )
@@ -3958,6 +3878,7 @@ type DatabaseSchema = {
   people_socials: typeof people_socials
   people: typeof people
   people_texts: typeof people_texts
+  people_numbers: typeof people_numbers
   tags: typeof tags
   media: typeof media
   categories_breadcrumbs: typeof categories_breadcrumbs
@@ -4049,6 +3970,7 @@ type DatabaseSchema = {
   relations__activities_v: typeof relations__activities_v
   relations_people_socials: typeof relations_people_socials
   relations_people_texts: typeof relations_people_texts
+  relations_people_numbers: typeof relations_people_numbers
   relations_people: typeof relations_people
   relations_tags: typeof relations_tags
   relations_media: typeof relations_media

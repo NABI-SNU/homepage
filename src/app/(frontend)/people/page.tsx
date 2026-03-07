@@ -23,7 +23,7 @@ export default async function PeoplePage() {
       email: true,
       research: true,
       socials: true,
-      joinedYear: true,
+      years: true,
       avatar: true,
     },
   })

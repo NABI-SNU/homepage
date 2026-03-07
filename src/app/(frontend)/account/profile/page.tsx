@@ -6,7 +6,10 @@ import { FormEvent, useEffect, useRef, useState } from 'react'
 import { PersonAvatar } from '@/components/people/PersonAvatar'
 import type { Person } from '@/payload-types'
 
-type PersonProfile = Pick<Person, 'avatar' | 'bio' | 'id' | 'joinedYear' | 'name' | 'research'>
+const serializeYears = (years: number[] | null | undefined): string =>
+  (years || []).filter((year) => Number.isFinite(year)).join(', ')
+
+type PersonProfile = Pick<Person, 'avatar' | 'bio' | 'id' | 'name' | 'research' | 'years'>
 
 type ProfilePayload = {
   person?: PersonProfile | null
@@ -20,7 +23,7 @@ export default function AccountProfilePage() {
   const [name, setName] = useState('')
   const [bio, setBio] = useState('')
   const [research, setResearch] = useState('')
-  const [joinedYear, setJoinedYear] = useState('')
+  const [years, setYears] = useState('')
   const [isLoading, setIsLoading] = useState(true)
   const [isSaving, setIsSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -59,7 +62,7 @@ export default function AccountProfilePage() {
 
         setName(person?.name || '')
         setBio(person?.bio || '')
-        setJoinedYear(person?.joinedYear ? String(person.joinedYear) : '')
+        setYears(serializeYears(person?.years))
 
         const normalizedResearch = Array.isArray(person?.research)
           ? person?.research.join(', ')
@@ -99,7 +102,7 @@ export default function AccountProfilePage() {
       const formData = new FormData()
       formData.append('name', name)
       formData.append('bio', bio)
-      formData.append('joinedYear', joinedYear)
+      formData.append('years', years)
       formData.append('research', research)
 
       if (avatarFile) {
@@ -151,11 +154,15 @@ export default function AccountProfilePage() {
         <p className="text-sm uppercase tracking-[0.18em] text-primary">Profile</p>
         <h1 className="mt-3 text-4xl font-semibold">Edit Your Profile</h1>
 
-        {isLoading ? <p className="mt-6 text-sm text-muted-foreground">Loading profile...</p> : null}
+        {isLoading ? (
+          <p className="mt-6 text-sm text-muted-foreground">Loading profile...</p>
+        ) : null}
 
         {!isLoading && !profile?.person ? (
           <div className="mt-6 grid gap-3">
-            <p className="text-sm text-muted-foreground">No linked profile was found for this account.</p>
+            <p className="text-sm text-muted-foreground">
+              No linked profile was found for this account.
+            </p>
             <Link href="/account" className="text-sm text-primary hover:underline">
               Back to account
             </Link>
@@ -232,7 +239,9 @@ export default function AccountProfilePage() {
                     </button>
                   )}
                 </div>
-                <p className="mt-2 text-xs text-muted-foreground">PNG, JPG, or WebP. Max size 5MB.</p>
+                <p className="mt-2 text-xs text-muted-foreground">
+                  PNG, JPG, or WebP. Max size 5MB.
+                </p>
               </div>
               <input
                 accept="image/*"
@@ -271,17 +280,19 @@ export default function AccountProfilePage() {
               />
             </label>
 
-            <label className="grid gap-1 text-sm" htmlFor="profile-joined-year">
-              <span>Joined Year</span>
+            <label className="grid gap-1 text-sm" htmlFor="profile-years">
+              <span>Participation Years</span>
               <input
-                id="profile-joined-year"
+                id="profile-years"
                 className="rounded-md border border-border bg-background px-3 py-2"
-                max={2100}
-                min={1900}
-                onChange={(event) => setJoinedYear(event.target.value)}
-                type="number"
-                value={joinedYear}
+                onChange={(event) => setYears(event.target.value)}
+                placeholder="2023, 2024, 2025"
+                type="text"
+                value={years}
               />
+              <span className="text-xs text-muted-foreground">
+                Enter comma-separated years, for example `2023, 2024, 2025`.
+              </span>
             </label>
 
             <div className="mt-2 flex flex-wrap gap-3">
@@ -292,7 +303,10 @@ export default function AccountProfilePage() {
               >
                 {isSaving ? 'Saving...' : 'Save Profile'}
               </button>
-              <Link href="/account" className="rounded-md border border-border px-4 py-2 text-sm hover:bg-muted">
+              <Link
+                href="/account"
+                className="rounded-md border border-border px-4 py-2 text-sm hover:bg-muted"
+              >
                 Back to account
               </Link>
             </div>
