@@ -14,7 +14,6 @@ import type { Post } from '@/payload-types'
 import { PostHero } from '@/heros/PostHero'
 import { generateMeta } from '@/utilities/generateMeta'
 import { LivePreviewListener } from '@/components/LivePreviewListener'
-import { MathJaxTypeset } from '@/components/MathJax/Typeset.client'
 import { PersonAvatar } from '@/components/people/PersonAvatar'
 import { TableOfContents } from '@/components/TableOfContents'
 import { SocialShare } from '@/components/SocialShare'
@@ -64,8 +63,6 @@ export default async function Post({ params: paramsPromise }: Args) {
 
   return (
     <article className="pb-20 pt-6 md:pt-10">
-      <MathJaxTypeset />
-
       {/* Allows redirects for valid pages too */}
       <PayloadRedirects disableNotFound url={url} />
 
@@ -73,12 +70,7 @@ export default async function Post({ params: paramsPromise }: Args) {
 
       <PostHero
         post={post}
-        metaAction={
-          <EditOwnPostButton
-            authorPersonIDs={authorPersonIDs}
-            postID={post.id}
-          />
-        }
+        metaAction={<EditOwnPostButton authorPersonIDs={authorPersonIDs} postID={post.id} />}
       />
       <TableOfContents />
 
@@ -89,6 +81,7 @@ export default async function Post({ params: paramsPromise }: Args) {
               className="mx-auto max-w-3xl md:prose-lg prose-headings:scroll-mt-28"
               data={post.content}
               enableGutter={false}
+              enableMathJax
             />
           </div>
 
@@ -170,12 +163,18 @@ export default async function Post({ params: paramsPromise }: Args) {
                       </span>
                       <div className="flex-1 pt-1 text-sm leading-6 text-muted-foreground">
                         <a
-                          href={reference.url || (reference.doi ? `https://doi.org/${reference.doi}` : '#')}
+                          href={
+                            reference.url ||
+                            (reference.doi ? `https://doi.org/${reference.doi}` : '#')
+                          }
                           target="_blank"
                           rel="noreferrer"
                           className="text-foreground transition-colors duration-200 group-hover:underline hover:text-primary"
                         >
-                          {reference.authors?.map((author) => author.name).filter(Boolean).join(', ')}
+                          {reference.authors
+                            ?.map((author) => author.name)
+                            .filter(Boolean)
+                            .join(', ')}
                           {reference.year ? ` (${reference.year})` : ''}. {reference.title}
                           {reference.journal ? `, ${reference.journal}` : ''}
                         </a>

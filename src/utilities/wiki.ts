@@ -52,7 +52,7 @@ const toWikiID = (value: unknown): WikiID | null => {
   return null
 }
 
-const normalizeWikiDoc = (doc: Partial<WikiSummary>): WikiSummary | null => {
+export const normalizeWikiDoc = (doc: Partial<WikiSummary>): WikiSummary | null => {
   if (!doc.slug || !doc.title || !doc.id) return null
 
   return {
@@ -312,4 +312,3 @@ export const buildWikiHrefLookup = (docs: WikiLookupDoc[]): Record<string, strin
 
   return map
 }
-

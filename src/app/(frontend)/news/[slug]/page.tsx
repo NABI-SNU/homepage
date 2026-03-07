@@ -11,7 +11,6 @@ import RichText from '@/components/RichText'
 import { TableOfContents } from '@/components/TableOfContents'
 import { LivePreviewListener } from '@/components/LivePreviewListener'
 import { Media } from '@/components/Media'
-import { MathJaxTypeset } from '@/components/MathJax/Typeset.client'
 import { formatDateTime } from '@/utilities/formatDateTime'
 import { extractLegacyImageFromLexical } from '@/utilities/legacyImage'
 import { generateMeta } from '@/utilities/generateMeta'
@@ -54,8 +53,6 @@ export default async function NewsDetailPage({ params: paramsPromise }: Args) {
 
   return (
     <article className="pb-20 pt-6 md:pt-10">
-      <MathJaxTypeset />
-
       <PayloadRedirects disableNotFound url={url} />
 
       {draft && <LivePreviewListener />}
@@ -66,14 +63,24 @@ export default async function NewsDetailPage({ params: paramsPromise }: Args) {
             <div className="mb-6 flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-muted-foreground">
               <div className="flex items-center gap-1.5">
                 <span className="font-medium">Published</span>
-                {entry.date ? <time dateTime={entry.date}>{formatDateTime(entry.date)}</time> : <span>Undated</span>}
+                {entry.date ? (
+                  <time dateTime={entry.date}>{formatDateTime(entry.date)}</time>
+                ) : (
+                  <span>Undated</span>
+                )}
               </div>
             </div>
 
-            <h1 className="text-3xl font-bold leading-tight tracking-tight md:text-5xl lg:text-6xl">{entry.title}</h1>
+            <h1 className="text-3xl font-bold leading-tight tracking-tight md:text-5xl lg:text-6xl">
+              {entry.title}
+            </h1>
             <div className="mt-6 h-1 w-28 rounded-full bg-linear-to-r from-primary to-accent" />
 
-            {entry.description && <p className="mt-6 text-lg leading-relaxed text-muted-foreground md:text-xl">{entry.description}</p>}
+            {entry.description && (
+              <p className="mt-6 text-lg leading-relaxed text-muted-foreground md:text-xl">
+                {entry.description}
+              </p>
+            )}
           </div>
 
           {entry.image && typeof entry.image === 'object' && (
@@ -112,6 +119,7 @@ export default async function NewsDetailPage({ params: paramsPromise }: Args) {
               className="mx-auto max-w-3xl md:prose-lg prose-headings:scroll-mt-28"
               data={entry.content}
               enableGutter={false}
+              enableMathJax
             />
           </div>
 
@@ -141,12 +149,18 @@ export default async function NewsDetailPage({ params: paramsPromise }: Args) {
                       </span>
                       <div className="flex-1 pt-1 text-sm leading-6 text-muted-foreground">
                         <a
-                          href={reference.url || (reference.doi ? `https://doi.org/${reference.doi}` : '#')}
+                          href={
+                            reference.url ||
+                            (reference.doi ? `https://doi.org/${reference.doi}` : '#')
+                          }
                           target="_blank"
                           rel="noreferrer"
                           className="text-foreground transition-colors duration-200 group-hover:underline hover:text-primary"
                         >
-                          {reference.authors?.map((author) => author.name).filter(Boolean).join(', ')}
+                          {reference.authors
+                            ?.map((author) => author.name)
+                            .filter(Boolean)
+                            .join(', ')}
                           {reference.year ? ` (${reference.year})` : ''}. {reference.title}
                           {reference.journal ? `, ${reference.journal}` : ''}
                         </a>

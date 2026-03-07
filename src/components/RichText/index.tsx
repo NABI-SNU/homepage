@@ -1,4 +1,5 @@
 import { MediaBlock } from '@/blocks/MediaBlock/Component'
+import { MathJaxTypeset } from '@/components/MathJax/Typeset.client'
 import {
   DefaultNodeTypes,
   SerializedBlockNode,
@@ -29,7 +30,9 @@ import type { ReactNode } from 'react'
 
 type NodeTypes =
   | DefaultNodeTypes
-  | SerializedBlockNode<MediaBlockProps | BannerBlockProps | CodeBlockProps | YouTubeEmbedBlockProps>
+  | SerializedBlockNode<
+      MediaBlockProps | BannerBlockProps | CodeBlockProps | YouTubeEmbedBlockProps
+    >
 
 type LegacyTextNode = {
   type?: string
@@ -252,11 +255,14 @@ const internalDocToHref = ({ linkNode }: { linkNode: SerializedLinkNode }) => {
   if (relationTo === 'news') return `/news/${slug}`
   if (relationTo === 'research') return `/labs/${slug}`
   if (relationTo === 'wiki') return `/wiki/${slug}`
-  if (relationTo === 'activities') return getActivityPathFromReferenceValue(value) || `/conferences/${slug}`
+  if (relationTo === 'activities')
+    return getActivityPathFromReferenceValue(value) || `/conferences/${slug}`
   return `/${slug}`
 }
 
-const createJSXConverters = (wikiLinkMap?: Record<string, string>): JSXConvertersFunction<NodeTypes> => {
+const createJSXConverters = (
+  wikiLinkMap?: Record<string, string>,
+): JSXConvertersFunction<NodeTypes> => {
   return ({ defaultConverters }) => ({
     ...defaultConverters,
     ...LinkJSXConverter({ internalDocToHref }),
@@ -309,7 +315,10 @@ const createJSXConverters = (wikiLinkMap?: Record<string, string>): JSXConverter
           )
         } else {
           parts.push(
-            <span className="text-muted-foreground" key={`wiki-link-unresolved-${match.start}-${index}`}>
+            <span
+              className="text-muted-foreground"
+              key={`wiki-link-unresolved-${match.start}-${index}`}
+            >
               [[{match.label}]]
             </span>,
           )
@@ -328,83 +337,83 @@ const createJSXConverters = (wikiLinkMap?: Record<string, string>): JSXConverter
       return parts
     },
     paragraph: ({ node, nodesToJSX }) => {
-    const children = Array.isArray(node.children) ? (node.children as LegacyTextNode[]) : []
-    const paragraphText = children.map(getNodeText).join('')
+      const children = Array.isArray(node.children) ? (node.children as LegacyTextNode[]) : []
+      const paragraphText = children.map(getNodeText).join('')
 
-    const legacyImage = parseLegacyImageTag(paragraphText)
-    if (legacyImage) {
-      return (
-        <figure className="my-6">
-          <Image
-            alt={legacyImage.alt}
-            className="mx-auto h-auto max-w-full rounded-[0.8rem] border border-border"
-            height={legacyImage.height ?? 900}
-            loading="lazy"
-            sizes="100vw"
-            src={legacyImage.src}
-            unoptimized
-            width={legacyImage.width ?? 1600}
-            style={legacyImage.widthStyle ? { width: legacyImage.widthStyle } : undefined}
-          />
-        </figure>
-      )
-    }
+      const legacyImage = parseLegacyImageTag(paragraphText)
+      if (legacyImage) {
+        return (
+          <figure className="my-6">
+            <Image
+              alt={legacyImage.alt}
+              className="mx-auto h-auto max-w-full rounded-[0.8rem] border border-border"
+              height={legacyImage.height ?? 900}
+              loading="lazy"
+              sizes="100vw"
+              src={legacyImage.src}
+              unoptimized
+              width={legacyImage.width ?? 1600}
+              style={legacyImage.widthStyle ? { width: legacyImage.widthStyle } : undefined}
+            />
+          </figure>
+        )
+      }
 
-    const legacyEntries = parseLegacyBulletParagraph(children)
-    if (legacyEntries) {
-      const legacyTree = buildLegacyListTree(legacyEntries)
-      return renderLegacyList(legacyTree, nodesToJSX)
-    }
+      const legacyEntries = parseLegacyBulletParagraph(children)
+      if (legacyEntries) {
+        const legacyTree = buildLegacyListTree(legacyEntries)
+        return renderLegacyList(legacyTree, nodesToJSX)
+      }
 
-    const legacyTable = parseLegacyTableParagraph(children)
-    if (legacyTable) {
-      return (
-        <div className="my-6 overflow-x-auto">
-          <table className="w-full border-collapse text-center text-sm">
-            <thead className="bg-muted/40">
-              <tr>
-                {legacyTable.headers.map((header, index) => (
-                  <th
-                    key={`legacy-table-header-${index}`}
-                    className="border border-border/70 px-3 py-2 text-center align-middle font-semibold"
-                  >
-                    {header || ' '}
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {legacyTable.rows.map((row, rowIndex) => (
-                <tr key={`legacy-table-row-${rowIndex}`}>
-                  {row.map((cell, cellIndex) => (
-                    <td
-                      key={`legacy-table-cell-${rowIndex}-${cellIndex}`}
-                      className="border border-border/70 px-3 py-2 text-center align-middle"
+      const legacyTable = parseLegacyTableParagraph(children)
+      if (legacyTable) {
+        return (
+          <div className="my-6 overflow-x-auto">
+            <table className="w-full border-collapse text-center text-sm">
+              <thead className="bg-muted/40">
+                <tr>
+                  {legacyTable.headers.map((header, index) => (
+                    <th
+                      key={`legacy-table-header-${index}`}
+                      className="border border-border/70 px-3 py-2 text-center align-middle font-semibold"
                     >
-                      {cell || ' '}
-                    </td>
+                      {header || ' '}
+                    </th>
                   ))}
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      )
-    }
+              </thead>
+              <tbody>
+                {legacyTable.rows.map((row, rowIndex) => (
+                  <tr key={`legacy-table-row-${rowIndex}`}>
+                    {row.map((cell, cellIndex) => (
+                      <td
+                        key={`legacy-table-cell-${rowIndex}-${cellIndex}`}
+                        className="border border-border/70 px-3 py-2 text-center align-middle"
+                      >
+                        {cell || ' '}
+                      </td>
+                    ))}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )
+      }
 
-    const renderedChildren = nodesToJSX({
-      nodes: node.children,
-    })
+      const renderedChildren = nodesToJSX({
+        nodes: node.children,
+      })
 
-    if (!renderedChildren?.length) {
-      return (
-        <p>
-          <br />
-        </p>
-      )
-    }
+      if (!renderedChildren?.length) {
+        return (
+          <p>
+            <br />
+          </p>
+        )
+      }
 
-    return <p>{renderedChildren}</p>
+      return <p>{renderedChildren}</p>
     },
     blocks: {
       banner: ({ node }) => <BannerBlock className="col-start-2 mb-4" {...node.fields} />,
@@ -419,7 +428,9 @@ const createJSXConverters = (wikiLinkMap?: Record<string, string>): JSXConverter
         />
       ),
       code: ({ node }) => <CodeBlock className="col-start-2" {...node.fields} />,
-      youtubeEmbed: ({ node }) => <YouTubeEmbedBlock className="col-start-1 col-span-3" {...node.fields} />,
+      youtubeEmbed: ({ node }) => (
+        <YouTubeEmbedBlock className="col-start-1 col-span-3" {...node.fields} />
+      ),
     },
   })
 }
@@ -427,25 +438,38 @@ const createJSXConverters = (wikiLinkMap?: Record<string, string>): JSXConverter
 type Props = {
   data: DefaultTypedEditorState
   enableGutter?: boolean
+  enableMathJax?: boolean
   enableProse?: boolean
   wikiLinkMap?: Record<string, string>
 } & React.HTMLAttributes<HTMLDivElement>
 
 export default function RichText(props: Props) {
-  const { className, enableProse = true, enableGutter = true, wikiLinkMap, ...rest } = props
+  const {
+    className,
+    enableProse = true,
+    enableGutter = true,
+    enableMathJax = false,
+    wikiLinkMap,
+    ...rest
+  } = props
+
   return (
-    <ConvertRichText
-      converters={createJSXConverters(wikiLinkMap)}
-      className={cn(
-        'payload-richtext',
-        {
-          container: enableGutter,
-          'max-w-none': !enableGutter,
-          'mx-auto prose md:prose-md dark:prose-invert': enableProse,
-        },
-        className,
-      )}
-      {...rest}
-    />
+    <>
+      {enableMathJax && <MathJaxTypeset selector=".payload-richtext--mathjax" />}
+      <ConvertRichText
+        converters={createJSXConverters(wikiLinkMap)}
+        className={cn(
+          'payload-richtext',
+          {
+            container: enableGutter,
+            'max-w-none': !enableGutter,
+            'mx-auto prose md:prose-md dark:prose-invert': enableProse,
+            'payload-richtext--mathjax': enableMathJax,
+          },
+          className,
+        )}
+        {...rest}
+      />
+    </>
   )
 }

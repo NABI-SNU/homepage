@@ -60,9 +60,13 @@ const loadMathJax = async () => {
     const existingScript = document.getElementById(MATHJAX_SCRIPT_ID) as HTMLScriptElement | null
     if (existingScript) {
       existingScript.addEventListener('load', () => resolve(), { once: true })
-      existingScript.addEventListener('error', () => reject(new Error('Failed to load MathJax script')), {
-        once: true,
-      })
+      existingScript.addEventListener(
+        'error',
+        () => reject(new Error('Failed to load MathJax script')),
+        {
+          once: true,
+        },
+      )
       return
     }
 
@@ -80,10 +84,10 @@ const loadMathJax = async () => {
   await window.__mathJaxLoadingPromise__
 }
 
-const typesetPayloadRichText = async () => {
+const typesetPayloadRichText = async (selector: string) => {
   if (typeof window === 'undefined') return
 
-  const targets = Array.from(document.querySelectorAll('.payload-richtext')).filter((element) =>
+  const targets = Array.from(document.querySelectorAll(selector)).filter((element) =>
     MATH_MARKER_PATTERN.test(element.textContent || ''),
   )
   if (targets.length === 0) return
@@ -97,12 +101,12 @@ const typesetPayloadRichText = async () => {
   await mathJax.typesetPromise(targets)
 }
 
-export function MathJaxTypeset() {
+export function MathJaxTypeset({ selector = '.payload-richtext' }: { selector?: string }) {
   const pathname = usePathname()
 
   useEffect(() => {
-    void typesetPayloadRichText()
-  }, [pathname])
+    void typesetPayloadRichText(selector)
+  }, [pathname, selector])
 
   return null
 }
