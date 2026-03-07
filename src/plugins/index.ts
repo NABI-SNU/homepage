@@ -24,14 +24,35 @@ const generateURL: GenerateURL<Post> = ({ doc }) => {
   return doc?.slug ? `${url}/${doc.slug}` : url
 }
 
+const sanitizePublicURL = (value: string | null | undefined): string | undefined => {
+  const trimmedValue = value?.trim()
+  if (!trimmedValue) return undefined
+
+  try {
+    const url = new URL(trimmedValue)
+    if (url.protocol !== 'http:' && url.protocol !== 'https:') {
+      return undefined
+    }
+
+    url.hash = ''
+    return url.toString()
+  } catch {
+    return undefined
+  }
+}
+
 const s3Endpoint = process.env.S3_ENDPOINT
-const s3Region = process.env.S3_REGION || (s3Endpoint?.includes('r2.cloudflarestorage.com') ? 'auto' : undefined)
-const s3PublicURL = process.env.S3_PUBLIC_URL?.trim()
+const s3Region =
+  process.env.S3_REGION || (s3Endpoint?.includes('r2.cloudflarestorage.com') ? 'auto' : undefined)
+const s3PublicURL = sanitizePublicURL(process.env.S3_PUBLIC_URL)
 const normalizePathSegment = (value: string | null | undefined): string =>
   (value || '').trim().replace(/^\/+|\/+$/g, '')
 const s3MediaPrefix = normalizePathSegment(process.env.S3_MEDIA_PREFIX)
 const s3CredentialsConfigured = Boolean(
-  process.env.S3_BUCKET && process.env.S3_ACCESS_KEY_ID && process.env.S3_SECRET_ACCESS_KEY && s3Region,
+  process.env.S3_BUCKET &&
+  process.env.S3_ACCESS_KEY_ID &&
+  process.env.S3_SECRET_ACCESS_KEY &&
+  s3Region,
 )
 const s3StorageEnabled = process.env.S3_STORAGE_ENABLED !== 'false' && s3CredentialsConfigured
 const s3ForcePathStyle =
