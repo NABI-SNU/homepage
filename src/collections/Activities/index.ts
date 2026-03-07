@@ -20,13 +20,17 @@ import { slugField } from 'payload'
 
 import { adminOnly } from '@/access/adminOnly'
 import { authenticatedOrPublished } from '@/access/authenticatedOrPublished'
+import { hideFromNonAdmins } from '@/access/hideFromNonAdmins'
 import { Banner } from '@/blocks/Banner/config'
 import { Code } from '@/blocks/Code/config'
 import { MediaBlock } from '@/blocks/MediaBlock/config'
 import { YouTubeEmbed } from '@/blocks/YouTubeEmbed/config'
 import { referenceFields } from '@/fields/referenceFields'
 import { getActivityPreviewPath } from '@/utilities/activityURL'
-import { ensureSymposiumExistsBeforeChange, ensureSymposiumExistsBeforeDelete } from './hooks/ensureSymposiumExists'
+import {
+  ensureSymposiumExistsBeforeChange,
+  ensureSymposiumExistsBeforeDelete,
+} from './hooks/ensureSymposiumExists'
 import { revalidateActivities, revalidateActivitiesDelete } from './hooks/revalidateActivities'
 
 export const Activities: CollectionConfig<'activities'> = {
@@ -55,6 +59,7 @@ export const Activities: CollectionConfig<'activities'> = {
   },
   admin: {
     defaultColumns: ['title', 'activityType', 'date', 'slug', 'updatedAt'],
+    hidden: hideFromNonAdmins,
     livePreview: {
       url: ({ data }) =>
         getActivityPreviewPath({

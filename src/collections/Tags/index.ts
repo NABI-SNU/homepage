@@ -2,6 +2,7 @@ import type { CollectionConfig } from 'payload'
 
 import { anyone } from '../../access/anyone'
 import { adminOnly } from '../../access/adminOnly'
+import { hideFromNonAdmins } from '../../access/hideFromNonAdmins'
 import { slugField } from 'payload'
 
 export const Tags: CollectionConfig<'tags'> = {
@@ -13,6 +14,7 @@ export const Tags: CollectionConfig<'tags'> = {
     update: adminOnly,
   },
   admin: {
+    hidden: hideFromNonAdmins,
     useAsTitle: 'title',
   },
   fields: [

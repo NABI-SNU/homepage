@@ -1,10 +1,14 @@
 import type { GlobalConfig } from 'payload'
 
 import { adminOnly } from '@/access/adminOnly'
+import { hideFromNonAdmins } from '@/access/hideFromNonAdmins'
 // import { revalidateContactPage } from './hooks/revalidateContactPage'  // TEMP: disabled to test if afterChange causes form overwrite
 
 export const ContactPage: GlobalConfig = {
   slug: 'contactPage',
+  admin: {
+    hidden: hideFromNonAdmins,
+  },
   access: {
     read: () => true,
     update: adminOnly,

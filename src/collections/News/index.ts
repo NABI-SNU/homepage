@@ -12,6 +12,7 @@ import {
 
 import { adminOnly } from '../../access/adminOnly'
 import { authenticatedOrPublished } from '../../access/authenticatedOrPublished'
+import { hideFromNonAdmins } from '@/access/hideFromNonAdmins'
 import { Banner } from '../../blocks/Banner/config'
 import { Code } from '../../blocks/Code/config'
 import { MediaBlock } from '../../blocks/MediaBlock/config'
@@ -30,6 +31,7 @@ export const News: CollectionConfig<'news'> = {
     update: adminOnly,
   },
   admin: {
+    hidden: hideFromNonAdmins,
     useAsTitle: 'title',
     defaultColumns: ['title', 'slug', 'date', 'updatedAt'],
     livePreview: {

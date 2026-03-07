@@ -1,14 +1,14 @@
-import { getPayload } from 'payload'
 import type { File as PayloadFile } from 'payload'
+import sharp from 'sharp'
 
 import { NextRequest } from 'next/server'
 
-import configPromise from '@payload-config'
-import { getBetterAuthUserFromHeaders } from '@/auth/getBetterAuthUserFromHeaders'
-import { resolvePayloadUserFromSession } from '@/auth/resolvePayloadUserFromSession'
+import { privateAccountResponse, resolveAccountRequestContext } from '@/utilities/accountAccess'
 
 const editableProfileFields = ['name', 'bio', 'research', 'socials', 'avatar', 'years'] as const
 const MAX_AVATAR_SIZE_BYTES = 5 * 1024 * 1024
+const SAFE_AVATAR_FORMATS = new Set(['jpeg', 'png', 'webp'])
+const SAFE_AVATAR_MIME_TYPES = new Set(['image/jpeg', 'image/png', 'image/webp'])
 
 const parseYearsInput = (value: unknown): number[] | null => {
   const rawValues = Array.isArray(value)
@@ -32,19 +32,16 @@ const parseYearsInput = (value: unknown): number[] | null => {
 type EditableProfileField = (typeof editableProfileFields)[number]
 
 export async function GET(req: NextRequest): Promise<Response> {
-  const payload = await getPayload({ config: configPromise })
-  const { betterAuthUser, responseHeaders } = await getBetterAuthUserFromHeaders(req.headers)
-  const user = await resolvePayloadUserFromSession({
-    payload,
-    betterAuthUser,
-    requireApproval: true,
-    autoApproveByPeopleEmail: true,
-    enforceProductionEmailVerification: true,
-  })
+  const context = await resolveAccountRequestContext(req)
 
-  if (!user) {
-    return Response.json({ error: 'Unauthorized' }, { headers: responseHeaders, status: 401 })
+  if (!context.user) {
+    return privateAccountResponse(
+      { error: 'Unauthorized' },
+      { headers: context.responseHeaders, status: 401 },
+    )
   }
+
+  const { payload, responseHeaders, user } = context
 
   const people = await payload.find({
     collection: 'people',
@@ -60,7 +57,7 @@ export async function GET(req: NextRequest): Promise<Response> {
     },
   })
 
-  return Response.json(
+  return privateAccountResponse(
     {
       user: {
         id: user.id,
@@ -75,19 +72,16 @@ export async function GET(req: NextRequest): Promise<Response> {
 }
 
 export async function PATCH(req: NextRequest): Promise<Response> {
-  const payload = await getPayload({ config: configPromise })
-  const { betterAuthUser, responseHeaders } = await getBetterAuthUserFromHeaders(req.headers)
-  const user = await resolvePayloadUserFromSession({
-    payload,
-    betterAuthUser,
-    requireApproval: true,
-    autoApproveByPeopleEmail: true,
-    enforceProductionEmailVerification: true,
-  })
+  const context = await resolveAccountRequestContext(req)
 
-  if (!user) {
-    return Response.json({ error: 'Unauthorized' }, { headers: responseHeaders, status: 401 })
+  if (!context.user) {
+    return privateAccountResponse(
+      { error: 'Unauthorized' },
+      { headers: context.responseHeaders, status: 401 },
+    )
   }
+
+  const { payload, responseHeaders, user } = context
 
   const contentType = req.headers.get('content-type') || ''
   let avatarUpload: File | null = null
@@ -132,7 +126,7 @@ export async function PATCH(req: NextRequest): Promise<Response> {
   }
 
   if (!avatarUpload && Object.keys(updateData).length === 0) {
-    return Response.json({ error: 'No editable fields provided' }, { status: 400 })
+    return privateAccountResponse({ error: 'No editable fields provided' }, { status: 400 })
   }
 
   const people = await payload.find({
@@ -152,24 +146,46 @@ export async function PATCH(req: NextRequest): Promise<Response> {
   const person = people.docs[0]
 
   if (!person) {
-    return Response.json({ error: 'Profile not found' }, { status: 404 })
+    return privateAccountResponse({ error: 'Profile not found' }, { status: 404 })
   }
 
   if (avatarUpload) {
-    if (!avatarUpload.type.startsWith('image/')) {
-      return Response.json({ error: 'Avatar must be an image.' }, { status: 400 })
+    if (!SAFE_AVATAR_MIME_TYPES.has(avatarUpload.type)) {
+      return privateAccountResponse(
+        { error: 'Avatar must be a PNG, JPEG, or WebP image.' },
+        { status: 400 },
+      )
     }
 
     if (avatarUpload.size > MAX_AVATAR_SIZE_BYTES) {
-      return Response.json({ error: 'Avatar image must be 5MB or smaller.' }, { status: 400 })
+      return privateAccountResponse(
+        { error: 'Avatar image must be 5MB or smaller.' },
+        { status: 400 },
+      )
     }
 
     const arrayBuffer = await avatarUpload.arrayBuffer()
-    const filename = (avatarUpload.name || `avatar-${user.id}.png`).replace(/[^a-zA-Z0-9._-]/g, '_')
+    const avatarBuffer = Buffer.from(arrayBuffer)
+    const metadata = await sharp(avatarBuffer, { animated: false })
+      .metadata()
+      .catch(() => null)
+
+    if (!metadata?.format || !SAFE_AVATAR_FORMATS.has(metadata.format)) {
+      return privateAccountResponse(
+        { error: 'Avatar must be a PNG, JPEG, or WebP image.' },
+        { status: 400 },
+      )
+    }
+
+    const safeBaseName = (avatarUpload.name || `avatar-${user.id}`)
+      .replace(/\.[^.]+$/, '')
+      .replace(/[^a-zA-Z0-9._-]/g, '_')
+    const normalizedFormat = metadata.format === 'jpeg' ? 'jpg' : metadata.format
+    const filename = `${safeBaseName || `avatar-${user.id}`}.${normalizedFormat}`
     const file: PayloadFile = {
       name: filename,
-      data: Buffer.from(arrayBuffer),
-      mimetype: avatarUpload.type || 'application/octet-stream',
+      data: avatarBuffer,
+      mimetype: metadata.format === 'jpeg' ? 'image/jpeg' : `image/${metadata.format}`,
       size: avatarUpload.size,
     }
 
@@ -194,5 +210,5 @@ export async function PATCH(req: NextRequest): Promise<Response> {
     user,
   })
 
-  return Response.json({ person: updated }, { headers: responseHeaders })
+  return privateAccountResponse({ person: updated }, { headers: responseHeaders })
 }

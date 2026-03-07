@@ -1,7 +1,10 @@
 'use client'
 
 import Link from 'next/link'
-import { useEffect, useMemo, useState } from 'react'
+import { useMemo } from 'react'
+
+import { useAccountCapabilities } from '@/components/account/useAccountCapabilities'
+
 import { cn } from '@/utilities/ui'
 
 type EditOwnPostButtonProps = {
@@ -10,49 +13,18 @@ type EditOwnPostButtonProps = {
   className?: string
 }
 
-type AccountProfileResponse = {
-  person?: {
-    id?: number
-  } | null
-}
-
 const normalizeID = (id: number): string => String(id)
 
 export function EditOwnPostButton({ authorPersonIDs, className, postID }: EditOwnPostButtonProps) {
-  const [canEdit, setCanEdit] = useState(false)
-  const authorIDSet = useMemo(() => new Set(authorPersonIDs.map((id) => normalizeID(id))), [authorPersonIDs])
+  const { capabilities, isResolved } = useAccountCapabilities()
+  const authorIDSet = useMemo(
+    () => new Set(authorPersonIDs.map((id) => normalizeID(id))),
+    [authorPersonIDs],
+  )
+  const linkedPersonID = capabilities?.linkedPerson?.id
+  const canEdit = linkedPersonID != null && authorIDSet.has(normalizeID(linkedPersonID))
 
-  useEffect(() => {
-    let isMounted = true
-
-    const loadProfile = async () => {
-      try {
-        const response = await fetch('/api/account/profile', {
-          cache: 'no-store',
-          credentials: 'include',
-        })
-
-        if (!response.ok) return
-
-        const data = (await response.json()) as AccountProfileResponse
-        const personID = data.person?.id
-        if (personID === undefined || personID === null) return
-
-        if (!isMounted) return
-        setCanEdit(authorIDSet.has(normalizeID(personID)))
-      } catch {
-        if (isMounted) setCanEdit(false)
-      }
-    }
-
-    void loadProfile()
-
-    return () => {
-      isMounted = false
-    }
-  }, [authorIDSet])
-
-  if (!canEdit) return null
+  if (!isResolved || !canEdit) return null
 
   return (
     <Link

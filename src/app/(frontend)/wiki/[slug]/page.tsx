@@ -1,9 +1,6 @@
 import type { Metadata } from 'next'
 import type { DefaultTypedEditorState } from '@payloadcms/richtext-lexical'
 
-import configPromise from '@payload-config'
-import { getPayload } from 'payload'
-import { draftMode } from 'next/headers'
 import { notFound } from 'next/navigation'
 import { cache } from 'react'
 
@@ -11,6 +8,8 @@ import { LivePreviewListener } from '@/components/LivePreviewListener'
 import { TableOfContents } from '@/components/TableOfContents'
 import { WikiLinkifiedRichText } from '@/components/wiki/WikiLinkifiedRichText'
 import { WikiPageSidebar } from '@/components/wiki/WikiPageSidebar'
+import { WikiSelfServiceActions } from '@/components/wiki/WikiSelfServiceActions.client'
+import { getDraftAccessContext } from '@/utilities/getDraftAccessContext'
 import { generateMeta } from '@/utilities/generateMeta'
 import {
   getCachedWikiBySlug,
@@ -29,7 +28,7 @@ type Args = {
 export const revalidate = 900
 
 export default async function WikiDetailPage({ params }: Args) {
-  const { isEnabled: draft } = await draftMode()
+  const { draft } = await getDraftAccessContext()
   const { slug } = await params
   const [entry, wikiDocs] = await Promise.all([queryWikiBySlug({ slug }), queryWikiList()])
   if (!entry) notFound()
@@ -122,6 +121,15 @@ export default async function WikiDetailPage({ params }: Args) {
       .map((doc) => ({ id: doc.slug, title: doc.title })),
   }
 
+  const ownerUserID =
+    typeof entry.createdBy === 'number' || typeof entry.createdBy === 'string'
+      ? Number(entry.createdBy)
+      : entry.createdBy && typeof entry.createdBy === 'object' && 'id' in entry.createdBy
+        ? Number(entry.createdBy.id)
+        : null
+  const normalizedOwnerUserID =
+    typeof ownerUserID === 'number' && Number.isFinite(ownerUserID) ? ownerUserID : null
+
   return (
     <article className="page-shell">
       {draft && <LivePreviewListener />}
@@ -129,6 +137,11 @@ export default async function WikiDetailPage({ params }: Args) {
         <p className="page-eyebrow">Wiki</p>
         <h1 className="page-title-lg">{entry.title}</h1>
         {entry.summary && <p className="page-subtitle">{entry.summary}</p>}
+        <WikiSelfServiceActions
+          className="mt-6"
+          ownerUserID={normalizedOwnerUserID}
+          wikiID={entry.id}
+        />
       </header>
       <TableOfContents />
 
@@ -176,20 +189,20 @@ export async function generateMetadata({ params }: Args): Promise<Metadata> {
 }
 
 const queryWikiBySlug = cache(async ({ slug }: { slug: string }) => {
-  const { isEnabled: draft } = await draftMode()
+  const { draft, payload, user } = await getDraftAccessContext()
 
   if (!draft) {
     return getCachedWikiBySlug(slug)()
   }
 
-  const payload = await getPayload({ config: configPromise })
   const result = await payload.find({
     collection: 'wiki',
     depth: 0,
     draft,
     limit: 1,
-    overrideAccess: draft,
+    overrideAccess: false,
     pagination: false,
+    ...(user ? { user } : {}),
     where: {
       slug: {
         equals: slug,
@@ -201,22 +214,23 @@ const queryWikiBySlug = cache(async ({ slug }: { slug: string }) => {
 })
 
 const queryWikiList = cache(async () => {
-  const { isEnabled: draft } = await draftMode()
+  const { draft, payload, user } = await getDraftAccessContext()
 
   if (!draft) {
     return getCachedWikiList()()
   }
 
-  const payload = await getPayload({ config: configPromise })
   const result = await payload.find({
     collection: 'wiki',
     depth: 0,
     draft,
     limit: 2000,
-    overrideAccess: draft,
+    overrideAccess: false,
     pagination: false,
+    ...(user ? { user } : {}),
     select: {
       aliases: true,
+      createdBy: true,
       id: true,
       outgoingLinks: true,
       slug: true,

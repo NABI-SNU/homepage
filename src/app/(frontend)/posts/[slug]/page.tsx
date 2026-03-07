@@ -4,7 +4,6 @@ import { RelatedPosts } from '@/blocks/RelatedPosts/Component'
 import { PayloadRedirects } from '@/components/PayloadRedirects'
 import configPromise from '@payload-config'
 import { getPayload } from 'payload'
-import { draftMode } from 'next/headers'
 import React, { cache } from 'react'
 import RichText from '@/components/RichText'
 import Link from 'next/link'
@@ -17,6 +16,7 @@ import { LivePreviewListener } from '@/components/LivePreviewListener'
 import { PersonAvatar } from '@/components/people/PersonAvatar'
 import { TableOfContents } from '@/components/TableOfContents'
 import { SocialShare } from '@/components/SocialShare'
+import { getDraftAccessContext } from '@/utilities/getDraftAccessContext'
 import { EditOwnPostButton } from './EditOwnPostButton'
 
 export async function generateStaticParams() {
@@ -46,7 +46,7 @@ type Args = {
 }
 
 export default async function Post({ params: paramsPromise }: Args) {
-  const { isEnabled: draft } = await draftMode()
+  const { draft } = await getDraftAccessContext()
   const { slug = '' } = await paramsPromise
   // Decode to support slugs with special characters
   const decodedSlug = decodeURIComponent(slug)
@@ -211,20 +211,36 @@ export async function generateMetadata({ params: paramsPromise }: Args): Promise
 }
 
 const queryPostBySlug = cache(async ({ slug }: { slug: string }) => {
-  const { isEnabled: draft } = await draftMode()
-
-  const payload = await getPayload({ config: configPromise })
+  const { draft, payload, user } = await getDraftAccessContext()
 
   const result = await payload.find({
     collection: 'posts',
     draft,
     limit: 1,
-    overrideAccess: draft,
+    overrideAccess: false,
     pagination: false,
+    ...(user ? { user } : {}),
     where: {
-      slug: {
-        equals: slug,
-      },
+      ...(draft
+        ? {
+            slug: {
+              equals: slug,
+            },
+          }
+        : {
+            and: [
+              {
+                slug: {
+                  equals: slug,
+                },
+              },
+              {
+                _status: {
+                  equals: 'published',
+                },
+              },
+            ],
+          }),
     },
   })
 

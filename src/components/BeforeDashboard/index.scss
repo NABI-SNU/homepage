@@ -5,13 +5,36 @@
   max-width: 56rem;
   margin-bottom: base(2);
 
+  &__header {
+    display: grid;
+    gap: base(0.5);
+    margin-bottom: base(0.35);
+  }
+
+  &__badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: fit-content;
+    padding: 0.3rem 0.75rem;
+    border-radius: 9999px;
+    background: color-mix(in srgb, var(--nabi-primary) 14%, transparent);
+    color: var(--nabi-primary);
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
   &__card {
     padding: base(1.5) base(2);
     border-radius: var(--style-radius-xl);
     border: 1px solid var(--theme-border-color);
     background-color: var(--theme-elevation-50);
     box-shadow: 0 1px 3px rgb(0 0 0 / 0.06);
-    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    transition:
+      border-color 0.2s ease,
+      box-shadow 0.2s ease;
 
     &:hover {
       border-color: oklch(57.8% 0.23 259deg / 0.25);
@@ -21,7 +44,7 @@
 
   /* ~text-2xl matching frontend page headers */
   &__title {
-    margin: 0 0 base(0.35) 0;
+    margin: 0;
     font-size: 1.5rem;
     font-weight: 600;
     color: var(--theme-text);
@@ -113,6 +136,11 @@ html[data-theme='dark'] .dashboard .before-dashboard {
   &__step-number {
     background: var(--nabi-primary);
     color: var(--nabi-primary-foreground);
+  }
+
+  &__badge {
+    background: color-mix(in srgb, oklch(72% 0.2 259deg) 18%, transparent);
+    color: oklch(72% 0.2 259deg);
   }
 
   &__link {

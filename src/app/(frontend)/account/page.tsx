@@ -69,13 +69,46 @@ const providerIconMap = {
 } as const
 
 type ProfileResponse = {
-  person?: {
+  actions?: {
+    adminURL?: string
+    postCreateURL?: string
+    profileEditURL?: string
+    profileURL?: string
+    wikiCreateURL?: string
+  }
+  linkedPerson?: {
     id: number
     name?: string | null
     slug?: string | null
   } | null
+  permissions?: {
+    canAccessAdmin?: boolean
+    canCreatePost?: boolean
+    canCreateWiki?: boolean
+    canPublishOwnPosts?: boolean
+    canPublishOwnWiki?: boolean
+  } | null
+  recentPosts?: Array<{
+    editURL: string
+    id: number
+    slug: string
+    status: 'draft' | 'published'
+    title: string
+    updatedAt?: string | null
+    viewURL: string
+  }>
+  recentWiki?: Array<{
+    editURL: string
+    id: number
+    slug: string
+    status: 'draft' | 'published'
+    title: string
+    updatedAt?: string | null
+    viewURL: string
+  }>
   user?: {
     id: number
+    name?: string | null
     roles?: string | string[] | null
   } | null
 }
@@ -115,8 +148,10 @@ function AccountPageContent() {
   const [authMessage, setAuthMessage] = useState<string | null>(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isOAuthPending, setIsOAuthPending] = useState(false)
-  const [profile, setProfile] = useState<ProfileResponse | null>(null)
-  const [sessionUserOverride, setSessionUserOverride] = useState<{ email?: string | null } | null>(null)
+  const [dashboard, setDashboard] = useState<ProfileResponse | null>(null)
+  const [sessionUserOverride, setSessionUserOverride] = useState<{ email?: string | null } | null>(
+    null,
+  )
   const [authGateReason, setAuthGateReason] = useState<AuthGateReason | null>(null)
   const [toastID, setToastID] = useState(0)
   const [showUnverifiedToast, setShowUnverifiedToast] = useState(false)
@@ -125,7 +160,14 @@ function AccountPageContent() {
   const effectiveSessionUser = session?.user ?? sessionUserOverride
   const isSignedIn = Boolean(effectiveSessionUser)
   const isSessionCheckPending = isPending && !isSignedIn
-  const isAdmin = isAdminRole(profile?.user?.roles)
+  const isAdmin = isAdminRole(dashboard?.user?.roles)
+  const linkedPerson = dashboard?.linkedPerson ?? null
+  const permissions = dashboard?.permissions ?? null
+  const recentPosts = dashboard?.recentPosts ?? []
+  const recentWiki = dashboard?.recentWiki ?? []
+  const canAccessAdmin = permissions?.canAccessAdmin === true
+  const canCreatePost = permissions?.canCreatePost === true
+  const canCreateWiki = permissions?.canCreateWiki === true
   const approvalMessage = useMemo(() => {
     const approvalStatus = searchParams.get('approval')
     if (!approvalStatus) return null
@@ -234,61 +276,64 @@ function AccountPageContent() {
     return isSignedIn ? 'Your Account' : 'Sign Up or Log In'
   }, [isSignedIn])
 
-  const loadProfile = useCallback(async () => {
+  const loadDashboard = useCallback(async () => {
     try {
-      const response = await fetch('/api/account/profile', {
+      const response = await fetch('/api/account/dashboard', {
         cache: 'no-store',
         credentials: 'include',
       })
 
       if (!response.ok) {
-        setProfile(null)
+        setDashboard(null)
         return
       }
 
       const data = (await response.json()) as ProfileResponse
-      setProfile(data)
+      setDashboard(data)
     } catch {
-      setProfile(null)
+      setDashboard(null)
     }
   }, [])
 
   useEffect(() => {
-    void loadProfile()
-  }, [loadProfile])
+    void loadDashboard()
+  }, [loadDashboard])
 
   useEffect(() => {
     if (!session?.user) {
-      setProfile(null)
+      setDashboard(null)
       return
     }
 
-    void loadProfile()
-  }, [loadProfile, session?.user])
+    void loadDashboard()
+  }, [loadDashboard, session?.user])
 
-  const lookupAuthStateByEmail = useCallback(async (emailAddress: string): Promise<AuthGateReason | null> => {
-    try {
-      const response = await fetch('/api/account/auth-state', {
-        method: 'POST',
-        headers: {
-          'content-type': 'application/json',
-        },
-        body: JSON.stringify({
-          email: emailAddress,
-          intent: 'login',
-        }),
-      })
+  const lookupAuthStateByEmail = useCallback(
+    async (emailAddress: string): Promise<AuthGateReason | null> => {
+      try {
+        const response = await fetch('/api/account/auth-state', {
+          method: 'POST',
+          headers: {
+            'content-type': 'application/json',
+          },
+          body: JSON.stringify({
+            email: emailAddress,
+            intent: 'login',
+          }),
+        })
 
-      if (!response.ok) return null
+        if (!response.ok) return null
 
-      const payload = (await response.json().catch(() => ({}))) as AuthStateLookupResponse
-      if (!isAuthGateReason(payload.reason)) return null
+        const payload = (await response.json().catch(() => ({}))) as AuthStateLookupResponse
+        if (!isAuthGateReason(payload.reason)) return null
 
-      return payload.reason
-    } catch {
-      return null
-    }
-  }, [])
+        return payload.reason
+      } catch {
+        return null
+      }
+    },
+    [],
+  )
 
   const submitAuthForm = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
@@ -363,7 +408,11 @@ function AccountPageContent() {
           })
 
           const feedback = getAuthFeedbackForReason(reason)
-          setAuthError(reason === 'unknown' ? result.error.message || feedback.description : feedback.description)
+          setAuthError(
+            reason === 'unknown'
+              ? result.error.message || feedback.description
+              : feedback.description,
+          )
           return
         }
 
@@ -378,7 +427,7 @@ function AccountPageContent() {
 
       try {
         await refetch()
-        await loadProfile()
+        await loadDashboard()
       } catch {
         // Keep auth success state even if client-side refresh request fails.
       }
@@ -423,7 +472,11 @@ function AccountPageContent() {
         })
 
         const feedback = getAuthFeedbackForReason(reason)
-        setAuthError(reason === 'unknown' ? result.error.message || feedback.description : feedback.description)
+        setAuthError(
+          reason === 'unknown'
+            ? result.error.message || feedback.description
+            : feedback.description,
+        )
       }
     } catch {
       applyAuthFeedback('unknown')
@@ -448,7 +501,7 @@ function AccountPageContent() {
       fetchOptions: {
         onSuccess: async () => {
           await refetch()
-          setProfile(null)
+          setDashboard(null)
         },
       },
     })
@@ -616,7 +669,12 @@ function AccountPageContent() {
             {/* Profile Header */}
             <div className="flex items-center gap-5">
               <PersonAvatar
-                name={profile?.person?.name || session?.user?.name || effectiveSessionUser?.email}
+                name={
+                  linkedPerson?.name ||
+                  dashboard?.user?.name ||
+                  session?.user?.name ||
+                  effectiveSessionUser?.email
+                }
                 email={effectiveSessionUser?.email}
                 size={80}
                 className="shrink-0 ring-2 ring-primary/20 ring-offset-2 ring-offset-background"
@@ -624,13 +682,11 @@ function AccountPageContent() {
               <div className="min-w-0">
                 <div className="flex flex-wrap items-center gap-2.5">
                   <h2 className="truncate text-2xl font-semibold tracking-tight">
-                    {profile?.person?.name || session?.user?.name || 'User'}
+                    {linkedPerson?.name || dashboard?.user?.name || session?.user?.name || 'User'}
                   </h2>
                   <span
                     className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-medium ${
-                      isAdmin
-                        ? 'bg-primary/10 text-primary'
-                        : 'bg-muted text-muted-foreground'
+                      isAdmin ? 'bg-primary/10 text-primary' : 'bg-muted text-muted-foreground'
                     }`}
                   >
                     {isAdmin ? (
@@ -650,10 +706,8 @@ function AccountPageContent() {
                   <Mail className="h-3.5 w-3.5 shrink-0" />
                   <span className="truncate">{effectiveSessionUser?.email || 'No email'}</span>
                 </div>
-                {profile?.person?.name && (
-                  <p className="mt-0.5 text-sm text-muted-foreground">
-                    Linked to member profile
-                  </p>
+                {linkedPerson?.name && (
+                  <p className="mt-0.5 text-sm text-muted-foreground">Linked to member profile</p>
                 )}
               </div>
             </div>
@@ -661,11 +715,31 @@ function AccountPageContent() {
             {/* Gradient accent */}
             <div className="mt-5 h-0.5 rounded-full bg-gradient-to-r from-primary via-secondary to-accent opacity-60" />
 
+            {!linkedPerson ? (
+              <div className="mt-6 rounded-2xl border border-amber-300/60 bg-amber-50/70 p-4 text-sm text-amber-950 shadow-sm">
+                <p className="font-semibold">
+                  Post publishing is not enabled yet for this account.
+                </p>
+                <p className="mt-1 text-amber-900/90">
+                  You can already create and publish wiki pages. Ask an admin to link your People
+                  profile to unlock post authorship and post creation.
+                </p>
+              </div>
+            ) : (
+              <div className="mt-6 rounded-2xl border border-emerald-300/60 bg-emerald-50/70 p-4 text-sm text-emerald-950 shadow-sm">
+                <p className="font-semibold">Your account is ready for self-service editing.</p>
+                <p className="mt-1 text-emerald-900/90">
+                  Posts you create will always keep your linked member profile in the author list,
+                  and wiki pages you create are owned by you automatically.
+                </p>
+              </div>
+            )}
+
             {/* Action Cards Grid */}
             <div className="mt-7 grid gap-3 sm:grid-cols-2">
               {/* Edit Profile */}
               <Link
-                href="/account/profile"
+                href={dashboard?.actions?.profileEditURL || '/account/profile'}
                 className="group flex items-start gap-4 rounded-xl border border-border bg-card p-4 transition-all hover:border-primary/30 hover:bg-primary/[0.03] hover:shadow-sm"
               >
                 <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary transition-colors group-hover:bg-primary/15">
@@ -683,9 +757,9 @@ function AccountPageContent() {
               </Link>
 
               {/* View Public Profile */}
-              {profile?.person?.slug && (
+              {dashboard?.actions?.profileURL && (
                 <Link
-                  href={`/people/${profile.person.slug}`}
+                  href={dashboard.actions.profileURL}
                   className="group flex items-start gap-4 rounded-xl border border-border bg-card p-4 transition-all hover:border-primary/30 hover:bg-primary/[0.03] hover:shadow-sm"
                 >
                   <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary transition-colors group-hover:bg-primary/15">
@@ -703,10 +777,9 @@ function AccountPageContent() {
                 </Link>
               )}
 
-              {/* My Posts */}
-              {profile?.person?.slug && (
+              {canCreatePost && dashboard?.actions?.postCreateURL ? (
                 <Link
-                  href={`/people/${profile.person.slug}#posts`}
+                  href={dashboard.actions.postCreateURL}
                   className="group flex items-start gap-4 rounded-xl border border-border bg-card p-4 transition-all hover:border-primary/30 hover:bg-primary/[0.03] hover:shadow-sm"
                 >
                   <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary transition-colors group-hover:bg-primary/15">
@@ -714,20 +787,39 @@ function AccountPageContent() {
                   </div>
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center justify-between">
-                      <span className="text-sm font-medium text-foreground">My Posts</span>
+                      <span className="text-sm font-medium text-foreground">Create Post</span>
                       <ChevronRight className="h-4 w-4 text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100" />
                     </div>
                     <p className="mt-0.5 text-xs leading-relaxed text-muted-foreground">
-                      View and manage your publications
+                      Start a new post in the editor with your member profile attached automatically
                     </p>
                   </div>
                 </Link>
-              )}
+              ) : null}
 
-              {/* Admin Dashboard */}
-              {isAdmin && session?.user && (
+              {canCreateWiki && dashboard?.actions?.wikiCreateURL ? (
                 <Link
-                  href="/admin"
+                  href={dashboard.actions.wikiCreateURL}
+                  className="group flex items-start gap-4 rounded-xl border border-border bg-card p-4 transition-all hover:border-primary/30 hover:bg-primary/[0.03] hover:shadow-sm"
+                >
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary transition-colors group-hover:bg-primary/15">
+                    <FileText className="h-5 w-5" />
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm font-medium text-foreground">Create Wiki Page</span>
+                      <ChevronRight className="h-4 w-4 text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100" />
+                    </div>
+                    <p className="mt-0.5 text-xs leading-relaxed text-muted-foreground">
+                      Add a new wiki page in your own workspace
+                    </p>
+                  </div>
+                </Link>
+              ) : null}
+
+              {canAccessAdmin && dashboard?.actions?.adminURL ? (
+                <Link
+                  href={dashboard.actions.adminURL}
                   className="group flex items-start gap-4 rounded-xl border border-border bg-card p-4 transition-all hover:border-primary/30 hover:bg-primary/[0.03] hover:shadow-sm"
                 >
                   <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary transition-colors group-hover:bg-primary/15">
@@ -735,23 +827,143 @@ function AccountPageContent() {
                   </div>
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center justify-between">
-                      <span className="text-sm font-medium text-foreground">Admin Dashboard</span>
+                      <span className="text-sm font-medium text-foreground">Open Admin</span>
                       <ChevronRight className="h-4 w-4 text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100" />
                     </div>
                     <p className="mt-0.5 text-xs leading-relaxed text-muted-foreground">
-                      Manage site content and users
+                      {isAdmin
+                        ? 'Manage site content, global settings, and users'
+                        : 'Open your scoped editing workspace for posts, wiki pages, and profile management'}
                     </p>
                   </div>
                 </Link>
-              )}
+              ) : null}
             </div>
 
-            {/* Non-admin note */}
-            {profile?.user && !isAdmin && (
+            <div className="mt-8 grid gap-6 lg:grid-cols-2">
+              <section className="rounded-2xl border border-border bg-card p-5 shadow-sm">
+                <div className="flex items-center justify-between gap-3">
+                  <div>
+                    <p className="text-sm font-semibold text-foreground">Recent Posts</p>
+                    <p className="mt-1 text-xs text-muted-foreground">
+                      Your authored posts, including drafts
+                    </p>
+                  </div>
+                  {canCreatePost && dashboard?.actions?.postCreateURL ? (
+                    <Link
+                      className="text-xs font-medium text-primary hover:underline"
+                      href={dashboard.actions.postCreateURL}
+                    >
+                      New post
+                    </Link>
+                  ) : null}
+                </div>
+                {recentPosts.length > 0 ? (
+                  <div className="mt-4 grid gap-3">
+                    {recentPosts.map((post) => (
+                      <div
+                        key={post.id}
+                        className="rounded-xl border border-border/80 bg-background/70 p-3"
+                      >
+                        <div className="flex items-start justify-between gap-3">
+                          <div className="min-w-0">
+                            <p className="truncate text-sm font-medium text-foreground">
+                              {post.title}
+                            </p>
+                            <p className="mt-1 text-xs uppercase tracking-[0.18em] text-muted-foreground">
+                              {post.status}
+                            </p>
+                          </div>
+                          <Link
+                            className="text-xs font-medium text-primary hover:underline"
+                            href={post.editURL}
+                          >
+                            Edit
+                          </Link>
+                        </div>
+                        <div className="mt-3 flex items-center gap-3 text-xs text-muted-foreground">
+                          <Link
+                            className="hover:text-foreground hover:underline"
+                            href={post.viewURL}
+                          >
+                            View
+                          </Link>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="mt-4 text-sm text-muted-foreground">
+                    {canCreatePost
+                      ? 'You have not created any posts yet.'
+                      : 'Post creation will appear here after your People profile is linked.'}
+                  </p>
+                )}
+              </section>
+
+              <section className="rounded-2xl border border-border bg-card p-5 shadow-sm">
+                <div className="flex items-center justify-between gap-3">
+                  <div>
+                    <p className="text-sm font-semibold text-foreground">Recent Wiki Pages</p>
+                    <p className="mt-1 text-xs text-muted-foreground">Wiki pages you own</p>
+                  </div>
+                  {canCreateWiki && dashboard?.actions?.wikiCreateURL ? (
+                    <Link
+                      className="text-xs font-medium text-primary hover:underline"
+                      href={dashboard.actions.wikiCreateURL}
+                    >
+                      New wiki page
+                    </Link>
+                  ) : null}
+                </div>
+                {recentWiki.length > 0 ? (
+                  <div className="mt-4 grid gap-3">
+                    {recentWiki.map((wiki) => (
+                      <div
+                        key={wiki.id}
+                        className="rounded-xl border border-border/80 bg-background/70 p-3"
+                      >
+                        <div className="flex items-start justify-between gap-3">
+                          <div className="min-w-0">
+                            <p className="truncate text-sm font-medium text-foreground">
+                              {wiki.title}
+                            </p>
+                            <p className="mt-1 text-xs uppercase tracking-[0.18em] text-muted-foreground">
+                              {wiki.status}
+                            </p>
+                          </div>
+                          <Link
+                            className="text-xs font-medium text-primary hover:underline"
+                            href={wiki.editURL}
+                          >
+                            Edit
+                          </Link>
+                        </div>
+                        <div className="mt-3 flex items-center gap-3 text-xs text-muted-foreground">
+                          <Link
+                            className="hover:text-foreground hover:underline"
+                            href={wiki.viewURL}
+                          >
+                            View
+                          </Link>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="mt-4 text-sm text-muted-foreground">
+                    You have not created any wiki pages yet.
+                  </p>
+                )}
+              </section>
+            </div>
+
+            {!isAdmin ? (
               <p className="mt-4 text-center text-xs text-muted-foreground">
-                Your account does not include admin dashboard access.
+                Sitewide settings and admin-only collections stay hidden here unless your role
+                changes.
               </p>
-            )}
+            ) : null}
 
             {/* Sign Out */}
             <div className="mt-8 border-t border-border pt-6">

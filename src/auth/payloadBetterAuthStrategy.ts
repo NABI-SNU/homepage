@@ -1,12 +1,16 @@
 import type { AuthStrategy } from 'payload'
 
 import { getBetterAuthUserFromHeaders } from './getBetterAuthUserFromHeaders'
+import { strictPayloadSessionResolutionOptions } from './payloadSessionPolicy'
 import { resolvePayloadUserFromSession } from './resolvePayloadUserFromSession'
 
 const authDebugLogsEnabled = (): boolean =>
   ['1', 'true', 'yes', 'on'].includes((process.env.AUTH_DEBUG_LOGS || '').toLowerCase())
 
-const getHeaderValue = (headers: Headers | Record<string, string | string[] | undefined>, name: string): string => {
+const getHeaderValue = (
+  headers: Headers | Record<string, string | string[] | undefined>,
+  name: string,
+): string => {
   if (typeof (headers as Headers).get === 'function') {
     return (headers as Headers).get(name) || ''
   }
@@ -38,7 +42,9 @@ const logAuthEvent = ({
   payload.logger[level](serialized)
 }
 
-const isAdminRequest = (headers: Headers | Record<string, string | string[] | undefined>): boolean => {
+const isAdminRequest = (
+  headers: Headers | Record<string, string | string[] | undefined>,
+): boolean => {
   const referer = getHeaderValue(headers, 'referer')
   if (referer.includes('/admin')) return true
 
@@ -73,8 +79,12 @@ export const payloadBetterAuthStrategy: AuthStrategy = {
     let responseHeaders = new Headers()
 
     try {
-      const { betterAuthUser, failureReason, responseHeaders: lookupResponseHeaders, statusCode } =
-        await getBetterAuthUserFromHeaders(headers)
+      const {
+        betterAuthUser,
+        failureReason,
+        responseHeaders: lookupResponseHeaders,
+        statusCode,
+      } = await getBetterAuthUserFromHeaders(headers)
       responseHeaders = sanitizeResponseHeadersForAdmin({
         headers,
         responseHeaders: lookupResponseHeaders,
@@ -114,10 +124,7 @@ export const payloadBetterAuthStrategy: AuthStrategy = {
       const payloadUser = await resolvePayloadUserFromSession({
         payload,
         betterAuthUser,
-        requireApproval: true,
-        autoApproveByPeopleEmail: true,
-        enforceProductionEmailVerification: true,
-        denyAlumni: true,
+        ...strictPayloadSessionResolutionOptions,
       })
 
       if (!payloadUser) {

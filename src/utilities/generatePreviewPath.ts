@@ -1,20 +1,27 @@
-import { PayloadRequest, CollectionSlug } from 'payload'
+import { CollectionSlug, PayloadRequest } from 'payload'
 
-const collectionPrefixMap: Partial<Record<CollectionSlug, string>> = {
+export const previewCollectionPrefixMap: Partial<Record<CollectionSlug, string>> = {
   posts: '/posts',
   news: '/news',
   research: '/labs',
   wiki: '/wiki',
-  people: '/people',
 }
 
+export type PreviewableCollection = keyof typeof previewCollectionPrefixMap
+
 type Props = {
-  collection: keyof typeof collectionPrefixMap
+  collection: PreviewableCollection
   slug: string
   req: PayloadRequest
 }
 
-export const generatePreviewPath = ({ collection, slug }: Props) => {
+export const getPreviewTargetPath = ({
+  collection,
+  slug,
+}: {
+  collection: PreviewableCollection
+  slug: string
+}): string | null => {
   // Allow empty strings, e.g. for the homepage
   if (slug === undefined || slug === null) {
     return null
@@ -22,12 +29,20 @@ export const generatePreviewPath = ({ collection, slug }: Props) => {
 
   // Encode to support slugs with special characters
   const encodedSlug = encodeURIComponent(slug)
+  const prefix = previewCollectionPrefixMap[collection]
+  if (!prefix) return null
+
+  return `${prefix}/${encodedSlug}`
+}
+
+export const generatePreviewPath = ({ collection, slug }: Props) => {
+  const path = getPreviewTargetPath({ collection, slug })
+  if (!path) return null
 
   const encodedParams = new URLSearchParams({
-    slug: encodedSlug,
+    slug,
     collection,
-    path: `${collectionPrefixMap[collection]}/${encodedSlug}`,
-    previewSecret: process.env.PREVIEW_SECRET || '',
+    path,
   })
 
   const url = `/next/preview?${encodedParams.toString()}`

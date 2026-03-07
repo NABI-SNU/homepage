@@ -135,7 +135,13 @@ const findAllTags = async (): Promise<TagLookupDoc[]> => {
 
 const findPublishedWikiBySlug = async (
   slug: string,
-): Promise<(WikiSummary & { content?: unknown }) | null> => {
+): Promise<
+  | (WikiSummary & {
+      content?: unknown
+      createdBy?: number | string | { id: number | string } | null
+    })
+  | null
+> => {
   const payload = await getPayload({ config: configPromise })
   const results = await payload.find({
     collection: 'wiki',
@@ -146,6 +152,7 @@ const findPublishedWikiBySlug = async (
     select: {
       aliases: true,
       content: true,
+      createdBy: true,
       id: true,
       outgoingLinks: true,
       slug: true,
@@ -167,7 +174,12 @@ const findPublishedWikiBySlug = async (
     },
   })
 
-  const doc = results.docs[0] as (Partial<WikiSummary> & { content?: unknown }) | undefined
+  const doc = results.docs[0] as
+    | (Partial<WikiSummary> & {
+        content?: unknown
+        createdBy?: number | string | { id: number | string } | null
+      })
+    | undefined
   if (!doc) return null
   const normalized = normalizeWikiDoc(doc)
   if (!normalized) return null
@@ -175,6 +187,7 @@ const findPublishedWikiBySlug = async (
   return {
     ...normalized,
     content: doc.content,
+    createdBy: doc.createdBy,
   }
 }
 

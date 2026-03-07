@@ -1,10 +1,14 @@
 import type { GlobalConfig } from 'payload'
 
 import { adminOnly } from '@/access/adminOnly'
+import { hideFromNonAdmins } from '@/access/hideFromNonAdmins'
 import { revalidateAboutPage } from './hooks/revalidateAboutPage'
 
 export const AboutPage: GlobalConfig = {
   slug: 'aboutPage',
+  admin: {
+    hidden: hideFromNonAdmins,
+  },
   access: {
     read: () => true,
     update: adminOnly,

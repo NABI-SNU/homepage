@@ -4,6 +4,7 @@ import { nextCookies } from 'better-auth/next-js'
 import { createRequire } from 'module'
 import type { Payload } from 'payload'
 
+import { strictPayloadSessionResolutionOptions } from './payloadSessionPolicy'
 import { syncBetterAuthUserToPayload } from './syncBetterAuthUserToPayload'
 import { resolvePayloadUserFromSession } from './resolvePayloadUserFromSession'
 import { createStoragePool } from '../utilities/storageDatabase'
@@ -220,9 +221,7 @@ export const auth = betterAuth({
           const payloadUser = await resolvePayloadUserFromSession({
             payload,
             betterAuthUser,
-            requireApproval: true,
-            autoApproveByPeopleEmail: true,
-            enforceProductionEmailVerification: true,
+            ...strictPayloadSessionResolutionOptions,
           })
 
           if (!payloadUser) return false

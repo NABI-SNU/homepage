@@ -3,7 +3,6 @@ import type { Metadata } from 'next'
 import { PayloadRedirects } from '@/components/PayloadRedirects'
 import configPromise from '@payload-config'
 import { getPayload } from 'payload'
-import { draftMode } from 'next/headers'
 import React, { cache } from 'react'
 import Image from 'next/image'
 
@@ -12,6 +11,7 @@ import { TableOfContents } from '@/components/TableOfContents'
 import { LivePreviewListener } from '@/components/LivePreviewListener'
 import { Media } from '@/components/Media'
 import { formatDateTime } from '@/utilities/formatDateTime'
+import { getDraftAccessContext } from '@/utilities/getDraftAccessContext'
 import { extractLegacyImageFromLexical } from '@/utilities/legacyImage'
 import { generateMeta } from '@/utilities/generateMeta'
 import { SocialShare } from '@/components/SocialShare'
@@ -39,7 +39,7 @@ type Args = {
 }
 
 export default async function NewsDetailPage({ params: paramsPromise }: Args) {
-  const { isEnabled: draft } = await draftMode()
+  const { draft } = await getDraftAccessContext()
   const { slug = '' } = await paramsPromise
   const decodedSlug = decodeURIComponent(slug)
   const url = '/news/' + decodedSlug
@@ -200,20 +200,37 @@ export async function generateMetadata({ params: paramsPromise }: Args): Promise
 }
 
 const queryNewsBySlug = cache(async ({ slug }: { slug: string }) => {
-  const { isEnabled: draft } = await draftMode()
-  const payload = await getPayload({ config: configPromise })
+  const { draft, payload, user } = await getDraftAccessContext()
 
   const news = await payload.find({
     collection: 'news',
     depth: 2,
     draft,
     limit: 1,
-    overrideAccess: draft,
+    overrideAccess: false,
     pagination: false,
+    ...(user ? { user } : {}),
     where: {
-      slug: {
-        equals: slug,
-      },
+      ...(draft
+        ? {
+            slug: {
+              equals: slug,
+            },
+          }
+        : {
+            and: [
+              {
+                slug: {
+                  equals: slug,
+                },
+              },
+              {
+                _status: {
+                  equals: 'published',
+                },
+              },
+            ],
+          }),
     },
   })
 

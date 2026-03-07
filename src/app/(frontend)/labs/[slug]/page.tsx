@@ -1,19 +1,15 @@
 import type { Metadata } from 'next'
 
-import configPromise from '@payload-config'
-import { getPayload } from 'payload'
-import { draftMode } from 'next/headers'
 import { notFound } from 'next/navigation'
 import fs from 'node:fs/promises'
-import path from 'node:path'
 import { cache } from 'react'
 
 import { LivePreviewListener } from '@/components/LivePreviewListener'
 import RichText from '@/components/RichText'
 import { TableOfContents } from '@/components/TableOfContents'
+import { getDraftAccessContext } from '@/utilities/getDraftAccessContext'
 import { generateMeta } from '@/utilities/generateMeta'
-
-const workspaceRoot = process.cwd()
+import { resolveResearchNotebookPath } from '@/utilities/researchNotebook'
 
 type Args = {
   params: Promise<{
@@ -22,7 +18,7 @@ type Args = {
 }
 
 export default async function ResearchDetailPage({ params }: Args) {
-  const { isEnabled: draft } = await draftMode()
+  const { draft } = await getDraftAccessContext()
   const { slug } = await params
   const entry = await queryResearchBySlug({ slug })
   if (!entry) notFound()
@@ -31,27 +27,30 @@ export default async function ResearchDetailPage({ params }: Args) {
   let notebookPreview = ''
 
   if (entry.notebookPath) {
-    const absoluteNotebookPath = path.resolve(workspaceRoot, entry.notebookPath)
-    try {
-      const notebookRaw = await fs.readFile(absoluteNotebookPath, 'utf8')
-      const notebookJSON = JSON.parse(notebookRaw) as {
-        cells?: { cell_type?: string; source?: string[] | string }[]
+    const absoluteNotebookPath = resolveResearchNotebookPath(entry.notebookPath)
+
+    if (absoluteNotebookPath) {
+      try {
+        const notebookRaw = await fs.readFile(absoluteNotebookPath, 'utf8')
+        const notebookJSON = JSON.parse(notebookRaw) as {
+          cells?: { cell_type?: string; source?: string[] | string }[]
+        }
+
+        const previewSource = (notebookJSON.cells || [])
+          .slice(0, 3)
+          .map((cell) => {
+            if (!cell?.source) return ''
+            if (Array.isArray(cell.source)) return cell.source.join('')
+            return cell.source
+          })
+          .filter(Boolean)
+          .join('\n\n')
+
+        notebookExists = true
+        notebookPreview = previewSource.slice(0, 2000)
+      } catch {
+        notebookExists = false
       }
-
-      const previewSource = (notebookJSON.cells || [])
-        .slice(0, 3)
-        .map((cell) => {
-          if (!cell?.source) return ''
-          if (Array.isArray(cell.source)) return cell.source.join('')
-          return cell.source
-        })
-        .filter(Boolean)
-        .join('\n\n')
-
-      notebookExists = true
-      notebookPreview = previewSource.slice(0, 2000)
-    } catch {
-      notebookExists = false
     }
   }
 
@@ -119,16 +118,16 @@ export async function generateMetadata({ params }: Args): Promise<Metadata> {
 }
 
 const queryResearchBySlug = cache(async ({ slug }: { slug: string }) => {
-  const { isEnabled: draft } = await draftMode()
-  const payload = await getPayload({ config: configPromise })
+  const { draft, payload, user } = await getDraftAccessContext()
 
   const result = await payload.find({
     collection: 'research',
     depth: 2,
     draft,
     limit: 1,
-    overrideAccess: draft,
+    overrideAccess: false,
     pagination: false,
+    ...(user ? { user } : {}),
     where: draft
       ? {
           slug: {

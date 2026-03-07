@@ -3,6 +3,7 @@ import type { CollectionConfig } from 'payload'
 import { adminOnly, isAdminRequest } from '../../access/adminOnly'
 import { adminOrSelf } from '../../access/adminOrSelf'
 import { authenticated } from '../../access/authenticated'
+import { hideFromNonAdmins } from '@/access/hideFromNonAdmins'
 import { payloadBetterAuthStrategy } from '@/auth/payloadBetterAuthStrategy'
 import { sendApprovalRequestEmail } from './hooks/sendApprovalRequestEmail'
 
@@ -17,6 +18,7 @@ export const Users: CollectionConfig = {
   },
   admin: {
     defaultColumns: ['name', 'email', 'isApproved', 'roles'],
+    hidden: hideFromNonAdmins,
     useAsTitle: 'name',
   },
   auth: {

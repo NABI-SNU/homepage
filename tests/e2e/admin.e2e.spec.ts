@@ -1,6 +1,6 @@
 import { test, expect, Page } from '@playwright/test'
 import { login } from '../helpers/login'
-import { adminTestAccount } from '../helpers/testAccounts'
+import { adminTestAccount, userTestAccount } from '../helpers/testAccounts'
 import {
   cleanupAuthoredPostScenario,
   seedAuthoredPostScenario,
@@ -36,6 +36,32 @@ test.describe('Admin Panel', () => {
     await expect(page).toHaveURL(/\/admin\/collections\/posts\/[a-zA-Z0-9-_]+/)
     const editViewArtifact = page.locator('input[name="title"]')
     await expect(editViewArtifact).toBeVisible()
+  })
+})
+
+test.describe('Non-admin admin visibility', () => {
+  test('member admin hides sitewide collections and keeps self-service areas visible', async ({
+    browser,
+  }) => {
+    const context = await browser.newContext()
+    const page = await context.newPage()
+
+    await login({
+      page,
+      user: userTestAccount,
+    })
+
+    await expect(page.getByRole('link', { name: 'Posts' })).toBeVisible()
+    await expect(page.getByRole('link', { name: 'Wiki' })).toBeVisible()
+    await expect(page.getByRole('link', { name: 'People' })).toBeVisible()
+
+    await expect(page.getByRole('link', { name: 'Users' })).toHaveCount(0)
+    await expect(page.getByRole('link', { name: 'News' })).toHaveCount(0)
+    await expect(page.getByRole('link', { name: 'Research' })).toHaveCount(0)
+    await expect(page.getByRole('link', { name: 'Activities' })).toHaveCount(0)
+    await expect(page.getByText('Member workspace')).toBeVisible()
+
+    await context.close()
   })
 })
 
@@ -115,7 +141,10 @@ test.describe('Admin editor stability', () => {
         )
       })
 
-      await page.getByRole('button', { name: /^Save$/ }).first().click()
+      await page
+        .getByRole('button', { name: /^Save$/ })
+        .first()
+        .click()
       const saveResponse = await saveResponsePromise
       const savedGlobal = (await saveResponse.json().catch(() => null)) as { title?: string } | null
       expect(savedGlobal?.title).toBe(editedTitle)
@@ -139,7 +168,10 @@ test.describe('Admin editor stability', () => {
           )
         })
 
-        await page.getByRole('button', { name: /^Save$/ }).first().click()
+        await page
+          .getByRole('button', { name: /^Save$/ })
+          .first()
+          .click()
         await restoreResponsePromise
       }
     }

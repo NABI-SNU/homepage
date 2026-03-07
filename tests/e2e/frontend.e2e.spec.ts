@@ -5,6 +5,11 @@ import {
   seedAuthoredPostScenario,
   type SeededScenario,
 } from '../helpers/seedAuthoredPostScenario'
+import {
+  cleanupOwnedWikiScenario,
+  seedOwnedWikiScenario,
+  type SeededWikiScenario,
+} from '../helpers/seedOwnedWikiScenario'
 
 test.describe('Frontend', () => {
   test('can load homepage', async ({ page }) => {
@@ -80,5 +85,79 @@ test.describe('Post edit visibility', () => {
       waitUntil: 'domcontentloaded',
     })
     await expect(page.getByRole('link', { name: 'Edit this post' })).toHaveCount(0)
+  })
+})
+
+test.describe('Account self-service', () => {
+  test.describe.configure({ timeout: 120_000 })
+
+  let scenario: SeededScenario | null = null
+
+  test.beforeAll(async () => {
+    scenario = await seedAuthoredPostScenario()
+  })
+
+  test.afterAll(async () => {
+    if (!scenario) return
+    await cleanupAuthoredPostScenario(scenario)
+  })
+
+  test('signed-in member sees self-service shortcuts and recent post entries', async ({ page }) => {
+    if (!scenario) throw new Error('Scenario was not initialized')
+
+    await page.goto('http://localhost:3000/account')
+    await page.getByRole('button', { name: 'Log In' }).click()
+    await page.fill('#account-email', scenario.authorEmail)
+    await page.fill('#account-password', scenario.authorPassword)
+    await page.locator('form').getByRole('button', { name: 'Log In' }).click()
+    await expect(page.getByRole('link', { name: 'Open Admin' })).toBeVisible({ timeout: 15_000 })
+
+    await expect(page.getByRole('link', { name: 'Create Post' })).toBeVisible()
+    await expect(page.getByRole('link', { name: 'Create Wiki Page' })).toBeVisible()
+    await expect(page.getByText('Your account is ready for self-service editing.')).toBeVisible()
+    await expect(page.getByText(/Recent Posts/i)).toBeVisible()
+    await expect(
+      page.getByText(scenario.authorPostSlug.replace(/-/g, ' '), { exact: false }),
+    ).toHaveCount(0)
+    await expect(page.getByText(/Author Post/i)).toBeVisible()
+  })
+})
+
+test.describe('Wiki self-service actions', () => {
+  test.describe.configure({ timeout: 120_000 })
+
+  let scenario: SeededWikiScenario | null = null
+
+  test.beforeAll(async () => {
+    scenario = await seedOwnedWikiScenario()
+  })
+
+  test.afterAll(async () => {
+    if (!scenario) return
+    await cleanupOwnedWikiScenario(scenario)
+  })
+
+  test('signed-in member sees create wiki on index and edit only on owned wiki pages', async ({
+    page,
+  }) => {
+    if (!scenario) throw new Error('Scenario was not initialized')
+
+    await page.goto('http://localhost:3000/account')
+    await page.getByRole('button', { name: 'Log In' }).click()
+    await page.fill('#account-email', scenario.ownerEmail)
+    await page.fill('#account-password', scenario.ownerPassword)
+    await page.locator('form').getByRole('button', { name: 'Log In' }).click()
+    await expect(page.getByRole('link', { name: 'Open Admin' })).toBeVisible({ timeout: 15_000 })
+
+    await page.goto('http://localhost:3000/wiki')
+    await expect(page.getByRole('link', { name: 'Create wiki page' })).toBeVisible()
+
+    await page.goto(`http://localhost:3000/wiki/${scenario.ownerWikiSlug}`)
+    await expect(page.getByRole('link', { name: 'Edit this wiki page' })).toBeVisible()
+    await expect(page.getByRole('link', { name: 'Create wiki page' })).toBeVisible()
+
+    await page.goto(`http://localhost:3000/wiki/${scenario.otherWikiSlug}`)
+    await expect(page.getByRole('link', { name: 'Edit this wiki page' })).toHaveCount(0)
+    await expect(page.getByRole('link', { name: 'Create wiki page' })).toBeVisible()
   })
 })

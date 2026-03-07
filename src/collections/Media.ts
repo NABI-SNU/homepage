@@ -10,6 +10,7 @@ import { fileURLToPath } from 'url'
 
 import { anyone } from '../access/anyone'
 import { adminOnly } from '../access/adminOnly'
+import { hideFromNonAdmins } from '../access/hideFromNonAdmins'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -23,6 +24,9 @@ const webpFormatOptions = {
 export const Media: CollectionConfig = {
   slug: 'media',
   folders: true,
+  admin: {
+    hidden: hideFromNonAdmins,
+  },
   access: {
     create: adminOnly,
     delete: adminOnly,
@@ -47,6 +51,7 @@ export const Media: CollectionConfig = {
   ],
   upload: {
     // Upload to the public/media directory in Next.js making them publicly accessible even outside of Payload
+    mimeTypes: ['image/jpeg', 'image/png', 'image/webp'],
     staticDir: path.resolve(dirname, '../../public/media'),
     adminThumbnail: 'thumbnail',
     focalPoint: true,

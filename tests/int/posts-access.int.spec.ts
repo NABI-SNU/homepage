@@ -154,6 +154,7 @@ describe('Posts Access', () => {
         data: {
           title: `Authored Post User Create ${runId}`,
           slug: `authored-post-user-create-${runId}`,
+          authors: [otherPerson.id],
           content: buildMinimalRichText(),
           _status: 'draft',
         },
@@ -166,6 +167,7 @@ describe('Posts Access', () => {
         .filter((id): id is number => id !== null)
 
       expect(createdPostAuthorIDs).toContain(authorPersonId)
+      expect(createdPostAuthorIDs).toContain(otherPerson.id)
 
       const updatedUserCreatedPost = await payload.update({
         collection: 'posts',
@@ -179,6 +181,24 @@ describe('Posts Access', () => {
       })
 
       expect(updatedUserCreatedPost.excerpt).toBe(`Updated own created post ${runId}`)
+
+      const updatedAuthors = await payload.update({
+        collection: 'posts',
+        id: createdByUser.id,
+        data: {
+          authors: [otherPerson.id],
+        },
+        user: users.user,
+        overrideAccess: false,
+        context: { disableRevalidate: true },
+      })
+
+      const updatedAuthorIDs = (updatedAuthors.authors || [])
+        .map((author) => normalizeRelationshipID(author as number | { id: number }))
+        .filter((id): id is number => id !== null)
+
+      expect(updatedAuthorIDs).toContain(authorPersonId)
+      expect(updatedAuthorIDs).toContain(otherPerson.id)
 
       const updatedOwnPost = await payload.update({
         collection: 'posts',

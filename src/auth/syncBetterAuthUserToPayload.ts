@@ -47,11 +47,6 @@ const normalizeEmail = (email: string | null | undefined): string | null => {
   return normalized && normalized.length > 0 ? normalized : null
 }
 
-const normalizeName = (name: string | null | undefined): string | null => {
-  const normalized = name?.trim().replace(/\s+/g, ' ').toLowerCase()
-  return normalized && normalized.length > 0 ? normalized : null
-}
-
 const inferDisplayName = (user: BetterAuthUserShape): string => {
   const fromName = user.name?.trim()
   if (fromName) return fromName
@@ -167,28 +162,6 @@ const findPersonByEmail = async (payload: Payload, email: string): Promise<Perso
   return results.docs[0] ?? null
 }
 
-const findPersonByName = async (payload: Payload, name: string): Promise<Person | null> => {
-  const normalizedName = normalizeName(name)
-  if (!normalizedName) return null
-
-  const results = await payload.find({
-    collection: 'people',
-    depth: 0,
-    limit: 25,
-    overrideAccess: true,
-    pagination: false,
-    sort: '-updatedAt',
-    where: {
-      name: {
-        like: name,
-      },
-    },
-  })
-
-  const exactMatch = results.docs.find((doc) => normalizeName(doc.name) === normalizedName)
-  return exactMatch ?? results.docs[0] ?? null
-}
-
 export const syncBetterAuthUserToPayload = async ({
   betterAuthUser,
   betterAuthUserId,
@@ -275,10 +248,6 @@ export const syncBetterAuthUserToPayload = async ({
 
   if (!person && normalizedEmail) {
     person = await findPersonByEmail(payload, normalizedEmail)
-  }
-
-  if (!person && normalizedName) {
-    person = await findPersonByName(payload, normalizedName)
   }
 
   if (!person) {

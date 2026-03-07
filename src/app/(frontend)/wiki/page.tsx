@@ -3,6 +3,7 @@ import type { Metadata } from 'next'
 import configPromise from '@payload-config'
 import { getPayload } from 'payload'
 
+import { WikiSelfServiceActions } from '@/components/wiki/WikiSelfServiceActions.client'
 import { WikiIndex } from '@/components/wiki/WikiIndex.client'
 import { getCachedTagLookup, getCachedWikiList } from '@/utilities/wiki'
 
@@ -129,9 +130,7 @@ export default async function WikiIndexPage() {
   }))
 
   // Featured: top articles by incoming link count
-  const featured = [...searchItems]
-    .sort((a, b) => b.incomingLinks - a.incomingLinks)
-    .slice(0, 6)
+  const featured = [...searchItems].sort((a, b) => b.incomingLinks - a.incomingLinks).slice(0, 6)
 
   // Recent: sorted by update date
   const recent = [...searchItems]
@@ -148,8 +147,10 @@ export default async function WikiIndexPage() {
         <p className="page-eyebrow">Wiki</p>
         <h1 className="page-title-lg text-balance">Connected concepts</h1>
         <p className="page-subtitle mx-auto max-w-2xl">
-          Explore the network graph of NeuroAI concepts, from foundational neuroscience to cutting-edge AI.
+          Explore the network graph of NeuroAI concepts, from foundational neuroscience to
+          cutting-edge AI.
         </p>
+        <WikiSelfServiceActions className="mt-6 justify-center" />
       </section>
 
       <WikiIndex

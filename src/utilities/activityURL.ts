@@ -22,7 +22,7 @@ export const getActivityPath = (activity: ActivityLike): string | null => {
     return null
   }
 
-  return `/conferences/${slug}`
+  return `/conferences/${encodeSlug(slug)}`
 }
 
 export const getActivityPathFromReferenceValue = (value: unknown): string | null => {
@@ -30,7 +30,8 @@ export const getActivityPathFromReferenceValue = (value: unknown): string | null
 
   const slug = 'slug' in value && typeof value.slug === 'string' ? value.slug : null
   const activityType =
-    'activityType' in value && (value.activityType === 'symposium' || value.activityType === 'conference')
+    'activityType' in value &&
+    (value.activityType === 'symposium' || value.activityType === 'conference')
       ? value.activityType
       : null
 
@@ -57,8 +58,7 @@ export const getActivityPreviewPath = ({
   const encodedParams = new URLSearchParams({
     collection: 'activities',
     path,
-    previewSecret: process.env.PREVIEW_SECRET || '',
-    ...(encodedSlug ? { slug: encodedSlug } : {}),
+    ...(slug ? { slug } : {}),
   })
 
   return `/next/preview?${encodedParams.toString()}`
