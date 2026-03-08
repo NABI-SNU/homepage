@@ -1,15 +1,16 @@
 import type { Metadata } from 'next'
 
 import { notFound } from 'next/navigation'
-import fs from 'node:fs/promises'
 import { cache } from 'react'
 
 import { LivePreviewListener } from '@/components/LivePreviewListener'
 import RichText from '@/components/RichText'
 import { TableOfContents } from '@/components/TableOfContents'
+import { ResearchNotebookSection } from '@/components/research/ResearchNotebookSection'
 import { getDraftAccessContext } from '@/utilities/getDraftAccessContext'
 import { generateMeta } from '@/utilities/generateMeta'
-import { resolveResearchNotebookPath } from '@/utilities/researchNotebook'
+import { findResearchBySlug } from '@/utilities/getResearchBySlug'
+import { getUploadDoc, getUploadID } from '@/utilities/notebooks'
 
 type Args = {
   params: Promise<{
@@ -18,82 +19,65 @@ type Args = {
 }
 
 export default async function ResearchDetailPage({ params }: Args) {
-  const { draft } = await getDraftAccessContext()
+  const { draft, payload } = await getDraftAccessContext()
   const { slug } = await params
   const entry = await queryResearchBySlug({ slug })
   if (!entry) notFound()
-
-  let notebookExists = false
-  let notebookPreview = ''
-
-  if (entry.notebookPath) {
-    const absoluteNotebookPath = resolveResearchNotebookPath(entry.notebookPath)
-
-    if (absoluteNotebookPath) {
-      try {
-        const notebookRaw = await fs.readFile(absoluteNotebookPath, 'utf8')
-        const notebookJSON = JSON.parse(notebookRaw) as {
-          cells?: { cell_type?: string; source?: string[] | string }[]
-        }
-
-        const previewSource = (notebookJSON.cells || [])
-          .slice(0, 3)
-          .map((cell) => {
-            if (!cell?.source) return ''
-            if (Array.isArray(cell.source)) return cell.source.join('')
-            return cell.source
-          })
-          .filter(Boolean)
-          .join('\n\n')
-
-        notebookExists = true
-        notebookPreview = previewSource.slice(0, 2000)
-      } catch {
-        notebookExists = false
-      }
-    }
-  }
+  const notebookID = getUploadID(entry.notebook)
+  const notebook =
+    getUploadDoc(entry.notebook) ||
+    (notebookID
+      ? await payload.findByID({
+          collection: 'notebooks',
+          depth: 0,
+          id: notebookID,
+          overrideAccess: true,
+        })
+      : null)
 
   return (
-    <article className="pb-20 pt-12">
+    <article className="pb-20 pt-6 md:pt-10">
       {draft && <LivePreviewListener />}
-      <header className="container max-w-4xl">
-        <h1 className="text-5xl font-semibold">{entry.title}</h1>
-        <div className="mt-6 h-1 w-24 rounded-full bg-linear-to-r from-primary to-accent" />
-        {entry.description && (
-          <p className="mt-4 text-lg text-muted-foreground">{entry.description}</p>
-        )}
-      </header>
+      <section className="relative pt-8 md:pt-12">
+        <div className="container">
+          <header className="mx-auto max-w-3xl">
+            <h1 className="text-3xl font-bold leading-tight tracking-tight md:text-5xl lg:text-6xl">
+              {entry.title}
+            </h1>
+            <div className="mt-6 h-1 w-28 rounded-full bg-linear-to-r from-primary to-accent" />
+            {entry.description && (
+              <p className="mt-6 text-lg leading-relaxed text-muted-foreground md:text-xl">
+                {entry.description}
+              </p>
+            )}
+          </header>
+        </div>
+      </section>
       <TableOfContents />
 
-      <div className="container mt-10 max-w-4xl">
-        <div data-post-content>
-          <RichText
-            className="prose-headings:scroll-mt-28"
-            data={entry.content}
-            enableGutter={false}
-            enableMathJax
-          />
-        </div>
+      <div className="flex flex-col items-center gap-4 pt-10">
+        <div className="container">
+          <div data-post-content>
+            <RichText
+              className="mx-auto max-w-3xl md:prose-lg prose-headings:scroll-mt-28"
+              data={entry.content}
+              enableGutter={false}
+              enableMathJax
+            />
+          </div>
 
-        {entry.notebookPath && (
-          <section className="mt-10 rounded-2xl border border-border bg-card p-6">
-            <h2 className="text-xl font-semibold">Notebook</h2>
-            <p className="mt-2 text-sm text-muted-foreground">{entry.notebookPath}</p>
-            {notebookExists ? (
-              <div className="mt-4 rounded-xl border border-border bg-background p-4">
-                <p className="mb-2 text-xs uppercase tracking-wide text-muted-foreground">
-                  Notebook Preview
-                </p>
-                <pre className="overflow-x-auto whitespace-pre-wrap text-xs">
-                  {notebookPreview || 'Notebook is empty.'}
-                </pre>
-              </div>
-            ) : (
-              <p className="mt-3 text-sm text-amber-600">Notebook file not found in workspace.</p>
-            )}
-          </section>
-        )}
+          {notebook ? (
+            <div className="mx-auto max-w-[67rem]">
+              <ResearchNotebookSection
+                apiURL={`/api/labs/${slug}/notebook`}
+                colabURL={entry.colabURL}
+                downloadURL={`/api/labs/${slug}/notebook?download=1`}
+                filename={notebook.filename}
+                kaggleURL={entry.kaggleURL}
+              />
+            </div>
+          ) : null}
+        </div>
       </div>
     </article>
   )
@@ -119,36 +103,10 @@ export async function generateMetadata({ params }: Args): Promise<Metadata> {
 
 const queryResearchBySlug = cache(async ({ slug }: { slug: string }) => {
   const { draft, payload, user } = await getDraftAccessContext()
-
-  const result = await payload.find({
-    collection: 'research',
-    depth: 2,
+  return findResearchBySlug({
     draft,
-    limit: 1,
-    overrideAccess: false,
-    pagination: false,
-    ...(user ? { user } : {}),
-    where: draft
-      ? {
-          slug: {
-            equals: slug,
-          },
-        }
-      : {
-          and: [
-            {
-              slug: {
-                equals: slug,
-              },
-            },
-            {
-              _status: {
-                equals: 'published',
-              },
-            },
-          ],
-        },
+    payload,
+    slug,
+    user,
   })
-
-  return result.docs[0] || null
 })

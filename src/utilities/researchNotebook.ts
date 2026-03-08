@@ -9,6 +9,7 @@ const normalizeNotebookInput = (value: string): string | null => {
     .trim()
     .replace(/\\/g, '/')
     .replace(/^\.\/+/, '')
+
   if (!trimmed || trimmed.startsWith('/')) return null
 
   if (trimmed.startsWith('content/notebooks/')) {

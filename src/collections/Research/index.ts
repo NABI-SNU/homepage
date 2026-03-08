@@ -69,10 +69,25 @@ export const Research: CollectionConfig<'research'> = {
       relationTo: 'media',
     },
     {
-      name: 'notebookPath',
+      name: 'notebook',
+      type: 'upload',
+      relationTo: 'notebooks',
+      admin: {
+        description: 'Upload the source notebook as a .ipynb file.',
+      },
+    },
+    {
+      name: 'colabURL',
       type: 'text',
       admin: {
-        description: 'Path inside content/notebooks (for example, notebooks/NABI_250906.ipynb).',
+        description: 'Optional public Colab URL for this notebook.',
+      },
+    },
+    {
+      name: 'kaggleURL',
+      type: 'text',
+      admin: {
+        description: 'Optional public Kaggle URL for this notebook.',
       },
     },
     {

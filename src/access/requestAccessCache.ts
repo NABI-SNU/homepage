@@ -5,6 +5,7 @@ const ACCESS_CACHE_KEY = '__nabiAccessCache'
 type AccessCache = {
   isAdminRequest?: boolean
   linkedPersonIDs?: number[]
+  publishedNotebookIDs?: number[]
 }
 
 export const getAccessCache = (req: PayloadRequest): AccessCache => {

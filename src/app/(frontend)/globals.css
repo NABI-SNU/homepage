@@ -279,6 +279,49 @@
     text-align: center;
     vertical-align: middle;
   }
+
+  .research-notebook-viewer {
+    background: linear-gradient(
+      180deg,
+      color-mix(in oklab, var(--color-card) 92%, transparent),
+      color-mix(in oklab, var(--color-background) 96%, transparent)
+    );
+    box-shadow: 0 16px 40px -34px rgb(0 0 0 / 30%);
+  }
+
+  .research-notebook-viewer [data-color-mode] {
+    color: var(--color-foreground);
+  }
+
+  .research-notebook-viewer .jp-Notebook,
+  .research-notebook-viewer .jp-Cell-inputWrapper,
+  .research-notebook-viewer .jp-Cell-outputWrapper,
+  .research-notebook-viewer .jp-RenderedHTMLCommon,
+  .research-notebook-viewer .jp-RenderedMarkdown,
+  .research-notebook-viewer .jp-RenderedText,
+  .research-notebook-viewer .jp-OutputArea-child,
+  .research-notebook-viewer .cm-editor,
+  .research-notebook-viewer .cm-scroller,
+  .research-notebook-viewer .cm-gutters {
+    background: transparent !important;
+  }
+
+  .research-notebook-viewer .jp-InputPrompt,
+  .research-notebook-viewer .jp-OutputPrompt {
+    color: var(--color-muted-foreground) !important;
+  }
+
+  .research-notebook-viewer .jp-Cell {
+    border-bottom-color: color-mix(in oklab, var(--color-border) 88%, transparent);
+  }
+
+  .research-notebook-viewer .jp-RenderedHTMLCommon,
+  .research-notebook-viewer .jp-RenderedMarkdown,
+  .research-notebook-viewer .jp-RenderedText,
+  .research-notebook-viewer .cm-content,
+  .research-notebook-viewer .cm-lineNumbers {
+    color: var(--color-foreground) !important;
+  }
 }
 
 html {

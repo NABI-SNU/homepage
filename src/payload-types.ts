@@ -75,6 +75,7 @@ export interface Config {
     people: Person;
     tags: Tag;
     media: Media;
+    notebooks: Notebook;
     categories: Category;
     users: User;
     redirects: Redirect;
@@ -102,6 +103,7 @@ export interface Config {
     people: PeopleSelect<false> | PeopleSelect<true>;
     tags: TagsSelect<false> | TagsSelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
+    notebooks: NotebooksSelect<false> | NotebooksSelect<true>;
     categories: CategoriesSelect<false> | CategoriesSelect<true>;
     users: UsersSelect<false> | UsersSelect<true>;
     redirects: RedirectsSelect<false> | RedirectsSelect<true>;
@@ -538,9 +540,17 @@ export interface Research {
   date?: string | null;
   image?: (number | null) | Media;
   /**
-   * Path relative to workspace root (e.g., notebooks/NABI_250906.ipynb).
+   * Upload the source notebook as a .ipynb file.
    */
-  notebookPath?: string | null;
+  notebook?: (number | null) | Notebook;
+  /**
+   * Optional public Colab URL for this notebook.
+   */
+  colabURL?: string | null;
+  /**
+   * Optional public Kaggle URL for this notebook.
+   */
+  kaggleURL?: string | null;
   content: {
     root: {
       type: string;
@@ -580,6 +590,25 @@ export interface Research {
   updatedAt: string;
   createdAt: string;
   _status?: ('draft' | 'published') | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "notebooks".
+ */
+export interface Notebook {
+  id: number;
+  prefix?: string | null;
+  updatedAt: string;
+  createdAt: string;
+  url?: string | null;
+  thumbnailURL?: string | null;
+  filename?: string | null;
+  mimeType?: string | null;
+  filesize?: number | null;
+  width?: number | null;
+  height?: number | null;
+  focalX?: number | null;
+  focalY?: number | null;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -1230,7 +1259,9 @@ export interface ResearchSelect<T extends boolean = true> {
   description?: T;
   date?: T;
   image?: T;
-  notebookPath?: T;
+  notebook?: T;
+  colabURL?: T;
+  kaggleURL?: T;
   content?: T;
   references?:
     | T
@@ -1454,6 +1485,24 @@ export interface MediaSelect<T extends boolean = true> {
               filename?: T;
             };
       };
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "notebooks_select".
+ */
+export interface NotebooksSelect<T extends boolean = true> {
+  prefix?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  url?: T;
+  thumbnailURL?: T;
+  filename?: T;
+  mimeType?: T;
+  filesize?: T;
+  width?: T;
+  height?: T;
+  focalX?: T;
+  focalY?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

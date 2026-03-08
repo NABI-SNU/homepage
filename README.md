@@ -150,16 +150,25 @@ Optional:
 - `S3_CLIENT_UPLOADS=true` (recommended on Vercel for larger uploads)
 
 When S3 env vars are configured, the `media` collection uses cloud storage and avoids ephemeral local disk.
+Notebook uploads follow the same storage backend through the dedicated `notebooks` collection.
+If `S3_MEDIA_PREFIX` is set, notebook objects are stored under `<prefix>/notebooks`.
+Otherwise notebook objects are stored under `notebooks/`.
 
 ## Notebook Dependency (Labs)
 
-`/labs/[slug]` supports notebook previews by reading notebook JSON from paths stored in `research.notebookPath`.
+`/labs/[slug]` renders uploaded `.ipynb` files through Datalayer's read-only notebook viewer.
 
-Current local notebook content is expected under:
+Research entries now link notebooks through the `research.notebook` upload field, which points to the
+dedicated `notebooks` collection. The uploaded notebook file is the source of truth; notebook files are
+no longer read from the repository at request time.
 
-- `content/notebooks/`
+Optional research fields:
 
-If notebook files are moved or removed, the lab detail page shows a "not found" notebook message.
+- `colabURL`
+- `kaggleURL`
+
+These are rendered as external actions when present. A direct notebook download link is always derived from
+the uploaded notebook file.
 
 ## Security and Local API Notes
 

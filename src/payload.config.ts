@@ -9,6 +9,7 @@ import { Categories } from './collections/Categories'
 import { Activities } from './collections/Activities'
 import { Media } from './collections/Media'
 import { News } from './collections/News'
+import { Notebooks } from './collections/Notebooks'
 import { People } from './collections/People'
 import { Posts } from './collections/Posts'
 import { Research } from './collections/Research'
@@ -89,9 +90,19 @@ export default buildConfig({
       connectionString: storageDatabaseURL,
     },
   }),
-  collections: [Posts, News, Research, Wiki, Activities, People, Tags, Media, Categories, Users].map(
-    disableDocumentLocks,
-  ),
+  collections: [
+    Posts,
+    News,
+    Research,
+    Wiki,
+    Activities,
+    People,
+    Tags,
+    Media,
+    Notebooks,
+    Categories,
+    Users,
+  ].map(disableDocumentLocks),
   cors: [getServerSideURL()].filter(Boolean),
   email: nodemailerAdapter({
     defaultFromAddress: process.env.SMTP_FROM_ADDRESS || 'no-reply@nabi.local',

@@ -601,7 +601,11 @@ export const research = pgTable(
     image: integer('image_id').references(() => media.id, {
       onDelete: 'set null',
     }),
-    notebookPath: varchar('notebook_path'),
+    notebook: integer('notebook_id').references(() => notebooks.id, {
+      onDelete: 'set null',
+    }),
+    colabURL: varchar('colab_u_r_l'),
+    kaggleURL: varchar('kaggle_u_r_l'),
     content: jsonb('content'),
     generateSlug: boolean('generate_slug').default(true),
     slug: varchar('slug'),
@@ -615,6 +619,7 @@ export const research = pgTable(
   },
   (columns) => [
     index('research_image_idx').on(columns.image),
+    index('research_notebook_idx').on(columns.notebook),
     uniqueIndex('research_slug_idx').on(columns.slug),
     index('research_updated_at_idx').on(columns.updatedAt),
     index('research_created_at_idx').on(columns.createdAt),
@@ -679,7 +684,11 @@ export const _research_v = pgTable(
     version_image: integer('version_image_id').references(() => media.id, {
       onDelete: 'set null',
     }),
-    version_notebookPath: varchar('version_notebook_path'),
+    version_notebook: integer('version_notebook_id').references(() => notebooks.id, {
+      onDelete: 'set null',
+    }),
+    version_colabURL: varchar('version_colab_u_r_l'),
+    version_kaggleURL: varchar('version_kaggle_u_r_l'),
     version_content: jsonb('version_content'),
     version_generateSlug: boolean('version_generate_slug').default(true),
     version_slug: varchar('version_slug'),
@@ -705,6 +714,7 @@ export const _research_v = pgTable(
   (columns) => [
     index('_research_v_parent_idx').on(columns.parent),
     index('_research_v_version_version_image_idx').on(columns.version_image),
+    index('_research_v_version_version_notebook_idx').on(columns.version_notebook),
     index('_research_v_version_version_slug_idx').on(columns.version_slug),
     index('_research_v_version_version_updated_at_idx').on(columns.version_updatedAt),
     index('_research_v_version_version_created_at_idx').on(columns.version_createdAt),
@@ -1388,6 +1398,34 @@ export const media = pgTable(
     index('media_sizes_large_sizes_large_filename_idx').on(columns.sizes_large_filename),
     index('media_sizes_xlarge_sizes_xlarge_filename_idx').on(columns.sizes_xlarge_filename),
     index('media_sizes_og_sizes_og_filename_idx').on(columns.sizes_og_filename),
+  ],
+)
+
+export const notebooks = pgTable(
+  'notebooks',
+  {
+    id: serial('id').primaryKey(),
+    prefix: varchar('prefix').default('webp/notebooks'),
+    updatedAt: timestamp('updated_at', { mode: 'string', withTimezone: true, precision: 3 })
+      .defaultNow()
+      .notNull(),
+    createdAt: timestamp('created_at', { mode: 'string', withTimezone: true, precision: 3 })
+      .defaultNow()
+      .notNull(),
+    url: varchar('url'),
+    thumbnailURL: varchar('thumbnail_u_r_l'),
+    filename: varchar('filename'),
+    mimeType: varchar('mime_type'),
+    filesize: numeric('filesize', { mode: 'number' }),
+    width: numeric('width', { mode: 'number' }),
+    height: numeric('height', { mode: 'number' }),
+    focalX: numeric('focal_x', { mode: 'number' }),
+    focalY: numeric('focal_y', { mode: 'number' }),
+  },
+  (columns) => [
+    index('notebooks_updated_at_idx').on(columns.updatedAt),
+    index('notebooks_created_at_idx').on(columns.createdAt),
+    uniqueIndex('notebooks_filename_idx').on(columns.filename),
   ],
 )
 
@@ -2930,6 +2968,11 @@ export const relations_research = relations(research, ({ one, many }) => ({
     references: [media.id],
     relationName: 'image',
   }),
+  notebook: one(notebooks, {
+    fields: [research.notebook],
+    references: [notebooks.id],
+    relationName: 'notebook',
+  }),
   references: many(research_references, {
     relationName: 'references',
   }),
@@ -2967,6 +3010,11 @@ export const relations__research_v = relations(_research_v, ({ one, many }) => (
     fields: [_research_v.version_image],
     references: [media.id],
     relationName: 'version_image',
+  }),
+  version_notebook: one(notebooks, {
+    fields: [_research_v.version_notebook],
+    references: [notebooks.id],
+    relationName: 'version_notebook',
   }),
   version_references: many(_research_v_version_references, {
     relationName: 'version_references',
@@ -3248,6 +3296,7 @@ export const relations_media = relations(media, ({ one }) => ({
     relationName: 'folder',
   }),
 }))
+export const relations_notebooks = relations(notebooks, () => ({}))
 export const relations_categories_breadcrumbs = relations(categories_breadcrumbs, ({ one }) => ({
   _parentID: one(categories, {
     fields: [categories_breadcrumbs._parentID],
@@ -3881,6 +3930,7 @@ type DatabaseSchema = {
   people_numbers: typeof people_numbers
   tags: typeof tags
   media: typeof media
+  notebooks: typeof notebooks
   categories_breadcrumbs: typeof categories_breadcrumbs
   categories: typeof categories
   users_sessions: typeof users_sessions
@@ -3974,6 +4024,7 @@ type DatabaseSchema = {
   relations_people: typeof relations_people
   relations_tags: typeof relations_tags
   relations_media: typeof relations_media
+  relations_notebooks: typeof relations_notebooks
   relations_categories_breadcrumbs: typeof relations_categories_breadcrumbs
   relations_categories: typeof relations_categories
   relations_users_sessions: typeof relations_users_sessions

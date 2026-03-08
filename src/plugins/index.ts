@@ -11,6 +11,7 @@ import { FixedToolbarFeature, HeadingFeature, lexicalEditor } from '@payloadcms/
 import { searchFields } from '@/search/fieldOverrides'
 import { beforeSyncWithSearch } from '@/search/beforeSync'
 import { hideFromNonAdmins } from '@/access/hideFromNonAdmins'
+import { createS3CollectionConfig, normalizePathSegment } from '@/utilities/uploadStorage'
 
 import { Post } from '@/payload-types'
 import { getServerSideURL } from '@/utilities/getURL'
@@ -46,8 +47,6 @@ const s3Endpoint = process.env.S3_ENDPOINT
 const s3Region =
   process.env.S3_REGION || (s3Endpoint?.includes('r2.cloudflarestorage.com') ? 'auto' : undefined)
 const s3PublicURL = sanitizePublicURL(process.env.S3_PUBLIC_URL)
-const normalizePathSegment = (value: string | null | undefined): string =>
-  (value || '').trim().replace(/^\/+|\/+$/g, '')
 const s3MediaPrefix = normalizePathSegment(process.env.S3_MEDIA_PREFIX)
 const s3CredentialsConfigured = Boolean(
   process.env.S3_BUCKET &&
@@ -60,40 +59,15 @@ const s3ForcePathStyle =
   process.env.S3_FORCE_PATH_STYLE === 'true' ||
   (!process.env.S3_FORCE_PATH_STYLE && Boolean(s3Endpoint?.includes('r2.cloudflarestorage.com')))
 const s3ClientUploads = process.env.S3_CLIENT_UPLOADS === 'true'
-const joinPublicBaseAndPath = (baseURL: string, path: string): string => {
-  const normalizedPath = normalizePathSegment(path)
-  const normalizedBaseURL = baseURL.replace(/\/+$/, '')
-
-  try {
-    const url = new URL(normalizedBaseURL)
-    const basePath = normalizePathSegment(url.pathname)
-    const fullPath =
-      basePath && normalizedPath !== basePath && !normalizedPath.startsWith(`${basePath}/`)
-        ? `${basePath}/${normalizedPath}`
-        : normalizedPath
-
-    url.pathname = `/${fullPath}`
-    return url.toString()
-  } catch {
-    return `${normalizedBaseURL}/${normalizedPath}`
-  }
-}
-const s3GenerateFileURL = s3PublicURL
-  ? ({ filename, prefix }: { filename: string; prefix?: string }) => {
-      const normalizedPrefix = normalizePathSegment(prefix) || s3MediaPrefix
-      const encodedFilename = encodeURIComponent(filename)
-      const pathname = normalizedPrefix ? `${normalizedPrefix}/${encodedFilename}` : encodedFilename
-
-      return joinPublicBaseAndPath(s3PublicURL, pathname)
-    }
-  : undefined
-const mediaS3CollectionConfig =
-  s3GenerateFileURL || s3MediaPrefix
-    ? {
-        ...(s3MediaPrefix ? { prefix: s3MediaPrefix } : {}),
-        ...(s3GenerateFileURL ? { generateFileURL: s3GenerateFileURL } : {}),
-      }
-    : true
+const mediaS3CollectionConfig = createS3CollectionConfig({
+  basePrefix: s3MediaPrefix,
+  publicURL: s3PublicURL,
+})
+const notebookS3CollectionConfig = createS3CollectionConfig({
+  basePrefix: s3MediaPrefix,
+  publicURL: s3PublicURL,
+  subdir: 'notebooks',
+})
 
 export const plugins: Plugin[] = [
   redirectsPlugin({
@@ -181,6 +155,7 @@ export const plugins: Plugin[] = [
           bucket: process.env.S3_BUCKET!,
           collections: {
             media: mediaS3CollectionConfig,
+            notebooks: notebookS3CollectionConfig,
           },
           config: {
             credentials: {
