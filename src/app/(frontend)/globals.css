@@ -280,47 +280,89 @@
     vertical-align: middle;
   }
 
-  .research-notebook-viewer {
+  .labs-notebook-shell {
+    min-width: 0;
+    max-width: 100%;
+    background:
+      radial-gradient(
+        circle at top right,
+        color-mix(in oklab, var(--color-primary) 10%, transparent),
+        transparent 35%
+      ),
+      linear-gradient(
+        180deg,
+        color-mix(in oklab, var(--color-card) 94%, transparent),
+        color-mix(in oklab, var(--color-background) 98%, transparent)
+      );
+  }
+
+  .labs-notebook-cell {
+    position: relative;
+    min-width: 0;
+    max-width: 100%;
+    overflow: hidden;
+    border: 1px solid color-mix(in oklab, var(--color-border) 88%, transparent);
+    border-radius: 1.5rem;
+    padding: 1.25rem;
     background: linear-gradient(
       180deg,
-      color-mix(in oklab, var(--color-card) 92%, transparent),
-      color-mix(in oklab, var(--color-background) 96%, transparent)
+      color-mix(in oklab, var(--color-card) 96%, transparent),
+      color-mix(in oklab, var(--color-background) 100%, transparent)
     );
-    box-shadow: 0 16px 40px -34px rgb(0 0 0 / 30%);
   }
 
-  .research-notebook-viewer [data-color-mode] {
-    color: var(--color-foreground);
+  .labs-notebook-cell--markdown {
+    padding-block: 1.5rem;
   }
 
-  .research-notebook-viewer .jp-Notebook,
-  .research-notebook-viewer .jp-Cell-inputWrapper,
-  .research-notebook-viewer .jp-Cell-outputWrapper,
-  .research-notebook-viewer .jp-RenderedHTMLCommon,
-  .research-notebook-viewer .jp-RenderedMarkdown,
-  .research-notebook-viewer .jp-RenderedText,
-  .research-notebook-viewer .jp-OutputArea-child,
-  .research-notebook-viewer .cm-editor,
-  .research-notebook-viewer .cm-scroller,
-  .research-notebook-viewer .cm-gutters {
-    background: transparent !important;
+  .labs-notebook-markdown {
+    min-width: 0;
+    max-width: 100%;
+    --tw-prose-body: var(--color-foreground);
+    --tw-prose-headings: var(--color-foreground);
+    --tw-prose-links: var(--color-primary);
+    --tw-prose-bold: var(--color-foreground);
+    --tw-prose-counters: var(--color-muted-foreground);
+    --tw-prose-bullets: var(--color-muted-foreground);
+    --tw-prose-hr: var(--color-border);
+    --tw-prose-quotes: var(--color-foreground);
+    --tw-prose-quote-borders: color-mix(in oklab, var(--color-primary) 55%, transparent);
+    --tw-prose-captions: var(--color-muted-foreground);
+    --tw-prose-code: var(--color-primary);
+    --tw-prose-pre-bg: color-mix(in oklab, var(--color-background) 30%, black);
+    --tw-prose-td-borders: var(--color-border);
+    --tw-prose-th-borders: var(--color-border);
   }
 
-  .research-notebook-viewer .jp-InputPrompt,
-  .research-notebook-viewer .jp-OutputPrompt {
-    color: var(--color-muted-foreground) !important;
+  .labs-notebook-markdown :where(h1, h2, h3, h4) {
+    scroll-margin-top: 7rem;
   }
 
-  .research-notebook-viewer .jp-Cell {
-    border-bottom-color: color-mix(in oklab, var(--color-border) 88%, transparent);
+  .labs-notebook-markdown :where(pre) {
+    max-width: 100%;
+    border-radius: 1rem;
   }
 
-  .research-notebook-viewer .jp-RenderedHTMLCommon,
-  .research-notebook-viewer .jp-RenderedMarkdown,
-  .research-notebook-viewer .jp-RenderedText,
-  .research-notebook-viewer .cm-content,
-  .research-notebook-viewer .cm-lineNumbers {
-    color: var(--color-foreground) !important;
+  .labs-notebook-markdown :where(img, figure img) {
+    max-width: 100%;
+    height: auto;
+    border-radius: 1rem;
+    border: 1px solid var(--color-border);
+    box-shadow: 0 20px 40px -32px rgb(0 0 0 / 35%);
+  }
+
+  .labs-notebook-markdown :where(table) {
+    max-width: 100%;
+    display: block;
+    overflow-x: auto;
+  }
+
+  .labs-notebook-markdown :where(td, th) {
+    white-space: nowrap;
+  }
+
+  .labs-notebook-cell :where(pre, code, table, img, svg, canvas, iframe) {
+    max-width: 100%;
   }
 }
 

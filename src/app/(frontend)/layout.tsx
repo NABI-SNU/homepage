@@ -1,6 +1,5 @@
 import type { Metadata } from 'next'
 
-import '@datalayer/jupyter-react/style'
 import { cn } from '@/utilities/ui'
 import { Inter } from 'next/font/google'
 import localFont from 'next/font/local'

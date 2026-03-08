@@ -6,9 +6,14 @@ import { getPayload } from 'payload'
 
 import { resolvePayloadUserFromHeaders } from '@/auth/resolvePayloadUserFromHeaders'
 import { findResearchBySlug } from '@/utilities/getResearchBySlug'
-import { getUploadUrl } from '@/utilities/getUploadUrl'
-import { getServerSideURL } from '@/utilities/getURL'
-import { getUploadDoc, getUploadID, parseNotebookContent } from '@/utilities/notebooks'
+import {
+  fetchNotebookContent,
+  fetchNotebookSource,
+  getCacheControlHeader,
+  getUploadDoc,
+  getUploadID,
+  sanitizeDownloadFilename,
+} from '@/utilities/notebooks'
 
 type RouteContext = {
   params: Promise<{
@@ -16,45 +21,7 @@ type RouteContext = {
   }>
 }
 
-const NOTEBOOK_CACHE_CONTROL = 'public, max-age=300, s-maxage=3600, stale-while-revalidate=86400'
-const NO_STORE_CACHE_CONTROL = 'private, no-store'
-
 const notFoundResponse = () => Response.json({ error: 'Notebook not found' }, { status: 404 })
-
-const buildProxyHeaders = (req: NextRequest): HeadersInit => {
-  const headers: HeadersInit = {
-    accept: 'application/json, text/plain;q=0.9, */*;q=0.8',
-  }
-  const cookie = req.headers.get('cookie')
-  const authorization = req.headers.get('authorization')
-
-  if (cookie) {
-    headers.cookie = cookie
-  }
-
-  if (authorization) {
-    headers.authorization = authorization
-  }
-
-  return headers
-}
-
-const sanitizeFilename = (value: string | null | undefined): string =>
-  (value || 'notebook.ipynb').replace(/[\r\n"]/g, '_')
-
-const getCacheControlHeader = (cacheable: boolean): string =>
-  cacheable ? NOTEBOOK_CACHE_CONTROL : NO_STORE_CACHE_CONTROL
-
-const getNotebookFetchURL = (
-  filename: string | null | undefined,
-  url: string | null | undefined,
-): string => {
-  if (typeof filename === 'string' && filename.trim()) {
-    return `${getServerSideURL()}/api/notebooks/file/${encodeURIComponent(filename.trim())}`
-  }
-
-  return getUploadUrl(url)
-}
 
 export async function GET(req: NextRequest, { params }: RouteContext): Promise<Response> {
   const payload = await getPayload({ config: configPromise })
@@ -100,55 +67,47 @@ export async function GET(req: NextRequest, { params }: RouteContext): Promise<R
         })
       : notebookFromRelationship
 
-  if (!notebook?.url) {
-    return notFoundResponse()
-  }
-
-  const notebookURL = getNotebookFetchURL(notebook.filename, notebook.url)
-  if (!notebookURL) {
+  if (!notebook?.url && !notebook?.filename) {
     return notFoundResponse()
   }
 
   const cacheable = !draft && !user
 
-  try {
-    const notebookResponse = await fetch(notebookURL, {
-      headers: cacheable
-        ? { accept: 'application/json, text/plain;q=0.9, */*;q=0.8' }
-        : buildProxyHeaders(req),
-      ...(cacheable ? { next: { revalidate: 3600 } } : { cache: 'no-store' as const }),
+  if (shouldDownload) {
+    const notebookRaw = await fetchNotebookSource({
+      cacheable,
+      filename: notebook.filename,
+      requestHeaders: req.headers,
+      url: notebook.url,
     })
 
-    if (!notebookResponse.ok) {
+    if (!notebookRaw) {
       return notFoundResponse()
     }
 
-    if (shouldDownload) {
-      const notebookBuffer = await notebookResponse.arrayBuffer()
-
-      return new Response(notebookBuffer, {
-        headers: {
-          'cache-control': getCacheControlHeader(cacheable),
-          'content-disposition': `attachment; filename="${sanitizeFilename(notebook.filename)}"`,
-          'content-type':
-            notebookResponse.headers.get('content-type') || 'application/x-ipynb+json',
-        },
-      })
-    }
-
-    const notebookRaw = await notebookResponse.text()
-    const notebookContent = parseNotebookContent(notebookRaw)
-
-    if (!notebookContent) {
-      return notFoundResponse()
-    }
-
-    return Response.json(notebookContent, {
+    return new Response(notebookRaw, {
       headers: {
         'cache-control': getCacheControlHeader(cacheable),
+        'content-disposition': `attachment; filename="${sanitizeDownloadFilename(notebook.filename)}"`,
+        'content-type': notebook.mimeType || 'application/x-ipynb+json',
       },
     })
-  } catch {
+  }
+
+  const notebookContent = await fetchNotebookContent({
+    cacheable,
+    filename: notebook.filename,
+    requestHeaders: req.headers,
+    url: notebook.url,
+  })
+
+  if (!notebookContent) {
     return notFoundResponse()
   }
+
+  return Response.json(notebookContent, {
+    headers: {
+      'cache-control': getCacheControlHeader(cacheable),
+    },
+  })
 }

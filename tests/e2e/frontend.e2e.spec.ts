@@ -10,6 +10,11 @@ import {
   seedOwnedWikiScenario,
   type SeededWikiScenario,
 } from '../helpers/seedOwnedWikiScenario'
+import {
+  cleanupResearchScenario,
+  seedResearchScenario,
+  type SeededResearchScenario,
+} from '../helpers/seedResearchScenario'
 
 test.describe('Frontend', () => {
   test('can load homepage', async ({ page }) => {
@@ -159,5 +164,54 @@ test.describe('Wiki self-service actions', () => {
     await page.goto(`http://localhost:3000/wiki/${scenario.otherWikiSlug}`)
     await expect(page.getByRole('link', { name: 'Edit this wiki page' })).toHaveCount(0)
     await expect(page.getByRole('link', { name: 'Create wiki page' })).toBeVisible()
+  })
+})
+
+test.describe('Labs experience', () => {
+  test.describe.configure({ timeout: 120_000 })
+
+  let scenario: SeededResearchScenario | null = null
+
+  test.beforeAll(async () => {
+    scenario = await seedResearchScenario()
+  })
+
+  test.afterAll(async () => {
+    if (!scenario) return
+    await cleanupResearchScenario(scenario)
+  })
+
+  test('labs index surfaces notebook library entries', async ({ page }) => {
+    if (!scenario) throw new Error('Scenario was not initialized')
+
+    await page.goto('http://localhost:3000/labs')
+    await expect(page.getByRole('heading', { name: 'Notebooks and notes' })).toBeVisible()
+    await expect(page.getByText(scenario.researchTitle)).toBeVisible()
+    await expect(page.getByText(/Notebook attached/i).first()).toBeVisible()
+  })
+
+  test('lab detail renders reading-first notebook view without legacy external actions', async ({
+    page,
+  }) => {
+    if (!scenario) throw new Error('Scenario was not initialized')
+
+    await page.goto(`http://localhost:3000/labs/${scenario.researchSlug}`, {
+      timeout: 60_000,
+      waitUntil: 'domcontentloaded',
+    })
+
+    await expect(page.getByRole('heading', { name: scenario.researchTitle })).toBeVisible()
+    await expect(page.getByRole('heading', { name: 'Interactive reading view' })).toBeVisible()
+    await expect(page.getByRole('link', { name: /Source:/i })).toHaveAttribute(
+      'href',
+      `/api/labs/${scenario.researchSlug}/notebook?download=1`,
+    )
+    await expect(page.getByText('Demo Notebook')).toBeVisible()
+    await expect(page.getByText('hello from the notebook', { exact: true })).toBeVisible()
+    await expect(page.getByText('Interactive Plotly figure')).toBeVisible()
+    await expect(page.getByTestId('notebook-plotly-figure')).toBeVisible()
+    await expect(page.getByRole('link', { name: 'Download source notebook' })).toBeVisible()
+    await expect(page.getByRole('link', { name: /Open in Colab/i })).toHaveCount(0)
+    await expect(page.getByRole('link', { name: /Open in Kaggle/i })).toHaveCount(0)
   })
 })

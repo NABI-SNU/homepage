@@ -156,19 +156,20 @@ Otherwise notebook objects are stored under `notebooks/`.
 
 ## Notebook Dependency (Labs)
 
-`/labs/[slug]` renders uploaded `.ipynb` files through Datalayer's read-only notebook viewer.
+`/labs/[slug]` renders uploaded `.ipynb` files into a reading-first document view using MyST
+parsing for notebook markdown cells and server-side notebook loading.
 
 Research entries now link notebooks through the `research.notebook` upload field, which points to the
 dedicated `notebooks` collection. The uploaded notebook file is the source of truth; notebook files are
 no longer read from the repository at request time.
 
-Optional research fields:
+Optional research fields retained in the schema:
 
 - `colabURL`
 - `kaggleURL`
 
-These are rendered as external actions when present. A direct notebook download link is always derived from
-the uploaded notebook file.
+These are not surfaced in the current labs UI. A direct notebook download link is always derived from the
+uploaded notebook file.
 
 ## Security and Local API Notes
 
