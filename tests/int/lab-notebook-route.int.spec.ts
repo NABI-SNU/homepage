@@ -47,6 +47,7 @@ describe('lab notebook route', () => {
   it('returns notebook JSON for published research with an uploaded notebook', async () => {
     findResearchBySlug.mockResolvedValue({
       notebook: {
+        filename: 'research-demo.ipynb',
         url: '/notebooks/research-demo.ipynb',
       },
     })
@@ -80,7 +81,7 @@ describe('lab notebook route', () => {
     })
     const fetchCalls = vi.mocked(fetch).mock.calls
     expect(fetchCalls).toHaveLength(1)
-    expect(fetchCalls[0]?.[0]).toMatch(/\/notebooks\/research-demo\.ipynb$/)
+    expect(fetchCalls[0]?.[0]).toMatch(/\/api\/notebooks\/file\/research-demo\.ipynb$/)
     expect(fetchCalls[0]?.[1]).toMatchObject({
       headers: expect.objectContaining({
         accept: expect.stringContaining('application/json'),
@@ -152,7 +153,9 @@ describe('lab notebook route', () => {
       id: 7,
       overrideAccess: true,
     })
-    expect(vi.mocked(fetch).mock.calls[0]?.[0]).toMatch(/\/notebooks\/research-demo\.ipynb$/)
+    expect(vi.mocked(fetch).mock.calls[0]?.[0]).toMatch(
+      /\/api\/notebooks\/file\/research-demo\.ipynb$/,
+    )
   })
 
   it('returns 404 when notebook JSON is invalid', async () => {

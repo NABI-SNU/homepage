@@ -81,13 +81,20 @@ export const publishedResearchNotebook: Access = async ({ data, id, req }) => {
   }
 
   const publishedNotebookIDs = await getPublishedNotebookIDs(req)
+  const rawID = id as unknown
+  const stringID = typeof rawID === 'string' ? rawID.trim() : null
 
-  if (typeof id === 'number') {
-    return publishedNotebookIDs.includes(id)
+  if (typeof rawID === 'number') {
+    return publishedNotebookIDs.includes(rawID)
   }
 
-  if (typeof id === 'string' && /^\d+$/.test(id)) {
-    return publishedNotebookIDs.includes(Number(id))
+  if (stringID && /^\d+$/.test(stringID)) {
+    return publishedNotebookIDs.includes(Number(stringID))
+  }
+
+  if (stringID) {
+    const notebookID = await getNotebookIDForFilename(req, stringID)
+    return notebookID ? publishedNotebookIDs.includes(notebookID) : false
   }
 
   if (data && typeof data === 'object' && 'filename' in data) {

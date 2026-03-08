@@ -7,6 +7,7 @@ import { getPayload } from 'payload'
 import { resolvePayloadUserFromHeaders } from '@/auth/resolvePayloadUserFromHeaders'
 import { findResearchBySlug } from '@/utilities/getResearchBySlug'
 import { getUploadUrl } from '@/utilities/getUploadUrl'
+import { getServerSideURL } from '@/utilities/getURL'
 import { getUploadDoc, getUploadID, parseNotebookContent } from '@/utilities/notebooks'
 
 type RouteContext = {
@@ -43,6 +44,17 @@ const sanitizeFilename = (value: string | null | undefined): string =>
 
 const getCacheControlHeader = (cacheable: boolean): string =>
   cacheable ? NOTEBOOK_CACHE_CONTROL : NO_STORE_CACHE_CONTROL
+
+const getNotebookFetchURL = (
+  filename: string | null | undefined,
+  url: string | null | undefined,
+): string => {
+  if (typeof filename === 'string' && filename.trim()) {
+    return `${getServerSideURL()}/api/notebooks/file/${encodeURIComponent(filename.trim())}`
+  }
+
+  return getUploadUrl(url)
+}
 
 export async function GET(req: NextRequest, { params }: RouteContext): Promise<Response> {
   const payload = await getPayload({ config: configPromise })
@@ -92,7 +104,7 @@ export async function GET(req: NextRequest, { params }: RouteContext): Promise<R
     return notFoundResponse()
   }
 
-  const notebookURL = getUploadUrl(notebook.url)
+  const notebookURL = getNotebookFetchURL(notebook.filename, notebook.url)
   if (!notebookURL) {
     return notFoundResponse()
   }

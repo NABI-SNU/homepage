@@ -2,8 +2,8 @@ import type { Metadata } from 'next'
 
 import '@datalayer/jupyter-react/style'
 import { cn } from '@/utilities/ui'
-import { GeistMono } from 'geist/font/mono'
 import { Inter } from 'next/font/google'
+import localFont from 'next/font/local'
 import Script from 'next/script'
 import React from 'react'
 import { Analytics } from '@vercel/analytics/next'
@@ -23,13 +23,31 @@ const inter = Inter({
   subsets: ['latin'],
   variable: '--font-inter',
 })
+const geistMono = localFont({
+  adjustFontFallback: false,
+  fallback: [
+    'ui-monospace',
+    'SFMono-Regular',
+    'Roboto Mono',
+    'Menlo',
+    'Monaco',
+    'Liberation Mono',
+    'DejaVu Sans Mono',
+    'Courier New',
+    'monospace',
+  ],
+  preload: false,
+  src: '../../../node_modules/geist/dist/fonts/geist-mono/GeistMono-Variable.woff2',
+  variable: '--font-geist-mono',
+  weight: '100 900',
+})
 const googleAnalyticsID = process.env.NEXT_PUBLIC_GA_ID?.trim() || ''
 const enableVercelAnalytics = process.env.NEXT_PUBLIC_ENABLE_VERCEL_ANALYTICS === 'true'
 const enableVercelSpeedInsights = process.env.NEXT_PUBLIC_ENABLE_VERCEL_SPEED_INSIGHTS === 'true'
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html className={cn(inter.variable, GeistMono.variable)} lang="en" suppressHydrationWarning>
+    <html className={cn(inter.variable, geistMono.variable)} lang="en" suppressHydrationWarning>
       <head>
         <InitTheme />
         {googleAnalyticsID ? (
