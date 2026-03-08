@@ -832,7 +832,7 @@ function AccountPageContent() {
               ) : null}
             </div>
 
-            <div className="mt-8 grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
+            <div className="mt-8 grid gap-6">
               <section className="min-w-0 rounded-2xl border border-border bg-card p-5 shadow-sm">
                 <div className="flex items-center justify-between gap-3">
                   <div className="min-w-0">

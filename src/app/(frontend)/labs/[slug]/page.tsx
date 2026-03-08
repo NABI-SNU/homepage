@@ -24,16 +24,17 @@ export default async function ResearchDetailPage({ params }: Args) {
   const entry = await queryResearchBySlug({ slug })
   if (!entry) notFound()
   const notebookID = getUploadID(entry.notebook)
-  const notebook =
-    getUploadDoc(entry.notebook) ||
-    (notebookID
+  const notebookFromRelationship = getUploadDoc(entry.notebook)
+  const notebook = notebookFromRelationship?.filename
+    ? notebookFromRelationship
+    : notebookID
       ? await payload.findByID({
           collection: 'notebooks',
           depth: 0,
           id: notebookID,
           overrideAccess: true,
         })
-      : null)
+      : notebookFromRelationship
 
   return (
     <article className="pb-20 pt-6 md:pt-10">

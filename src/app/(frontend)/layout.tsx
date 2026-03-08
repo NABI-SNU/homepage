@@ -23,23 +23,30 @@ const inter = Inter({
   subsets: ['latin'],
   variable: '--font-inter',
 })
+const googleAnalyticsID = process.env.NEXT_PUBLIC_GA_ID?.trim() || ''
+const enableVercelAnalytics = process.env.NEXT_PUBLIC_ENABLE_VERCEL_ANALYTICS === 'true'
+const enableVercelSpeedInsights = process.env.NEXT_PUBLIC_ENABLE_VERCEL_SPEED_INSIGHTS === 'true'
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html className={cn(inter.variable, GeistMono.variable)} lang="en" suppressHydrationWarning>
       <head>
         <InitTheme />
-        <Script
-          async
-          src="https://www.googletagmanager.com/gtag/js?id=G-L1VV9LYT03"
-          strategy="afterInteractive"
-        />
-        <Script id="google-analytics" strategy="afterInteractive">
-          {`window.dataLayer = window.dataLayer || [];
+        {googleAnalyticsID ? (
+          <>
+            <Script
+              async
+              src={`https://www.googletagmanager.com/gtag/js?id=${googleAnalyticsID}`}
+              strategy="afterInteractive"
+            />
+            <Script id="google-analytics" strategy="afterInteractive">
+              {`window.dataLayer = window.dataLayer || [];
 function gtag(){dataLayer.push(arguments);}
 gtag('js', new Date());
-gtag('config', 'G-L1VV9LYT03');`}
-        </Script>
+gtag('config', '${googleAnalyticsID}');`}
+            </Script>
+          </>
+        ) : null}
         <link href="/favicon.ico" rel="shortcut icon" />
         <link href="/favicon.ico" rel="icon" sizes="32x32" />
         <link href="/favicon.svg" rel="icon" type="image/svg+xml" />
@@ -51,8 +58,8 @@ gtag('config', 'G-L1VV9LYT03');`}
           <Header />
           {children}
           <Footer />
-          <Analytics />
-          <SpeedInsights />
+          {enableVercelAnalytics ? <Analytics /> : null}
+          {enableVercelSpeedInsights ? <SpeedInsights /> : null}
         </Providers>
       </body>
     </html>

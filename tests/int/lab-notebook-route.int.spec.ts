@@ -38,7 +38,9 @@ describe('lab notebook route', () => {
     vi.stubGlobal('fetch', vi.fn())
 
     draftMode.mockResolvedValue({ isEnabled: false })
-    getPayload.mockResolvedValue({})
+    getPayload.mockResolvedValue({
+      findByID: vi.fn(),
+    })
     resolvePayloadUserFromHeaders.mockResolvedValue({ user: null })
   })
 
@@ -70,7 +72,9 @@ describe('lab notebook route', () => {
     expect(findResearchBySlug).toHaveBeenCalledWith({
       depth: 1,
       draft: false,
-      payload: {},
+      payload: expect.objectContaining({
+        findByID: expect.any(Function),
+      }),
       slug: 'demo',
       user: null,
     })
@@ -112,6 +116,43 @@ describe('lab notebook route', () => {
 
     expect(response.status).toBe(404)
     expect(fetch).not.toHaveBeenCalled()
+  })
+
+  it('falls back to a notebook lookup when the populated relation is missing the file url', async () => {
+    const payload = {
+      findByID: vi.fn().mockResolvedValue({
+        filename: 'research-demo.ipynb',
+        url: '/notebooks/research-demo.ipynb',
+      }),
+    }
+
+    getPayload.mockResolvedValue(payload)
+    findResearchBySlug.mockResolvedValue({
+      notebook: {
+        id: 7,
+      },
+    })
+    vi.mocked(fetch).mockResolvedValue(
+      new Response(
+        JSON.stringify({
+          cells: [],
+          nbformat: 4,
+        }),
+      ),
+    )
+
+    const response = await GET(new NextRequest('http://localhost:3000/api/labs/demo/notebook'), {
+      params: Promise.resolve({ slug: 'demo' }),
+    })
+
+    expect(response.status).toBe(200)
+    expect(payload.findByID).toHaveBeenCalledWith({
+      collection: 'notebooks',
+      depth: 0,
+      id: 7,
+      overrideAccess: true,
+    })
+    expect(vi.mocked(fetch).mock.calls[0]?.[0]).toMatch(/\/notebooks\/research-demo\.ipynb$/)
   })
 
   it('returns 404 when notebook JSON is invalid', async () => {
@@ -159,7 +200,9 @@ describe('lab notebook route', () => {
     expect(findResearchBySlug).toHaveBeenCalledWith({
       depth: 1,
       draft: true,
-      payload: {},
+      payload: expect.objectContaining({
+        findByID: expect.any(Function),
+      }),
       slug: 'preview',
       user,
     })

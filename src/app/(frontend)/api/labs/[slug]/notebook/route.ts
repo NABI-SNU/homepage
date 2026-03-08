@@ -76,16 +76,17 @@ export async function GET(req: NextRequest, { params }: RouteContext): Promise<R
   }
 
   const notebookID = getUploadID(research.notebook)
-  const notebook =
-    getUploadDoc(research.notebook) ||
-    (notebookID
+  const notebookFromRelationship = getUploadDoc(research.notebook)
+  const notebook = notebookFromRelationship?.url
+    ? notebookFromRelationship
+    : notebookID
       ? await payload.findByID({
           collection: 'notebooks',
           depth: 0,
           id: notebookID,
           overrideAccess: true,
         })
-      : null)
+      : notebookFromRelationship
 
   if (!notebook?.url) {
     return notFoundResponse()
