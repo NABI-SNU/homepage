@@ -47,6 +47,7 @@ export type AccountCapabilities = {
 export type AccountDashboardData = AccountCapabilities & {
   actions: {
     adminURL?: string
+    notionURL?: string
     postCreateURL?: string
     profileEditURL: string
     profileURL?: string
@@ -65,6 +66,8 @@ type AccountRequestContext = {
 }
 
 const ACCOUNT_CACHE_CONTROL = 'private, no-store, no-cache, max-age=0, must-revalidate'
+const NOTION_HEADQUARTERS_URL =
+  'https://www.notion.so/Headquarters-314d4da6497980c08811f9b4b952006b?source=copy_link'
 
 const buildPrivateResponseHeaders = (responseHeaders?: Headers): Headers => {
   const headers = new Headers(responseHeaders)
@@ -278,6 +281,7 @@ export const getAccountDashboardData = async ({
     ...capabilities,
     actions: {
       ...(permissions.canAccessAdmin ? { adminURL: '/admin' } : {}),
+      notionURL: NOTION_HEADQUARTERS_URL,
       ...(permissions.canCreatePost ? { postCreateURL: '/admin/collections/posts/create' } : {}),
       profileEditURL: '/account/profile',
       ...(linkedPerson?.slug

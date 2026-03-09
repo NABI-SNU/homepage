@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { useSearchParams } from 'next/navigation'
 import { FormEvent, Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import {
+  Building2,
   Github,
   LogOut,
   Pencil,
@@ -71,6 +72,7 @@ const providerIconMap = {
 type ProfileResponse = {
   actions?: {
     adminURL?: string
+    notionURL?: string
     postCreateURL?: string
     profileEditURL?: string
     profileURL?: string
@@ -807,6 +809,28 @@ function AccountPageContent() {
                     </p>
                   </div>
                 </Link>
+              ) : null}
+
+              {dashboard?.actions?.notionURL ? (
+                <a
+                  href={dashboard.actions.notionURL}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="group flex items-start gap-4 rounded-xl border border-border bg-card p-4 transition-all hover:border-primary/30 hover:bg-primary/[0.03] hover:shadow-sm"
+                >
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary transition-colors group-hover:bg-primary/15">
+                    <Building2 className="h-5 w-5" />
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm font-medium text-foreground">Headquarters</span>
+                      <ChevronRight className="h-4 w-4 text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100" />
+                    </div>
+                    <p className="mt-0.5 text-xs leading-relaxed text-muted-foreground">
+                      Open the shared Notion workspace in a new tab
+                    </p>
+                  </div>
+                </a>
               ) : null}
 
               {canAccessAdmin && dashboard?.actions?.adminURL ? (

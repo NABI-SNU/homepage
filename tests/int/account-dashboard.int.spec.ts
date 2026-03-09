@@ -25,6 +25,9 @@ describe('account dashboard data', () => {
       } as never,
     })
 
+    expect(result.actions.notionURL).toBe(
+      'https://www.notion.so/Headquarters-314d4da6497980c08811f9b4b952006b?source=copy_link',
+    )
     expect(result.actions.postCreateURL).toBeUndefined()
     expect(result.actions.wikiCreateURL).toBe('/admin/collections/wiki/create')
     expect(result.recentPosts).toEqual([])
