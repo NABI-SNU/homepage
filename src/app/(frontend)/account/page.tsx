@@ -121,6 +121,8 @@ type AuthStateLookupResponse = {
   reason?: string
 }
 
+type DashboardStatus = 'idle' | 'loading' | 'ready' | 'error'
+
 const isAdminRole = (roles: string | string[] | null | undefined): boolean => {
   if (Array.isArray(roles)) return roles.includes('admin')
   return roles === 'admin'
@@ -151,6 +153,7 @@ function AccountPageContent() {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isOAuthPending, setIsOAuthPending] = useState(false)
   const [dashboard, setDashboard] = useState<ProfileResponse | null>(null)
+  const [dashboardStatus, setDashboardStatus] = useState<DashboardStatus>('idle')
   const [sessionUserOverride, setSessionUserOverride] = useState<{ email?: string | null } | null>(
     null,
   )
@@ -162,6 +165,9 @@ function AccountPageContent() {
   const effectiveSessionUser = session?.user ?? sessionUserOverride
   const isSignedIn = Boolean(effectiveSessionUser)
   const isSessionCheckPending = isPending && !isSignedIn
+  const isDashboardLoading = isSignedIn && dashboardStatus === 'loading'
+  const isDashboardReady = dashboardStatus === 'ready'
+  const hasDashboardError = isSignedIn && dashboardStatus === 'error'
   const isAdmin = isAdminRole(dashboard?.user?.roles)
   const linkedPerson = dashboard?.linkedPerson ?? null
   const permissions = dashboard?.permissions ?? null
@@ -279,6 +285,8 @@ function AccountPageContent() {
   }, [isSignedIn])
 
   const loadDashboard = useCallback(async () => {
+    setDashboardStatus('loading')
+
     try {
       const response = await fetch('/api/account/dashboard', {
         cache: 'no-store',
@@ -287,28 +295,28 @@ function AccountPageContent() {
 
       if (!response.ok) {
         setDashboard(null)
+        setDashboardStatus('error')
         return
       }
 
       const data = (await response.json()) as ProfileResponse
       setDashboard(data)
+      setDashboardStatus('ready')
     } catch {
       setDashboard(null)
+      setDashboardStatus('error')
     }
   }, [])
 
   useEffect(() => {
-    void loadDashboard()
-  }, [loadDashboard])
-
-  useEffect(() => {
-    if (!session?.user) {
+    if (!isSignedIn) {
       setDashboard(null)
+      setDashboardStatus('idle')
       return
     }
 
     void loadDashboard()
-  }, [loadDashboard, session?.user])
+  }, [isSignedIn, loadDashboard])
 
   const lookupAuthStateByEmail = useCallback(
     async (emailAddress: string): Promise<AuthGateReason | null> => {
@@ -429,7 +437,6 @@ function AccountPageContent() {
 
       try {
         await refetch()
-        await loadDashboard()
       } catch {
         // Keep auth success state even if client-side refresh request fails.
       }
@@ -504,6 +511,7 @@ function AccountPageContent() {
         onSuccess: async () => {
           await refetch()
           setDashboard(null)
+          setDashboardStatus('idle')
         },
       },
     })
@@ -717,268 +725,289 @@ function AccountPageContent() {
             {/* Gradient accent */}
             <div className="mt-5 h-0.5 rounded-full bg-gradient-to-r from-primary via-secondary to-accent opacity-60" />
 
-            {!linkedPerson ? (
-              <div className="mt-6 rounded-2xl border border-amber-300/60 bg-amber-50/70 p-4 text-sm text-amber-950 shadow-sm">
-                <p className="font-semibold">
-                  Post publishing is not enabled yet for this account.
-                </p>
-                <p className="mt-1 text-amber-900/90">
-                  You can already create and publish wiki pages. Ask an admin to link your People
-                  profile to unlock post authorship and post creation.
-                </p>
+            {isDashboardLoading ? (
+              <div className="mt-6 rounded-2xl border border-border bg-muted/30 p-4 text-sm text-muted-foreground shadow-sm">
+                Loading your account workspace...
               </div>
             ) : null}
 
-            {/* Action Cards Grid */}
-            <div className="mt-7 grid gap-3 sm:grid-cols-2">
-              {/* Edit Profile */}
-              <Link
-                href={dashboard?.actions?.profileEditURL || '/account/profile'}
-                className="group flex items-start gap-4 rounded-xl border border-border bg-card p-4 transition-all hover:border-primary/30 hover:bg-primary/[0.03] hover:shadow-sm"
-              >
-                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary transition-colors group-hover:bg-primary/15">
-                  <Pencil className="h-5 w-5" />
-                </div>
-                <div className="min-w-0 flex-1">
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm font-medium text-foreground">Edit Profile</span>
-                    <ChevronRight className="h-4 w-4 text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100" />
-                  </div>
-                  <p className="mt-0.5 text-xs leading-relaxed text-muted-foreground">
-                    Update your name, bio, and avatar
-                  </p>
-                </div>
-              </Link>
+            {hasDashboardError ? (
+              <div className="mt-6 rounded-2xl border border-border bg-muted/30 p-4 text-sm text-muted-foreground shadow-sm">
+                We could not load your account workspace. Refresh and try again.
+              </div>
+            ) : null}
 
-              {/* View Public Profile */}
-              {dashboard?.actions?.profileURL && (
-                <Link
-                  href={dashboard.actions.profileURL}
-                  className="group flex items-start gap-4 rounded-xl border border-border bg-card p-4 transition-all hover:border-primary/30 hover:bg-primary/[0.03] hover:shadow-sm"
-                >
-                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary transition-colors group-hover:bg-primary/15">
-                    <ExternalLink className="h-5 w-5" />
+            {isDashboardReady ? (
+              <>
+                {!linkedPerson ? (
+                  <div className="mt-6 rounded-2xl border border-amber-300/60 bg-amber-50/70 p-4 text-sm text-amber-950 shadow-sm">
+                    <p className="font-semibold">
+                      Post publishing is not enabled yet for this account.
+                    </p>
+                    <p className="mt-1 text-amber-900/90">
+                      You can already create and publish wiki pages. Ask an admin to link your
+                      People profile to unlock post authorship and post creation.
+                    </p>
                   </div>
-                  <div className="min-w-0 flex-1">
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm font-medium text-foreground">Public Profile</span>
-                      <ChevronRight className="h-4 w-4 text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100" />
+                ) : null}
+
+                {/* Action Cards Grid */}
+                <div className="mt-7 grid gap-3 sm:grid-cols-2">
+                  {/* Edit Profile */}
+                  <Link
+                    href={dashboard?.actions?.profileEditURL || '/account/profile'}
+                    className="group flex items-start gap-4 rounded-xl border border-border bg-card p-4 transition-all hover:border-primary/30 hover:bg-primary/[0.03] hover:shadow-sm"
+                  >
+                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary transition-colors group-hover:bg-primary/15">
+                      <Pencil className="h-5 w-5" />
                     </div>
-                    <p className="mt-0.5 text-xs leading-relaxed text-muted-foreground">
-                      See your profile as others see it
-                    </p>
-                  </div>
-                </Link>
-              )}
-
-              {canCreatePost && dashboard?.actions?.postCreateURL ? (
-                <Link
-                  href={dashboard.actions.postCreateURL}
-                  className="group flex items-start gap-4 rounded-xl border border-border bg-card p-4 transition-all hover:border-primary/30 hover:bg-primary/[0.03] hover:shadow-sm"
-                >
-                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary transition-colors group-hover:bg-primary/15">
-                    <FileText className="h-5 w-5" />
-                  </div>
-                  <div className="min-w-0 flex-1">
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm font-medium text-foreground">Create Post</span>
-                      <ChevronRight className="h-4 w-4 text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100" />
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm font-medium text-foreground">Edit Profile</span>
+                        <ChevronRight className="h-4 w-4 text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100" />
+                      </div>
+                      <p className="mt-0.5 text-xs leading-relaxed text-muted-foreground">
+                        Update your name, bio, and avatar
+                      </p>
                     </div>
-                    <p className="mt-0.5 text-xs leading-relaxed text-muted-foreground">
-                      Start a new post in the editor with your member profile attached automatically
-                    </p>
-                  </div>
-                </Link>
-              ) : null}
+                  </Link>
 
-              {canCreateWiki && dashboard?.actions?.wikiCreateURL ? (
-                <Link
-                  href={dashboard.actions.wikiCreateURL}
-                  className="group flex items-start gap-4 rounded-xl border border-border bg-card p-4 transition-all hover:border-primary/30 hover:bg-primary/[0.03] hover:shadow-sm"
-                >
-                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary transition-colors group-hover:bg-primary/15">
-                    <FileText className="h-5 w-5" />
-                  </div>
-                  <div className="min-w-0 flex-1">
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm font-medium text-foreground">Create Wiki Page</span>
-                      <ChevronRight className="h-4 w-4 text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100" />
-                    </div>
-                    <p className="mt-0.5 text-xs leading-relaxed text-muted-foreground">
-                      Add a new wiki page to the shared knowledge base
-                    </p>
-                  </div>
-                </Link>
-              ) : null}
+                  {/* View Public Profile */}
+                  {dashboard?.actions?.profileURL && (
+                    <Link
+                      href={dashboard.actions.profileURL}
+                      className="group flex items-start gap-4 rounded-xl border border-border bg-card p-4 transition-all hover:border-primary/30 hover:bg-primary/[0.03] hover:shadow-sm"
+                    >
+                      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary transition-colors group-hover:bg-primary/15">
+                        <ExternalLink className="h-5 w-5" />
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-center justify-between">
+                          <span className="text-sm font-medium text-foreground">
+                            Public Profile
+                          </span>
+                          <ChevronRight className="h-4 w-4 text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100" />
+                        </div>
+                        <p className="mt-0.5 text-xs leading-relaxed text-muted-foreground">
+                          See your profile as others see it
+                        </p>
+                      </div>
+                    </Link>
+                  )}
 
-              {dashboard?.actions?.notionURL ? (
-                <a
-                  href={dashboard.actions.notionURL}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="group flex items-start gap-4 rounded-xl border border-border bg-card p-4 transition-all hover:border-primary/30 hover:bg-primary/[0.03] hover:shadow-sm"
-                >
-                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary transition-colors group-hover:bg-primary/15">
-                    <Building2 className="h-5 w-5" />
-                  </div>
-                  <div className="min-w-0 flex-1">
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm font-medium text-foreground">Headquarters</span>
-                      <ChevronRight className="h-4 w-4 text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100" />
-                    </div>
-                    <p className="mt-0.5 text-xs leading-relaxed text-muted-foreground">
-                      Open the shared Notion workspace in a new tab
-                    </p>
-                  </div>
-                </a>
-              ) : null}
-
-              {canAccessAdmin && dashboard?.actions?.adminURL ? (
-                <Link
-                  href={dashboard.actions.adminURL}
-                  className="group flex items-start gap-4 rounded-xl border border-border bg-card p-4 transition-all hover:border-primary/30 hover:bg-primary/[0.03] hover:shadow-sm"
-                >
-                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary transition-colors group-hover:bg-primary/15">
-                    <Shield className="h-5 w-5" />
-                  </div>
-                  <div className="min-w-0 flex-1">
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm font-medium text-foreground">Open Admin</span>
-                      <ChevronRight className="h-4 w-4 text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100" />
-                    </div>
-                    <p className="mt-0.5 text-xs leading-relaxed text-muted-foreground">
-                      {isAdmin
-                        ? 'Manage site content, global settings, and users'
-                        : 'Open your scoped editing workspace for posts, wiki pages, and profile management'}
-                    </p>
-                  </div>
-                </Link>
-              ) : null}
-            </div>
-
-            <div className="mt-8 grid gap-6">
-              <section className="min-w-0 rounded-2xl border border-border bg-card p-5 shadow-sm">
-                <div className="flex items-center justify-between gap-3">
-                  <div className="min-w-0">
-                    <p className="text-sm font-semibold text-foreground">Recent Posts</p>
-                    <p className="mt-1 text-xs text-muted-foreground">
-                      Your authored posts, including drafts
-                    </p>
-                  </div>
                   {canCreatePost && dashboard?.actions?.postCreateURL ? (
                     <Link
-                      className="shrink-0 text-xs font-medium text-primary hover:underline"
                       href={dashboard.actions.postCreateURL}
+                      className="group flex items-start gap-4 rounded-xl border border-border bg-card p-4 transition-all hover:border-primary/30 hover:bg-primary/[0.03] hover:shadow-sm"
                     >
-                      New post
+                      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary transition-colors group-hover:bg-primary/15">
+                        <FileText className="h-5 w-5" />
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-center justify-between">
+                          <span className="text-sm font-medium text-foreground">Create Post</span>
+                          <ChevronRight className="h-4 w-4 text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100" />
+                        </div>
+                        <p className="mt-0.5 text-xs leading-relaxed text-muted-foreground">
+                          Start a new post in the editor with your member profile attached
+                          automatically
+                        </p>
+                      </div>
                     </Link>
                   ) : null}
-                </div>
-                {recentPosts.length > 0 ? (
-                  <div className="mt-4 grid gap-3">
-                    {recentPosts.map((post) => (
-                      <div
-                        key={post.id}
-                        className="min-w-0 rounded-xl border border-border/80 bg-background/70 p-3"
-                      >
-                        <div className="flex min-w-0 items-start justify-between gap-3">
-                          <div className="min-w-0">
-                            <p className="truncate text-sm font-medium text-foreground">
-                              {post.title}
-                            </p>
-                            <p className="mt-1 text-xs uppercase tracking-[0.18em] text-muted-foreground">
-                              {post.status}
-                            </p>
-                          </div>
-                          <Link
-                            className="text-xs font-medium text-primary hover:underline"
-                            href={post.editURL}
-                          >
-                            Edit
-                          </Link>
-                        </div>
-                        <div className="mt-3 flex items-center gap-3 text-xs text-muted-foreground">
-                          <Link
-                            className="hover:text-foreground hover:underline"
-                            href={post.viewURL}
-                          >
-                            View
-                          </Link>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <p className="mt-4 text-sm text-muted-foreground">
-                    {canCreatePost
-                      ? 'You have not created any posts yet.'
-                      : 'Post creation will appear here after your People profile is linked.'}
-                  </p>
-                )}
-              </section>
 
-              <section className="min-w-0 rounded-2xl border border-border bg-card p-5 shadow-sm">
-                <div className="flex items-center justify-between gap-3">
-                  <div className="min-w-0">
-                    <p className="text-sm font-semibold text-foreground">Recent Wiki Pages</p>
-                    <p className="mt-1 text-xs text-muted-foreground">Wiki pages you own</p>
-                  </div>
                   {canCreateWiki && dashboard?.actions?.wikiCreateURL ? (
                     <Link
-                      className="shrink-0 text-xs font-medium text-primary hover:underline"
                       href={dashboard.actions.wikiCreateURL}
+                      className="group flex items-start gap-4 rounded-xl border border-border bg-card p-4 transition-all hover:border-primary/30 hover:bg-primary/[0.03] hover:shadow-sm"
                     >
-                      New wiki page
+                      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary transition-colors group-hover:bg-primary/15">
+                        <FileText className="h-5 w-5" />
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-center justify-between">
+                          <span className="text-sm font-medium text-foreground">
+                            Create Wiki Page
+                          </span>
+                          <ChevronRight className="h-4 w-4 text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100" />
+                        </div>
+                        <p className="mt-0.5 text-xs leading-relaxed text-muted-foreground">
+                          Add a new wiki page to the shared knowledge base
+                        </p>
+                      </div>
+                    </Link>
+                  ) : null}
+
+                  {dashboard?.actions?.notionURL ? (
+                    <a
+                      href={dashboard.actions.notionURL}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="group flex items-start gap-4 rounded-xl border border-border bg-card p-4 transition-all hover:border-primary/30 hover:bg-primary/[0.03] hover:shadow-sm"
+                    >
+                      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary transition-colors group-hover:bg-primary/15">
+                        <Building2 className="h-5 w-5" />
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-center justify-between">
+                          <span className="text-sm font-medium text-foreground">Headquarters</span>
+                          <ChevronRight className="h-4 w-4 text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100" />
+                        </div>
+                        <p className="mt-0.5 text-xs leading-relaxed text-muted-foreground">
+                          Open the shared Notion workspace in a new tab
+                        </p>
+                      </div>
+                    </a>
+                  ) : null}
+
+                  {canAccessAdmin && dashboard?.actions?.adminURL ? (
+                    <Link
+                      href={dashboard.actions.adminURL}
+                      className="group flex items-start gap-4 rounded-xl border border-border bg-card p-4 transition-all hover:border-primary/30 hover:bg-primary/[0.03] hover:shadow-sm"
+                    >
+                      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary transition-colors group-hover:bg-primary/15">
+                        <Shield className="h-5 w-5" />
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-center justify-between">
+                          <span className="text-sm font-medium text-foreground">Open Admin</span>
+                          <ChevronRight className="h-4 w-4 text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100" />
+                        </div>
+                        <p className="mt-0.5 text-xs leading-relaxed text-muted-foreground">
+                          {isAdmin
+                            ? 'Manage site content, global settings, and users'
+                            : 'Open your scoped editing workspace for posts, wiki pages, and profile management'}
+                        </p>
+                      </div>
                     </Link>
                   ) : null}
                 </div>
-                {recentWiki.length > 0 ? (
-                  <div className="mt-4 grid gap-3">
-                    {recentWiki.map((wiki) => (
-                      <div
-                        key={wiki.id}
-                        className="min-w-0 rounded-xl border border-border/80 bg-background/70 p-3"
-                      >
-                        <div className="flex min-w-0 items-start justify-between gap-3">
-                          <div className="min-w-0">
-                            <p className="truncate text-sm font-medium text-foreground">
-                              {wiki.title}
-                            </p>
-                            <p className="mt-1 text-xs uppercase tracking-[0.18em] text-muted-foreground">
-                              {wiki.status}
-                            </p>
-                          </div>
-                          <Link
-                            className="text-xs font-medium text-primary hover:underline"
-                            href={wiki.editURL}
-                          >
-                            Edit
-                          </Link>
-                        </div>
-                        <div className="mt-3 flex items-center gap-3 text-xs text-muted-foreground">
-                          <Link
-                            className="hover:text-foreground hover:underline"
-                            href={wiki.viewURL}
-                          >
-                            View
-                          </Link>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <p className="mt-4 text-sm text-muted-foreground">
-                    You have not created any wiki pages yet.
-                  </p>
-                )}
-              </section>
-            </div>
 
-            {!isAdmin ? (
-              <p className="mt-4 text-center text-xs text-muted-foreground">
-                Sitewide settings and admin-only collections stay hidden here unless your role
-                changes.
-              </p>
+                <div className="mt-8 grid gap-6">
+                  <section className="min-w-0 rounded-2xl border border-border bg-card p-5 shadow-sm">
+                    <div className="flex items-center justify-between gap-3">
+                      <div className="min-w-0">
+                        <p className="text-sm font-semibold text-foreground">Recent Posts</p>
+                        <p className="mt-1 text-xs text-muted-foreground">
+                          Your authored posts, including drafts
+                        </p>
+                      </div>
+                      {canCreatePost && dashboard?.actions?.postCreateURL ? (
+                        <Link
+                          className="shrink-0 text-xs font-medium text-primary hover:underline"
+                          href={dashboard.actions.postCreateURL}
+                        >
+                          New post
+                        </Link>
+                      ) : null}
+                    </div>
+                    {recentPosts.length > 0 ? (
+                      <div className="mt-4 grid gap-3">
+                        {recentPosts.map((post) => (
+                          <div
+                            key={post.id}
+                            className="min-w-0 rounded-xl border border-border/80 bg-background/70 p-3"
+                          >
+                            <div className="flex min-w-0 items-start justify-between gap-3">
+                              <div className="min-w-0">
+                                <p className="truncate text-sm font-medium text-foreground">
+                                  {post.title}
+                                </p>
+                                <p className="mt-1 text-xs uppercase tracking-[0.18em] text-muted-foreground">
+                                  {post.status}
+                                </p>
+                              </div>
+                              <Link
+                                className="text-xs font-medium text-primary hover:underline"
+                                href={post.editURL}
+                              >
+                                Edit
+                              </Link>
+                            </div>
+                            <div className="mt-3 flex items-center gap-3 text-xs text-muted-foreground">
+                              <Link
+                                className="hover:text-foreground hover:underline"
+                                href={post.viewURL}
+                              >
+                                View
+                              </Link>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <p className="mt-4 text-sm text-muted-foreground">
+                        {canCreatePost
+                          ? 'You have not created any posts yet.'
+                          : 'Post creation will appear here after your People profile is linked.'}
+                      </p>
+                    )}
+                  </section>
+
+                  <section className="min-w-0 rounded-2xl border border-border bg-card p-5 shadow-sm">
+                    <div className="flex items-center justify-between gap-3">
+                      <div className="min-w-0">
+                        <p className="text-sm font-semibold text-foreground">Recent Wiki Pages</p>
+                        <p className="mt-1 text-xs text-muted-foreground">Wiki pages you own</p>
+                      </div>
+                      {canCreateWiki && dashboard?.actions?.wikiCreateURL ? (
+                        <Link
+                          className="shrink-0 text-xs font-medium text-primary hover:underline"
+                          href={dashboard.actions.wikiCreateURL}
+                        >
+                          New wiki page
+                        </Link>
+                      ) : null}
+                    </div>
+                    {recentWiki.length > 0 ? (
+                      <div className="mt-4 grid gap-3">
+                        {recentWiki.map((wiki) => (
+                          <div
+                            key={wiki.id}
+                            className="min-w-0 rounded-xl border border-border/80 bg-background/70 p-3"
+                          >
+                            <div className="flex min-w-0 items-start justify-between gap-3">
+                              <div className="min-w-0">
+                                <p className="truncate text-sm font-medium text-foreground">
+                                  {wiki.title}
+                                </p>
+                                <p className="mt-1 text-xs uppercase tracking-[0.18em] text-muted-foreground">
+                                  {wiki.status}
+                                </p>
+                              </div>
+                              <Link
+                                className="text-xs font-medium text-primary hover:underline"
+                                href={wiki.editURL}
+                              >
+                                Edit
+                              </Link>
+                            </div>
+                            <div className="mt-3 flex items-center gap-3 text-xs text-muted-foreground">
+                              <Link
+                                className="hover:text-foreground hover:underline"
+                                href={wiki.viewURL}
+                              >
+                                View
+                              </Link>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <p className="mt-4 text-sm text-muted-foreground">
+                        You have not created any wiki pages yet.
+                      </p>
+                    )}
+                  </section>
+                </div>
+
+                {!isAdmin ? (
+                  <p className="mt-4 text-center text-xs text-muted-foreground">
+                    Sitewide settings and admin-only collections stay hidden here unless your role
+                    changes.
+                  </p>
+                ) : null}
+              </>
             ) : null}
 
             {/* Sign Out */}
