@@ -128,11 +128,7 @@ function ContributorCard({ contributor }: { contributor: ContributorInfo }) {
   )
 
   if (contributor.slug) {
-    return (
-      <Link href={`/people/${contributor.slug}`}>
-        {content}
-      </Link>
-    )
+    return <Link href={`/people/${contributor.slug}`}>{content}</Link>
   }
 
   return content
@@ -174,7 +170,11 @@ export function WikiIndex({
     const searched = allItems.filter((item) => {
       if (selectedTag && !item.tags.some((tag) => tag.slug === selectedTag)) return false
       if (!normalizedQuery) return true
-      const searchable = [item.title, item.summary || '', item.tags.map((tag) => tag.title).join(' ')]
+      const searchable = [
+        item.title,
+        item.summary || '',
+        item.tags.map((tag) => tag.title).join(' '),
+      ]
         .join(' ')
         .toLowerCase()
       return searchable.includes(normalizedQuery)
@@ -313,7 +313,6 @@ export function WikiIndex({
             </section>
           )}
 
-          {/* Recent Contributors */}
           {contributors.length > 0 && (
             <section className="container section-gap pb-12">
               <div className="mb-6 flex items-center justify-between">

@@ -14,7 +14,12 @@ const normalizeOwnerID = (value: unknown): number | null => {
   return null
 }
 
-export const assignWikiOwner: CollectionBeforeChangeHook = ({ data, operation, originalDoc, req }) => {
+export const assignWikiOwner: CollectionBeforeChangeHook = ({
+  data,
+  operation,
+  originalDoc,
+  req,
+}) => {
   const user = req.user as User | null | undefined
   if (!user?.id) return data
 
@@ -39,4 +44,3 @@ export const assignWikiOwner: CollectionBeforeChangeHook = ({ data, operation, o
 
   return data
 }
-

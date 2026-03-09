@@ -142,7 +142,7 @@ test.describe('Wiki self-service actions', () => {
     await cleanupOwnedWikiScenario(scenario)
   })
 
-  test('signed-in member sees create wiki on index and edit only on owned wiki pages', async ({
+  test('signed-in member sees create wiki on index and edit on all wiki pages', async ({
     page,
   }) => {
     if (!scenario) throw new Error('Scenario was not initialized')
@@ -156,14 +156,24 @@ test.describe('Wiki self-service actions', () => {
 
     await page.goto('http://localhost:3000/wiki')
     await expect(page.getByRole('link', { name: 'Create wiki page' })).toBeVisible()
+    await expect(page.getByText('Top Contributors')).toBeVisible()
 
     await page.goto(`http://localhost:3000/wiki/${scenario.ownerWikiSlug}`)
     await expect(page.getByRole('link', { name: 'Edit this wiki page' })).toBeVisible()
     await expect(page.getByRole('link', { name: 'Create wiki page' })).toBeVisible()
+    await expect(page.getByText(/Last edited by/i)).toHaveCount(0)
 
     await page.goto(`http://localhost:3000/wiki/${scenario.otherWikiSlug}`)
-    await expect(page.getByRole('link', { name: 'Edit this wiki page' })).toHaveCount(0)
+    await expect(page.getByRole('link', { name: 'Edit this wiki page' })).toBeVisible()
     await expect(page.getByRole('link', { name: 'Create wiki page' })).toBeVisible()
+    await expect(page.getByText(/Last edited by/i)).toHaveCount(0)
+  })
+
+  test('anonymous visitors cannot see wiki edit controls', async ({ page }) => {
+    if (!scenario) throw new Error('Scenario was not initialized')
+
+    await page.goto(`http://localhost:3000/wiki/${scenario.ownerWikiSlug}`)
+    await expect(page.getByRole('link', { name: 'Edit this wiki page' })).toHaveCount(0)
   })
 })
 

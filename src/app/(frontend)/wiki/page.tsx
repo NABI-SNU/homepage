@@ -21,7 +21,6 @@ export default async function WikiIndexPage() {
   const [wikiDocs, tags] = await Promise.all([getCachedWikiList()(), getCachedTagLookup()()])
   const tagByID = new Map(tags.map((tag) => [tag.id, tag]))
 
-  // Fetch wiki docs with createdBy populated for contributors
   const payload = await getPayload({ config: configPromise })
   const wikiWithAuthors = await payload.find({
     collection: 'wiki',
@@ -40,19 +39,19 @@ export default async function WikiIndexPage() {
     sort: '-updatedAt',
   })
 
-  // Build contributor map from createdBy
   const contributorMap = new Map<number, ContributorInfo>()
   for (const doc of wikiWithAuthors.docs) {
     const user = doc.createdBy
     if (!user || typeof user !== 'object' || !('id' in user)) continue
+
     const userId = user.id as number
     const existing = contributorMap.get(userId)
     if (existing) {
       existing.wikiCount++
     } else {
-      // Try to find the linked person for this user
       let personSlug: string | null = null
       let avatarUrl: string | null = null
+
       try {
         const personResult = await payload.find({
           collection: 'people',
@@ -72,8 +71,9 @@ export default async function WikiIndexPage() {
           }
         }
       } catch {
-        // ignore
+        // Ignore contributor profile lookup failures and fall back to user data.
       }
+
       contributorMap.set(userId, {
         name: (user as { name?: string }).name || (user as { email?: string }).email || 'Anonymous',
         email: (user as { email?: string }).email || null,

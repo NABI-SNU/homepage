@@ -51,7 +51,7 @@ const memberSteps = [
   {
     title: 'Wiki',
     description:
-      'Create and maintain wiki pages you own. Ownership is assigned automatically when you create a page.',
+      'Create and improve shared wiki pages collaboratively. Every edit updates the shared knowledge base.',
     links: [{ label: 'Create wiki page', href: '/admin/collections/wiki/create' }],
   },
   {

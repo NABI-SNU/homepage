@@ -1,31 +1,32 @@
 import { describe, expect, it } from 'vitest'
 
-import { adminOrWikiOwner } from '@/access/adminOrWikiOwner'
+import { Wiki } from '@/collections/Wiki'
 import { assignWikiOwner } from '@/collections/Wiki/hooks/assignOwner'
 
 describe('wiki auth flow', () => {
-  it('allows admins and scopes non-admin users to their own pages', () => {
-    const anonymousAccess = adminOrWikiOwner({
+  it('allows authenticated members to edit and limits deletion to admins', async () => {
+    const anonymousUpdate = await Wiki.access?.update?.({
       req: { user: null },
     } as never)
-    expect(anonymousAccess).toBe(false)
+    expect(anonymousUpdate).toBe(false)
 
-    const adminAccess = adminOrWikiOwner({
-      req: { user: { id: 1, roles: 'admin' } },
-    } as never)
-    expect(adminAccess).toBe(true)
-
-    const userAccess = adminOrWikiOwner({
+    const memberUpdate = await Wiki.access?.update?.({
       req: { user: { id: 42, roles: 'user' } },
     } as never)
-    expect(userAccess).toEqual({
-      createdBy: {
-        equals: 42,
-      },
-    })
+    expect(memberUpdate).toBe(true)
+
+    const adminDelete = await Wiki.access?.delete?.({
+      req: { user: { id: 1, roles: 'admin' } },
+    } as never)
+    expect(adminDelete).toBe(true)
+
+    const memberDelete = await Wiki.access?.delete?.({
+      req: { user: { id: 42, roles: 'user' } },
+    } as never)
+    expect(memberDelete).toBe(false)
   })
 
-  it('assigns owner on create and prevents owner hijacking on non-admin update', async () => {
+  it('assigns original creator on create and preserves it for non-admin updates', async () => {
     const created = await assignWikiOwner({
       data: {
         title: 'My Note',
@@ -60,4 +61,3 @@ describe('wiki auth flow', () => {
     expect((updatedByUser as { createdBy?: number }).createdBy).toBe(10)
   })
 })
-

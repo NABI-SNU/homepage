@@ -803,7 +803,7 @@ function AccountPageContent() {
                       <ChevronRight className="h-4 w-4 text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100" />
                     </div>
                     <p className="mt-0.5 text-xs leading-relaxed text-muted-foreground">
-                      Add a new wiki page in your own workspace
+                      Add a new wiki page to the shared knowledge base
                     </p>
                   </div>
                 </Link>

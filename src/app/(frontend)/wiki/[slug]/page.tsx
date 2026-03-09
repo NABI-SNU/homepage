@@ -121,15 +121,6 @@ export default async function WikiDetailPage({ params }: Args) {
       .map((doc) => ({ id: doc.slug, title: doc.title })),
   }
 
-  const ownerUserID =
-    typeof entry.createdBy === 'number' || typeof entry.createdBy === 'string'
-      ? Number(entry.createdBy)
-      : entry.createdBy && typeof entry.createdBy === 'object' && 'id' in entry.createdBy
-        ? Number(entry.createdBy.id)
-        : null
-  const normalizedOwnerUserID =
-    typeof ownerUserID === 'number' && Number.isFinite(ownerUserID) ? ownerUserID : null
-
   return (
     <article className="page-shell">
       {draft && <LivePreviewListener />}
@@ -137,11 +128,7 @@ export default async function WikiDetailPage({ params }: Args) {
         <p className="page-eyebrow">Wiki</p>
         <h1 className="page-title-lg">{entry.title}</h1>
         {entry.summary && <p className="page-subtitle">{entry.summary}</p>}
-        <WikiSelfServiceActions
-          className="mt-6"
-          ownerUserID={normalizedOwnerUserID}
-          wikiID={entry.id}
-        />
+        <WikiSelfServiceActions className="mt-6" wikiID={entry.id} />
       </header>
       <TableOfContents />
 
@@ -230,7 +217,6 @@ const queryWikiList = cache(async () => {
     ...(user ? { user } : {}),
     select: {
       aliases: true,
-      createdBy: true,
       id: true,
       outgoingLinks: true,
       slug: true,

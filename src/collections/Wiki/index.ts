@@ -9,7 +9,7 @@ import {
   lexicalEditor,
 } from '@payloadcms/richtext-lexical'
 
-import { adminOrWikiOwner } from '@/access/adminOrWikiOwner'
+import { adminOnly } from '@/access/adminOnly'
 import { authenticated } from '@/access/authenticated'
 import { authenticatedOrPublished } from '@/access/authenticatedOrPublished'
 import { Banner } from '@/blocks/Banner/config'
@@ -29,9 +29,9 @@ export const Wiki: CollectionConfig = {
   slug: 'wiki',
   access: {
     create: authenticated,
-    delete: adminOrWikiOwner,
+    delete: adminOnly,
     read: authenticatedOrPublished,
-    update: adminOrWikiOwner,
+    update: authenticated,
   },
   admin: {
     defaultColumns: ['title', 'slug', 'createdBy', 'updatedAt'],

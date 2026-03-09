@@ -7,23 +7,14 @@ import { cn } from '@/utilities/ui'
 
 type WikiSelfServiceActionsProps = {
   className?: string
-  ownerUserID?: number | null
   wikiID?: number | string | null
 }
 
-export function WikiSelfServiceActions({
-  className,
-  ownerUserID,
-  wikiID,
-}: WikiSelfServiceActionsProps) {
+export function WikiSelfServiceActions({ className, wikiID }: WikiSelfServiceActionsProps) {
   const { capabilities, isResolved } = useAccountCapabilities()
   const canCreateWiki = capabilities?.permissions?.canCreateWiki === true
   const canEditThisWiki =
-    (typeof wikiID === 'number' || typeof wikiID === 'string') &&
-    typeof ownerUserID === 'number' &&
-    Number.isFinite(ownerUserID) &&
-    typeof capabilities?.user?.id === 'number' &&
-    capabilities.user.id === ownerUserID
+    (typeof wikiID === 'number' || typeof wikiID === 'string') && canCreateWiki
 
   if (!isResolved || (!canCreateWiki && !canEditThisWiki)) return null
 

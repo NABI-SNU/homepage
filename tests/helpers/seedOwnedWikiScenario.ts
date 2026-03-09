@@ -26,7 +26,7 @@ const buildMinimalRichText = (): DefaultTypedEditorState => ({
             format: 0,
             mode: 'normal',
             style: '',
-            text: 'Owned wiki content',
+            text: 'Collaborative wiki content',
             version: 1,
           },
         ],
