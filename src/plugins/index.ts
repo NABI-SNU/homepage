@@ -16,6 +16,11 @@ import { createS3CollectionConfig, normalizePathSegment } from '@/utilities/uplo
 import { Post } from '@/payload-types'
 import { getServerSideURL } from '@/utilities/getURL'
 
+// Normalize S3-related environment variables to ensure we never pass empty strings.
+const s3Bucket = process.env.S3_BUCKET || undefined
+const s3AccessKeyId = process.env.S3_ACCESS_KEY_ID || undefined
+const s3SecretAccessKey = process.env.S3_SECRET_ACCESS_KEY || undefined
+
 const generateTitle: GenerateTitle<Post> = ({ doc }) => {
   return doc?.title ? `${doc.title} | Payload Website Template` : 'Payload Website Template'
 }
@@ -55,14 +60,28 @@ const isCloudflareR2Endpoint =
   s3EndpointHostname?.endsWith('.r2.cloudflarestorage.com') === true
 const s3Region = process.env.S3_REGION || (isCloudflareR2Endpoint ? 'auto' : undefined)
 const s3PublicURL = parsePublicHTTPURL(process.env.S3_PUBLIC_URL)?.toString()
-const s3MediaPrefix = normalizePathSegment(process.env.S3_MEDIA_PREFIX)
+const rawS3MediaPrefix = normalizePathSegment(process.env.S3_MEDIA_PREFIX)
+const s3MediaPrefix = rawS3MediaPrefix ?? ''
 const s3CredentialsConfigured = Boolean(
-  process.env.S3_BUCKET &&
-  process.env.S3_ACCESS_KEY_ID &&
-  process.env.S3_SECRET_ACCESS_KEY &&
+  s3Bucket &&
+  s3AccessKeyId &&
+  s3SecretAccessKey &&
   s3Region,
 )
 const s3StorageEnabled = process.env.S3_STORAGE_ENABLED !== 'false' && s3CredentialsConfigured
+
+if (s3StorageEnabled) {
+  if (!s3Bucket) {
+    throw new Error('S3_STORAGE is enabled but S3_BUCKET is not set or is empty')
+  }
+  if (!s3AccessKeyId) {
+    throw new Error('S3_STORAGE is enabled but S3_ACCESS_KEY_ID is not set or is empty')
+  }
+  if (!s3SecretAccessKey) {
+    throw new Error('S3_STORAGE is enabled but S3_SECRET_ACCESS_KEY is not set or is empty')
+  }
+}
+
 const s3ForcePathStyle = process.env.S3_FORCE_PATH_STYLE
   ? process.env.S3_FORCE_PATH_STYLE === 'true'
   : isCloudflareR2Endpoint
@@ -160,17 +179,17 @@ export const plugins: Plugin[] = [
   ...(s3StorageEnabled
     ? [
         s3Storage({
-          bucket: process.env.S3_BUCKET!,
+          bucket: s3Bucket as string,
           collections: {
             media: mediaS3CollectionConfig,
             notebooks: notebookS3CollectionConfig,
           },
           config: {
             credentials: {
-              accessKeyId: process.env.S3_ACCESS_KEY_ID!,
-              secretAccessKey: process.env.S3_SECRET_ACCESS_KEY!,
+              accessKeyId: s3AccessKeyId as string,
+              secretAccessKey: s3SecretAccessKey as string,
             },
-            region: s3Region!,
+            ...(s3Region ? { region: s3Region } : {}),
             ...(s3Endpoint ? { endpoint: s3Endpoint } : {}),
             forcePathStyle: s3ForcePathStyle,
           },
