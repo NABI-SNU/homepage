@@ -1,0 +1,22 @@
+diff --git a/dist/index.js b/dist/index.js
+index 1fad52cf1e958ca56865e3d70b155eed86de2f38..42745ed2a9705e23031fd43ad1ee2a7e2b46bd07 100644
+--- a/dist/index.js
++++ b/dist/index.js
+@@ -1,4 +1,4 @@
+-import { escapeHtml } from "markdown-it/lib/common/utils.js";
++import { escapeHtml } from "markdown-it/lib/common/utils.mjs";
+ const OptionDefaults = {
+     allow_space: true,
+     allow_digits: true,
+diff --git a/src/index.ts b/src/index.ts
+index 47e3d7b30dc442ececa207590a787f7d6c8bb446..dad4cddcddc66a063e1c287912d297a5266e5039 100644
+--- a/src/index.ts
++++ b/src/index.ts
+@@ -1,6 +1,6 @@
+ /* eslint-disable @typescript-eslint/no-explicit-any */
+ import type MarkdownIt from "markdown-it/lib/index.js"
+-import { escapeHtml } from "markdown-it/lib/common/utils.js"
++import { escapeHtml } from "markdown-it/lib/common/utils.mjs"
+ import type Renderer from "markdown-it/lib/renderer.js"
+ import type StateBlock from "markdown-it/lib/rules_block/state_block.js"
+ import type StateInline from "markdown-it/lib/rules_inline/state_inline.js"

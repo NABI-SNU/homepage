@@ -6,6 +6,7 @@ settings:
 
 overrides:
   '@hono/node-server': ^1.19.10
+  markdown-it: ^14.1.1
   dompurify: ^3.3.2
   esbuild: ^0.25.0
   fast-xml-parser: ^5.3.8
@@ -13,6 +14,14 @@ overrides:
   immutable: ^4.3.8
   lodash: ^4.17.23
   payload>ajv: ^8.18.0
+
+patchedDependencies:
+  markdown-it-dollarmath@0.5.0:
+    hash: 89d4d543e38276e67a95015cc7e9f82f1a42e1f98d7e9cbddc478f955fd49649
+    path: patches/markdown-it-dollarmath@0.5.0.patch
+  myst-to-html@1.7.0:
+    hash: 042ed14e8b9cda0955beed587e0888408ac4a62d292bdb1f23a7982846f46b73
+    path: patches/myst-to-html@1.7.0.patch
 
 importers:
   .:
@@ -112,7 +121,7 @@ importers:
         version: 1.7.0
       myst-to-html:
         specifier: ^1.7.0
-        version: 1.7.0
+        version: 1.7.0(patch_hash=042ed14e8b9cda0955beed587e0888408ac4a62d292bdb1f23a7982846f46b73)
       next:
         specifier: 15.5.10
         version: 15.5.10(@babel/core@7.29.0)(@playwright/test@1.58.2)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(sass@1.77.4)
@@ -6013,10 +6022,10 @@ packages:
       }
     engines: { node: '>=10.13.0' }
 
-  entities@3.0.1:
+  entities@4.5.0:
     resolution:
       {
-        integrity: sha512-WiyBqoomrwMdFG1e0kqvASYfnlb0lp8M5o5Fw2OFq1hNZxxcNk8Ik0Xm7LxzBhuidnZB/UtBqVCgUz3kBOP51Q==,
+        integrity: sha512-V0hjH4dGPh9Ao5p0MoRY6BVqtwCjhz6vI5LT8AJ55H+4g9/4vbHx1I54fS0XuclLhDHArPQCiMjDxjaL8fPxhw==,
       }
     engines: { node: '>=0.12' }
 
@@ -7760,10 +7769,10 @@ packages:
         integrity: sha512-7ylylesZQ/PV29jhEDl3Ufjo6ZX7gCqJr5F7PKrqc93v7fzSymt1BpwEU8nAUXs8qzzvqhbjhK5QZg6Mt/HkBg==,
       }
 
-  linkify-it@4.0.1:
+  linkify-it@5.0.0:
     resolution:
       {
-        integrity: sha512-C7bfi1UZmoj8+PQx22XyeXCuBlokoyWQL5pWSP+EI6nzRylyThouddufc2c1NDIcP9k5agmN9fLpA7VNJfIiqw==,
+        integrity: sha512-5aHCbzQRADcdP+ATqnDuhhJ/MRIqDkZX5pyjFHRRysS8vZ5AbqGEoFIb6pYHPZ+L/OC2Lc+xT8uHVVR5CAK/wQ==,
       }
 
   lint-staged@16.3.2:
@@ -7874,7 +7883,7 @@ packages:
       }
     engines: { node: '>=16', npm: '>=6' }
     peerDependencies:
-      markdown-it: ^12 || ^13
+      markdown-it: ^14.1.1
 
   markdown-it-deflist@2.1.0:
     resolution:
@@ -7889,7 +7898,7 @@ packages:
       }
     engines: { node: '>=16', npm: '>=6' }
     peerDependencies:
-      markdown-it: ^12 || ^13
+      markdown-it: ^14.1.1
 
   markdown-it-footnote@4.0.0:
     resolution:
@@ -7910,7 +7919,7 @@ packages:
       }
     engines: { node: '>=16', npm: '>=6' }
     peerDependencies:
-      markdown-it: ^12 || ^13
+      markdown-it: ^14.1.1
 
   markdown-it-myst@1.0.16:
     resolution:
@@ -7919,7 +7928,7 @@ packages:
       }
     peerDependencies:
       '@types/markdown-it': ^13.0.1
-      markdown-it: ^13.0.1
+      markdown-it: ^14.1.1
 
   markdown-it-task-lists@2.1.1:
     resolution:
@@ -7927,10 +7936,10 @@ packages:
         integrity: sha512-TxFAc76Jnhb2OUu+n3yz9RMu4CwGfaT788br6HhEDlvWfdeJcLUsxk1Hgw2yJio0OXsxv7pyIPmvECY7bMbluA==,
       }
 
-  markdown-it@13.0.2:
+  markdown-it@14.1.1:
     resolution:
       {
-        integrity: sha512-FtwnEuuK+2yVU7goGn/MJ0WBZMM9ZPgU9spqlFs7/A/pDIUNSOQZhUgOqYCficIuR2QaFnrt8LHqBWsbTAoI5w==,
+        integrity: sha512-BuU2qnTti9YKgK5N+IeMubp14ZUKUUw7yeJbkjtosvHiP0AZ5c8IAgEMk79D0eC8F23r4Ac/q8cAIFdm2FtyoA==,
       }
     hasBin: true
 
@@ -8028,10 +8037,10 @@ packages:
         integrity: sha512-IEn+pegP1aManZuckezWCO+XZQDplx1366JoVhTpMpBB1sPey/SbveZQUosKiKiGYjg1wH4pMlNgXbCiYgihQA==,
       }
 
-  mdurl@1.0.1:
+  mdurl@2.0.0:
     resolution:
       {
-        integrity: sha512-/sKlQJCBYVY9Ers9hqzKou4H6V5UWc/M59TH2dvkt+84itfnq7uFOMLpOiOS4ujvHP4etln18fmIxA5R5fll0g==,
+        integrity: sha512-Lf+9+2r+Tdp5wXDXC4PcIBjTDtq4UKjCPMQhKIuzpJNW0b96kVqSwW0bT7FhRSfmAiFYgP+SCRvdrDozfh0U5w==,
       }
 
   memoize-one@6.0.0:
@@ -9120,6 +9129,13 @@ packages:
       {
         integrity: sha512-VS7sjc6KR7e1ukRFhQSY5LM2uBWAUPiOPa/A3mkKmiMwSmRFUITt0xuj+/lesgnCv+dPIEYlkzrcyXgquIHMcA==,
       }
+
+  punycode.js@2.3.1:
+    resolution:
+      {
+        integrity: sha512-uxFIHU0YlHYhDQtV4R9J6a52SLx28BCjT+4ieh7IGbgwVJWO+km431c4yRlREUAsAmt/uMjQUyQHNEPf0M39CA==,
+      }
+    engines: { node: '>=6' }
 
   punycode@2.3.1:
     resolution:
@@ -10334,10 +10350,10 @@ packages:
     engines: { node: '>=14.17' }
     hasBin: true
 
-  uc.micro@1.0.6:
+  uc.micro@2.1.0:
     resolution:
       {
-        integrity: sha512-8Y75pvTYkLJW2hWQHXxoqRgV7qb9B+9vFEtidML+7koHUFapnVJAZ6cKs+Qjz5Aw3aZWHMC6u0wJE3At+nSGwA==,
+        integrity: sha512-ARDJmphmdvUk6Glw7y9DQ2bFkKBHwQHLi2lsaH6PPmz/Ka9sFOBsBluozhDltWmnv9u/cF6Rt87znRTPV+yp/A==,
       }
 
   uint8array-extras@1.5.0:
@@ -14858,7 +14874,7 @@ snapshots:
       graceful-fs: 4.2.11
       tapable: 2.3.0
 
-  entities@3.0.1: {}
+  entities@4.5.0: {}
 
   entities@6.0.1: {}
 
@@ -16041,9 +16057,9 @@ snapshots:
 
   lines-and-columns@1.2.4: {}
 
-  linkify-it@4.0.1:
+  linkify-it@5.0.0:
     dependencies:
-      uc.micro: 1.0.6
+      uc.micro: 2.1.0
 
   lint-staged@16.3.2:
     dependencies:
@@ -16105,40 +16121,41 @@ snapshots:
     dependencies:
       '@jridgewell/sourcemap-codec': 1.5.5
 
-  markdown-it-amsmath@0.4.0(markdown-it@13.0.2):
+  markdown-it-amsmath@0.4.0(markdown-it@14.1.1):
     dependencies:
-      markdown-it: 13.0.2
+      markdown-it: 14.1.1
 
   markdown-it-deflist@2.1.0: {}
 
-  markdown-it-dollarmath@0.5.0(markdown-it@13.0.2):
+  markdown-it-dollarmath@0.5.0(patch_hash=89d4d543e38276e67a95015cc7e9f82f1a42e1f98d7e9cbddc478f955fd49649)(markdown-it@14.1.1):
     dependencies:
-      markdown-it: 13.0.2
+      markdown-it: 14.1.1
 
   markdown-it-footnote@4.0.0: {}
 
   markdown-it-front-matter@0.2.4: {}
 
-  markdown-it-myst-extras@0.3.0(markdown-it@13.0.2):
+  markdown-it-myst-extras@0.3.0(markdown-it@14.1.1):
     dependencies:
-      markdown-it: 13.0.2
+      markdown-it: 14.1.1
 
-  markdown-it-myst@1.0.16(@types/markdown-it@13.0.9)(markdown-it@13.0.2):
+  markdown-it-myst@1.0.16(@types/markdown-it@13.0.9)(markdown-it@14.1.1):
     dependencies:
       '@types/markdown-it': 13.0.9
       js-yaml: 4.1.1
-      markdown-it: 13.0.2
+      markdown-it: 14.1.1
       vfile: 5.3.7
 
   markdown-it-task-lists@2.1.1: {}
 
-  markdown-it@13.0.2:
+  markdown-it@14.1.1:
     dependencies:
       argparse: 2.0.1
-      entities: 3.0.1
-      linkify-it: 4.0.1
-      mdurl: 1.0.1
-      uc.micro: 1.0.6
+      entities: 4.5.0
+      linkify-it: 5.0.0
+      mdurl: 2.0.0
+      punycode.js: 2.3.1
+      uc.micro: 2.1.0
 
   marked@14.0.0: {}
 
@@ -16242,7 +16259,7 @@ snapshots:
 
   mdn-data@2.12.2: {}
 
-  mdurl@1.0.1: {}
+  mdurl@2.0.0: {}
 
   memoize-one@6.0.0: {}
 
@@ -16523,14 +16540,14 @@ snapshots:
     dependencies:
       '@types/markdown-it': 13.0.9
       he: 1.2.0
-      markdown-it: 13.0.2
-      markdown-it-amsmath: 0.4.0(markdown-it@13.0.2)
+      markdown-it: 14.1.1
+      markdown-it-amsmath: 0.4.0(markdown-it@14.1.1)
       markdown-it-deflist: 2.1.0
-      markdown-it-dollarmath: 0.5.0(markdown-it@13.0.2)
+      markdown-it-dollarmath: 0.5.0(patch_hash=89d4d543e38276e67a95015cc7e9f82f1a42e1f98d7e9cbddc478f955fd49649)(markdown-it@14.1.1)
       markdown-it-footnote: 4.0.0
       markdown-it-front-matter: 0.2.4
-      markdown-it-myst: 1.0.16(@types/markdown-it@13.0.9)(markdown-it@13.0.2)
-      markdown-it-myst-extras: 0.3.0(markdown-it@13.0.2)
+      markdown-it-myst: 1.0.16(@types/markdown-it@13.0.9)(markdown-it@14.1.1)
+      markdown-it-myst-extras: 0.3.0(markdown-it@14.1.1)
       markdown-it-task-lists: 2.1.1
       myst-common: 1.9.5
       myst-directives: 1.7.0
@@ -16554,13 +16571,13 @@ snapshots:
 
   myst-spec@0.0.5: {}
 
-  myst-to-html@1.7.0:
+  myst-to-html@1.7.0(patch_hash=042ed14e8b9cda0955beed587e0888408ac4a62d292bdb1f23a7982846f46b73):
     dependencies:
       '@types/markdown-it': 13.0.9
       classnames: 2.5.1
       hast: 1.0.0
       hast-util-to-mdast: 8.4.1
-      markdown-it: 13.0.2
+      markdown-it: 14.1.1
       mdast: 3.0.0
       mdast-util-find-and-replace: 2.2.2
       mdast-util-to-hast: 12.3.0
@@ -17066,6 +17083,8 @@ snapshots:
     dependencies:
       end-of-stream: 1.4.5
       once: 1.4.0
+
+  punycode.js@2.3.1: {}
 
   punycode@2.3.1: {}
 
@@ -17883,7 +17902,7 @@ snapshots:
 
   typescript@5.7.3: {}
 
-  uc.micro@1.0.6: {}
+  uc.micro@2.1.0: {}
 
   uint8array-extras@1.5.0: {}
 

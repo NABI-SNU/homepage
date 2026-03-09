@@ -1,0 +1,20 @@
+diff --git a/dist/utils.js b/dist/utils.js
+index faf03cd89cd6a8767f044cabae050b09ab12691f..9bcbc79023d7f8efb33c107e2a65af8e878bb814 100644
+--- a/dist/utils.js
++++ b/dist/utils.js
+@@ -1,4 +1,4 @@
+-import { escapeHtml } from 'markdown-it/lib/common/utils.js';
++import { escapeHtml } from 'markdown-it/lib/common/utils.mjs';
+ const HTML_EMPTY_ELEMENTS = new Set([
+     'area',
+     'base',
+diff --git a/src/utils.ts b/src/utils.ts
+index 1e7bf10241ba242f08964fc8553f88e8e9b85239..c44215992c90edfab48508ccaef6fc0b8b566bc5 100644
+--- a/src/utils.ts
++++ b/src/utils.ts
+@@ -1,4 +1,4 @@
+-import { escapeHtml } from 'markdown-it/lib/common/utils.js';
++import { escapeHtml } from 'markdown-it/lib/common/utils.mjs';
+ 
+ const HTML_EMPTY_ELEMENTS = new Set([
+   'area',
