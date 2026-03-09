@@ -66,13 +66,15 @@ export default async function PersonPage({ params }: Args) {
     <main className="pb-20 pt-12">
       <section className="container">
         <div className="mx-auto max-w-4xl">
-          <div className="flex items-start justify-between gap-6">
+          <div className="flex flex-col gap-6 sm:flex-row sm:items-start sm:justify-between">
             <div className="min-w-0 flex-1">
-              <h1 className="text-5xl font-semibold">{person.name}</h1>
+              <h1 className="text-4xl font-semibold sm:text-5xl">{person.name}</h1>
               <div className="mt-6 h-1 w-24 rounded-full bg-linear-to-r from-primary to-accent" />
 
               <div className="mt-6">
-                <p className="text-sm uppercase tracking-[0.18em] text-primary">Research Interests</p>
+                <p className="text-sm uppercase tracking-[0.18em] text-primary">
+                  Research Interests
+                </p>
                 {researchTopics.length > 0 ? (
                   <div className="mt-3 flex flex-wrap gap-2">
                     {researchTopics.map((topic) => {
@@ -101,14 +103,16 @@ export default async function PersonPage({ params }: Args) {
                     })}
                   </div>
                 ) : (
-                  <p className="mt-2 text-sm text-muted-foreground">No research interests listed yet.</p>
+                  <p className="mt-2 text-sm text-muted-foreground">
+                    No research interests listed yet.
+                  </p>
                 )}
               </div>
             </div>
 
             <PersonAvatar
               avatar={person.avatar}
-              className="shrink-0 shadow-lg shadow-black/20"
+              className="shrink-0 self-start shadow-lg shadow-black/20"
               email={person.email}
               name={person.name}
               size={132}
@@ -129,7 +133,11 @@ export default async function PersonPage({ params }: Args) {
                   </a>
                 )}
                 {person.socials && person.socials.length > 0 && (
-                  <PersonSocialLinks className="inline-flex gap-3" iconOnly={false} socials={person.socials} />
+                  <PersonSocialLinks
+                    className="inline-flex gap-3"
+                    iconOnly={false}
+                    socials={person.socials}
+                  />
                 )}
               </div>
             </div>
@@ -174,7 +182,9 @@ export default async function PersonPage({ params }: Args) {
                 />
               </div>
             ) : (
-              <p className="mt-3 text-sm text-muted-foreground">This person has not yet filled out their bio.</p>
+              <p className="mt-3 text-sm text-muted-foreground">
+                This person has not yet filled out their bio.
+              </p>
             )}
           </div>
         </div>
@@ -189,7 +199,9 @@ export default async function PersonPage({ params }: Args) {
                 <Card className="h-full" doc={post} relationTo="posts" />
               </div>
             ))}
-            {authoredPosts.docs.length === 0 && <p className="text-sm text-muted-foreground">No posts yet.</p>}
+            {authoredPosts.docs.length === 0 && (
+              <p className="text-sm text-muted-foreground">No posts yet.</p>
+            )}
           </div>
         </div>
       </section>
