@@ -26,7 +26,7 @@ const generateURL: GenerateURL<Post> = ({ doc }) => {
   return doc?.slug ? `${url}/${doc.slug}` : url
 }
 
-const sanitizePublicURL = (value: string | null | undefined): string | undefined => {
+const parsePublicHTTPURL = (value: string | null | undefined): URL | undefined => {
   const trimmedValue = value?.trim()
   if (!trimmedValue) return undefined
 
@@ -37,16 +37,24 @@ const sanitizePublicURL = (value: string | null | undefined): string | undefined
     }
 
     url.hash = ''
-    return url.toString()
+    return url
   } catch {
     return undefined
   }
 }
 
+const getURLHostname = (value: string | null | undefined): string | undefined => {
+  const url = parsePublicHTTPURL(value)
+  return url?.hostname.toLowerCase()
+}
+
 const s3Endpoint = process.env.S3_ENDPOINT
-const s3Region =
-  process.env.S3_REGION || (s3Endpoint?.includes('r2.cloudflarestorage.com') ? 'auto' : undefined)
-const s3PublicURL = sanitizePublicURL(process.env.S3_PUBLIC_URL)
+const s3EndpointHostname = getURLHostname(s3Endpoint)
+const isCloudflareR2Endpoint =
+  s3EndpointHostname === 'r2.cloudflarestorage.com' ||
+  s3EndpointHostname?.endsWith('.r2.cloudflarestorage.com') === true
+const s3Region = process.env.S3_REGION || (isCloudflareR2Endpoint ? 'auto' : undefined)
+const s3PublicURL = parsePublicHTTPURL(process.env.S3_PUBLIC_URL)?.toString()
 const s3MediaPrefix = normalizePathSegment(process.env.S3_MEDIA_PREFIX)
 const s3CredentialsConfigured = Boolean(
   process.env.S3_BUCKET &&
@@ -55,9 +63,9 @@ const s3CredentialsConfigured = Boolean(
   s3Region,
 )
 const s3StorageEnabled = process.env.S3_STORAGE_ENABLED !== 'false' && s3CredentialsConfigured
-const s3ForcePathStyle =
-  process.env.S3_FORCE_PATH_STYLE === 'true' ||
-  (!process.env.S3_FORCE_PATH_STYLE && Boolean(s3Endpoint?.includes('r2.cloudflarestorage.com')))
+const s3ForcePathStyle = process.env.S3_FORCE_PATH_STYLE
+  ? process.env.S3_FORCE_PATH_STYLE === 'true'
+  : isCloudflareR2Endpoint
 const s3ClientUploads = process.env.S3_CLIENT_UPLOADS === 'true'
 const mediaS3CollectionConfig = createS3CollectionConfig({
   basePrefix: s3MediaPrefix,
