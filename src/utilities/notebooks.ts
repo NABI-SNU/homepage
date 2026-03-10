@@ -152,11 +152,17 @@ export const getNotebookFetchURL = (
   filename: string | null | undefined,
   url: string | null | undefined,
 ): string => {
+  const uploadURL = getUploadUrl(url)
+
+  if (uploadURL) {
+    return uploadURL
+  }
+
   if (typeof filename === 'string' && filename.trim()) {
     return `${getServerSideURL()}/api/notebooks/file/${encodeURIComponent(filename.trim())}`
   }
 
-  return getUploadUrl(url)
+  return ''
 }
 
 export const fetchNotebookSource = async ({

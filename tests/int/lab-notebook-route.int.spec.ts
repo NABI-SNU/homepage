@@ -81,7 +81,8 @@ describe('lab notebook route', () => {
     })
     const fetchCalls = vi.mocked(fetch).mock.calls
     expect(fetchCalls).toHaveLength(1)
-    expect(fetchCalls[0]?.[0]).toMatch(/\/api\/notebooks\/file\/research-demo\.ipynb$/)
+    expect(fetchCalls[0]?.[0]).toMatch(/\/notebooks\/research-demo\.ipynb$/)
+    expect(fetchCalls[0]?.[0]).not.toMatch(/\/api\/notebooks\/file\//)
     expect(fetchCalls[0]?.[1]).toMatchObject({
       headers: expect.objectContaining({
         accept: expect.stringContaining('application/json'),
@@ -123,7 +124,7 @@ describe('lab notebook route', () => {
     const payload = {
       findByID: vi.fn().mockResolvedValue({
         filename: 'research-demo.ipynb',
-        url: '/notebooks/research-demo.ipynb',
+        url: null,
       }),
     }
 
@@ -155,6 +156,32 @@ describe('lab notebook route', () => {
     })
     expect(vi.mocked(fetch).mock.calls[0]?.[0]).toMatch(
       /\/api\/notebooks\/file\/research-demo\.ipynb$/,
+    )
+  })
+
+  it('prefers the stored notebook url over the legacy filename route', async () => {
+    findResearchBySlug.mockResolvedValue({
+      notebook: {
+        filename: 'research-demo.ipynb',
+        url: 'https://cdn.example.com/media-root/notebooks/research-demo.ipynb',
+      },
+    })
+    vi.mocked(fetch).mockResolvedValue(
+      new Response(
+        JSON.stringify({
+          cells: [],
+          nbformat: 4,
+        }),
+      ),
+    )
+
+    const response = await GET(new NextRequest('http://localhost:3000/api/labs/demo/notebook'), {
+      params: Promise.resolve({ slug: 'demo' }),
+    })
+
+    expect(response.status).toBe(200)
+    expect(vi.mocked(fetch).mock.calls[0]?.[0]).toBe(
+      'https://cdn.example.com/media-root/notebooks/research-demo.ipynb',
     )
   })
 
