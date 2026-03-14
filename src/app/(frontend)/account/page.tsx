@@ -26,7 +26,9 @@ import {
 } from '@/auth/authGateReason'
 import { authClient } from '@/auth/betterAuthClient'
 import { PersonAvatar } from '@/components/people/PersonAvatar'
+import { PersonRoleBadge } from '@/components/people/PersonRoleBadge'
 import type { Person } from '@/payload-types'
+import { getLatestPersonRoleAssignment } from '@/utilities/personRoles'
 
 const providerOptions = [
   { label: 'Continue with GitHub', provider: 'github' },
@@ -83,6 +85,7 @@ type ProfileResponse = {
     avatar?: Person['avatar']
     id: number
     name?: string | null
+    roleAssignments?: Person['roleAssignments']
     slug?: string | null
   } | null
   permissions?: {
@@ -172,6 +175,7 @@ function AccountPageContent() {
   const hasDashboardError = isSignedIn && dashboardStatus === 'error'
   const isAdmin = isAdminRole(dashboard?.user?.roles)
   const linkedPerson = dashboard?.linkedPerson ?? null
+  const latestLinkedPersonRole = getLatestPersonRoleAssignment(linkedPerson?.roleAssignments)
   const permissions = dashboard?.permissions ?? null
   const recentPosts = dashboard?.recentPosts ?? []
   const recentWiki = dashboard?.recentWiki ?? []
@@ -697,6 +701,10 @@ function AccountPageContent() {
                   <h2 className="truncate text-2xl font-semibold tracking-tight">
                     {linkedPerson?.name || dashboard?.user?.name || session?.user?.name || 'User'}
                   </h2>
+                  <PersonRoleBadge
+                    role={latestLinkedPersonRole?.role}
+                    year={latestLinkedPersonRole?.year}
+                  />
                   <span
                     className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-medium ${
                       isAdmin ? 'bg-primary/10 text-primary' : 'bg-muted text-muted-foreground'

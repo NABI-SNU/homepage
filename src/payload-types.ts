@@ -429,6 +429,16 @@ export interface Person {
    * Years in which this person has participated in the group.
    */
   years: number[];
+  /**
+   * Optional leadership roles by year, used for public role badges.
+   */
+  roleAssignments?:
+    | {
+        year: number;
+        role: 'executive' | 'president';
+        id?: string | null;
+      }[]
+    | null;
   socials?:
     | {
         platform: 'x' | 'github' | 'linkedin' | 'orcid' | 'website';
@@ -1469,6 +1479,13 @@ export interface PeopleSelect<T extends boolean = true> {
   research?: T;
   isAuthor?: T;
   years?: T;
+  roleAssignments?:
+    | T
+    | {
+        year?: T;
+        role?: T;
+        id?: T;
+      };
   socials?:
     | T
     | {

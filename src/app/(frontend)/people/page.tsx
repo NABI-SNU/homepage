@@ -22,6 +22,7 @@ export default async function PeoplePage() {
       slug: true,
       email: true,
       research: true,
+      roleAssignments: true,
       socials: true,
       years: true,
       avatar: true,

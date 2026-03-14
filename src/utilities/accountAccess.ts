@@ -12,6 +12,7 @@ type LinkedPersonSummary = {
   avatar?: Person['avatar']
   id: number
   name?: string | null
+  roleAssignments?: Person['roleAssignments']
   slug?: string | null
 }
 
@@ -86,6 +87,7 @@ const toLinkedPersonSummary = (
     avatar: person.avatar,
     id: person.id,
     name: person.name || null,
+    roleAssignments: person.roleAssignments || null,
     slug: person.slug || null,
   }
 }
@@ -107,6 +109,7 @@ const getLinkedPerson = async ({
       avatar: true,
       id: true,
       name: true,
+      roleAssignments: true,
       slug: true,
     },
     user,

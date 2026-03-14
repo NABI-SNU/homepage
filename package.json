@@ -20,6 +20,7 @@
     "db:check:activity-indexes": "cross-env NODE_OPTIONS=\"--no-deprecation --import=tsx/esm\" tsx scripts/check-activity-indexes.ts",
     "migrate": "cross-env NODE_OPTIONS=--no-deprecation payload migrate",
     "migrate:create": "cross-env NODE_OPTIONS=--no-deprecation payload migrate:create",
+    "migrate:repair": "cross-env NODE_OPTIONS=\"--no-deprecation --import=tsx/esm\" tsx scripts/repair-migration-state.ts",
     "migrate:status": "cross-env NODE_OPTIONS=--no-deprecation payload migrate:status",
     "payload": "cross-env NODE_OPTIONS=--no-deprecation payload",
     "prepare": "husky",

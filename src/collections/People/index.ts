@@ -5,6 +5,7 @@ import { revalidatePerson, revalidatePersonDelete } from './hooks/revalidatePeop
 import { syncResearchTagsFromPerson } from './hooks/syncResearchTags'
 import { slugField } from 'payload'
 import { parseResearchTags } from '@/utilities/researchTags'
+import { normalizePersonRoleAssignments } from '@/utilities/personRoles'
 import { hasAdminRole } from '@/access/hasAdminRole'
 import { isAdminRequest } from '@/access/adminOnly'
 
@@ -61,7 +62,7 @@ export const People: CollectionConfig<'people'> = {
   },
   admin: {
     useAsTitle: 'name',
-    defaultColumns: ['name', 'memberType', 'years', 'isAuthor', 'updatedAt'],
+    defaultColumns: ['name', 'roleAssignments', 'memberType', 'years', 'isAuthor', 'updatedAt'],
   },
   fields: [
     {
@@ -155,6 +156,41 @@ export const People: CollectionConfig<'people'> = {
       },
     },
     {
+      name: 'roleAssignments',
+      type: 'array',
+      access: {
+        update: ({ req }) => isAdminRequest(req),
+      },
+      admin: {
+        description: 'Optional leadership roles by year, used for public role badges.',
+        initCollapsed: true,
+      },
+      fields: [
+        {
+          name: 'year',
+          type: 'number',
+          required: true,
+          min: 1900,
+          max: 2100,
+        },
+        {
+          name: 'role',
+          type: 'select',
+          required: true,
+          options: [
+            {
+              label: 'Executive',
+              value: 'executive',
+            },
+            {
+              label: 'President',
+              value: 'president',
+            },
+          ],
+        },
+      ],
+    },
+    {
       name: 'socials',
       type: 'array',
       fields: [
@@ -199,9 +235,13 @@ export const People: CollectionConfig<'people'> = {
 
         const rawYears = (data as { years?: number[] | number | null }).years
         const yearValues = Array.isArray(rawYears) ? rawYears : rawYears != null ? [rawYears] : []
+        const normalizedRoleAssignments = normalizePersonRoleAssignments(
+          (data as { roleAssignments?: unknown }).roleAssignments,
+        )
+        const roleYears = (normalizedRoleAssignments || []).map((assignment) => assignment.year)
         const normalizedYears = Array.from(
           new Set(
-            yearValues
+            [...yearValues, ...roleYears]
               .map((value): number => (typeof value === 'number' ? value : Number(value)))
               .filter(
                 (value): value is number =>
@@ -213,6 +253,7 @@ export const People: CollectionConfig<'people'> = {
         return {
           ...data,
           research: normalizedResearch.length > 0 ? normalizedResearch : null,
+          roleAssignments: normalizedRoleAssignments,
           years: normalizedYears.length > 0 ? normalizedYears : null,
         }
       },

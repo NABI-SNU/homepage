@@ -62,6 +62,10 @@ export const enum__activities_v_version_status = pgEnum('enum__activities_v_vers
   'draft',
   'published',
 ])
+export const enum_people_role_assignments_role = pgEnum('enum_people_role_assignments_role', [
+  'executive',
+  'president',
+])
 export const enum_people_socials_platform = pgEnum('enum_people_socials_platform', [
   'x',
   'github',
@@ -1380,6 +1384,26 @@ export const _activities_v_rels = pgTable(
       columns: [columns['researchID']],
       foreignColumns: [research.id],
       name: '_activities_v_rels_research_fk',
+    }).onDelete('cascade'),
+  ],
+)
+
+export const people_role_assignments = pgTable(
+  'people_role_assignments',
+  {
+    _order: integer('_order').notNull(),
+    _parentID: integer('_parent_id').notNull(),
+    id: varchar('id').primaryKey(),
+    year: numeric('year', { mode: 'number' }).notNull(),
+    role: enum_people_role_assignments_role('role').notNull(),
+  },
+  (columns) => [
+    index('people_role_assignments_order_idx').on(columns._order),
+    index('people_role_assignments_parent_id_idx').on(columns._parentID),
+    foreignKey({
+      columns: [columns['_parentID']],
+      foreignColumns: [people.id],
+      name: 'people_role_assignments_parent_id_fk',
     }).onDelete('cascade'),
   ],
 )
@@ -3533,6 +3557,13 @@ export const relations__activities_v = relations(_activities_v, ({ one, many }) 
     relationName: '_rels',
   }),
 }))
+export const relations_people_role_assignments = relations(people_role_assignments, ({ one }) => ({
+  _parentID: one(people, {
+    fields: [people_role_assignments._parentID],
+    references: [people.id],
+    relationName: 'roleAssignments',
+  }),
+}))
 export const relations_people_socials = relations(people_socials, ({ one }) => ({
   _parentID: one(people, {
     fields: [people_socials._parentID],
@@ -3559,6 +3590,9 @@ export const relations_people = relations(people, ({ one, many }) => ({
     fields: [people.user],
     references: [users.id],
     relationName: 'user',
+  }),
+  roleAssignments: many(people_role_assignments, {
+    relationName: 'roleAssignments',
   }),
   socials: many(people_socials, {
     relationName: 'socials',
@@ -4178,6 +4212,7 @@ type DatabaseSchema = {
   enum_activities_status: typeof enum_activities_status
   enum__activities_v_version_activity_type: typeof enum__activities_v_version_activity_type
   enum__activities_v_version_status: typeof enum__activities_v_version_status
+  enum_people_role_assignments_role: typeof enum_people_role_assignments_role
   enum_people_socials_platform: typeof enum_people_socials_platform
   enum_people_member_type: typeof enum_people_member_type
   enum_users_roles: typeof enum_users_roles
@@ -4234,6 +4269,7 @@ type DatabaseSchema = {
   _activities_v_version_references: typeof _activities_v_version_references
   _activities_v: typeof _activities_v
   _activities_v_rels: typeof _activities_v_rels
+  people_role_assignments: typeof people_role_assignments
   people_socials: typeof people_socials
   people: typeof people
   people_texts: typeof people_texts
@@ -4334,6 +4370,7 @@ type DatabaseSchema = {
   relations__activities_v_version_references: typeof relations__activities_v_version_references
   relations__activities_v_rels: typeof relations__activities_v_rels
   relations__activities_v: typeof relations__activities_v
+  relations_people_role_assignments: typeof relations_people_role_assignments
   relations_people_socials: typeof relations_people_socials
   relations_people_texts: typeof relations_people_texts
   relations_people_numbers: typeof relations_people_numbers

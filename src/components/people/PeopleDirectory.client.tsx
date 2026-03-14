@@ -5,8 +5,10 @@ import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import { useEffect, useMemo, useState, useTransition } from 'react'
 
 import { PersonAvatar } from '@/components/people/PersonAvatar'
+import { PersonRoleBadge } from '@/components/people/PersonRoleBadge'
 import { PersonSocialLinks } from '@/components/people/PersonSocialLinks'
 import type { Person } from '@/payload-types'
+import { comparePeopleByRoleForYear, getPersonRoleForYear } from '@/utilities/personRoles'
 import { parseResearchTags, toTagSlug } from '@/utilities/researchTags'
 
 const DEFAULT_YEAR = 2025
@@ -27,7 +29,7 @@ const parseQueryParam = (value: string | null): string => {
 
 export type PeopleDirectoryPerson = Pick<
   Person,
-  'avatar' | 'email' | 'id' | 'name' | 'research' | 'slug' | 'socials' | 'years'
+  'avatar' | 'email' | 'id' | 'name' | 'research' | 'roleAssignments' | 'slug' | 'socials' | 'years'
 >
 
 export function PeopleDirectory({ people }: { people: PeopleDirectoryPerson[] }) {
@@ -105,19 +107,23 @@ export function PeopleDirectory({ people }: { people: PeopleDirectoryPerson[] })
       return years.includes(activeYear)
     })
 
-    if (!normalizedSearchQuery) {
-      return filteredByYear
-    }
+    const matchingPeople = normalizedSearchQuery
+      ? filteredByYear.filter((person) => {
+          const searchableFields = [
+            person.name,
+            person.email || '',
+            parseResearchTags(person.research).join(' '),
+          ]
 
-    return filteredByYear.filter((person) => {
-      const searchableFields = [
-        person.name,
-        person.email || '',
-        parseResearchTags(person.research).join(' '),
-      ]
+          return searchableFields.some((field) =>
+            field.toLowerCase().includes(normalizedSearchQuery),
+          )
+        })
+      : filteredByYear
 
-      return searchableFields.some((field) => field.toLowerCase().includes(normalizedSearchQuery))
-    })
+    return [...matchingPeople].sort((left, right) =>
+      comparePeopleByRoleForYear(left, right, activeYear),
+    )
   }, [activeYear, normalizedSearchQuery, people])
 
   return (
@@ -185,6 +191,7 @@ export function PeopleDirectory({ people }: { people: PeopleDirectoryPerson[] })
         <div className="relative grid grid-cols-1 gap-8 md:grid-cols-2 xl:grid-cols-3">
           {filteredPeople.map((person) => {
             const researchTopics = parseResearchTags(person.research)
+            const activeRoleAssignment = getPersonRoleForYear(person.roleAssignments, activeYear)
 
             return (
               <article key={person.id} className="group relative h-full">
@@ -193,9 +200,16 @@ export function PeopleDirectory({ people }: { people: PeopleDirectoryPerson[] })
 
                 <div className="relative flex h-full flex-col rounded-2xl border border-border/80 bg-card/70 p-8 backdrop-blur-sm transition-all duration-500 hover:-translate-y-1 hover:scale-[1.02] hover:border-primary/30 hover:shadow-xl">
                   <div className="mb-4 flex items-start justify-between gap-4">
-                    <h2 className="text-2xl font-bold transition-colors duration-300 group-hover:text-primary">
-                      {person.name}
-                    </h2>
+                    <div className="min-w-0">
+                      <h2 className="text-2xl font-bold transition-colors duration-300 group-hover:text-primary">
+                        {person.name}
+                      </h2>
+                      <PersonRoleBadge
+                        className="mt-2"
+                        role={activeRoleAssignment?.role}
+                        year={activeRoleAssignment?.year}
+                      />
+                    </div>
                     <PersonAvatar
                       avatar={person.avatar}
                       className="shrink-0"

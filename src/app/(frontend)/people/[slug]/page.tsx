@@ -9,6 +9,7 @@ import { notFound } from 'next/navigation'
 import { Card } from '@/components/Card'
 import RichText from '@/components/RichText'
 import { PersonAvatar } from '@/components/people/PersonAvatar'
+import { PersonRoleBadge } from '@/components/people/PersonRoleBadge'
 import { PersonSocialLinks } from '@/components/people/PersonSocialLinks'
 import { generateMeta } from '@/utilities/generateMeta'
 import { parseResearchTags, toTagSlug } from '@/utilities/researchTags'
@@ -39,6 +40,7 @@ export default async function PersonPage({ params }: Args) {
   const person = people.docs[0]
   if (!person) notFound()
   const researchTopics = parseResearchTags(person.research)
+  const roleAssignments = [...(person.roleAssignments || [])].sort((a, b) => b.year - a.year)
 
   const authoredPosts = await payload.find({
     collection: 'posts',
@@ -69,6 +71,17 @@ export default async function PersonPage({ params }: Args) {
           <div className="flex flex-col gap-6 sm:flex-row sm:items-start sm:justify-between">
             <div className="min-w-0 flex-1">
               <h1 className="text-4xl font-semibold sm:text-5xl">{person.name}</h1>
+              {roleAssignments.length > 0 && (
+                <div className="mt-4 flex flex-wrap gap-2">
+                  {roleAssignments.map((assignment) => (
+                    <PersonRoleBadge
+                      key={`${assignment.role}-${assignment.year}`}
+                      role={assignment.role}
+                      year={assignment.year}
+                    />
+                  ))}
+                </div>
+              )}
               <div className="mt-6 h-1 w-24 rounded-full bg-linear-to-r from-primary to-accent" />
 
               <div className="mt-6">

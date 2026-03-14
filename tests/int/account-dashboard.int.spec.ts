@@ -86,4 +86,41 @@ describe('account dashboard data', () => {
       }),
     ])
   })
+
+  it('preserves linked person role metadata for account badges', async () => {
+    const payload = {
+      find: vi.fn().mockResolvedValue({ docs: [] }),
+    }
+
+    const result = await getAccountDashboardData({
+      linkedPerson: {
+        avatar: null,
+        id: 9,
+        name: 'Jane Member',
+        roleAssignments: [{ role: 'president', year: 2026 }],
+        slug: 'jane-member',
+      },
+      payload: payload as never,
+      permissions: {
+        canAccessAdmin: true,
+        canCreatePost: true,
+        canCreateWiki: true,
+        canPublishOwnPosts: true,
+        canPublishOwnWiki: true,
+      },
+      responseHeaders: new Headers(),
+      user: {
+        id: 42,
+        roles: 'user',
+      } as never,
+    })
+
+    expect(result.linkedPerson).toEqual(
+      expect.objectContaining({
+        name: 'Jane Member',
+        roleAssignments: [{ role: 'president', year: 2026 }],
+        slug: 'jane-member',
+      }),
+    )
+  })
 })
