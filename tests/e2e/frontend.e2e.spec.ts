@@ -24,7 +24,7 @@ test.describe('Frontend', () => {
     await expect(heading).toContainText('NABI')
   })
 
-  test('resources dropdown exposes wiki', async ({ page }) => {
+  test('resources dropdown exposes wiki and book', async ({ page }) => {
     await page.goto('http://localhost:3000')
 
     const resourcesButton = page.getByRole('button', { name: 'Resources' })
@@ -32,8 +32,12 @@ test.describe('Frontend', () => {
 
     const wikiLink = page.getByRole('link', { name: 'Wiki' })
     await expect(wikiLink).toBeVisible()
-    await wikiLink.click()
+    const bookLink = page.getByRole('link', { name: 'Book' })
+    await expect(bookLink).toBeVisible()
+    await expect(bookLink).toHaveAttribute('href', 'https://book.nabilab.org')
+    await expect(bookLink).toHaveAttribute('target', '_blank')
 
+    await wikiLink.click()
     await expect(page).toHaveURL('http://localhost:3000/wiki')
     await expect(page.getByRole('heading', { name: 'Connected concepts' })).toBeVisible()
   })

@@ -45,6 +45,14 @@ export const Header: GlobalConfig = {
             { link: { type: 'custom', label: 'News', url: '/news' } },
             { link: { type: 'custom', label: 'Bibliography', url: '/references' } },
             { link: { type: 'custom', label: 'Wiki', url: '/wiki' } },
+            {
+              link: {
+                type: 'custom',
+                label: 'Book',
+                url: 'https://book.nabilab.org',
+                newTab: true,
+              },
+            },
           ],
         },
         { link: { type: 'custom', label: 'Contact', url: '/contact' } },
