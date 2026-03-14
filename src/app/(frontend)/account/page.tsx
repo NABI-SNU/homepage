@@ -26,6 +26,7 @@ import {
 } from '@/auth/authGateReason'
 import { authClient } from '@/auth/betterAuthClient'
 import { PersonAvatar } from '@/components/people/PersonAvatar'
+import type { Person } from '@/payload-types'
 
 const providerOptions = [
   { label: 'Continue with GitHub', provider: 'github' },
@@ -79,6 +80,7 @@ type ProfileResponse = {
     wikiCreateURL?: string
   }
   linkedPerson?: {
+    avatar?: Person['avatar']
     id: number
     name?: string | null
     slug?: string | null
@@ -679,6 +681,7 @@ function AccountPageContent() {
             {/* Profile Header */}
             <div className="flex items-center gap-5">
               <PersonAvatar
+                avatar={linkedPerson?.avatar}
                 name={
                   linkedPerson?.name ||
                   dashboard?.user?.name ||

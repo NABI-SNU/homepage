@@ -6,9 +6,10 @@ import configPromise from '@payload-config'
 import { getBetterAuthUserFromHeaders } from '@/auth/getBetterAuthUserFromHeaders'
 import { strictPayloadSessionResolutionOptions } from '@/auth/payloadSessionPolicy'
 import { resolvePayloadUserFromSession } from '@/auth/resolvePayloadUserFromSession'
-import type { Post, User, Wiki } from '@/payload-types'
+import type { Person, Post, User, Wiki } from '@/payload-types'
 
 type LinkedPersonSummary = {
+  avatar?: Person['avatar']
   id: number
   name?: string | null
   slug?: string | null
@@ -82,6 +83,7 @@ const toLinkedPersonSummary = (
   if (!person || typeof person.id !== 'number') return null
 
   return {
+    avatar: person.avatar,
     id: person.id,
     name: person.name || null,
     slug: person.slug || null,
@@ -97,11 +99,12 @@ const getLinkedPerson = async ({
 }): Promise<LinkedPersonSummary | null> => {
   const people = await payload.find({
     collection: 'people',
-    depth: 0,
+    depth: 1,
     limit: 1,
     overrideAccess: false,
     pagination: false,
     select: {
+      avatar: true,
       id: true,
       name: true,
       slug: true,
