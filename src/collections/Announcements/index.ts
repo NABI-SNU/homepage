@@ -26,14 +26,13 @@ import { Code } from '@/blocks/Code/config'
 import { MediaBlock } from '@/blocks/MediaBlock/config'
 import { YouTubeEmbed } from '@/blocks/YouTubeEmbed/config'
 import { referenceFields } from '@/fields/referenceFields'
-import { getActivityPreviewPath } from '@/utilities/activityURL'
+import { generatePreviewPath } from '@/utilities/generatePreviewPath'
 import {
-  ensureSymposiumExistsBeforeChange,
-  ensureSymposiumExistsBeforeDelete,
-} from './hooks/ensureSymposiumExists'
-import { revalidateActivities, revalidateActivitiesDelete } from './hooks/revalidateActivities'
+  revalidateAnnouncements,
+  revalidateAnnouncementsDelete,
+} from './hooks/revalidateAnnouncements'
 
-const activityRichTextEditor = lexicalEditor({
+const announcementsEditor = lexicalEditor({
   features: ({ rootFeatures }) => {
     return [
       ...rootFeatures,
@@ -47,8 +46,8 @@ const activityRichTextEditor = lexicalEditor({
   },
 })
 
-export const Activities: CollectionConfig<'activities'> = {
-  slug: 'activities',
+export const Announcements: CollectionConfig<'announcements'> = {
+  slug: 'announcements',
   access: {
     create: adminOnly,
     delete: adminOnly,
@@ -59,12 +58,8 @@ export const Activities: CollectionConfig<'activities'> = {
     title: true,
     slug: true,
     description: true,
-    activityType: true,
-    date: true,
-    location: true,
-    heroImage: true,
-    relatedPosts: true,
-    relatedResearch: true,
+    publishedAt: true,
+    image: true,
     meta: {
       image: true,
       description: true,
@@ -72,21 +67,23 @@ export const Activities: CollectionConfig<'activities'> = {
     },
   },
   admin: {
-    defaultColumns: ['title', 'activityType', 'date', 'slug', 'updatedAt'],
     hidden: hideFromNonAdmins,
+    useAsTitle: 'title',
+    defaultColumns: ['title', 'slug', 'publishedAt', 'updatedAt'],
     livePreview: {
-      url: ({ data }) =>
-        getActivityPreviewPath({
-          activityType: data?.activityType as 'symposium' | 'conference' | undefined,
-          slug: data?.slug as string | undefined,
+      url: ({ data, req }) =>
+        generatePreviewPath({
+          collection: 'announcements',
+          slug: data?.slug,
+          req,
         }),
     },
-    preview: (data) =>
-      getActivityPreviewPath({
-        activityType: data?.activityType as 'symposium' | 'conference' | undefined,
-        slug: data?.slug as string | undefined,
+    preview: (data, { req }) =>
+      generatePreviewPath({
+        collection: 'announcements',
+        slug: data?.slug as string,
+        req,
       }),
-    useAsTitle: 'title',
   },
   fields: [
     {
@@ -95,31 +92,13 @@ export const Activities: CollectionConfig<'activities'> = {
       required: true,
     },
     {
-      name: 'activityType',
-      type: 'select',
-      required: true,
-      index: true,
-      defaultValue: 'conference',
-      options: [
-        {
-          label: 'Symposium',
-          value: 'symposium',
-        },
-        {
-          label: 'Conference',
-          value: 'conference',
-        },
-      ],
-    },
-    {
       name: 'description',
       type: 'textarea',
     },
     {
-      name: 'date',
+      name: 'publishedAt',
       type: 'date',
       required: true,
-      index: true,
       admin: {
         date: {
           pickerAppearance: 'dayAndTime',
@@ -127,11 +106,7 @@ export const Activities: CollectionConfig<'activities'> = {
       },
     },
     {
-      name: 'location',
-      type: 'text',
-    },
-    {
-      name: 'heroImage',
+      name: 'image',
       type: 'upload',
       relationTo: 'media',
     },
@@ -139,25 +114,7 @@ export const Activities: CollectionConfig<'activities'> = {
       name: 'content',
       type: 'richText',
       required: true,
-      editor: activityRichTextEditor,
-    },
-    {
-      name: 'relatedPosts',
-      type: 'relationship',
-      hasMany: true,
-      relationTo: 'posts',
-      admin: {
-        position: 'sidebar',
-      },
-    },
-    {
-      name: 'relatedResearch',
-      type: 'relationship',
-      hasMany: true,
-      relationTo: 'research',
-      admin: {
-        position: 'sidebar',
-      },
+      editor: announcementsEditor,
     },
     {
       name: 'references',
@@ -187,10 +144,8 @@ export const Activities: CollectionConfig<'activities'> = {
     slugField(),
   ],
   hooks: {
-    beforeChange: [ensureSymposiumExistsBeforeChange],
-    beforeDelete: [ensureSymposiumExistsBeforeDelete],
-    afterChange: [revalidateActivities],
-    afterDelete: [revalidateActivitiesDelete],
+    afterChange: [revalidateAnnouncements],
+    afterDelete: [revalidateAnnouncementsDelete],
   },
   versions: {
     drafts: {

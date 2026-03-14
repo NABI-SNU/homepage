@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
+import { Announcements } from '@/collections/Announcements'
 import { Activities } from '@/collections/Activities'
 import { News } from '@/collections/News'
 import { Posts } from '@/collections/Posts'
@@ -16,6 +17,7 @@ describe('Admin autosave performance defaults', () => {
   it.each([
     ['posts', Posts],
     ['news', News],
+    ['announcements', Announcements],
     ['research', Research],
     ['activities', Activities],
   ])('disables autosave for %s to prevent mid-edit overwrite conflicts', (_slug, collection) => {

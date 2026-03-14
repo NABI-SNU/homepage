@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
+import { revalidateAnnouncements } from '@/collections/Announcements/hooks/revalidateAnnouncements'
 import { revalidateActivities } from '@/collections/Activities/hooks/revalidateActivities'
 import { revalidateNews } from '@/collections/News/hooks/revalidateNews'
 import { revalidateResearch } from '@/collections/Research/hooks/revalidateResearch'
@@ -11,13 +12,19 @@ vi.mock('next/cache', () => ({
 
 import { revalidatePath, revalidateTag } from 'next/cache'
 
-const buildPayload = () =>
+type NewsHookArgs = Parameters<typeof revalidateNews>[0]
+type ResearchHookArgs = Parameters<typeof revalidateResearch>[0]
+type ActivitiesHookArgs = Parameters<typeof revalidateActivities>[0]
+type AnnouncementsHookArgs = Parameters<typeof revalidateAnnouncements>[0]
+type HookPayload = NewsHookArgs['req']['payload']
+
+const buildPayload = (): HookPayload =>
   ({
     logger: {
       info: vi.fn(),
       warn: vi.fn(),
     },
-  }) as any
+  }) as unknown as HookPayload
 
 describe('Revalidate hooks', () => {
   beforeEach(() => {
@@ -29,7 +36,7 @@ describe('Revalidate hooks', () => {
       doc: { _status: 'draft', slug: 'draft-news' },
       previousDoc: { _status: 'draft', slug: 'draft-news' },
       req: { payload: buildPayload(), context: {} },
-    } as any)
+    } as NewsHookArgs)
 
     expect(revalidatePath).not.toHaveBeenCalled()
     expect(revalidateTag).not.toHaveBeenCalled()
@@ -40,7 +47,7 @@ describe('Revalidate hooks', () => {
       doc: { _status: 'draft', slug: 'draft-lab' },
       previousDoc: { _status: 'draft', slug: 'draft-lab' },
       req: { payload: buildPayload(), context: {} },
-    } as any)
+    } as ResearchHookArgs)
 
     expect(revalidatePath).not.toHaveBeenCalled()
     expect(revalidateTag).not.toHaveBeenCalled()
@@ -51,7 +58,7 @@ describe('Revalidate hooks', () => {
       doc: { _status: 'published', slug: 'release' },
       previousDoc: { _status: 'draft', slug: 'release' },
       req: { payload: buildPayload(), context: {} },
-    } as any)
+    } as NewsHookArgs)
 
     expect(revalidatePath).toHaveBeenCalledWith('/news')
     expect(revalidatePath).toHaveBeenCalledWith('/news/release')
@@ -63,10 +70,24 @@ describe('Revalidate hooks', () => {
       doc: { _status: 'published', activityType: 'conference', slug: 'iclr-2026' },
       previousDoc: { _status: 'draft', activityType: 'conference', slug: 'iclr-2026' },
       req: { payload: buildPayload(), context: {} },
-    } as any)
+    } as ActivitiesHookArgs)
 
     expect(revalidatePath).toHaveBeenCalledWith('/conferences')
     expect(revalidatePath).toHaveBeenCalledWith('/conferences/iclr-2026')
+    expect(revalidateTag).toHaveBeenCalledWith('site-sitemap')
+  })
+
+  it('revalidates standalone announcement paths and references caches for published docs', () => {
+    revalidateAnnouncements({
+      doc: { _status: 'published', slug: 'spring-update' },
+      previousDoc: { _status: 'draft', slug: 'spring-update' },
+      req: { payload: buildPayload(), context: {} },
+    } as AnnouncementsHookArgs)
+
+    expect(revalidatePath).toHaveBeenCalledWith('/announcements')
+    expect(revalidatePath).toHaveBeenCalledWith('/announcements/spring-update')
+    expect(revalidatePath).toHaveBeenCalledWith('/references')
+    expect(revalidateTag).toHaveBeenCalledWith('references_list')
     expect(revalidateTag).toHaveBeenCalledWith('site-sitemap')
   })
 })

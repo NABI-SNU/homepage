@@ -34,6 +34,11 @@ export const enum__news_v_version_status = pgEnum('enum__news_v_version_status',
   'draft',
   'published',
 ])
+export const enum_announcements_status = pgEnum('enum_announcements_status', ['draft', 'published'])
+export const enum__announcements_v_version_status = pgEnum('enum__announcements_v_version_status', [
+  'draft',
+  'published',
+])
 export const enum_research_status = pgEnum('enum_research_status', ['draft', 'published'])
 export const enum__research_v_version_status = pgEnum('enum__research_v_version_status', [
   'draft',
@@ -546,6 +551,186 @@ export const _news_v = pgTable(
     index('_news_v_created_at_idx').on(columns.createdAt),
     index('_news_v_updated_at_idx').on(columns.updatedAt),
     index('_news_v_latest_idx').on(columns.latest),
+  ],
+)
+
+export const announcements_references_authors = pgTable(
+  'announcements_references_authors',
+  {
+    _order: integer('_order').notNull(),
+    _parentID: varchar('_parent_id').notNull(),
+    id: varchar('id').primaryKey(),
+    name: varchar('name'),
+  },
+  (columns) => [
+    index('announcements_references_authors_order_idx').on(columns._order),
+    index('announcements_references_authors_parent_id_idx').on(columns._parentID),
+    foreignKey({
+      columns: [columns['_parentID']],
+      foreignColumns: [announcements_references.id],
+      name: 'announcements_references_authors_parent_id_fk',
+    }).onDelete('cascade'),
+  ],
+)
+
+export const announcements_references = pgTable(
+  'announcements_references',
+  {
+    _order: integer('_order').notNull(),
+    _parentID: integer('_parent_id').notNull(),
+    id: varchar('id').primaryKey(),
+    title: varchar('title'),
+    journal: varchar('journal'),
+    year: numeric('year', { mode: 'number' }),
+    doi: varchar('doi'),
+    url: varchar('url'),
+  },
+  (columns) => [
+    index('announcements_references_order_idx').on(columns._order),
+    index('announcements_references_parent_id_idx').on(columns._parentID),
+    foreignKey({
+      columns: [columns['_parentID']],
+      foreignColumns: [announcements.id],
+      name: 'announcements_references_parent_id_fk',
+    }).onDelete('cascade'),
+  ],
+)
+
+export const announcements = pgTable(
+  'announcements',
+  {
+    id: serial('id').primaryKey(),
+    title: varchar('title'),
+    description: varchar('description'),
+    publishedAt: timestamp('published_at', { mode: 'string', withTimezone: true, precision: 3 }),
+    image: integer('image_id').references(() => media.id, {
+      onDelete: 'set null',
+    }),
+    content: jsonb('content'),
+    meta_title: varchar('meta_title'),
+    meta_image: integer('meta_image_id').references(() => media.id, {
+      onDelete: 'set null',
+    }),
+    meta_description: varchar('meta_description'),
+    generateSlug: boolean('generate_slug').default(true),
+    slug: varchar('slug'),
+    updatedAt: timestamp('updated_at', { mode: 'string', withTimezone: true, precision: 3 })
+      .defaultNow()
+      .notNull(),
+    createdAt: timestamp('created_at', { mode: 'string', withTimezone: true, precision: 3 })
+      .defaultNow()
+      .notNull(),
+    _status: enum_announcements_status('_status').default('draft'),
+  },
+  (columns) => [
+    index('announcements_image_idx').on(columns.image),
+    index('announcements_meta_meta_image_idx').on(columns.meta_image),
+    uniqueIndex('announcements_slug_idx').on(columns.slug),
+    index('announcements_updated_at_idx').on(columns.updatedAt),
+    index('announcements_created_at_idx').on(columns.createdAt),
+    index('announcements__status_idx').on(columns._status),
+  ],
+)
+
+export const _announcements_v_version_references_authors = pgTable(
+  '_announcements_v_version_references_authors',
+  {
+    _order: integer('_order').notNull(),
+    _parentID: integer('_parent_id').notNull(),
+    id: serial('id').primaryKey(),
+    name: varchar('name'),
+    _uuid: varchar('_uuid'),
+  },
+  (columns) => [
+    index('_announcements_v_version_references_authors_order_idx').on(columns._order),
+    index('_announcements_v_version_references_authors_parent_id_idx').on(columns._parentID),
+    foreignKey({
+      columns: [columns['_parentID']],
+      foreignColumns: [_announcements_v_version_references.id],
+      name: '_announcements_v_version_references_authors_parent_id_fk',
+    }).onDelete('cascade'),
+  ],
+)
+
+export const _announcements_v_version_references = pgTable(
+  '_announcements_v_version_references',
+  {
+    _order: integer('_order').notNull(),
+    _parentID: integer('_parent_id').notNull(),
+    id: serial('id').primaryKey(),
+    title: varchar('title'),
+    journal: varchar('journal'),
+    year: numeric('year', { mode: 'number' }),
+    doi: varchar('doi'),
+    url: varchar('url'),
+    _uuid: varchar('_uuid'),
+  },
+  (columns) => [
+    index('_announcements_v_version_references_order_idx').on(columns._order),
+    index('_announcements_v_version_references_parent_id_idx').on(columns._parentID),
+    foreignKey({
+      columns: [columns['_parentID']],
+      foreignColumns: [_announcements_v.id],
+      name: '_announcements_v_version_references_parent_id_fk',
+    }).onDelete('cascade'),
+  ],
+)
+
+export const _announcements_v = pgTable(
+  '_announcements_v',
+  {
+    id: serial('id').primaryKey(),
+    parent: integer('parent_id').references(() => announcements.id, {
+      onDelete: 'set null',
+    }),
+    version_title: varchar('version_title'),
+    version_description: varchar('version_description'),
+    version_publishedAt: timestamp('version_published_at', {
+      mode: 'string',
+      withTimezone: true,
+      precision: 3,
+    }),
+    version_image: integer('version_image_id').references(() => media.id, {
+      onDelete: 'set null',
+    }),
+    version_content: jsonb('version_content'),
+    version_meta_title: varchar('version_meta_title'),
+    version_meta_image: integer('version_meta_image_id').references(() => media.id, {
+      onDelete: 'set null',
+    }),
+    version_meta_description: varchar('version_meta_description'),
+    version_generateSlug: boolean('version_generate_slug').default(true),
+    version_slug: varchar('version_slug'),
+    version_updatedAt: timestamp('version_updated_at', {
+      mode: 'string',
+      withTimezone: true,
+      precision: 3,
+    }),
+    version_createdAt: timestamp('version_created_at', {
+      mode: 'string',
+      withTimezone: true,
+      precision: 3,
+    }),
+    version__status: enum__announcements_v_version_status('version__status').default('draft'),
+    createdAt: timestamp('created_at', { mode: 'string', withTimezone: true, precision: 3 })
+      .defaultNow()
+      .notNull(),
+    updatedAt: timestamp('updated_at', { mode: 'string', withTimezone: true, precision: 3 })
+      .defaultNow()
+      .notNull(),
+    latest: boolean('latest'),
+  },
+  (columns) => [
+    index('_announcements_v_parent_idx').on(columns.parent),
+    index('_announcements_v_version_version_image_idx').on(columns.version_image),
+    index('_announcements_v_version_meta_version_meta_image_idx').on(columns.version_meta_image),
+    index('_announcements_v_version_version_slug_idx').on(columns.version_slug),
+    index('_announcements_v_version_version_updated_at_idx').on(columns.version_updatedAt),
+    index('_announcements_v_version_version_created_at_idx').on(columns.version_createdAt),
+    index('_announcements_v_version_version__status_idx').on(columns.version__status),
+    index('_announcements_v_created_at_idx').on(columns.createdAt),
+    index('_announcements_v_updated_at_idx').on(columns.updatedAt),
+    index('_announcements_v_latest_idx').on(columns.latest),
   ],
 )
 
@@ -1570,6 +1755,7 @@ export const redirects_rels = pgTable(
     researchID: integer('research_id'),
     wikiID: integer('wiki_id'),
     activitiesID: integer('activities_id'),
+    announcementsID: integer('announcements_id'),
   },
   (columns) => [
     index('redirects_rels_order_idx').on(columns.order),
@@ -1581,6 +1767,7 @@ export const redirects_rels = pgTable(
     index('redirects_rels_research_id_idx').on(columns.researchID),
     index('redirects_rels_wiki_id_idx').on(columns.wikiID),
     index('redirects_rels_activities_id_idx').on(columns.activitiesID),
+    index('redirects_rels_announcements_id_idx').on(columns.announcementsID),
     foreignKey({
       columns: [columns['parent']],
       foreignColumns: [redirects.id],
@@ -1615,6 +1802,11 @@ export const redirects_rels = pgTable(
       columns: [columns['activitiesID']],
       foreignColumns: [activities.id],
       name: 'redirects_rels_activities_fk',
+    }).onDelete('cascade'),
+    foreignKey({
+      columns: [columns['announcementsID']],
+      foreignColumns: [announcements.id],
+      name: 'redirects_rels_announcements_fk',
     }).onDelete('cascade'),
   ],
 )
@@ -2377,6 +2569,7 @@ export const header_rels = pgTable(
     researchID: integer('research_id'),
     wikiID: integer('wiki_id'),
     activitiesID: integer('activities_id'),
+    announcementsID: integer('announcements_id'),
   },
   (columns) => [
     index('header_rels_order_idx').on(columns.order),
@@ -2388,6 +2581,7 @@ export const header_rels = pgTable(
     index('header_rels_research_id_idx').on(columns.researchID),
     index('header_rels_wiki_id_idx').on(columns.wikiID),
     index('header_rels_activities_id_idx').on(columns.activitiesID),
+    index('header_rels_announcements_id_idx').on(columns.announcementsID),
     foreignKey({
       columns: [columns['parent']],
       foreignColumns: [header.id],
@@ -2422,6 +2616,11 @@ export const header_rels = pgTable(
       columns: [columns['activitiesID']],
       foreignColumns: [activities.id],
       name: 'header_rels_activities_fk',
+    }).onDelete('cascade'),
+    foreignKey({
+      columns: [columns['announcementsID']],
+      foreignColumns: [announcements.id],
+      name: 'header_rels_announcements_fk',
     }).onDelete('cascade'),
   ],
 )
@@ -2554,6 +2753,7 @@ export const footer_rels = pgTable(
     researchID: integer('research_id'),
     wikiID: integer('wiki_id'),
     activitiesID: integer('activities_id'),
+    announcementsID: integer('announcements_id'),
   },
   (columns) => [
     index('footer_rels_order_idx').on(columns.order),
@@ -2565,6 +2765,7 @@ export const footer_rels = pgTable(
     index('footer_rels_research_id_idx').on(columns.researchID),
     index('footer_rels_wiki_id_idx').on(columns.wikiID),
     index('footer_rels_activities_id_idx').on(columns.activitiesID),
+    index('footer_rels_announcements_id_idx').on(columns.announcementsID),
     foreignKey({
       columns: [columns['parent']],
       foreignColumns: [footer.id],
@@ -2599,6 +2800,11 @@ export const footer_rels = pgTable(
       columns: [columns['activitiesID']],
       foreignColumns: [activities.id],
       name: 'footer_rels_activities_fk',
+    }).onDelete('cascade'),
+    foreignKey({
+      columns: [columns['announcementsID']],
+      foreignColumns: [announcements.id],
+      name: 'footer_rels_announcements_fk',
     }).onDelete('cascade'),
   ],
 )
@@ -2940,6 +3146,87 @@ export const relations__news_v = relations(_news_v, ({ one, many }) => ({
   }),
   version_references: many(_news_v_version_references, {
     relationName: 'version_references',
+  }),
+}))
+export const relations_announcements_references_authors = relations(
+  announcements_references_authors,
+  ({ one }) => ({
+    _parentID: one(announcements_references, {
+      fields: [announcements_references_authors._parentID],
+      references: [announcements_references.id],
+      relationName: 'authors',
+    }),
+  }),
+)
+export const relations_announcements_references = relations(
+  announcements_references,
+  ({ one, many }) => ({
+    _parentID: one(announcements, {
+      fields: [announcements_references._parentID],
+      references: [announcements.id],
+      relationName: 'references',
+    }),
+    authors: many(announcements_references_authors, {
+      relationName: 'authors',
+    }),
+  }),
+)
+export const relations_announcements = relations(announcements, ({ one, many }) => ({
+  image: one(media, {
+    fields: [announcements.image],
+    references: [media.id],
+    relationName: 'image',
+  }),
+  references: many(announcements_references, {
+    relationName: 'references',
+  }),
+  meta_image: one(media, {
+    fields: [announcements.meta_image],
+    references: [media.id],
+    relationName: 'meta_image',
+  }),
+}))
+export const relations__announcements_v_version_references_authors = relations(
+  _announcements_v_version_references_authors,
+  ({ one }) => ({
+    _parentID: one(_announcements_v_version_references, {
+      fields: [_announcements_v_version_references_authors._parentID],
+      references: [_announcements_v_version_references.id],
+      relationName: 'authors',
+    }),
+  }),
+)
+export const relations__announcements_v_version_references = relations(
+  _announcements_v_version_references,
+  ({ one, many }) => ({
+    _parentID: one(_announcements_v, {
+      fields: [_announcements_v_version_references._parentID],
+      references: [_announcements_v.id],
+      relationName: 'version_references',
+    }),
+    authors: many(_announcements_v_version_references_authors, {
+      relationName: 'authors',
+    }),
+  }),
+)
+export const relations__announcements_v = relations(_announcements_v, ({ one, many }) => ({
+  parent: one(announcements, {
+    fields: [_announcements_v.parent],
+    references: [announcements.id],
+    relationName: 'parent',
+  }),
+  version_image: one(media, {
+    fields: [_announcements_v.version_image],
+    references: [media.id],
+    relationName: 'version_image',
+  }),
+  version_references: many(_announcements_v_version_references, {
+    relationName: 'version_references',
+  }),
+  version_meta_image: one(media, {
+    fields: [_announcements_v.version_meta_image],
+    references: [media.id],
+    relationName: 'version_meta_image',
   }),
 }))
 export const relations_research_references_authors = relations(
@@ -3367,6 +3654,11 @@ export const relations_redirects_rels = relations(redirects_rels, ({ one }) => (
     references: [activities.id],
     relationName: 'activities',
   }),
+  announcementsID: one(announcements, {
+    fields: [redirects_rels.announcementsID],
+    references: [announcements.id],
+    relationName: 'announcements',
+  }),
 }))
 export const relations_redirects = relations(redirects, ({ many }) => ({
   _rels: many(redirects_rels, {
@@ -3705,6 +3997,11 @@ export const relations_header_rels = relations(header_rels, ({ one }) => ({
     references: [activities.id],
     relationName: 'activities',
   }),
+  announcementsID: one(announcements, {
+    fields: [header_rels.announcementsID],
+    references: [announcements.id],
+    relationName: 'announcements',
+  }),
 }))
 export const relations_header = relations(header, ({ many }) => ({
   navItems: many(header_nav_items, {
@@ -3788,6 +4085,11 @@ export const relations_footer_rels = relations(footer_rels, ({ one }) => ({
     references: [activities.id],
     relationName: 'activities',
   }),
+  announcementsID: one(announcements, {
+    fields: [footer_rels.announcementsID],
+    references: [announcements.id],
+    relationName: 'announcements',
+  }),
 }))
 export const relations_footer = relations(footer, ({ many }) => ({
   secondaryLinks: many(footer_secondary_links, {
@@ -3866,6 +4168,8 @@ type DatabaseSchema = {
   enum__posts_v_version_status: typeof enum__posts_v_version_status
   enum_news_status: typeof enum_news_status
   enum__news_v_version_status: typeof enum__news_v_version_status
+  enum_announcements_status: typeof enum_announcements_status
+  enum__announcements_v_version_status: typeof enum__announcements_v_version_status
   enum_research_status: typeof enum_research_status
   enum__research_v_version_status: typeof enum__research_v_version_status
   enum_wiki_status: typeof enum_wiki_status
@@ -3902,6 +4206,12 @@ type DatabaseSchema = {
   _news_v_version_references_authors: typeof _news_v_version_references_authors
   _news_v_version_references: typeof _news_v_version_references
   _news_v: typeof _news_v
+  announcements_references_authors: typeof announcements_references_authors
+  announcements_references: typeof announcements_references
+  announcements: typeof announcements
+  _announcements_v_version_references_authors: typeof _announcements_v_version_references_authors
+  _announcements_v_version_references: typeof _announcements_v_version_references
+  _announcements_v: typeof _announcements_v
   research_references_authors: typeof research_references_authors
   research_references: typeof research_references
   research: typeof research
@@ -3996,6 +4306,12 @@ type DatabaseSchema = {
   relations__news_v_version_references_authors: typeof relations__news_v_version_references_authors
   relations__news_v_version_references: typeof relations__news_v_version_references
   relations__news_v: typeof relations__news_v
+  relations_announcements_references_authors: typeof relations_announcements_references_authors
+  relations_announcements_references: typeof relations_announcements_references
+  relations_announcements: typeof relations_announcements
+  relations__announcements_v_version_references_authors: typeof relations__announcements_v_version_references_authors
+  relations__announcements_v_version_references: typeof relations__announcements_v_version_references
+  relations__announcements_v: typeof relations__announcements_v
   relations_research_references_authors: typeof relations_research_references_authors
   relations_research_references: typeof relations_research_references
   relations_research: typeof relations_research

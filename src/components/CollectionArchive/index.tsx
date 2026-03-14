@@ -7,7 +7,7 @@ export type Props = {
   cardImageAspect?: 'landscape' | 'portrait'
   compact?: boolean
   posts: CardDocData[]
-  relationTo?: 'posts' | 'news' | 'wiki' | 'conferences' | 'symposium' | 'labs'
+  relationTo?: 'posts' | 'news' | 'wiki' | 'conferences' | 'symposium' | 'labs' | 'announcements'
   showCategories?: boolean
   showDate?: boolean
 }

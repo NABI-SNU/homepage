@@ -31,5 +31,6 @@ export default async function ReferencesPage() {
 
 export const metadata: Metadata = {
   title: 'Papers',
-  description: 'Archive of papers referenced in NABI posts, news, and research notes.',
+  description:
+    'Archive of papers referenced in NABI posts, news, research notes, and announcements.',
 }

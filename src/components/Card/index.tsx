@@ -10,9 +10,9 @@ import type { LegacyInlineImage } from '@/utilities/legacyImage'
 
 export type CardPostData = Pick<Post, 'slug' | 'categories' | 'meta' | 'title'>
 export type CardDocData = CardPostData & {
-  date?: News['date']
+  date?: News['date'] | string | null
   previewImage?: LegacyInlineImage | null
-  relationTo?: 'posts' | 'news' | 'wiki' | 'conferences' | 'symposium' | 'labs'
+  relationTo?: 'posts' | 'news' | 'wiki' | 'conferences' | 'symposium' | 'labs' | 'announcements'
 }
 
 export const Card: React.FC<{
@@ -20,7 +20,7 @@ export const Card: React.FC<{
   className?: string
   doc?: CardDocData
   imageAspect?: 'landscape' | 'portrait'
-  relationTo?: 'posts' | 'news' | 'wiki' | 'conferences' | 'symposium' | 'labs'
+  relationTo?: 'posts' | 'news' | 'wiki' | 'conferences' | 'symposium' | 'labs' | 'announcements'
   showCategories?: boolean
   showDate?: boolean
   title?: string
@@ -71,7 +71,9 @@ export const Card: React.FC<{
         )}
       >
         {!hasRenderableImage && !hasPreviewImage && (
-          <div className="flex h-full items-center justify-center text-sm text-muted-foreground">No image</div>
+          <div className="flex h-full items-center justify-center text-sm text-muted-foreground">
+            No image
+          </div>
         )}
         {hasRenderableImage && (
           <Media
@@ -95,7 +97,11 @@ export const Card: React.FC<{
         )}
       </div>
       <div className="relative z-20 p-5">
-        {showDate && date && <p className="mb-3 text-xs uppercase tracking-[0.14em] text-muted-foreground">{new Date(date).toDateString()}</p>}
+        {showDate && date && (
+          <p className="mb-3 text-xs uppercase tracking-[0.14em] text-muted-foreground">
+            {new Date(date).toDateString()}
+          </p>
+        )}
         {showCategories && hasCategories && (
           <div className="mb-3 text-xs uppercase tracking-[0.14em] text-muted-foreground">
             {showCategories && hasCategories && (
@@ -127,7 +133,11 @@ export const Card: React.FC<{
             <h3 className="leading-tight">{titleToUse}</h3>
           </div>
         )}
-        {description && <div className="mt-3 text-sm text-muted-foreground">{description && <p>{sanitizedDescription}</p>}</div>}
+        {description && (
+          <div className="mt-3 text-sm text-muted-foreground">
+            {description && <p>{sanitizedDescription}</p>}
+          </div>
+        )}
       </div>
     </article>
   )

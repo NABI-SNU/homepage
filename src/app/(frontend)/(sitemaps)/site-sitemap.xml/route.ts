@@ -11,7 +11,14 @@ const getSiteSitemap = unstable_cache(
       process.env.VERCEL_PROJECT_PRODUCTION_URL ||
       'https://example.com'
 
-    const [peopleResults, newsResults, researchResults, wikiResults, activitiesResults] = await Promise.all([
+    const [
+      peopleResults,
+      newsResults,
+      researchResults,
+      wikiResults,
+      activitiesResults,
+      announcementsResults,
+    ] = await Promise.all([
       payload.find({
         collection: 'people',
         overrideAccess: false,
@@ -92,6 +99,23 @@ const getSiteSitemap = unstable_cache(
           activityType: true,
         },
       }),
+      payload.find({
+        collection: 'announcements',
+        overrideAccess: false,
+        draft: false,
+        depth: 0,
+        limit: 1000,
+        pagination: false,
+        where: {
+          _status: {
+            equals: 'published',
+          },
+        },
+        select: {
+          slug: true,
+          updatedAt: true,
+        },
+      }),
     ])
 
     const dateFallback = new Date().toISOString()
@@ -103,6 +127,10 @@ const getSiteSitemap = unstable_cache(
     const latestConferenceUpdatedAt =
       activitiesResults.docs
         .filter((item) => item.activityType === 'conference')
+        .map((item) => item.updatedAt || dateFallback)
+        .sort((a, b) => (a > b ? -1 : 1))[0] || dateFallback
+    const latestAnnouncementUpdatedAt =
+      announcementsResults.docs
         .map((item) => item.updatedAt || dateFallback)
         .sort((a, b) => (a > b ? -1 : 1))[0] || dateFallback
 
@@ -154,6 +182,10 @@ const getSiteSitemap = unstable_cache(
       {
         loc: `${SITE_URL}/conferences`,
         lastmod: latestConferenceUpdatedAt,
+      },
+      {
+        loc: `${SITE_URL}/announcements`,
+        lastmod: latestAnnouncementUpdatedAt,
       },
     ]
 
@@ -211,6 +243,15 @@ const getSiteSitemap = unstable_cache(
           }))
       : []
 
+    const announcementsSitemap = announcementsResults.docs
+      ? announcementsResults.docs
+          .filter((item) => Boolean(item?.slug))
+          .map((item) => ({
+            loc: `${SITE_URL}/announcements/${item.slug}`,
+            lastmod: item.updatedAt || dateFallback,
+          }))
+      : []
+
     return [
       ...defaultSitemap,
       ...peopleSitemap,
@@ -219,6 +260,7 @@ const getSiteSitemap = unstable_cache(
       ...wikiSitemap,
       ...symposiumSitemap,
       ...conferencesSitemap,
+      ...announcementsSitemap,
     ]
   },
   ['site-sitemap'],

@@ -69,6 +69,7 @@ export interface Config {
   collections: {
     posts: Post;
     news: News;
+    announcements: Announcement;
     research: Research;
     wiki: Wiki;
     activities: Activity;
@@ -97,6 +98,7 @@ export interface Config {
   collectionsSelect: {
     posts: PostsSelect<false> | PostsSelect<true>;
     news: NewsSelect<false> | NewsSelect<true>;
+    announcements: AnnouncementsSelect<false> | AnnouncementsSelect<true>;
     research: ResearchSelect<false> | ResearchSelect<true>;
     wiki: WikiSelect<false> | WikiSelect<true>;
     activities: ActivitiesSelect<false> | ActivitiesSelect<true>;
@@ -531,6 +533,64 @@ export interface News {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "announcements".
+ */
+export interface Announcement {
+  id: number;
+  title: string;
+  description?: string | null;
+  publishedAt: string;
+  image?: (number | null) | Media;
+  content: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  };
+  references?:
+    | {
+        title: string;
+        authors?:
+          | {
+              name: string;
+              id?: string | null;
+            }[]
+          | null;
+        journal?: string | null;
+        year?: number | null;
+        doi?: string | null;
+        url?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  meta?: {
+    title?: string | null;
+    /**
+     * Maximum upload file size: 12MB. Recommended file size for images is <500KB.
+     */
+    image?: (number | null) | Media;
+    description?: string | null;
+  };
+  /**
+   * When enabled, the slug will auto-generate from the title field on save and autosave.
+   */
+  generateSlug?: boolean | null;
+  slug: string;
+  updatedAt: string;
+  createdAt: string;
+  _status?: ('draft' | 'published') | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "research".
  */
 export interface Research {
@@ -759,6 +819,10 @@ export interface Redirect {
       | ({
           relationTo: 'activities';
           value: number | Activity;
+        } | null)
+      | ({
+          relationTo: 'announcements';
+          value: number | Announcement;
         } | null);
     url?: string | null;
   };
@@ -1243,6 +1307,45 @@ export interface NewsSelect<T extends boolean = true> {
         doi?: T;
         url?: T;
         id?: T;
+      };
+  generateSlug?: T;
+  slug?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  _status?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "announcements_select".
+ */
+export interface AnnouncementsSelect<T extends boolean = true> {
+  title?: T;
+  description?: T;
+  publishedAt?: T;
+  image?: T;
+  content?: T;
+  references?:
+    | T
+    | {
+        title?: T;
+        authors?:
+          | T
+          | {
+              name?: T;
+              id?: T;
+            };
+        journal?: T;
+        year?: T;
+        doi?: T;
+        url?: T;
+        id?: T;
+      };
+  meta?:
+    | T
+    | {
+        title?: T;
+        image?: T;
+        description?: T;
       };
   generateSlug?: T;
   slug?: T;
@@ -1860,6 +1963,10 @@ export interface Header {
             | ({
                 relationTo: 'activities';
                 value: number | Activity;
+              } | null)
+            | ({
+                relationTo: 'announcements';
+                value: number | Announcement;
               } | null);
           url?: string | null;
           label: string;
@@ -1896,6 +2003,10 @@ export interface Header {
                   | ({
                       relationTo: 'activities';
                       value: number | Activity;
+                    } | null)
+                  | ({
+                      relationTo: 'announcements';
+                      value: number | Announcement;
                     } | null);
                 url?: string | null;
                 label: string;
@@ -1945,6 +2056,10 @@ export interface Footer {
             | ({
                 relationTo: 'activities';
                 value: number | Activity;
+              } | null)
+            | ({
+                relationTo: 'announcements';
+                value: number | Announcement;
               } | null);
           url?: string | null;
           label: string;
@@ -1984,6 +2099,10 @@ export interface Footer {
                   | ({
                       relationTo: 'activities';
                       value: number | Activity;
+                    } | null)
+                  | ({
+                      relationTo: 'announcements';
+                      value: number | Announcement;
                     } | null);
                 url?: string | null;
                 label: string;
@@ -2036,6 +2155,10 @@ export interface Footer {
             | ({
                 relationTo: 'activities';
                 value: number | Activity;
+              } | null)
+            | ({
+                relationTo: 'announcements';
+                value: number | Announcement;
               } | null);
           url?: string | null;
           label: string;
@@ -2371,6 +2494,10 @@ export interface TaskSchedulePublish {
       | ({
           relationTo: 'news';
           value: number | News;
+        } | null)
+      | ({
+          relationTo: 'announcements';
+          value: number | Announcement;
         } | null)
       | ({
           relationTo: 'research';

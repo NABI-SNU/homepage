@@ -3,7 +3,7 @@ import { unstable_cache } from 'next/cache'
 import { getPayload } from 'payload'
 
 type Source = {
-  type: 'posts' | 'news' | 'research'
+  type: 'posts' | 'news' | 'research' | 'announcements'
   title: string
   url: string
 }
@@ -19,12 +19,15 @@ export type ReferenceItem = {
 }
 
 const referenceKey = (title: string, authors: string[]) =>
-  `${title.toLowerCase().trim()}|${authors.map((a) => a.toLowerCase().trim()).sort().join('|')}`
+  `${title.toLowerCase().trim()}|${authors
+    .map((a) => a.toLowerCase().trim())
+    .sort()
+    .join('|')}`
 
 const getAllReferences = async (): Promise<ReferenceItem[]> => {
   const payload = await getPayload({ config: configPromise })
 
-  const [posts, news, research] = await Promise.all([
+  const [posts, news, research, announcements] = await Promise.all([
     payload.find({
       collection: 'posts',
       depth: 0,
@@ -51,6 +54,18 @@ const getAllReferences = async (): Promise<ReferenceItem[]> => {
     }),
     payload.find({
       collection: 'research',
+      depth: 0,
+      limit: 1000,
+      pagination: false,
+      overrideAccess: false,
+      where: {
+        _status: {
+          equals: 'published',
+        },
+      },
+    }),
+    payload.find({
+      collection: 'announcements',
       depth: 0,
       limit: 1000,
       pagination: false,
@@ -95,7 +110,9 @@ const getAllReferences = async (): Promise<ReferenceItem[]> => {
     const existing = merged.get(key)
     if (!existing) return
 
-    const sourceExists = existing.sources.some((item) => item.type === source.type && item.url === source.url)
+    const sourceExists = existing.sources.some(
+      (item) => item.type === source.type && item.url === source.url,
+    )
 
     if (!sourceExists) {
       existing.sources.push(source)
@@ -133,6 +150,16 @@ const getAllReferences = async (): Promise<ReferenceItem[]> => {
         type: 'research',
         title: item.title,
         url: `/labs/${item.slug}`,
+      })
+    }
+  }
+
+  for (const item of announcements.docs) {
+    for (const reference of item.references || []) {
+      addReference(reference, {
+        type: 'announcements',
+        title: item.title,
+        url: `/announcements/${item.slug}`,
       })
     }
   }

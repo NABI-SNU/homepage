@@ -15,6 +15,11 @@ import {
   seedResearchScenario,
   type SeededResearchScenario,
 } from '../helpers/seedResearchScenario'
+import {
+  cleanupAnnouncementScenario,
+  seedAnnouncementScenario,
+  type SeededAnnouncementScenario,
+} from '../helpers/seedAnnouncementScenario'
 
 test.describe('Frontend', () => {
   test('can load homepage', async ({ page }) => {
@@ -22,6 +27,20 @@ test.describe('Frontend', () => {
     await expect(page).toHaveTitle(/NABI/)
     const heading = page.locator('h1').first()
     await expect(heading).toContainText('NABI')
+  })
+
+  test('activities dropdown exposes announcements', async ({ page }) => {
+    await page.goto('http://localhost:3000')
+
+    const activitiesButton = page.getByRole('button', { name: 'Activities' })
+    await activitiesButton.hover()
+
+    const announcementsLink = page.getByRole('link', { name: 'Announcements' })
+    await expect(announcementsLink).toBeVisible()
+    await announcementsLink.click()
+
+    await expect(page).toHaveURL('http://localhost:3000/announcements')
+    await expect(page.getByRole('heading', { name: 'Announcements' })).toBeVisible()
   })
 
   test('resources dropdown exposes wiki and book', async ({ page }) => {
@@ -45,6 +64,38 @@ test.describe('Frontend', () => {
   test('can load wiki graph page', async ({ page }) => {
     await page.goto('http://localhost:3000/wiki/graph')
     await expect(page.getByRole('heading', { name: 'Global wiki graph' })).toBeVisible()
+  })
+})
+
+test.describe('Announcements experience', () => {
+  test.describe.configure({ timeout: 120_000 })
+
+  let scenario: SeededAnnouncementScenario | null = null
+
+  test.beforeAll(async () => {
+    scenario = await seedAnnouncementScenario()
+  })
+
+  test.afterAll(async () => {
+    if (!scenario) return
+    await cleanupAnnouncementScenario(scenario)
+  })
+
+  test('announcements archive and detail pages render standalone collection entries', async ({
+    page,
+  }) => {
+    if (!scenario) throw new Error('Scenario was not initialized')
+
+    await page.goto('http://localhost:3000/announcements')
+    await expect(page.getByRole('heading', { name: 'Announcements' })).toBeVisible()
+    await expect(page.getByText(scenario.announcementTitle)).toBeVisible()
+
+    await page.goto(`http://localhost:3000/announcements/${scenario.announcementSlug}`, {
+      timeout: 60_000,
+      waitUntil: 'domcontentloaded',
+    })
+    await expect(page.getByRole('heading', { name: scenario.announcementTitle })).toBeVisible()
+    await expect(page.getByText('Schedule update')).toBeVisible()
   })
 })
 

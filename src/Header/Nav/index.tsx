@@ -20,6 +20,7 @@ const fallbackNavItems: HeaderNavItem[] = [
   {
     link: { type: 'custom', label: 'Activities', url: '/conferences' },
     links: [
+      { link: { type: 'custom', label: 'Announcements', url: '/announcements' } },
       { link: { type: 'custom', label: 'Symposium', url: '/symposium' } },
       { link: { type: 'custom', label: 'Conferences', url: '/conferences' } },
     ],
@@ -80,6 +81,7 @@ const getNavHref = (link: HeaderNavLink | undefined) => {
   ) {
     const relationTo = link.reference.relationTo
     if (relationTo === 'research') return `/labs/${link.reference.value.slug}`
+    if (relationTo === 'announcements') return `/announcements/${link.reference.value.slug}`
     if (relationTo === 'activities')
       return getActivityPathFromReferenceValue(link.reference.value) || ''
 

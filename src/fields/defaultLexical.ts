@@ -36,7 +36,15 @@ export const defaultLexical = lexicalEditor({
       enabledCollections: ['media'],
     }),
     RelationshipFeature({
-      enabledCollections: ['activities', 'news', 'people', 'posts', 'research', 'wiki'],
+      enabledCollections: [
+        'activities',
+        'announcements',
+        'news',
+        'people',
+        'posts',
+        'research',
+        'wiki',
+      ],
       maxDepth: 1,
     }),
     TextStateFeature({
@@ -57,7 +65,15 @@ export const defaultLexical = lexicalEditor({
     SubscriptFeature(),
     SuperscriptFeature(),
     LinkFeature({
-      enabledCollections: ['activities', 'news', 'people', 'posts', 'research', 'wiki'],
+      enabledCollections: [
+        'activities',
+        'announcements',
+        'news',
+        'people',
+        'posts',
+        'research',
+        'wiki',
+      ],
       fields: ({ defaultFields }) => {
         const defaultFieldsWithoutUrl = defaultFields.filter((field) => {
           if ('name' in field && field.name === 'url') return false

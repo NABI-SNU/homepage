@@ -13,6 +13,7 @@ const fallbackNavItems: NonNullable<Header['navItems']> = [
   {
     link: { type: 'custom', label: 'Activities', url: '/conferences' },
     links: [
+      { link: { type: 'custom', label: 'Announcements', url: '/announcements' } },
       { link: { type: 'custom', label: 'Symposium', url: '/symposium' } },
       { link: { type: 'custom', label: 'Conferences', url: '/conferences' } },
     ],
@@ -51,6 +52,12 @@ const articlesDropdownLinks: HeaderSubNavItems = [
   { link: { type: 'custom', label: 'Opinions', url: '/category/opinions' } },
 ]
 
+const activitiesDropdownLinks: HeaderSubNavItems = [
+  { link: { type: 'custom', label: 'Announcements', url: '/announcements' } },
+  { link: { type: 'custom', label: 'Symposium', url: '/symposium' } },
+  { link: { type: 'custom', label: 'Conferences', url: '/conferences' } },
+]
+
 const resourcesDropdownLinks: HeaderSubNavItems = [
   { link: { type: 'custom', label: 'Research', url: '/labs' } },
   { link: { type: 'custom', label: 'News', url: '/news' } },
@@ -74,6 +81,28 @@ const ensureResourcesIncludesRequiredLinks = (
 
     const links = item.links || []
     const missingLinks = resourcesDropdownLinks.filter(({ link: requiredLink }) => {
+      const requiredUrl = (requiredLink.url || '').toLowerCase().trim()
+
+      return !links.some(
+        (subItem) => (subItem?.link?.url || '').toLowerCase().trim() === requiredUrl,
+      )
+    })
+    if (missingLinks.length === 0) return item
+
+    return {
+      ...item,
+      links: [...links, ...missingLinks],
+    }
+  })
+
+const ensureActivitiesIncludesRequiredLinks = (
+  navItems: NonNullable<Header['navItems']>,
+): NonNullable<Header['navItems']> =>
+  navItems.map((item) => {
+    if (normalizedLabel(item) !== 'activities') return item
+
+    const links = item.links || []
+    const missingLinks = activitiesDropdownLinks.filter(({ link: requiredLink }) => {
       const requiredUrl = (requiredLink.url || '').toLowerCase().trim()
 
       return !links.some(
@@ -125,7 +154,11 @@ const normalizeActivitiesNavigation = (
   }
   const activitiesItem: HeaderNavItem = {
     link: { type: 'custom', label: 'Activities', url: '/conferences' },
-    links: [{ link: symposiumLink }, { link: conferencesLink }],
+    links: [
+      { link: { type: 'custom', label: 'Announcements', url: '/announcements' } },
+      { link: symposiumLink },
+      { link: conferencesLink },
+    ],
   }
 
   filtered.splice(insertIndex ?? 2, 0, activitiesItem)
@@ -139,7 +172,10 @@ const normalizeNavItems = (items: Header['navItems']): NonNullable<Header['navIt
   if (source.length === 0) return fallbackNavItems
 
   const withActivities = normalizeActivitiesNavigation(source)
-  const withRequiredResourcesLinks = ensureResourcesIncludesRequiredLinks(withActivities)
+  const withRequiredActivitiesLinks = ensureActivitiesIncludesRequiredLinks(withActivities)
+  const withRequiredResourcesLinks = ensureResourcesIncludesRequiredLinks(
+    withRequiredActivitiesLinks,
+  )
   const hasAnyDropdown = withRequiredResourcesLinks.some((item) => (item.links || []).length > 0)
   if (hasAnyDropdown) return withRequiredResourcesLinks
 

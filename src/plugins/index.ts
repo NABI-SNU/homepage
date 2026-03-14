@@ -62,12 +62,7 @@ const s3Region = process.env.S3_REGION || (isCloudflareR2Endpoint ? 'auto' : und
 const s3PublicURL = parsePublicHTTPURL(process.env.S3_PUBLIC_URL)?.toString()
 const rawS3MediaPrefix = normalizePathSegment(process.env.S3_MEDIA_PREFIX)
 const s3MediaPrefix = rawS3MediaPrefix ?? ''
-const s3CredentialsConfigured = Boolean(
-  s3Bucket &&
-  s3AccessKeyId &&
-  s3SecretAccessKey &&
-  s3Region,
-)
+const s3CredentialsConfigured = Boolean(s3Bucket && s3AccessKeyId && s3SecretAccessKey && s3Region)
 const s3StorageEnabled = process.env.S3_STORAGE_ENABLED !== 'false' && s3CredentialsConfigured
 
 if (s3StorageEnabled) {
@@ -98,7 +93,7 @@ const notebookS3CollectionConfig = createS3CollectionConfig({
 
 export const plugins: Plugin[] = [
   redirectsPlugin({
-    collections: ['posts', 'people', 'news', 'research', 'wiki', 'activities'],
+    collections: ['posts', 'people', 'news', 'research', 'wiki', 'activities', 'announcements'],
     overrides: {
       admin: {
         hidden: hideFromNonAdmins,

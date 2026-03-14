@@ -5,7 +5,7 @@ import { ExternalLink } from 'lucide-react'
 import React, { useDeferredValue, useMemo, useState, useTransition } from 'react'
 
 type ReferenceSource = {
-  type: 'posts' | 'news' | 'research'
+  type: 'posts' | 'news' | 'research' | 'announcements'
   title: string
   url: string
 }
@@ -26,9 +26,11 @@ const PAGE_SIZE = 18
 const SOURCE_TITLE_MAX = 28
 const PAGE_WINDOW = 1
 
-const truncate = (value: string, max: number) => (value.length > max ? `${value.slice(0, max)}...` : value)
+const truncate = (value: string, max: number) =>
+  value.length > max ? `${value.slice(0, max)}...` : value
 
 const sourceLabel: Record<ReferenceSource['type'], string> = {
+  announcements: 'Announcement',
   posts: 'Post',
   news: 'News',
   research: 'Research',
@@ -224,8 +226,12 @@ export function ReferenceSearch({ references }: { references: ReferenceSearchIte
                                 href={source.url}
                                 className="inline-flex items-center gap-1 rounded-md border border-primary/20 bg-primary/10 px-2.5 py-1 text-xs font-medium text-primary transition-all duration-200 hover:border-primary/35 hover:bg-primary/15"
                               >
-                                <span className="uppercase tracking-wide">{sourceLabel[source.type]}</span>
-                                <span className="text-foreground/85">· {truncate(source.title, SOURCE_TITLE_MAX)}</span>
+                                <span className="uppercase tracking-wide">
+                                  {sourceLabel[source.type]}
+                                </span>
+                                <span className="text-foreground/85">
+                                  · {truncate(source.title, SOURCE_TITLE_MAX)}
+                                </span>
                               </Link>
                             ))}
                           </div>

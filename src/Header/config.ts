@@ -24,6 +24,7 @@ export const Header: GlobalConfig = {
         {
           link: { type: 'custom', label: 'Activities', url: '/conferences' },
           links: [
+            { link: { type: 'custom', label: 'Announcements', url: '/announcements' } },
             { link: { type: 'custom', label: 'Symposium', url: '/symposium' } },
             { link: { type: 'custom', label: 'Conferences', url: '/conferences' } },
           ],

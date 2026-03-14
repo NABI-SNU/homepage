@@ -19,6 +19,21 @@ describe('preview path generation', () => {
     expect(params.get('path')).toBe('/posts/hello%20world')
   })
 
+  it('builds standalone announcement preview paths', () => {
+    const previewPath = generatePreviewPath({
+      collection: 'announcements',
+      req: {} as never,
+      slug: 'spring update',
+    })
+
+    expect(previewPath).toBeTruthy()
+
+    const params = new URLSearchParams(previewPath?.split('?')[1])
+    expect(params.get('previewSecret')).toBeNull()
+    expect(params.get('slug')).toBe('spring update')
+    expect(params.get('path')).toBe('/announcements/spring%20update')
+  })
+
   it('does not include a shared preview secret for activity previews', () => {
     const previewPath = getActivityPreviewPath({
       activityType: 'conference',

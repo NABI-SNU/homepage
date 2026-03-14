@@ -52,6 +52,9 @@ pnpm dev
 - `pnpm generate:types`: regenerate `src/payload-types.ts`
 - `pnpm generate:importmap`: regenerate Payload admin import map
 - `pnpm seed:test-accounts`: upsert fixed shared test accounts used by tests
+- `pnpm migrate`: run checked-in DB migrations
+- `pnpm migrate:status`: show which migrations have run
+- `pnpm migrate:create <name>`: create a new DB migration
 - `pnpm payload migrate:create`: create a DB migration when a future schema change requires one
 - `pnpm payload migrate`: run DB migrations
 
@@ -123,9 +126,9 @@ Primary public routes include:
 For schema changes on shared/production databases:
 
 1. Update Payload schema.
-2. Create migration: `pnpm payload migrate:create`
+2. Create migration: `pnpm migrate:create <descriptive_name>`
 3. Commit migration files.
-4. Run migration in target environment: `pnpm payload migrate`
+4. Run migration in target environment: `pnpm migrate`
 
 Payload will generate migration files when needed; there are no longer any checked-in legacy notebook migration files or repository-backed notebook assets.
 
