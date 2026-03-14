@@ -89,7 +89,9 @@ export function TableOfContents({
           .sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top)
 
         if (visible[0]?.target?.id) {
-          setActiveId(visible[0].target.id)
+          setActiveId((current) =>
+            current === visible[0].target.id ? current : visible[0].target.id,
+          )
         }
       },
       {
@@ -100,7 +102,10 @@ export function TableOfContents({
 
     targets.forEach((target) => observer.observe(target))
 
+    let raf = 0
+
     const updateFromScroll = () => {
+      raf = 0
       let current = targets[0]?.id || ''
 
       for (const target of targets) {
@@ -108,15 +113,23 @@ export function TableOfContents({
         if (top <= OBSERVER_TOP_OFFSET) current = target.id
       }
 
-      if (current) setActiveId(current)
+      if (current) {
+        setActiveId((previous) => (previous === current ? previous : current))
+      }
+    }
+
+    const onScroll = () => {
+      if (raf) return
+      raf = window.requestAnimationFrame(updateFromScroll)
     }
 
     updateFromScroll()
-    window.addEventListener('scroll', updateFromScroll, { passive: true })
+    window.addEventListener('scroll', onScroll, { passive: true })
 
     return () => {
+      if (raf) window.cancelAnimationFrame(raf)
       observer.disconnect()
-      window.removeEventListener('scroll', updateFromScroll)
+      window.removeEventListener('scroll', onScroll)
     }
   }, [items])
 
@@ -161,7 +174,9 @@ export function TableOfContents({
         )}
       >
         <div className="p-4">
-          <p className="mb-4 text-xs font-semibold uppercase tracking-[0.12em] text-muted-foreground">Contents</p>
+          <p className="mb-4 text-xs font-semibold uppercase tracking-[0.12em] text-muted-foreground">
+            Contents
+          </p>
           <nav className="max-h-[calc(100vh-14rem)] overflow-y-auto pr-1">
             <ul className="space-y-0.5">
               {items.map((item) => (
@@ -170,7 +185,11 @@ export function TableOfContents({
                     href={`#${item.id}`}
                     className={cn(
                       'block rounded-md border-l-2 px-3 py-2 text-sm transition-colors',
-                      item.level === 2 ? 'pl-3 font-medium' : item.level === 3 ? 'pl-6 text-muted-foreground' : 'pl-8 text-xs text-muted-foreground/90',
+                      item.level === 2
+                        ? 'pl-3 font-medium'
+                        : item.level === 3
+                          ? 'pl-6 text-muted-foreground'
+                          : 'pl-8 text-xs text-muted-foreground/90',
                       activeId === item.id
                         ? 'border-primary bg-muted text-foreground'
                         : 'border-transparent hover:text-primary',

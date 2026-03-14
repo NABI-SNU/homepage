@@ -9,7 +9,7 @@ import { getCachedPostsPage, POSTS_PER_PAGE } from '@/utilities/getPosts'
 import React from 'react'
 import Link from 'next/link'
 
-export const revalidate = 600
+export const revalidate = 3600
 
 type Args = {
   searchParams?: Promise<{

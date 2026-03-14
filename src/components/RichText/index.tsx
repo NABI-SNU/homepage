@@ -1,5 +1,5 @@
 import { MediaBlock } from '@/blocks/MediaBlock/Component'
-import { MathJaxTypeset } from '@/components/MathJax/Typeset.client'
+import { MathJaxTypeset } from '@/components/MathJax/Typeset'
 import {
   DefaultNodeTypes,
   SerializedBlockNode,

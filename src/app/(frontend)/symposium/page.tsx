@@ -1,63 +1,14 @@
 import type { Metadata } from 'next'
 
-import configPromise from '@payload-config'
-import { getPayload } from 'payload'
 import React from 'react'
 
 import { CollectionArchive } from '@/components/CollectionArchive'
+import { getCachedSymposiumCards } from '@/utilities/activityCache'
 
-export const revalidate = 600
+export const revalidate = 3600
 
 export default async function SymposiumPage() {
-  const payload = await getPayload({ config: configPromise })
-
-  const symposium = await payload.find({
-    collection: 'activities',
-    depth: 1,
-    limit: 200,
-    overrideAccess: false,
-    pagination: false,
-    sort: '-date',
-    where: {
-      and: [
-        {
-          _status: {
-            equals: 'published',
-          },
-        },
-        {
-          activityType: {
-            equals: 'symposium',
-          },
-        },
-      ],
-    },
-    select: {
-      title: true,
-      slug: true,
-      date: true,
-      heroImage: true,
-      meta: true,
-      description: true,
-    },
-  })
-
-  const mappedSymposium = symposium.docs.map((item) => {
-    const heroImage = item.heroImage && typeof item.heroImage === 'object' ? item.heroImage : null
-    const metaImage = item.meta?.image && typeof item.meta.image === 'object' ? item.meta.image : null
-
-    return {
-      slug: item.slug,
-      title: item.title,
-      date: item.date,
-      relationTo: 'symposium' as const,
-      meta: {
-        ...(item.meta || {}),
-        description: item.meta?.description || item.description,
-        image: metaImage || heroImage,
-      },
-    }
-  })
+  const mappedSymposium = await getCachedSymposiumCards()()
 
   return (
     <div className="page-shell-wide">

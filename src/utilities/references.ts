@@ -169,6 +169,6 @@ const getAllReferences = async (): Promise<ReferenceItem[]> => {
 
 export const getCachedAllReferences = () =>
   unstable_cache(getAllReferences, ['references-list'], {
-    revalidate: 600,
+    revalidate: 3600,
     tags: ['references_list'],
   })

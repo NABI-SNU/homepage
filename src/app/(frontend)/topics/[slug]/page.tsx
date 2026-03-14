@@ -1,10 +1,11 @@
 import type { Metadata } from 'next'
 
 import { CollectionArchive } from '@/components/CollectionArchive'
-import configPromise from '@payload-config'
-import { getPayload } from 'payload'
 import { notFound } from 'next/navigation'
 import { generateMeta } from '@/utilities/generateMeta'
+import { getCachedTopicPageData, getCachedTopicsList } from '@/utilities/getTopics'
+
+export const revalidate = 3600
 
 type Args = {
   params: Promise<{
@@ -12,72 +13,29 @@ type Args = {
   }>
 }
 
+export async function generateStaticParams() {
+  const slugs = await getCachedTopicsList()()
+  return slugs.map((slug) => ({ slug }))
+}
+
 export default async function TopicPage({ params }: Args) {
   const { slug } = await params
-  const payload = await getPayload({ config: configPromise })
-
-  const tags = await payload.find({
-    collection: 'tags',
-    limit: 1,
-    overrideAccess: false,
-    pagination: false,
-    where: {
-      slug: {
-        equals: slug,
-      },
-    },
-  })
-
-  const tag = tags.docs[0]
+  const { posts, topic: tag } = await getCachedTopicPageData(slug)()
   if (!tag) notFound()
-
-  const posts = await payload.find({
-    collection: 'posts',
-    depth: 1,
-    limit: 100,
-    overrideAccess: false,
-    pagination: false,
-    where: {
-      and: [
-        {
-          _status: {
-            equals: 'published',
-          },
-        },
-        {
-          tags: {
-            contains: tag.id,
-          },
-        },
-      ],
-    },
-  })
 
   return (
     <main className="pb-20 pt-12">
       <section className="container mb-10">
         <h1 className="text-4xl font-semibold">Topic: {tag.title}</h1>
       </section>
-      <CollectionArchive posts={posts.docs} />
+      <CollectionArchive posts={posts} />
     </main>
   )
 }
 
 export async function generateMetadata({ params }: Args): Promise<Metadata> {
   const { slug } = await params
-  const payload = await getPayload({ config: configPromise })
-  const tags = await payload.find({
-    collection: 'tags',
-    limit: 1,
-    overrideAccess: false,
-    pagination: false,
-    where: {
-      slug: {
-        equals: slug,
-      },
-    },
-  })
-  const tag = tags.docs[0]
+  const { topic: tag } = await getCachedTopicPageData(slug)()
   const title = tag?.title || slug
 
   return generateMeta({

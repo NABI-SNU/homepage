@@ -3,7 +3,7 @@ import type { Metadata } from 'next'
 import { ReferenceSearch } from '@/components/references/ReferenceSearch'
 import { getCachedAllReferences } from '@/utilities/references'
 
-export const revalidate = 600
+export const revalidate = 3600
 
 export default async function ReferencesPage() {
   const references = await getCachedAllReferences()()

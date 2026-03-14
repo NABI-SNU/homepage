@@ -3,7 +3,7 @@ import { unstable_cache } from 'next/cache'
 import { getPayload } from 'payload'
 
 import type { CardDocData } from '@/components/Card'
-import type { Media } from '@/payload-types'
+import type { Media, News } from '@/payload-types'
 import { extractLegacyImageFromLexical } from '@/utilities/legacyImage'
 
 const monthToIndex: Record<string, number> = {
@@ -38,6 +38,11 @@ type NewsPreviewSource = {
   id: number
 }
 
+type PublishedNewsDetail = Pick<
+  News,
+  'content' | 'date' | 'description' | 'id' | 'image' | 'references' | 'slug' | 'title'
+>
+
 type NewsArchiveItem = CardDocData & {
   year: number | null
 }
@@ -46,6 +51,26 @@ export type NewsArchiveDataset = {
   items: NewsArchiveItem[]
   years: number[]
 }
+
+const publishedNewsWhere = {
+  _status: {
+    equals: 'published' as const,
+  },
+}
+const newsSlugSelect = {
+  slug: true,
+} as const
+const newsDetailSelect = {
+  id: true,
+  title: true,
+  slug: true,
+  description: true,
+  image: true,
+  date: true,
+  content: true,
+  references: true,
+} as const
+const normalizeNewsSlug = (slug: string): string => slug.trim()
 
 const extractMonthYear = (item: { slug?: string | null; title?: string | null }) => {
   const fromTitle = item.title?.match(monthYearPattern)
@@ -236,5 +261,66 @@ const getNewsArchiveDataset = async (): Promise<NewsArchiveDataset> => {
 
 export const getCachedNewsArchiveDataset = () =>
   unstable_cache(getNewsArchiveDataset, ['news-archive-dataset'], {
+    revalidate: 3600,
     tags: ['news_list'],
+  })
+
+const getPublishedNewsBySlug = async (slug: string): Promise<PublishedNewsDetail | null> => {
+  const payload = await getPayload({ config: configPromise })
+  const normalizedSlug = normalizeNewsSlug(slug)
+  const result = await payload.find({
+    collection: 'news',
+    depth: 1,
+    limit: 1,
+    overrideAccess: false,
+    pagination: false,
+    select: newsDetailSelect,
+    where: {
+      and: [
+        publishedNewsWhere,
+        {
+          slug: {
+            equals: normalizedSlug,
+          },
+        },
+      ],
+    },
+  })
+
+  return (result.docs[0] as PublishedNewsDetail | undefined) || null
+}
+
+const getNewsSlugs = async (): Promise<string[]> => {
+  const payload = await getPayload({ config: configPromise })
+  const result = await payload.find({
+    collection: 'news',
+    depth: 0,
+    limit: 1000,
+    overrideAccess: false,
+    pagination: false,
+    select: newsSlugSelect,
+    sort: '-date',
+    where: publishedNewsWhere,
+  })
+
+  return result.docs.map((doc) => doc.slug).filter((slug): slug is string => Boolean(slug))
+}
+
+export const getCachedPublishedNewsBySlug = (slug: string) => {
+  const normalizedSlug = normalizeNewsSlug(slug)
+
+  return unstable_cache(
+    () => getPublishedNewsBySlug(normalizedSlug),
+    ['news-by-slug', normalizedSlug],
+    {
+      revalidate: 3600,
+      tags: [`news_${normalizedSlug}`],
+    },
+  )
+}
+
+export const getCachedNewsSlugs = () =>
+  unstable_cache(getNewsSlugs, ['news-slugs'], {
+    revalidate: 3600,
+    tags: ['news_list', 'site-sitemap'],
   })

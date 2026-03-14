@@ -13,7 +13,10 @@ const getYearFromISODate = (date: string | null | undefined): number | null => {
   return new Date(timestamp).getUTCFullYear()
 }
 
-const getActivitySlugTag = (activityType: string | null | undefined, slug: string | null | undefined): string | null => {
+const getActivitySlugTag = (
+  activityType: string | null | undefined,
+  slug: string | null | undefined,
+): string | null => {
   if (!slug) return null
   if (activityType !== 'conference' && activityType !== 'symposium') return null
   return `activities_${activityType}_slug_${slug}`
@@ -32,6 +35,7 @@ export const revalidateActivities: CollectionAfterChangeHook<Activity> = ({
 
       safeRevalidate(payload, 'symposium page', () => revalidatePath('/symposium'))
       safeRevalidate(payload, 'conferences list', () => revalidatePath('/conferences'))
+      safeRevalidate(payload, 'symposium list cache', () => revalidateTag('symposium_list'))
       safeRevalidate(payload, 'conference years cache', () =>
         revalidateTag('activities_conference_years'),
       )
@@ -104,6 +108,7 @@ export const revalidateActivitiesDelete: CollectionAfterDeleteHook<Activity> = (
   if (!isRevalidateDisabled(context)) {
     safeRevalidate(payload, 'symposium page', () => revalidatePath('/symposium'))
     safeRevalidate(payload, 'conferences list', () => revalidatePath('/conferences'))
+    safeRevalidate(payload, 'symposium list cache', () => revalidateTag('symposium_list'))
     safeRevalidate(payload, 'conference years cache', () =>
       revalidateTag('activities_conference_years'),
     )

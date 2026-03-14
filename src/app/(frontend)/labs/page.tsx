@@ -2,30 +2,14 @@ import type { Metadata } from 'next'
 
 import Link from 'next/link'
 
-import configPromise from '@payload-config'
-import { getPayload } from 'payload'
-
 import { Media } from '@/components/Media'
 import { formatDateTime } from '@/utilities/formatDateTime'
+import { getCachedResearchList } from '@/utilities/getResearchBySlug'
 
-export const revalidate = 600
+export const revalidate = 3600
 
 export default async function ResearchListPage() {
-  const payload = await getPayload({ config: configPromise })
-
-  const research = await payload.find({
-    collection: 'research',
-    depth: 1,
-    limit: 100,
-    overrideAccess: false,
-    pagination: false,
-    sort: '-date',
-    where: {
-      _status: {
-        equals: 'published',
-      },
-    },
-  })
+  const research = await getCachedResearchList()()
 
   return (
     <main className="page-shell">
@@ -43,13 +27,13 @@ export default async function ResearchListPage() {
               All research documents
             </h2>
             <p className="mt-2 text-sm text-muted-foreground">
-              {research.docs.length} published entr{research.docs.length === 1 ? 'y' : 'ies'}
+              {research.length} published entr{research.length === 1 ? 'y' : 'ies'}
             </p>
           </div>
         </div>
 
         <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
-          {research.docs.map((item) => (
+          {research.map((item) => (
             <article
               className="group relative flex h-full flex-col overflow-hidden rounded-[1.75rem] border border-border/80 bg-card/70 shadow-sm transition-all duration-300 ease-out hover:-translate-y-1 hover:scale-[1.01] hover:border-primary/30 hover:shadow-xl"
               key={item.id}

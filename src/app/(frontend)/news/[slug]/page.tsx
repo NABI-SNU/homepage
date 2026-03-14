@@ -1,9 +1,7 @@
 import type { Metadata } from 'next'
 
 import { PayloadRedirects } from '@/components/PayloadRedirects'
-import configPromise from '@payload-config'
-import { getPayload } from 'payload'
-import React, { cache } from 'react'
+import React from 'react'
 import Image from 'next/image'
 
 import RichText from '@/components/RichText'
@@ -14,22 +12,14 @@ import { formatDateTime } from '@/utilities/formatDateTime'
 import { getDraftAccessContext } from '@/utilities/getDraftAccessContext'
 import { extractLegacyImageFromLexical } from '@/utilities/legacyImage'
 import { generateMeta } from '@/utilities/generateMeta'
+import { getCachedNewsSlugs, getCachedPublishedNewsBySlug } from '@/utilities/getNews'
 import { SocialShare } from '@/components/SocialShare'
 
-export async function generateStaticParams() {
-  const payload = await getPayload({ config: configPromise })
-  const news = await payload.find({
-    collection: 'news',
-    draft: false,
-    limit: 1000,
-    overrideAccess: false,
-    pagination: false,
-    select: {
-      slug: true,
-    },
-  })
+export const revalidate = 3600
 
-  return news.docs.map(({ slug }) => ({ slug }))
+export async function generateStaticParams() {
+  const slugs = await getCachedNewsSlugs()()
+  return slugs.map((slug) => ({ slug }))
 }
 
 type Args = {
@@ -43,7 +33,7 @@ export default async function NewsDetailPage({ params: paramsPromise }: Args) {
   const { slug = '' } = await paramsPromise
   const decodedSlug = decodeURIComponent(slug)
   const url = '/news/' + decodedSlug
-  const entry = await queryNewsBySlug({ slug: decodedSlug })
+  const entry = await queryNewsBySlug(decodedSlug)
 
   if (!entry) {
     return <PayloadRedirects url={url} />
@@ -180,7 +170,7 @@ export default async function NewsDetailPage({ params: paramsPromise }: Args) {
 export async function generateMetadata({ params: paramsPromise }: Args): Promise<Metadata> {
   const { slug = '' } = await paramsPromise
   const decodedSlug = decodeURIComponent(slug)
-  const entry = await queryNewsBySlug({ slug: decodedSlug })
+  const entry = await queryNewsBySlug(decodedSlug)
 
   return generateMeta({
     description: entry?.description || 'Monthly highlights',
@@ -199,40 +189,37 @@ export async function generateMetadata({ params: paramsPromise }: Args): Promise
   })
 }
 
-const queryNewsBySlug = cache(async ({ slug }: { slug: string }) => {
+const queryNewsBySlug = async (slug: string) => {
   const { draft, payload, user } = await getDraftAccessContext()
 
-  const news = await payload.find({
+  if (!draft) {
+    return getCachedPublishedNewsBySlug(slug)()
+  }
+
+  const result = await payload.find({
     collection: 'news',
-    depth: 2,
+    depth: 1,
     draft,
     limit: 1,
     overrideAccess: false,
     pagination: false,
+    select: {
+      id: true,
+      title: true,
+      slug: true,
+      description: true,
+      image: true,
+      date: true,
+      content: true,
+      references: true,
+    },
     ...(user ? { user } : {}),
     where: {
-      ...(draft
-        ? {
-            slug: {
-              equals: slug,
-            },
-          }
-        : {
-            and: [
-              {
-                slug: {
-                  equals: slug,
-                },
-              },
-              {
-                _status: {
-                  equals: 'published',
-                },
-              },
-            ],
-          }),
+      slug: {
+        equals: slug,
+      },
     },
   })
 
-  return news.docs[0] || null
-})
+  return result.docs[0] || null
+}

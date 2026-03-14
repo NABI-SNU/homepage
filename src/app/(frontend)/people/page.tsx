@@ -1,33 +1,13 @@
 import type { Metadata } from 'next'
 
-import configPromise from '@payload-config'
-import { getPayload } from 'payload'
 import { PeopleDirectory } from '@/components/people/PeopleDirectory.client'
 import { Suspense } from 'react'
+import { getCachedPeopleList } from '@/utilities/getPeople'
 
-export const revalidate = 600
+export const revalidate = 3600
 
 export default async function PeoplePage() {
-  const payload = await getPayload({ config: configPromise })
-
-  const people = await payload.find({
-    collection: 'people',
-    depth: 1,
-    limit: 1000,
-    pagination: false,
-    overrideAccess: false,
-    sort: 'name',
-    select: {
-      name: true,
-      slug: true,
-      email: true,
-      research: true,
-      roleAssignments: true,
-      socials: true,
-      years: true,
-      avatar: true,
-    },
-  })
+  const people = await getCachedPeopleList()()
 
   return (
     <main className="page-shell">
@@ -36,7 +16,7 @@ export default async function PeoplePage() {
         <h1 className="page-title-lg">Meet our Members</h1>
       </section>
       <Suspense fallback={<PeopleDirectoryFallback />}>
-        <PeopleDirectory people={people.docs} />
+        <PeopleDirectory people={people} />
       </Suspense>
     </main>
   )

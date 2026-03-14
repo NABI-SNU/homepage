@@ -17,9 +17,14 @@ export const revalidatePost: CollectionAfterChangeHook<Post> = ({
       payload.logger.info(`Revalidating post at path: ${path}`)
 
       safeRevalidate(payload, 'post page', () => revalidatePath(path))
+      safeRevalidate(payload, 'about page', () => revalidatePath('/about'))
+      safeRevalidate(payload, 'post detail cache', () => revalidateTag(`post_${doc.slug}`))
       safeRevalidate(payload, 'posts sitemap', () => revalidateTag('posts-sitemap'))
       safeRevalidate(payload, 'posts list cache', () => revalidateTag('posts_list'))
       safeRevalidate(payload, 'category posts cache', () => revalidateTag('posts_by_category'))
+      safeRevalidate(payload, 'recent posts cache', () => revalidateTag('recent_posts'))
+      safeRevalidate(payload, 'person posts cache', () => revalidateTag('person_posts'))
+      safeRevalidate(payload, 'topic posts cache', () => revalidateTag('topic_posts'))
       safeRevalidate(payload, 'search results cache', () => revalidateTag('search_results'))
       safeRevalidate(payload, 'references page', () => revalidatePath('/references'))
       safeRevalidate(payload, 'references cache', () => revalidateTag('references_list'))
@@ -32,9 +37,16 @@ export const revalidatePost: CollectionAfterChangeHook<Post> = ({
       payload.logger.info(`Revalidating old post at path: ${oldPath}`)
 
       safeRevalidate(payload, 'old post page', () => revalidatePath(oldPath))
+      safeRevalidate(payload, 'about page', () => revalidatePath('/about'))
+      safeRevalidate(payload, 'old post detail cache', () =>
+        revalidateTag(`post_${previousDoc.slug}`),
+      )
       safeRevalidate(payload, 'posts sitemap', () => revalidateTag('posts-sitemap'))
       safeRevalidate(payload, 'posts list cache', () => revalidateTag('posts_list'))
       safeRevalidate(payload, 'category posts cache', () => revalidateTag('posts_by_category'))
+      safeRevalidate(payload, 'recent posts cache', () => revalidateTag('recent_posts'))
+      safeRevalidate(payload, 'person posts cache', () => revalidateTag('person_posts'))
+      safeRevalidate(payload, 'topic posts cache', () => revalidateTag('topic_posts'))
       safeRevalidate(payload, 'search results cache', () => revalidateTag('search_results'))
       safeRevalidate(payload, 'references page', () => revalidatePath('/references'))
       safeRevalidate(payload, 'references cache', () => revalidateTag('references_list'))
@@ -43,14 +55,22 @@ export const revalidatePost: CollectionAfterChangeHook<Post> = ({
   return doc
 }
 
-export const revalidateDelete: CollectionAfterDeleteHook<Post> = ({ doc, req: { context, payload } }) => {
+export const revalidateDelete: CollectionAfterDeleteHook<Post> = ({
+  doc,
+  req: { context, payload },
+}) => {
   if (!isRevalidateDisabled(context)) {
     const path = `/posts/${doc?.slug}`
 
     safeRevalidate(payload, 'post delete page', () => revalidatePath(path))
+    safeRevalidate(payload, 'about page', () => revalidatePath('/about'))
+    safeRevalidate(payload, 'post detail cache', () => revalidateTag(`post_${doc?.slug}`))
     safeRevalidate(payload, 'posts sitemap', () => revalidateTag('posts-sitemap'))
     safeRevalidate(payload, 'posts list cache', () => revalidateTag('posts_list'))
     safeRevalidate(payload, 'category posts cache', () => revalidateTag('posts_by_category'))
+    safeRevalidate(payload, 'recent posts cache', () => revalidateTag('recent_posts'))
+    safeRevalidate(payload, 'person posts cache', () => revalidateTag('person_posts'))
+    safeRevalidate(payload, 'topic posts cache', () => revalidateTag('topic_posts'))
     safeRevalidate(payload, 'search results cache', () => revalidateTag('search_results'))
     safeRevalidate(payload, 'references page', () => revalidatePath('/references'))
     safeRevalidate(payload, 'references cache', () => revalidateTag('references_list'))

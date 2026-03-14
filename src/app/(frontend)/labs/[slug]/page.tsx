@@ -2,19 +2,24 @@ import type { Metadata } from 'next'
 
 import { headers as getRequestHeaders } from 'next/headers'
 import { notFound } from 'next/navigation'
-import { cache } from 'react'
 
 import { LivePreviewListener } from '@/components/LivePreviewListener'
-import { MathJaxTypeset } from '@/components/MathJax/Typeset.client'
+import { MathJaxTypeset } from '@/components/MathJax/Typeset'
 import { Media } from '@/components/Media'
 import RichText from '@/components/RichText'
 import { TableOfContents } from '@/components/TableOfContents'
 import { ResearchNotebookArticle } from '@/components/research/ResearchNotebookArticle'
 import { getDraftAccessContext } from '@/utilities/getDraftAccessContext'
 import { generateMeta } from '@/utilities/generateMeta'
-import { findResearchBySlug } from '@/utilities/getResearchBySlug'
+import {
+  findResearchBySlug,
+  getCachedPublishedResearchBySlug,
+  getCachedResearchSlugs,
+} from '@/utilities/getResearchBySlug'
 import { formatDateTime } from '@/utilities/formatDateTime'
 import { fetchNotebookContent, getUploadDoc, getUploadID } from '@/utilities/notebooks'
+
+export const revalidate = 3600
 
 type Args = {
   params: Promise<{
@@ -22,11 +27,16 @@ type Args = {
   }>
 }
 
+export async function generateStaticParams() {
+  const slugs = await getCachedResearchSlugs()()
+  return slugs.map((slug) => ({ slug }))
+}
+
 export default async function ResearchDetailPage({ params }: Args) {
   const { draft, payload } = await getDraftAccessContext()
   const requestHeaders = await getRequestHeaders()
   const { slug } = await params
-  const entry = await queryResearchBySlug({ slug })
+  const entry = await queryResearchBySlug(slug)
   if (!entry) notFound()
   const notebookID = getUploadID(entry.notebook)
   const notebookFromRelationship = getUploadDoc(entry.notebook)
@@ -151,7 +161,7 @@ export default async function ResearchDetailPage({ params }: Args) {
 
 export async function generateMetadata({ params }: Args): Promise<Metadata> {
   const { slug } = await params
-  const entry = await queryResearchBySlug({ slug })
+  const entry = await queryResearchBySlug(slug)
 
   return generateMeta({
     description: entry?.description || 'Research note',
@@ -167,12 +177,17 @@ export async function generateMetadata({ params }: Args): Promise<Metadata> {
   })
 }
 
-const queryResearchBySlug = cache(async ({ slug }: { slug: string }) => {
+const queryResearchBySlug = async (slug: string) => {
   const { draft, payload, user } = await getDraftAccessContext()
+
+  if (!draft) {
+    return getCachedPublishedResearchBySlug(slug)()
+  }
+
   return findResearchBySlug({
     draft,
     payload,
     slug,
     user,
   })
-})
+}

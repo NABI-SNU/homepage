@@ -3,7 +3,7 @@ import type { Metadata } from 'next'
 import { PayloadRedirects } from '@/components/PayloadRedirects'
 import React from 'react'
 
-import { MathJaxTypeset } from '@/components/MathJax/Typeset.client'
+import { MathJaxTypeset } from '@/components/MathJax/Typeset'
 import { Media } from '@/components/Media'
 import RichText from '@/components/RichText'
 import { SocialShare } from '@/components/SocialShare'
@@ -15,7 +15,7 @@ import {
 import { formatDateTime } from '@/utilities/formatDateTime'
 import { generateMeta } from '@/utilities/generateMeta'
 
-export const revalidate = 600
+export const revalidate = 3600
 
 type Args = {
   params: Promise<{
@@ -58,7 +58,11 @@ export default async function ConferenceDetailPage({ params: paramsPromise }: Ar
             <div className="mb-6 flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-muted-foreground">
               <div className="flex items-center gap-1.5">
                 <span className="font-medium">Date</span>
-                {entry.date ? <time dateTime={entry.date}>{formatDateTime(entry.date)}</time> : <span>Undated</span>}
+                {entry.date ? (
+                  <time dateTime={entry.date}>{formatDateTime(entry.date)}</time>
+                ) : (
+                  <span>Undated</span>
+                )}
               </div>
               {entry.location && (
                 <div className="flex items-center gap-1.5">
@@ -131,12 +135,18 @@ export default async function ConferenceDetailPage({ params: paramsPromise }: Ar
                       </span>
                       <div className="flex-1 pt-1 text-sm leading-6 text-muted-foreground">
                         <a
-                          href={reference.url || (reference.doi ? `https://doi.org/${reference.doi}` : '#')}
+                          href={
+                            reference.url ||
+                            (reference.doi ? `https://doi.org/${reference.doi}` : '#')
+                          }
                           target="_blank"
                           rel="noreferrer"
                           className="text-foreground transition-colors duration-200 group-hover:underline hover:text-primary"
                         >
-                          {reference.authors?.map((author) => author.name).filter(Boolean).join(', ')}
+                          {reference.authors
+                            ?.map((author) => author.name)
+                            .filter(Boolean)
+                            .join(', ')}
                           {reference.year ? ` (${reference.year})` : ''}. {reference.title}
                           {reference.journal ? `, ${reference.journal}` : ''}
                         </a>

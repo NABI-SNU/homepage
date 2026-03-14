@@ -10,7 +10,7 @@ import React from 'react'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
 
-export const revalidate = 600
+export const revalidate = 3600
 
 type Args = {
   params: Promise<{
@@ -21,7 +21,10 @@ type Args = {
   }>
 }
 
-export default async function Page({ params: paramsPromise, searchParams: searchParamsPromise }: Args) {
+export default async function Page({
+  params: paramsPromise,
+  searchParams: searchParamsPromise,
+}: Args) {
   const { pageNumber } = await paramsPromise
   const searchParams = searchParamsPromise ? await searchParamsPromise : {}
   const searchQuery = searchParams?.q?.trim() || ''

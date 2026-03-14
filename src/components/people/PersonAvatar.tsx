@@ -26,9 +26,15 @@ const getInitials = (name?: string | null) => {
   )
 }
 
-const gravatarURL = (email: string | null | undefined, name: string | null | undefined, size: number) => {
+const gravatarURL = (
+  email: string | null | undefined,
+  name: string | null | undefined,
+  size: number,
+) => {
   const normalized =
-    email?.trim().toLowerCase().normalize('NFKC') || name?.trim().toLowerCase().normalize('NFKC') || 'unknown'
+    email?.trim().toLowerCase().normalize('NFKC') ||
+    name?.trim().toLowerCase().normalize('NFKC') ||
+    'unknown'
   const hash = md5(normalized)
   const requestedSize = Math.min(Math.max(Math.round(size * 2), 80), 2048)
   return `https://secure.gravatar.com/avatar/${hash}?s=${requestedSize}&d=identicon&r=g`
@@ -55,6 +61,7 @@ export function PersonAvatar({ avatar, className, email, name, size = 48 }: Prop
         alt={alt}
         className="h-full w-full object-cover"
         height={size}
+        sizes={`${size}px`}
         src={avatarSource}
         width={size}
       />

@@ -77,7 +77,11 @@ const resolveCSSColor = (value: string, fallback: string): string => {
   return resolved || fallback
 }
 
-const getColorFromVar = (styles: CSSStyleDeclaration, variable: string, fallback: string): number => {
+const getColorFromVar = (
+  styles: CSSStyleDeclaration,
+  variable: string,
+  fallback: string,
+): number => {
   const cssVarValue = styles.getPropertyValue(variable).trim()
   const normalizedColor = resolveCSSColor(cssVarValue || fallback, fallback)
   return colorFromRGBString(normalizedColor)
@@ -121,22 +125,27 @@ export function WikiGraph({
     const width = root.clientWidth || 960
     const graphHeight = Math.max(280, height)
     const degreeByID = new Map<string, number>()
+    const nodeByID = new Map<string, WikiGraphNode & SimulationNodeDatum>()
 
     graphData.links.forEach((link) => {
       degreeByID.set(link.source, (degreeByID.get(link.source) || 0) + 1)
       degreeByID.set(link.target, (degreeByID.get(link.target) || 0) + 1)
     })
 
-    const simulatedNodes = graphData.nodes.map((node) => ({
-      ...node,
-      x: width / 2 + (Math.random() - 0.5) * 80,
-      y: graphHeight / 2 + (Math.random() - 0.5) * 80,
-    }))
+    const simulatedNodes = graphData.nodes.map((node) => {
+      const nextNode = {
+        ...node,
+        x: width / 2 + (Math.random() - 0.5) * 80,
+        y: graphHeight / 2 + (Math.random() - 0.5) * 80,
+      }
+      nodeByID.set(node.id, nextNode)
+      return nextNode
+    })
 
     const simulatedLinks = graphData.links
       .map((link) => {
-        const source = simulatedNodes.find((node) => node.id === link.source)
-        const target = simulatedNodes.find((node) => node.id === link.target)
+        const source = nodeByID.get(link.source)
+        const target = nodeByID.get(link.target)
         if (!source || !target) return null
         return { source, target }
       })
@@ -186,6 +195,49 @@ export function WikiGraph({
       const renderedLinks: RenderLink[] = []
       let palette = resolveGraphPalette()
 
+      const renderScene = () => {
+        renderedNodes.forEach((renderedNode) => {
+          const x = renderedNode.simulationData.x || width / 2
+          const y = renderedNode.simulationData.y || graphHeight / 2
+          renderedNode.gfx.position.set(x, y)
+          renderedNode.label.position.set(x, y)
+        })
+
+        renderedLinks.forEach((renderedLink) => {
+          const sourceX = renderedLink.simulationData.source.x || width / 2
+          const sourceY = renderedLink.simulationData.source.y || graphHeight / 2
+          const targetX = renderedLink.simulationData.target.x || width / 2
+          const targetY = renderedLink.simulationData.target.y || graphHeight / 2
+          renderedLink.gfx.clear()
+          renderedLink.gfx.moveTo(sourceX, sourceY)
+          renderedLink.gfx.lineTo(targetX, targetY)
+          renderedLink.gfx.stroke({
+            alpha: renderedLink.gfx.alpha,
+            color: transform.k > 1.4 ? palette.linkNear : palette.linkFar,
+            width: transform.k > 1.4 ? 1.4 : 1,
+          })
+        })
+
+        app.renderer.render(stage)
+      }
+
+      const renderLoop = (time: number) => {
+        raf = 0
+        if (disposed) return
+
+        hoverTweens.update(time)
+        renderScene()
+
+        if (!hoverTweens.allStopped()) {
+          raf = requestAnimationFrame(renderLoop)
+        }
+      }
+
+      const startRenderLoop = () => {
+        if (disposed || raf) return
+        raf = requestAnimationFrame(renderLoop)
+      }
+
       const applyNodeStyles = (renderedNode: RenderNode) => {
         const fillColor = renderedNode.isCurrent ? palette.nodeCurrentFill : palette.nodeDefaultFill
         const strokeColor = renderedNode.isCurrent
@@ -208,6 +260,7 @@ export function WikiGraph({
         renderedNodes.forEach((renderedNode) => {
           applyNodeStyles(renderedNode)
         })
+        renderScene()
       }
 
       const updateFocus = (hoveredID: string | null) => {
@@ -227,10 +280,13 @@ export function WikiGraph({
         hoverTweens.removeAll()
 
         renderedNodes.forEach((renderedNode) => {
-          const baseAlpha = !hoveredID || activeNodeIDs.has(renderedNode.simulationData.id) ? 1 : 0.2
+          const baseAlpha =
+            !hoveredID || activeNodeIDs.has(renderedNode.simulationData.id) ? 1 : 0.2
           hoverTweens.add(new Tweened(renderedNode.gfx).to({ alpha: baseAlpha }, 160).start())
           hoverTweens.add(
-            new Tweened(renderedNode.label).to({ alpha: hoveredID ? (baseAlpha > 0.9 ? 0.9 : 0.2) : 0.65 }, 160).start(),
+            new Tweened(renderedNode.label)
+              .to({ alpha: hoveredID ? (baseAlpha > 0.9 ? 0.9 : 0.2) : 0.65 }, 160)
+              .start(),
           )
         })
 
@@ -238,8 +294,12 @@ export function WikiGraph({
           const sourceID = renderedLink.simulationData.source.id
           const targetID = renderedLink.simulationData.target.id
           const active = !hoveredID || sourceID === hoveredID || targetID === hoveredID
-          hoverTweens.add(new Tweened(renderedLink.gfx).to({ alpha: active ? 0.85 : 0.15 }, 160).start())
+          hoverTweens.add(
+            new Tweened(renderedLink.gfx).to({ alpha: active ? 0.85 : 0.15 }, 160).start(),
+          )
         })
+
+        startRenderLoop()
       }
 
       simulatedNodes.forEach((node) => {
@@ -318,43 +378,22 @@ export function WikiGraph({
             transform = nextTransform
             stage.scale.set(nextTransform.k, nextTransform.k)
             stage.position.set(nextTransform.x, nextTransform.y)
+            renderScene()
           }),
       )
 
-      const animate = (time: number) => {
-        if (disposed) return
-
+      simulation.stop()
+      const maxTicks = Math.max(80, Math.min(240, graphData.nodes.length * 8))
+      for (
+        let index = 0;
+        index < maxTicks && simulation.alpha() > simulation.alphaMin();
+        index += 1
+      ) {
         simulation.tick()
-
-        renderedNodes.forEach((renderedNode) => {
-          const x = renderedNode.simulationData.x || width / 2
-          const y = renderedNode.simulationData.y || graphHeight / 2
-          renderedNode.gfx.position.set(x, y)
-          renderedNode.label.position.set(x, y)
-        })
-
-        renderedLinks.forEach((renderedLink) => {
-          const sourceX = renderedLink.simulationData.source.x || width / 2
-          const sourceY = renderedLink.simulationData.source.y || graphHeight / 2
-          const targetX = renderedLink.simulationData.target.x || width / 2
-          const targetY = renderedLink.simulationData.target.y || graphHeight / 2
-          renderedLink.gfx.clear()
-          renderedLink.gfx.moveTo(sourceX, sourceY)
-          renderedLink.gfx.lineTo(targetX, targetY)
-          renderedLink.gfx.stroke({
-            alpha: renderedLink.gfx.alpha,
-            color: transform.k > 1.4 ? palette.linkNear : palette.linkFar,
-            width: transform.k > 1.4 ? 1.4 : 1,
-          })
-        })
-
-        hoverTweens.update(time)
-        app.renderer.render(stage)
-        raf = requestAnimationFrame(animate)
       }
 
       updateFocus(null)
-      raf = requestAnimationFrame(animate)
+      renderScene()
     }
 
     void setup()
@@ -368,5 +407,10 @@ export function WikiGraph({
     }
   }, [currentNodeId, graphData, height, router])
 
-  return <div className="h-full min-h-[280px] w-full rounded-xl border border-border/70 bg-card/50" ref={rootRef} />
+  return (
+    <div
+      className="h-full min-h-[280px] w-full rounded-xl border border-border/70 bg-card/50"
+      ref={rootRef}
+    />
+  )
 }

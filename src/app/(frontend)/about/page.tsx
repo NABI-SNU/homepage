@@ -1,7 +1,5 @@
 import type { Metadata } from 'next'
 
-import configPromise from '@payload-config'
-import { getPayload } from 'payload'
 import Link from 'next/link'
 import Image from 'next/image'
 import {
@@ -18,7 +16,10 @@ import {
 
 import { Card } from '@/components/Card'
 import { getCachedGlobal } from '@/utilities/getGlobals'
+import { getCachedRecentPosts } from '@/utilities/getPosts'
 import type { AboutPage as AboutPageGlobal } from '@/payload-types'
+
+export const revalidate = 3600
 
 const ABOUT_HERO_IMAGE_URL =
   'https://images.unsplash.com/photo-1519389950473-47ba0277781c?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80'
@@ -41,9 +42,9 @@ const EXTRA_HIGHLIGHT = {
 }
 
 export default async function AboutPage() {
-  const [aboutPageData, payload] = await Promise.all([
+  const [aboutPageData, latestPosts] = await Promise.all([
     getCachedGlobal('aboutPage', 1)(),
-    getPayload({ config: configPromise }),
+    getCachedRecentPosts(6)(),
   ])
   const aboutPage = aboutPageData as AboutPageGlobal
   const highlights = [...(aboutPage.highlights || [])]
@@ -55,21 +56,6 @@ export default async function AboutPage() {
   ) {
     highlights.push(EXTRA_HIGHLIGHT)
   }
-
-  const latestPosts = await payload.find({
-    collection: 'posts',
-    depth: 1,
-    draft: false,
-    limit: 6,
-    overrideAccess: false,
-    pagination: false,
-    where: {
-      _status: {
-        equals: 'published',
-      },
-    },
-  })
-
   return (
     <main className="page-shell-wide">
       <section className="container page-header">
@@ -169,7 +155,7 @@ export default async function AboutPage() {
         </div>
 
         <div className="mt-6 grid grid-cols-4 gap-5 sm:grid-cols-8 lg:grid-cols-12 lg:gap-7">
-          {latestPosts.docs.map((post) => (
+          {latestPosts.map((post) => (
             <div className="col-span-4" key={post.id}>
               <Card className="h-full" doc={post} relationTo="posts" />
             </div>

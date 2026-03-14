@@ -25,7 +25,7 @@ type Args = {
   }>
 }
 
-export const revalidate = 900
+export const revalidate = 1800
 
 export default async function WikiDetailPage({ params }: Args) {
   const { draft } = await getDraftAccessContext()

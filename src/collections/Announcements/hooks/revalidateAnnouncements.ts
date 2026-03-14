@@ -17,6 +17,10 @@ export const revalidateAnnouncements: CollectionAfterChangeHook<Announcement> = 
       if (revalidatedCollectionCaches) return
 
       safeRevalidate(payload, 'announcements list', () => revalidatePath('/announcements'))
+      safeRevalidate(payload, 'announcements list cache', () => revalidateTag('announcements_list'))
+      safeRevalidate(payload, 'announcements slugs cache', () =>
+        revalidateTag('announcements_slugs'),
+      )
       safeRevalidate(payload, 'references page', () => revalidatePath('/references'))
       safeRevalidate(payload, 'references cache', () => revalidateTag('references_list'))
       safeRevalidate(payload, 'site sitemap', () => revalidateTag('site-sitemap'))
@@ -28,6 +32,9 @@ export const revalidateAnnouncements: CollectionAfterChangeHook<Announcement> = 
       payload.logger.info(`Revalidating announcement at path: ${currentPath}`)
       revalidateCollectionCaches()
       safeRevalidate(payload, 'announcement page', () => revalidatePath(currentPath))
+      safeRevalidate(payload, 'announcement detail cache', () =>
+        revalidateTag(`announcement_${doc.slug}`),
+      )
     }
 
     const shouldRevalidatePreviousPath =
@@ -39,6 +46,9 @@ export const revalidateAnnouncements: CollectionAfterChangeHook<Announcement> = 
       payload.logger.info(`Revalidating previous announcement path: ${previousPath}`)
       revalidateCollectionCaches()
       safeRevalidate(payload, 'previous announcement page', () => revalidatePath(previousPath))
+      safeRevalidate(payload, 'previous announcement detail cache', () =>
+        revalidateTag(`announcement_${previousDoc.slug}`),
+      )
     }
   }
 
@@ -51,8 +61,13 @@ export const revalidateAnnouncementsDelete: CollectionAfterDeleteHook<Announceme
 }) => {
   if (!isRevalidateDisabled(context)) {
     safeRevalidate(payload, 'announcements list', () => revalidatePath('/announcements'))
+    safeRevalidate(payload, 'announcements list cache', () => revalidateTag('announcements_list'))
+    safeRevalidate(payload, 'announcements slugs cache', () => revalidateTag('announcements_slugs'))
     safeRevalidate(payload, 'announcement delete page', () =>
       revalidatePath(`/announcements/${doc?.slug}`),
+    )
+    safeRevalidate(payload, 'announcement detail cache', () =>
+      revalidateTag(`announcement_${doc?.slug}`),
     )
     safeRevalidate(payload, 'references page', () => revalidatePath('/references'))
     safeRevalidate(payload, 'references cache', () => revalidateTag('references_list'))

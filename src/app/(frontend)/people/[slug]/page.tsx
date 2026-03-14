@@ -1,8 +1,6 @@
 import type { Metadata } from 'next'
 import { Mail } from 'lucide-react'
 
-import configPromise from '@payload-config'
-import { getPayload } from 'payload'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 
@@ -12,7 +10,14 @@ import { PersonAvatar } from '@/components/people/PersonAvatar'
 import { PersonRoleBadge } from '@/components/people/PersonRoleBadge'
 import { PersonSocialLinks } from '@/components/people/PersonSocialLinks'
 import { generateMeta } from '@/utilities/generateMeta'
+import {
+  getCachedAuthoredPostsByPersonID,
+  getCachedPersonSlugs,
+  getCachedPublicPersonBySlug,
+} from '@/utilities/getPeople'
 import { parseResearchTags, toTagSlug } from '@/utilities/researchTags'
+
+export const revalidate = 3600
 
 type Args = {
   params: Promise<{
@@ -20,49 +25,18 @@ type Args = {
   }>
 }
 
+export async function generateStaticParams() {
+  const slugs = await getCachedPersonSlugs()()
+  return slugs.map((slug) => ({ slug }))
+}
+
 export default async function PersonPage({ params }: Args) {
   const { slug } = await params
-  const payload = await getPayload({ config: configPromise })
-
-  const people = await payload.find({
-    collection: 'people',
-    depth: 1,
-    limit: 1,
-    overrideAccess: false,
-    pagination: false,
-    where: {
-      slug: {
-        equals: slug,
-      },
-    },
-  })
-
-  const person = people.docs[0]
+  const person = await getCachedPublicPersonBySlug(slug)()
   if (!person) notFound()
   const researchTopics = parseResearchTags(person.research)
   const roleAssignments = [...(person.roleAssignments || [])].sort((a, b) => b.year - a.year)
-
-  const authoredPosts = await payload.find({
-    collection: 'posts',
-    depth: 1,
-    limit: 20,
-    overrideAccess: false,
-    pagination: false,
-    where: {
-      and: [
-        {
-          _status: {
-            equals: 'published',
-          },
-        },
-        {
-          authors: {
-            contains: person.id,
-          },
-        },
-      ],
-    },
-  })
+  const authoredPosts = await getCachedAuthoredPostsByPersonID(person.id)()
 
   return (
     <main className="pb-20 pt-12">
@@ -207,12 +181,12 @@ export default async function PersonPage({ params }: Args) {
         <div className="mx-auto max-w-4xl">
           <h2 className="text-2xl font-semibold">Posts by {person.name}</h2>
           <div className="mt-6 grid grid-cols-4 gap-5 sm:grid-cols-8 lg:grid-cols-12 lg:gap-7">
-            {authoredPosts.docs.map((post) => (
+            {authoredPosts.map((post) => (
               <div className="col-span-4" key={post.id}>
                 <Card className="h-full" doc={post} relationTo="posts" />
               </div>
             ))}
-            {authoredPosts.docs.length === 0 && (
+            {authoredPosts.length === 0 && (
               <p className="text-sm text-muted-foreground">No posts yet.</p>
             )}
           </div>
@@ -224,21 +198,7 @@ export default async function PersonPage({ params }: Args) {
 
 export async function generateMetadata({ params }: Args): Promise<Metadata> {
   const { slug } = await params
-  const payload = await getPayload({ config: configPromise })
-  const people = await payload.find({
-    collection: 'people',
-    depth: 0,
-    limit: 1,
-    overrideAccess: false,
-    pagination: false,
-    where: {
-      slug: {
-        equals: slug,
-      },
-    },
-  })
-
-  const person = people.docs[0]
+  const person = await getCachedPublicPersonBySlug(slug)()
 
   return generateMeta({
     description:

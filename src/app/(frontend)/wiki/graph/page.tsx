@@ -1,9 +1,9 @@
 import type { Metadata } from 'next'
 
-import { WikiGraph } from '@/components/wiki/WikiGraph.client'
+import { WikiGraph } from '@/components/wiki/WikiGraph'
 import { getCachedWikiGraph } from '@/utilities/wiki'
 
-export const revalidate = 900
+export const revalidate = 1800
 
 export default async function WikiGraphPage() {
   const graphData = await getCachedWikiGraph()()

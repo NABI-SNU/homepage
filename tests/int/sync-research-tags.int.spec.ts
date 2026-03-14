@@ -3,6 +3,8 @@ import { describe, expect, it, vi } from 'vitest'
 import { syncResearchTagsFromPerson } from '@/collections/People/hooks/syncResearchTags'
 
 describe('syncResearchTagsFromPerson', () => {
+  type SyncArgs = Parameters<typeof syncResearchTagsFromPerson>[0]
+
   it('does nothing when normalized research tags are unchanged', async () => {
     const payload = {
       create: vi.fn(),
@@ -27,7 +29,7 @@ describe('syncResearchTagsFromPerson', () => {
         payload,
         context: {},
       },
-    } as any)
+    } as unknown as SyncArgs)
 
     expect(result).toBe(doc)
     expect(payload.find).not.toHaveBeenCalled()
@@ -65,14 +67,24 @@ describe('syncResearchTagsFromPerson', () => {
         payload,
         context: {},
       },
-    } as any)
+    } as unknown as SyncArgs)
 
     const tagFindCalls = payload.find.mock.calls.filter(
       ([args]) => (args as { collection?: string }).collection === 'tags',
     )
 
     expect(tagFindCalls).toHaveLength(2)
-    expect((tagFindCalls[0]?.[0] as any).where.slug.in).toEqual(['ai', 'machine-learning', 'vision'])
+    expect(
+      (
+        tagFindCalls[0]?.[0] as {
+          where?: {
+            slug?: {
+              in?: string[]
+            }
+          }
+        }
+      ).where?.slug?.in,
+    ).toEqual(['ai', 'machine-learning', 'vision'])
     expect(payload.create).toHaveBeenCalledTimes(3)
   })
 })

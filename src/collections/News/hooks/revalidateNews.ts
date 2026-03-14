@@ -5,7 +5,11 @@ import { revalidatePath, revalidateTag } from 'next/cache'
 import type { News } from '@/payload-types'
 import { isRevalidateDisabled, safeRevalidate } from '@/utilities/safeRevalidate'
 
-export const revalidateNews: CollectionAfterChangeHook<News> = ({ doc, previousDoc, req: { payload, context } }) => {
+export const revalidateNews: CollectionAfterChangeHook<News> = ({
+  doc,
+  previousDoc,
+  req: { payload, context },
+}) => {
   if (!isRevalidateDisabled(context)) {
     let revalidatedCollectionCaches = false
 
@@ -26,6 +30,7 @@ export const revalidateNews: CollectionAfterChangeHook<News> = ({ doc, previousD
       payload.logger.info(`Revalidating news at path: ${currentPath}`)
       revalidateCollectionCaches()
       safeRevalidate(payload, 'news page', () => revalidatePath(currentPath))
+      safeRevalidate(payload, 'news detail cache', () => revalidateTag(`news_${doc.slug}`))
     }
 
     const shouldRevalidatePreviousPath =
@@ -37,17 +42,24 @@ export const revalidateNews: CollectionAfterChangeHook<News> = ({ doc, previousD
       payload.logger.info(`Revalidating previous news path: ${previousPath}`)
       revalidateCollectionCaches()
       safeRevalidate(payload, 'previous news page', () => revalidatePath(previousPath))
+      safeRevalidate(payload, 'previous news detail cache', () =>
+        revalidateTag(`news_${previousDoc.slug}`),
+      )
     }
   }
 
   return doc
 }
 
-export const revalidateNewsDelete: CollectionAfterDeleteHook<News> = ({ doc, req: { context, payload } }) => {
+export const revalidateNewsDelete: CollectionAfterDeleteHook<News> = ({
+  doc,
+  req: { context, payload },
+}) => {
   if (!isRevalidateDisabled(context)) {
     safeRevalidate(payload, 'news list', () => revalidatePath('/news'))
     safeRevalidate(payload, 'news list cache', () => revalidateTag('news_list'))
     safeRevalidate(payload, 'news delete page', () => revalidatePath(`/news/${doc?.slug}`))
+    safeRevalidate(payload, 'news detail cache', () => revalidateTag(`news_${doc?.slug}`))
     safeRevalidate(payload, 'search results cache', () => revalidateTag('search_results'))
     safeRevalidate(payload, 'references page', () => revalidatePath('/references'))
     safeRevalidate(payload, 'references cache', () => revalidateTag('references_list'))

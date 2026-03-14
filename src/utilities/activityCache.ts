@@ -14,6 +14,14 @@ const conferenceCardSelect = {
   meta: true,
   description: true,
 } as const
+const symposiumCardSelect = {
+  title: true,
+  slug: true,
+  date: true,
+  heroImage: true,
+  meta: true,
+  description: true,
+} as const
 
 type CachedActivity = Pick<
   Activity,
@@ -235,27 +243,89 @@ const getConferenceCardsByYear = async (year: number): Promise<CardDocData[]> =>
   return result.docs.map((doc) => mapConferenceToCard(doc))
 }
 
-export const getCachedActivityBySlugAndType = ({ activityType, depth = 0, slug }: GetCachedActivityArgs) =>
-  unstable_cache(() => getActivityBySlugAndType({ activityType, depth, slug }), [
-    'activity-by-slug-and-type',
-    activityType,
-    slug,
-    String(depth),
-  ], {
-    tags: [`activities_${activityType}_slug_${slug}`],
+const getSymposiumCards = async (): Promise<CardDocData[]> => {
+  const payload = await getPayload({ config: configPromise })
+  const result = await payload.find({
+    collection: 'activities',
+    depth: 1,
+    limit: 200,
+    overrideAccess: false,
+    pagination: false,
+    select: symposiumCardSelect,
+    sort: '-date',
+    where: {
+      and: [
+        {
+          _status: {
+            equals: 'published',
+          },
+        },
+        {
+          activityType: {
+            equals: 'symposium',
+          },
+        },
+      ],
+    },
   })
 
-export const getCachedActivitySlugsByType = (activityType: ActivityType) =>
-  unstable_cache(() => getActivitySlugsByType(activityType), ['activity-slugs-by-type', activityType], {
-    tags: [`activities_${activityType}_slugs`],
+  return result.docs.map((item) => {
+    const heroImage = item.heroImage && typeof item.heroImage === 'object' ? item.heroImage : null
+    const metaImage =
+      item.meta?.image && typeof item.meta.image === 'object' ? item.meta.image : null
+
+    return {
+      date: item.date,
+      meta: {
+        ...(item.meta || {}),
+        description: item.meta?.description || item.description,
+        image: metaImage || heroImage,
+      },
+      relationTo: 'symposium' as const,
+      slug: item.slug,
+      title: item.title,
+    }
   })
+}
+
+export const getCachedActivityBySlugAndType = ({
+  activityType,
+  depth = 0,
+  slug,
+}: GetCachedActivityArgs) =>
+  unstable_cache(
+    () => getActivityBySlugAndType({ activityType, depth, slug }),
+    ['activity-by-slug-and-type', activityType, slug, String(depth)],
+    {
+      revalidate: 3600,
+      tags: [`activities_${activityType}_slug_${slug}`],
+    },
+  )
+
+export const getCachedActivitySlugsByType = (activityType: ActivityType) =>
+  unstable_cache(
+    () => getActivitySlugsByType(activityType),
+    ['activity-slugs-by-type', activityType],
+    {
+      revalidate: 3600,
+      tags: [`activities_${activityType}_slugs`],
+    },
+  )
 
 export const getCachedConferenceYears = () =>
   unstable_cache(() => getConferenceYears(), ['conference-years'], {
+    revalidate: 3600,
     tags: ['activities_conference_years'],
   })
 
 export const getCachedConferenceCardsByYear = (year: number) =>
   unstable_cache(() => getConferenceCardsByYear(year), ['conference-cards-by-year', String(year)], {
+    revalidate: 3600,
     tags: ['activities_conference_years', `activities_conference_year_${year}`],
+  })
+
+export const getCachedSymposiumCards = () =>
+  unstable_cache(getSymposiumCards, ['symposium-cards'], {
+    revalidate: 3600,
+    tags: ['symposium_list'],
   })

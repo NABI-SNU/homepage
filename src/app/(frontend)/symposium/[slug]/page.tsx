@@ -17,7 +17,7 @@ import React from 'react'
 
 import { CollectionArchive } from '@/components/CollectionArchive'
 import type { CardDocData } from '@/components/Card'
-import { MathJaxTypeset } from '@/components/MathJax/Typeset.client'
+import { MathJaxTypeset } from '@/components/MathJax/Typeset'
 import { Media } from '@/components/Media'
 import RichText from '@/components/RichText'
 import { SocialShare } from '@/components/SocialShare'
@@ -29,7 +29,7 @@ import {
 import { formatDateTime } from '@/utilities/formatDateTime'
 import { generateMeta } from '@/utilities/generateMeta'
 
-export const revalidate = 600
+export const revalidate = 3600
 
 type Args = {
   params: Promise<{
@@ -40,9 +40,7 @@ type Args = {
 const getNumericRelationIDs = (
   values: (number | null | Post | Research)[] | null | undefined,
 ): number[] =>
-  Array.from(
-    new Set(values?.filter((value): value is number => typeof value === 'number') || []),
-  )
+  Array.from(new Set(values?.filter((value): value is number => typeof value === 'number') || []))
 
 const getResolvedMedia = (
   value: MediaDoc | number | null | undefined,
@@ -75,10 +73,12 @@ export default async function SymposiumDetailPage({ params: paramsPromise }: Arg
   const payload = await getPayload({ config: configPromise })
   const relatedPostIDs = getNumericRelationIDs(entry.relatedPosts)
   const relatedResearchIDs = getNumericRelationIDs(entry.relatedResearch)
-  const mediaIDs = getNumericRelationIDs([
-    entry.heroImage,
-    entry.meta?.image || null,
-  ] as (number | null | Post | Research)[])
+  const mediaIDs = getNumericRelationIDs([entry.heroImage, entry.meta?.image || null] as (
+    | number
+    | null
+    | Post
+    | Research
+  )[])
   const [relatedPostsResponse, relatedResearchResponse, mediaResponse] = await Promise.all([
     relatedPostIDs.length > 0
       ? payload.find({
@@ -175,7 +175,8 @@ export default async function SymposiumDetailPage({ params: paramsPromise }: Arg
       .filter((media): media is MediaDoc & { id: number } => typeof media.id === 'number')
       .map((media) => [media.id, media]),
   )
-  const heroImage = getResolvedMedia(entry.heroImage, mediaByID) || getResolvedMedia(entry.meta?.image, mediaByID)
+  const heroImage =
+    getResolvedMedia(entry.heroImage, mediaByID) || getResolvedMedia(entry.meta?.image, mediaByID)
   const symposiumYear = entry.date
     ? new Date(entry.date).getUTCFullYear() - 1
     : new Date().getUTCFullYear() - 1

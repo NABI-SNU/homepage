@@ -25,6 +25,7 @@ export const Logo = (props: Props) => {
         height={20}
         loading={loading}
         priority={priority === 'high'}
+        sizes="20px"
         src="/favicon.svg"
         width={20}
       />

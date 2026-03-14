@@ -1,9 +1,7 @@
 import type { Metadata } from 'next'
 
 import { PayloadRedirects } from '@/components/PayloadRedirects'
-import configPromise from '@payload-config'
-import { getPayload } from 'payload'
-import React, { cache } from 'react'
+import React from 'react'
 import Image from 'next/image'
 
 import RichText from '@/components/RichText'
@@ -13,23 +11,18 @@ import { Media } from '@/components/Media'
 import { SocialShare } from '@/components/SocialShare'
 import { formatDateTime } from '@/utilities/formatDateTime'
 import { getDraftAccessContext } from '@/utilities/getDraftAccessContext'
+import {
+  getCachedAnnouncementSlugs,
+  getCachedPublishedAnnouncementBySlug,
+} from '@/utilities/getAnnouncements'
 import { extractLegacyImageFromLexical } from '@/utilities/legacyImage'
 import { generateMeta } from '@/utilities/generateMeta'
 
-export async function generateStaticParams() {
-  const payload = await getPayload({ config: configPromise })
-  const announcements = await payload.find({
-    collection: 'announcements',
-    draft: false,
-    limit: 1000,
-    overrideAccess: false,
-    pagination: false,
-    select: {
-      slug: true,
-    },
-  })
+export const revalidate = 3600
 
-  return announcements.docs.map(({ slug }) => ({ slug }))
+export async function generateStaticParams() {
+  const slugs = await getCachedAnnouncementSlugs()()
+  return slugs.map((slug) => ({ slug }))
 }
 
 type Args = {
@@ -43,7 +36,7 @@ export default async function AnnouncementDetailPage({ params: paramsPromise }: 
   const { slug = '' } = await paramsPromise
   const decodedSlug = decodeURIComponent(slug)
   const url = '/announcements/' + decodedSlug
-  const entry = await queryAnnouncementBySlug({ slug: decodedSlug })
+  const entry = await queryAnnouncementBySlug(decodedSlug)
 
   if (!entry) {
     return <PayloadRedirects url={url} />
@@ -180,7 +173,7 @@ export default async function AnnouncementDetailPage({ params: paramsPromise }: 
 export async function generateMetadata({ params: paramsPromise }: Args): Promise<Metadata> {
   const { slug = '' } = await paramsPromise
   const decodedSlug = decodeURIComponent(slug)
-  const entry = await queryAnnouncementBySlug({ slug: decodedSlug })
+  const entry = await queryAnnouncementBySlug(decodedSlug)
 
   return generateMeta({
     description: entry?.description || 'Announcements from NABI',
@@ -199,40 +192,38 @@ export async function generateMetadata({ params: paramsPromise }: Args): Promise
   })
 }
 
-const queryAnnouncementBySlug = cache(async ({ slug }: { slug: string }) => {
+const queryAnnouncementBySlug = async (slug: string) => {
   const { draft, payload, user } = await getDraftAccessContext()
 
-  const announcements = await payload.find({
+  if (!draft) {
+    return getCachedPublishedAnnouncementBySlug(slug)()
+  }
+
+  const result = await payload.find({
     collection: 'announcements',
-    depth: 2,
+    depth: 1,
     draft,
     limit: 1,
     overrideAccess: false,
     pagination: false,
+    select: {
+      id: true,
+      title: true,
+      slug: true,
+      description: true,
+      publishedAt: true,
+      image: true,
+      content: true,
+      references: true,
+      meta: true,
+    },
     ...(user ? { user } : {}),
     where: {
-      ...(draft
-        ? {
-            slug: {
-              equals: slug,
-            },
-          }
-        : {
-            and: [
-              {
-                slug: {
-                  equals: slug,
-                },
-              },
-              {
-                _status: {
-                  equals: 'published',
-                },
-              },
-            ],
-          }),
+      slug: {
+        equals: slug,
+      },
     },
   })
 
-  return announcements.docs[0] || null
-})
+  return result.docs[0] || null
+}

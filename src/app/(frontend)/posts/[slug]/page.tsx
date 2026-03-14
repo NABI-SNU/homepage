@@ -2,13 +2,9 @@ import type { Metadata } from 'next'
 
 import { RelatedPosts } from '@/blocks/RelatedPosts/Component'
 import { PayloadRedirects } from '@/components/PayloadRedirects'
-import configPromise from '@payload-config'
-import { getPayload } from 'payload'
-import React, { cache } from 'react'
+import React from 'react'
 import RichText from '@/components/RichText'
 import Link from 'next/link'
-
-import type { Post } from '@/payload-types'
 
 import { PostHero } from '@/heros/PostHero'
 import { generateMeta } from '@/utilities/generateMeta'
@@ -17,26 +13,14 @@ import { PersonAvatar } from '@/components/people/PersonAvatar'
 import { TableOfContents } from '@/components/TableOfContents'
 import { SocialShare } from '@/components/SocialShare'
 import { getDraftAccessContext } from '@/utilities/getDraftAccessContext'
+import { getCachedPostSlugs, getCachedPublishedPostBySlug } from '@/utilities/getPosts'
 import { EditOwnPostButton } from './EditOwnPostButton'
 
+export const revalidate = 3600
+
 export async function generateStaticParams() {
-  const payload = await getPayload({ config: configPromise })
-  const posts = await payload.find({
-    collection: 'posts',
-    draft: false,
-    limit: 1000,
-    overrideAccess: false,
-    pagination: false,
-    select: {
-      slug: true,
-    },
-  })
-
-  const params = posts.docs.map(({ slug }) => {
-    return { slug }
-  })
-
-  return params
+  const slugs = await getCachedPostSlugs()()
+  return slugs.map((slug) => ({ slug }))
 }
 
 type Args = {
@@ -46,12 +30,12 @@ type Args = {
 }
 
 export default async function Post({ params: paramsPromise }: Args) {
-  const { draft } = await getDraftAccessContext()
   const { slug = '' } = await paramsPromise
   // Decode to support slugs with special characters
   const decodedSlug = decodeURIComponent(slug)
   const url = '/posts/' + decodedSlug
-  const post = await queryPostBySlug({ slug: decodedSlug })
+  const { draft } = await getDraftAccessContext()
+  const post = await queryPostBySlug(decodedSlug)
 
   if (!post) return <PayloadRedirects url={url} />
 
@@ -202,7 +186,7 @@ export async function generateMetadata({ params: paramsPromise }: Args): Promise
   const { slug = '' } = await paramsPromise
   // Decode to support slugs with special characters
   const decodedSlug = decodeURIComponent(slug)
-  const post = await queryPostBySlug({ slug: decodedSlug })
+  const post = await queryPostBySlug(decodedSlug)
 
   return generateMeta({
     doc: post,
@@ -210,39 +194,42 @@ export async function generateMetadata({ params: paramsPromise }: Args): Promise
   })
 }
 
-const queryPostBySlug = cache(async ({ slug }: { slug: string }) => {
+const queryPostBySlug = async (slug: string) => {
   const { draft, payload, user } = await getDraftAccessContext()
+
+  if (!draft) {
+    return getCachedPublishedPostBySlug(slug)()
+  }
 
   const result = await payload.find({
     collection: 'posts',
+    depth: 1,
     draft,
     limit: 1,
     overrideAccess: false,
     pagination: false,
+    select: {
+      id: true,
+      title: true,
+      slug: true,
+      excerpt: true,
+      publishedAt: true,
+      content: true,
+      authors: true,
+      categories: true,
+      heroImage: true,
+      references: true,
+      relatedPosts: true,
+      tags: true,
+      meta: true,
+    },
     ...(user ? { user } : {}),
     where: {
-      ...(draft
-        ? {
-            slug: {
-              equals: slug,
-            },
-          }
-        : {
-            and: [
-              {
-                slug: {
-                  equals: slug,
-                },
-              },
-              {
-                _status: {
-                  equals: 'published',
-                },
-              },
-            ],
-          }),
+      slug: {
+        equals: slug,
+      },
     },
   })
 
   return result.docs?.[0] || null
-})
+}

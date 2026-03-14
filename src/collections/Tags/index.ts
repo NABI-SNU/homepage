@@ -4,6 +4,7 @@ import { anyone } from '../../access/anyone'
 import { adminOnly } from '../../access/adminOnly'
 import { hideFromNonAdmins } from '../../access/hideFromNonAdmins'
 import { slugField } from 'payload'
+import { revalidateTags, revalidateTagsDelete } from './hooks/revalidateTags'
 
 export const Tags: CollectionConfig<'tags'> = {
   slug: 'tags',
@@ -27,4 +28,8 @@ export const Tags: CollectionConfig<'tags'> = {
       position: undefined,
     }),
   ],
+  hooks: {
+    afterChange: [revalidateTags],
+    afterDelete: [revalidateTagsDelete],
+  },
 }

@@ -1,7 +1,7 @@
 import Link from 'next/link'
 
 import { WikiBacklinks } from '@/components/wiki/WikiBacklinks'
-import { WikiGraph } from '@/components/wiki/WikiGraph.client'
+import { WikiGraph } from '@/components/wiki/WikiGraph'
 
 type WikiSummaryItem = {
   slug: string
@@ -38,7 +38,12 @@ export function WikiPageSidebar({
             Open full graph
           </Link>
         </div>
-        <WikiGraph currentNodeId={currentSlug} height={260} links={graphData.links} nodes={graphData.nodes} />
+        <WikiGraph
+          currentNodeId={currentSlug}
+          height={260}
+          links={graphData.links}
+          nodes={graphData.nodes}
+        />
       </section>
 
       <WikiBacklinks items={backlinks} />

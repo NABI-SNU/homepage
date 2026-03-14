@@ -12,6 +12,7 @@ async function getGlobal(slug: Global, depth = 0) {
   const global = await payload.findGlobal({
     slug,
     depth,
+    overrideAccess: false,
   })
 
   return global
@@ -21,6 +22,7 @@ async function getGlobal(slug: Global, depth = 0) {
  * Returns a unstable_cache function mapped with the cache tag for the slug
  */
 export const getCachedGlobal = (slug: Global, depth = 0) =>
-  unstable_cache(async () => getGlobal(slug, depth), [slug], {
+  unstable_cache(async () => getGlobal(slug, depth), [slug, String(depth)], {
+    revalidate: 3600,
     tags: [`global_${slug}`],
   })

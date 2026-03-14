@@ -4,12 +4,9 @@ import Link from 'next/link'
 import React from 'react'
 
 import { CollectionArchive } from '@/components/CollectionArchive'
-import {
-  getCachedConferenceCardsByYear,
-  getCachedConferenceYears,
-} from '@/utilities/activityCache'
+import { getCachedConferenceCardsByYear, getCachedConferenceYears } from '@/utilities/activityCache'
 
-export const revalidate = 600
+export const revalidate = 3600
 
 type Args = {
   searchParams: Promise<{
@@ -28,10 +25,8 @@ export default async function ConferencesPage({ searchParams: searchParamsPromis
   const years = await getCachedConferenceYears()()
   const fallbackYear = years[0] || new Date().getUTCFullYear()
   const requestedYear = parseYear(yearParam)
-  const activeYear =
-    requestedYear && years.includes(requestedYear) ? requestedYear : fallbackYear
-  const conferences =
-    years.length > 0 ? await getCachedConferenceCardsByYear(activeYear)() : []
+  const activeYear = requestedYear && years.includes(requestedYear) ? requestedYear : fallbackYear
+  const conferences = years.length > 0 ? await getCachedConferenceCardsByYear(activeYear)() : []
 
   return (
     <div className="page-shell-wide">

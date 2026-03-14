@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
-import { useEffect, useMemo, useState, useTransition } from 'react'
+import { useDeferredValue, useEffect, useMemo, useState, useTransition } from 'react'
 
 import { PersonAvatar } from '@/components/people/PersonAvatar'
 import { PersonRoleBadge } from '@/components/people/PersonRoleBadge'
@@ -99,7 +99,8 @@ export function PeopleDirectory({ people }: { people: PeopleDirectoryPerson[] })
     }
   }, [activeYear, fallbackYear, pathname, router, searchParamsString, searchQuery, years])
 
-  const normalizedSearchQuery = searchQuery.toLowerCase().trim()
+  const deferredSearchQuery = useDeferredValue(searchQuery)
+  const normalizedSearchQuery = deferredSearchQuery.toLowerCase().trim()
 
   const filteredPeople = useMemo(() => {
     const filteredByYear = people.filter((person) => {

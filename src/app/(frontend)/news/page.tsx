@@ -5,7 +5,7 @@ import { getCachedNewsArchiveDataset } from '@/utilities/getNews'
 import Link from 'next/link'
 import React from 'react'
 
-export const revalidate = 600
+export const revalidate = 3600
 
 type Args = {
   searchParams?: Promise<{

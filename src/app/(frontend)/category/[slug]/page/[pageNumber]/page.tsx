@@ -3,9 +3,15 @@ import type { Metadata } from 'next'
 import { CollectionArchive } from '@/components/CollectionArchive'
 import { PageRange } from '@/components/PageRange'
 import { Pagination } from '@/components/Pagination'
-import { getCachedCategoryBySlug, getCachedCategoryPostsPage, POSTS_PER_PAGE } from '@/utilities/getPosts'
+import {
+  getCachedCategoryBySlug,
+  getCachedCategoryPostsPage,
+  POSTS_PER_PAGE,
+} from '@/utilities/getPosts'
 import { generateMeta } from '@/utilities/generateMeta'
 import { notFound } from 'next/navigation'
+
+export const revalidate = 3600
 
 type Args = {
   params: Promise<{

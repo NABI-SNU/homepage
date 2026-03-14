@@ -17,6 +17,8 @@ export const revalidateResearch: CollectionAfterChangeHook<Research> = ({
       if (revalidatedCollectionCaches) return
 
       safeRevalidate(payload, 'labs list', () => revalidatePath('/labs'))
+      safeRevalidate(payload, 'research list cache', () => revalidateTag('research_list'))
+      safeRevalidate(payload, 'research slugs cache', () => revalidateTag('research_slugs'))
       safeRevalidate(payload, 'references page', () => revalidatePath('/references'))
       safeRevalidate(payload, 'references cache', () => revalidateTag('references_list'))
       safeRevalidate(payload, 'site sitemap', () => revalidateTag('site-sitemap'))
@@ -28,6 +30,7 @@ export const revalidateResearch: CollectionAfterChangeHook<Research> = ({
       payload.logger.info(`Revalidating research at path: ${currentPath}`)
       revalidateCollectionCaches()
       safeRevalidate(payload, 'research page', () => revalidatePath(currentPath))
+      safeRevalidate(payload, 'research detail cache', () => revalidateTag(`research_${doc.slug}`))
     }
 
     const shouldRevalidatePreviousPath =
@@ -39,6 +42,9 @@ export const revalidateResearch: CollectionAfterChangeHook<Research> = ({
       payload.logger.info(`Revalidating previous research path: ${previousPath}`)
       revalidateCollectionCaches()
       safeRevalidate(payload, 'previous research page', () => revalidatePath(previousPath))
+      safeRevalidate(payload, 'previous research detail cache', () =>
+        revalidateTag(`research_${previousDoc.slug}`),
+      )
     }
   }
 
@@ -51,9 +57,12 @@ export const revalidateResearchDelete: CollectionAfterDeleteHook<Research> = ({
 }) => {
   if (!isRevalidateDisabled(context)) {
     safeRevalidate(payload, 'labs list', () => revalidatePath('/labs'))
+    safeRevalidate(payload, 'research list cache', () => revalidateTag('research_list'))
+    safeRevalidate(payload, 'research slugs cache', () => revalidateTag('research_slugs'))
     safeRevalidate(payload, 'references page', () => revalidatePath('/references'))
     safeRevalidate(payload, 'references cache', () => revalidateTag('references_list'))
     safeRevalidate(payload, 'research delete page', () => revalidatePath(`/labs/${doc?.slug}`))
+    safeRevalidate(payload, 'research detail cache', () => revalidateTag(`research_${doc?.slug}`))
     safeRevalidate(payload, 'site sitemap', () => revalidateTag('site-sitemap'))
   }
 

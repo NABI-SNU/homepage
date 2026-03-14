@@ -6,6 +6,10 @@ import {
 } from '@/collections/Activities/hooks/ensureSymposiumExists'
 
 describe('activities symposium guard hooks', () => {
+  type EnsureChangeArgs = Parameters<typeof ensureSymposiumExistsBeforeChange>[0]
+  type EnsureDeleteArgs = Parameters<typeof ensureSymposiumExistsBeforeDelete>[0]
+  type MockReq = EnsureChangeArgs['req']
+
   const find = vi.fn()
   const findByID = vi.fn()
 
@@ -14,7 +18,7 @@ describe('activities symposium guard hooks', () => {
       find,
       findByID,
     },
-  } as any
+  } as unknown as MockReq
 
   beforeEach(() => {
     vi.clearAllMocks()
@@ -31,7 +35,7 @@ describe('activities symposium guard hooks', () => {
           activityType: 'conference',
         },
         req,
-      } as any),
+      } as unknown as EnsureChangeArgs),
     ).rejects.toThrow('At least one symposium entry must always exist.')
   })
 
@@ -45,7 +49,7 @@ describe('activities symposium guard hooks', () => {
         activityType: 'conference',
       },
       req,
-    } as any)
+    } as unknown as EnsureChangeArgs)
 
     expect(data).toEqual({ activityType: 'conference' })
   })
@@ -58,7 +62,7 @@ describe('activities symposium guard hooks', () => {
       ensureSymposiumExistsBeforeDelete({
         id: 1,
         req,
-      } as any),
+      } as unknown as EnsureDeleteArgs),
     ).rejects.toThrow('Cannot delete the last symposium entry.')
   })
 
@@ -69,7 +73,7 @@ describe('activities symposium guard hooks', () => {
       ensureSymposiumExistsBeforeDelete({
         id: 1,
         req,
-      } as any),
+      } as unknown as EnsureDeleteArgs),
     ).resolves.toBeUndefined()
 
     expect(find).not.toHaveBeenCalled()
