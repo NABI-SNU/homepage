@@ -68,9 +68,9 @@ export default async function HomePage() {
       {missionItems.length > 0 && (
         <section className="container page-header section-gap-lg">
           <div className="mx-auto max-w-4xl text-center">
-            <p className="page-eyebrow text-foreground/90">Our Mission</p>
+            <p className="page-eyebrow text-foreground/90">Frequently Asked Questions</p>
             <h2 className="mt-2 text-4xl font-semibold leading-tight md:text-5xl">
-              Understanding Our Mission
+              Learn more about NABI and how the community operates.
             </h2>
           </div>
 

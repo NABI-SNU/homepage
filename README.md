@@ -155,7 +155,10 @@ Optional:
 - `S3_PUBLIC_URL` (recommended for R2: custom domain or `*.r2.dev` for browser-accessible file URLs)
 - `S3_MEDIA_PREFIX` (optional folder prefix for keys and public URLs, e.g. `webp`)
 - `S3_FORCE_PATH_STYLE`
-- `S3_CLIENT_UPLOADS=true` (recommended on Vercel for larger uploads)
+- `S3_CLIENT_UPLOADS=false` (recommended default unless your bucket CORS explicitly allows browser PUTs from your site)
+
+For `https://nabilab.org`, keep `S3_CLIENT_UPLOADS=false` unless the bucket CORS policy has been configured
+to allow browser uploads from that exact origin.
 
 When S3 env vars are configured, the `media` collection uses cloud storage and avoids ephemeral local disk.
 Notebook uploads follow the same storage backend through the dedicated `notebooks` collection.
