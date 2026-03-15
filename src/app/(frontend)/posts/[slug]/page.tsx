@@ -17,6 +17,7 @@ import { getCachedPostSlugs, getCachedPublishedPostBySlug } from '@/utilities/ge
 import { EditOwnPostButton } from './EditOwnPostButton'
 
 export const revalidate = 3600
+const postDetailDepth = 2 as const
 
 export async function generateStaticParams() {
   const slugs = await getCachedPostSlugs()()
@@ -203,7 +204,7 @@ const queryPostBySlug = async (slug: string) => {
 
   const result = await payload.find({
     collection: 'posts',
-    depth: 1,
+    depth: postDetailDepth,
     draft,
     limit: 1,
     overrideAccess: false,

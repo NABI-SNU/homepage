@@ -30,7 +30,8 @@ const postDetailSelect = {
   meta: true,
 } as const
 const postsSortByPublishedDate = '-publishedAt' as const
-const postsCacheVersion = 'published-at-sort-v2' as const
+const postsCacheVersion = 'published-at-sort-v3' as const
+const postDetailDepth = 2 as const
 const publishedPostsWhere = {
   _status: {
     equals: 'published' as const,
@@ -178,7 +179,7 @@ async function getPublishedPostBySlug(slug: string): Promise<PublishedPostDetail
   const normalizedSlug = normalizePostSlug(slug)
   const result = await payload.find({
     collection: 'posts',
-    depth: 1,
+    depth: postDetailDepth,
     limit: 1,
     overrideAccess: false,
     pagination: false,
