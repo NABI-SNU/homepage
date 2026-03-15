@@ -185,6 +185,38 @@ describe('lab notebook route', () => {
     )
   })
 
+  it('falls back to the protected filename route when the preferred notebook url fails', async () => {
+    findResearchBySlug.mockResolvedValue({
+      notebook: {
+        filename: 'research-demo.ipynb',
+        url: 'https://cdn.example.com/media-root/notebooks/research-demo.ipynb',
+      },
+    })
+    vi.mocked(fetch)
+      .mockResolvedValueOnce(new Response('missing', { status: 404 }))
+      .mockResolvedValueOnce(
+        new Response(
+          JSON.stringify({
+            cells: [],
+            nbformat: 4,
+          }),
+        ),
+      )
+
+    const response = await GET(new NextRequest('http://localhost:3000/api/labs/demo/notebook'), {
+      params: Promise.resolve({ slug: 'demo' }),
+    })
+
+    expect(response.status).toBe(200)
+    expect(vi.mocked(fetch).mock.calls).toHaveLength(2)
+    expect(vi.mocked(fetch).mock.calls[0]?.[0]).toBe(
+      'https://cdn.example.com/media-root/notebooks/research-demo.ipynb',
+    )
+    expect(vi.mocked(fetch).mock.calls[1]?.[0]).toMatch(
+      /\/api\/notebooks\/file\/research-demo\.ipynb$/,
+    )
+  })
+
   it('returns 404 when notebook JSON is invalid', async () => {
     findResearchBySlug.mockResolvedValue({
       notebook: {

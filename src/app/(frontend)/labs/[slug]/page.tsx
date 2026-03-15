@@ -65,7 +65,7 @@ export default async function ResearchDetailPage({ params }: Args) {
       {draft && <LivePreviewListener />}
       <MathJaxTypeset selector=".labs-notebook-markdown" />
 
-      <section className="container max-w-6xl relative overflow-hidden rounded-[2rem] bg-linear-to-br from-background via-background to-muted/30 px-6 py-10 shadow-[0_32px_80px_-56px_rgba(15,23,42,0.55)] md:px-10 md:py-14">
+      <section className="container max-w-6xl relative overflow-hidden rounded-[2rem] bg-linear-to-br from-background via-background to-muted/30 px-6 py-10 md:px-10 md:py-14">
         <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(59,130,246,0.12),transparent_48%)]" />
         <header className="relative z-10 mx-auto max-w-3xl text-center">
           <div className="flex flex-wrap items-center justify-center gap-3 text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground">

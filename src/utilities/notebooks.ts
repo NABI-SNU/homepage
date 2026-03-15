@@ -148,6 +148,14 @@ export const buildProxyHeaders = (requestHeaders: HeadersLike): HeadersInit => {
   return headers
 }
 
+const getLegacyNotebookFetchURL = (filename: string | null | undefined): string => {
+  if (typeof filename !== 'string' || !filename.trim()) {
+    return ''
+  }
+
+  return `${getServerSideURL()}/api/notebooks/file/${encodeURIComponent(filename.trim())}`
+}
+
 export const getNotebookFetchURL = (
   filename: string | null | undefined,
   url: string | null | undefined,
@@ -158,27 +166,27 @@ export const getNotebookFetchURL = (
     return uploadURL
   }
 
-  if (typeof filename === 'string' && filename.trim()) {
-    return `${getServerSideURL()}/api/notebooks/file/${encodeURIComponent(filename.trim())}`
-  }
-
-  return ''
+  return getLegacyNotebookFetchURL(filename)
 }
 
-export const fetchNotebookSource = async ({
+const getNotebookFetchURLs = (
+  filename: string | null | undefined,
+  url: string | null | undefined,
+): string[] => {
+  const urls = [getUploadUrl(url), getLegacyNotebookFetchURL(filename)].filter(Boolean)
+
+  return Array.from(new Set(urls))
+}
+
+const fetchNotebookText = async ({
   cacheable,
-  filename,
+  notebookURL,
   requestHeaders,
-  url,
 }: {
   cacheable: boolean
-  filename: string | null | undefined
+  notebookURL: string
   requestHeaders: HeadersLike
-  url: string | null | undefined
 }): Promise<string | null> => {
-  const notebookURL = getNotebookFetchURL(filename, url)
-  if (!notebookURL) return null
-
   try {
     const response = await fetch(notebookURL, {
       headers: cacheable
@@ -193,6 +201,34 @@ export const fetchNotebookSource = async ({
   } catch {
     return null
   }
+}
+
+export const fetchNotebookSource = async ({
+  cacheable,
+  filename,
+  requestHeaders,
+  url,
+}: {
+  cacheable: boolean
+  filename: string | null | undefined
+  requestHeaders: HeadersLike
+  url: string | null | undefined
+}): Promise<string | null> => {
+  const notebookURLs = getNotebookFetchURLs(filename, url)
+
+  for (const notebookURL of notebookURLs) {
+    const notebookText = await fetchNotebookText({
+      cacheable,
+      notebookURL,
+      requestHeaders,
+    })
+
+    if (notebookText) {
+      return notebookText
+    }
+  }
+
+  return null
 }
 
 export const fetchNotebookContent = async ({
