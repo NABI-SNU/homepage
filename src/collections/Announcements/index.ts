@@ -27,10 +27,6 @@ import { MediaBlock } from '@/blocks/MediaBlock/config'
 import { YouTubeEmbed } from '@/blocks/YouTubeEmbed/config'
 import { referenceFields } from '@/fields/referenceFields'
 import { generatePreviewPath } from '@/utilities/generatePreviewPath'
-import {
-  revalidateAnnouncements,
-  revalidateAnnouncementsDelete,
-} from './hooks/revalidateAnnouncements'
 
 const announcementsEditor = lexicalEditor({
   features: ({ rootFeatures }) => {
@@ -143,10 +139,6 @@ export const Announcements: CollectionConfig<'announcements'> = {
     },
     slugField(),
   ],
-  hooks: {
-    afterChange: [revalidateAnnouncements],
-    afterDelete: [revalidateAnnouncementsDelete],
-  },
   versions: {
     drafts: {
       autosave: false,

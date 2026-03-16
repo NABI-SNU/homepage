@@ -48,14 +48,16 @@ const getSingleUserByEmail = async ({
   }
 
   if (users.docs.length > 1) {
-    throw new Error(`Duplicate users found for "${email}". Ensure only one account exists for this test.`)
+    throw new Error(
+      `Duplicate users found for "${email}". Ensure only one account exists for this test.`,
+    )
   }
 
   return users.docs[0] as User
 }
 
 const hasAdminRole = (user: User): boolean => {
-  const roles = user.roles
+  const roles = user.role ?? user.roles
   if (Array.isArray(roles)) return roles.includes('admin')
   return roles === 'admin'
 }

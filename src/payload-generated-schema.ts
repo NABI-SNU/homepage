@@ -74,6 +74,7 @@ export const enum_people_socials_platform = pgEnum('enum_people_socials_platform
   'website',
 ])
 export const enum_people_member_type = pgEnum('enum_people_member_type', ['user', 'alumni'])
+export const enum_users_role = pgEnum('enum_users_role', ['admin', 'user'])
 export const enum_users_roles = pgEnum('enum_users_roles', ['admin', 'user'])
 export const enum_redirects_to_type = pgEnum('enum_redirects_to_type', ['reference', 'custom'])
 export const enum_forms_confirmation_type = pgEnum('enum_forms_confirmation_type', [
@@ -1716,9 +1717,12 @@ export const users = pgTable(
   {
     id: serial('id').primaryKey(),
     name: varchar('name'),
+    role: enum_users_role('role').notNull().default('user'),
     roles: enum_users_roles('roles').notNull().default('user'),
     isApproved: boolean('is_approved').notNull().default(false),
+    emailVerified: boolean('email_verified').notNull().default(false),
     betterAuthUserId: varchar('better_auth_user_id'),
+    image: varchar('image'),
     updatedAt: timestamp('updated_at', { mode: 'string', withTimezone: true, precision: 3 })
       .defaultNow()
       .notNull(),
@@ -1742,6 +1746,102 @@ export const users = pgTable(
     index('users_updated_at_idx').on(columns.updatedAt),
     index('users_created_at_idx').on(columns.createdAt),
     uniqueIndex('users_email_idx').on(columns.email),
+  ],
+)
+
+export const sessions = pgTable(
+  'sessions',
+  {
+    id: serial('id').primaryKey(),
+    expiresAt: timestamp('expires_at', {
+      mode: 'string',
+      withTimezone: true,
+      precision: 3,
+    }).notNull(),
+    token: varchar('token').notNull(),
+    ipAddress: varchar('ip_address'),
+    userAgent: varchar('user_agent'),
+    user: integer('user_id')
+      .notNull()
+      .references(() => users.id, {
+        onDelete: 'set null',
+      }),
+    updatedAt: timestamp('updated_at', { mode: 'string', withTimezone: true, precision: 3 })
+      .defaultNow()
+      .notNull(),
+    createdAt: timestamp('created_at', { mode: 'string', withTimezone: true, precision: 3 })
+      .defaultNow()
+      .notNull(),
+  },
+  (columns) => [
+    uniqueIndex('sessions_token_idx').on(columns.token),
+    index('sessions_user_idx').on(columns.user),
+    index('sessions_updated_at_idx').on(columns.updatedAt),
+    index('sessions_created_at_idx').on(columns.createdAt),
+  ],
+)
+
+export const accounts = pgTable(
+  'accounts',
+  {
+    id: serial('id').primaryKey(),
+    accountId: varchar('account_id').notNull(),
+    providerId: varchar('provider_id').notNull(),
+    user: integer('user_id')
+      .notNull()
+      .references(() => users.id, {
+        onDelete: 'set null',
+      }),
+    accessToken: varchar('access_token'),
+    refreshToken: varchar('refresh_token'),
+    idToken: varchar('id_token'),
+    accessTokenExpiresAt: timestamp('access_token_expires_at', {
+      mode: 'string',
+      withTimezone: true,
+      precision: 3,
+    }),
+    refreshTokenExpiresAt: timestamp('refresh_token_expires_at', {
+      mode: 'string',
+      withTimezone: true,
+      precision: 3,
+    }),
+    scope: varchar('scope'),
+    password: varchar('password'),
+    updatedAt: timestamp('updated_at', { mode: 'string', withTimezone: true, precision: 3 })
+      .defaultNow()
+      .notNull(),
+    createdAt: timestamp('created_at', { mode: 'string', withTimezone: true, precision: 3 })
+      .defaultNow()
+      .notNull(),
+  },
+  (columns) => [
+    index('accounts_user_idx').on(columns.user),
+    index('accounts_updated_at_idx').on(columns.updatedAt),
+    index('accounts_created_at_idx').on(columns.createdAt),
+  ],
+)
+
+export const verifications = pgTable(
+  'verifications',
+  {
+    id: serial('id').primaryKey(),
+    identifier: varchar('identifier').notNull(),
+    value: varchar('value').notNull(),
+    expiresAt: timestamp('expires_at', {
+      mode: 'string',
+      withTimezone: true,
+      precision: 3,
+    }).notNull(),
+    updatedAt: timestamp('updated_at', { mode: 'string', withTimezone: true, precision: 3 })
+      .defaultNow()
+      .notNull(),
+    createdAt: timestamp('created_at', { mode: 'string', withTimezone: true, precision: 3 })
+      .defaultNow()
+      .notNull(),
+  },
+  (columns) => [
+    index('verifications_updated_at_idx').on(columns.updatedAt),
+    index('verifications_created_at_idx').on(columns.createdAt),
   ],
 )
 
@@ -2407,6 +2507,9 @@ export const payload_locked_documents_rels = pgTable(
     order: integer('order'),
     parent: integer('parent_id').notNull(),
     path: varchar('path').notNull(),
+    sessionsID: integer('sessions_id'),
+    accountsID: integer('accounts_id'),
+    verificationsID: integer('verifications_id'),
     redirectsID: integer('redirects_id'),
     formsID: integer('forms_id'),
     'form-submissionsID': integer('form_submissions_id'),
@@ -2418,6 +2521,9 @@ export const payload_locked_documents_rels = pgTable(
     index('payload_locked_documents_rels_order_idx').on(columns.order),
     index('payload_locked_documents_rels_parent_idx').on(columns.parent),
     index('payload_locked_documents_rels_path_idx').on(columns.path),
+    index('payload_locked_documents_rels_sessions_id_idx').on(columns.sessionsID),
+    index('payload_locked_documents_rels_accounts_id_idx').on(columns.accountsID),
+    index('payload_locked_documents_rels_verifications_id_idx').on(columns.verificationsID),
     index('payload_locked_documents_rels_redirects_id_idx').on(columns.redirectsID),
     index('payload_locked_documents_rels_forms_id_idx').on(columns.formsID),
     index('payload_locked_documents_rels_form_submissions_id_idx').on(
@@ -2430,6 +2536,21 @@ export const payload_locked_documents_rels = pgTable(
       columns: [columns['parent']],
       foreignColumns: [payload_locked_documents.id],
       name: 'payload_locked_documents_rels_parent_fk',
+    }).onDelete('cascade'),
+    foreignKey({
+      columns: [columns['sessionsID']],
+      foreignColumns: [sessions.id],
+      name: 'payload_locked_documents_rels_sessions_fk',
+    }).onDelete('cascade'),
+    foreignKey({
+      columns: [columns['accountsID']],
+      foreignColumns: [accounts.id],
+      name: 'payload_locked_documents_rels_accounts_fk',
+    }).onDelete('cascade'),
+    foreignKey({
+      columns: [columns['verificationsID']],
+      foreignColumns: [verifications.id],
+      name: 'payload_locked_documents_rels_verifications_fk',
     }).onDelete('cascade'),
     foreignKey({
       columns: [columns['redirectsID']],
@@ -3652,6 +3773,21 @@ export const relations_users = relations(users, ({ many }) => ({
     relationName: 'sessions',
   }),
 }))
+export const relations_sessions = relations(sessions, ({ one }) => ({
+  user: one(users, {
+    fields: [sessions.user],
+    references: [users.id],
+    relationName: 'user',
+  }),
+}))
+export const relations_accounts = relations(accounts, ({ one }) => ({
+  user: one(users, {
+    fields: [accounts.user],
+    references: [users.id],
+    relationName: 'user',
+  }),
+}))
+export const relations_verifications = relations(verifications, () => ({}))
 export const relations_redirects_rels = relations(redirects_rels, ({ one }) => ({
   parent: one(redirects, {
     fields: [redirects_rels.parent],
@@ -3916,6 +4052,21 @@ export const relations_payload_locked_documents_rels = relations(
       fields: [payload_locked_documents_rels.parent],
       references: [payload_locked_documents.id],
       relationName: '_rels',
+    }),
+    sessionsID: one(sessions, {
+      fields: [payload_locked_documents_rels.sessionsID],
+      references: [sessions.id],
+      relationName: 'sessions',
+    }),
+    accountsID: one(accounts, {
+      fields: [payload_locked_documents_rels.accountsID],
+      references: [accounts.id],
+      relationName: 'accounts',
+    }),
+    verificationsID: one(verifications, {
+      fields: [payload_locked_documents_rels.verificationsID],
+      references: [verifications.id],
+      relationName: 'verifications',
     }),
     redirectsID: one(redirects, {
       fields: [payload_locked_documents_rels.redirectsID],
@@ -4215,6 +4366,7 @@ type DatabaseSchema = {
   enum_people_role_assignments_role: typeof enum_people_role_assignments_role
   enum_people_socials_platform: typeof enum_people_socials_platform
   enum_people_member_type: typeof enum_people_member_type
+  enum_users_role: typeof enum_users_role
   enum_users_roles: typeof enum_users_roles
   enum_redirects_to_type: typeof enum_redirects_to_type
   enum_forms_confirmation_type: typeof enum_forms_confirmation_type
@@ -4281,6 +4433,9 @@ type DatabaseSchema = {
   categories: typeof categories
   users_sessions: typeof users_sessions
   users: typeof users
+  sessions: typeof sessions
+  accounts: typeof accounts
+  verifications: typeof verifications
   redirects: typeof redirects
   redirects_rels: typeof redirects_rels
   forms_blocks_checkbox: typeof forms_blocks_checkbox
@@ -4382,6 +4537,9 @@ type DatabaseSchema = {
   relations_categories: typeof relations_categories
   relations_users_sessions: typeof relations_users_sessions
   relations_users: typeof relations_users
+  relations_sessions: typeof relations_sessions
+  relations_accounts: typeof relations_accounts
+  relations_verifications: typeof relations_verifications
   relations_redirects_rels: typeof relations_redirects_rels
   relations_redirects: typeof relations_redirects
   relations_forms_blocks_checkbox: typeof relations_forms_blocks_checkbox

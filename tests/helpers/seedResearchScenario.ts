@@ -72,7 +72,6 @@ export async function seedResearchScenario(): Promise<SeededResearchScenario> {
   const notebook = await payload.create({
     collection: 'notebooks',
     overrideAccess: true,
-    context: { disableRevalidate: true },
     data: {},
     file: {
       data: notebookBuffer,
@@ -84,8 +83,8 @@ export async function seedResearchScenario(): Promise<SeededResearchScenario> {
 
   const research = await payload.create({
     collection: 'research',
+    draft: false,
     overrideAccess: true,
-    context: { disableRevalidate: true },
     data: {
       title: `Research Demo ${runID}`,
       slug: `research-demo-${runID}`,
@@ -111,7 +110,6 @@ export async function cleanupResearchScenario(scenario: SeededResearchScenario):
     collection: 'research',
     id: scenario.researchID,
     overrideAccess: true,
-    context: { disableRevalidate: true },
   })
 
   await payload.delete({

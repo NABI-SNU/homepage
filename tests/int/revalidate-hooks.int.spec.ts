@@ -1,93 +1,30 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { readFile } from 'node:fs/promises'
 
-import { revalidateAnnouncements } from '@/collections/Announcements/hooks/revalidateAnnouncements'
-import { revalidateActivities } from '@/collections/Activities/hooks/revalidateActivities'
-import { revalidateNews } from '@/collections/News/hooks/revalidateNews'
-import { revalidateResearch } from '@/collections/Research/hooks/revalidateResearch'
+import { describe, expect, it } from 'vitest'
 
-vi.mock('next/cache', () => ({
-  revalidatePath: vi.fn(),
-  revalidateTag: vi.fn(),
-}))
+const filesWithoutEditorRevalidation = [
+  '/Users/bazelcu/projects/homepage/src/Header/config.ts',
+  '/Users/bazelcu/projects/homepage/src/Footer/config.ts',
+  '/Users/bazelcu/projects/homepage/src/globals/AboutPage/config.ts',
+  '/Users/bazelcu/projects/homepage/src/globals/HomePage/config.ts',
+  '/Users/bazelcu/projects/homepage/src/collections/Posts/index.ts',
+  '/Users/bazelcu/projects/homepage/src/collections/News/index.ts',
+  '/Users/bazelcu/projects/homepage/src/collections/Announcements/index.ts',
+  '/Users/bazelcu/projects/homepage/src/collections/Research/index.ts',
+  '/Users/bazelcu/projects/homepage/src/collections/Wiki/index.ts',
+  '/Users/bazelcu/projects/homepage/src/collections/Activities/index.ts',
+  '/Users/bazelcu/projects/homepage/src/collections/Tags/index.ts',
+  '/Users/bazelcu/projects/homepage/src/collections/People/index.ts',
+  '/Users/bazelcu/projects/homepage/src/plugins/index.ts',
+]
 
-import { revalidatePath, revalidateTag } from 'next/cache'
+describe('Editor revalidation wiring', () => {
+  it.each(filesWithoutEditorRevalidation)(
+    'removes afterChange revalidation wiring from %s',
+    async (filePath) => {
+      const source = await readFile(filePath, 'utf8')
 
-type NewsHookArgs = Parameters<typeof revalidateNews>[0]
-type ResearchHookArgs = Parameters<typeof revalidateResearch>[0]
-type ActivitiesHookArgs = Parameters<typeof revalidateActivities>[0]
-type AnnouncementsHookArgs = Parameters<typeof revalidateAnnouncements>[0]
-type HookPayload = NewsHookArgs['req']['payload']
-
-const buildPayload = (): HookPayload =>
-  ({
-    logger: {
-      info: vi.fn(),
-      warn: vi.fn(),
+      expect(source).not.toMatch(/afterChange:\s*\[[^\]]*revalidate/i)
     },
-  }) as unknown as HookPayload
-
-describe('Revalidate hooks', () => {
-  beforeEach(() => {
-    vi.clearAllMocks()
-  })
-
-  it('skips news revalidation for draft-to-draft updates', () => {
-    revalidateNews({
-      doc: { _status: 'draft', slug: 'draft-news' },
-      previousDoc: { _status: 'draft', slug: 'draft-news' },
-      req: { payload: buildPayload(), context: {} },
-    } as NewsHookArgs)
-
-    expect(revalidatePath).not.toHaveBeenCalled()
-    expect(revalidateTag).not.toHaveBeenCalled()
-  })
-
-  it('skips research revalidation for draft-to-draft updates', () => {
-    revalidateResearch({
-      doc: { _status: 'draft', slug: 'draft-lab' },
-      previousDoc: { _status: 'draft', slug: 'draft-lab' },
-      req: { payload: buildPayload(), context: {} },
-    } as ResearchHookArgs)
-
-    expect(revalidatePath).not.toHaveBeenCalled()
-    expect(revalidateTag).not.toHaveBeenCalled()
-  })
-
-  it('revalidates current news path and shared caches for published docs', () => {
-    revalidateNews({
-      doc: { _status: 'published', slug: 'release' },
-      previousDoc: { _status: 'draft', slug: 'release' },
-      req: { payload: buildPayload(), context: {} },
-    } as NewsHookArgs)
-
-    expect(revalidatePath).toHaveBeenCalledWith('/news')
-    expect(revalidatePath).toHaveBeenCalledWith('/news/release')
-    expect(revalidateTag).toHaveBeenCalledWith('site-sitemap')
-  })
-
-  it('revalidates conference list and detail paths for published conference docs', () => {
-    revalidateActivities({
-      doc: { _status: 'published', activityType: 'conference', slug: 'iclr-2026' },
-      previousDoc: { _status: 'draft', activityType: 'conference', slug: 'iclr-2026' },
-      req: { payload: buildPayload(), context: {} },
-    } as ActivitiesHookArgs)
-
-    expect(revalidatePath).toHaveBeenCalledWith('/conferences')
-    expect(revalidatePath).toHaveBeenCalledWith('/conferences/iclr-2026')
-    expect(revalidateTag).toHaveBeenCalledWith('site-sitemap')
-  })
-
-  it('revalidates standalone announcement paths and references caches for published docs', () => {
-    revalidateAnnouncements({
-      doc: { _status: 'published', slug: 'spring-update' },
-      previousDoc: { _status: 'draft', slug: 'spring-update' },
-      req: { payload: buildPayload(), context: {} },
-    } as AnnouncementsHookArgs)
-
-    expect(revalidatePath).toHaveBeenCalledWith('/announcements')
-    expect(revalidatePath).toHaveBeenCalledWith('/announcements/spring-update')
-    expect(revalidatePath).toHaveBeenCalledWith('/references')
-    expect(revalidateTag).toHaveBeenCalledWith('references_list')
-    expect(revalidateTag).toHaveBeenCalledWith('site-sitemap')
-  })
+  )
 })

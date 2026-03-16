@@ -1,8 +1,9 @@
 import type { User } from '@/payload-types'
 
 export const hasAdminRole = (user: User | null | undefined): boolean => {
-  const roles = user?.roles
+  const normalizedRoles = [user?.role, user?.roles]
+    .flatMap((value) => (Array.isArray(value) ? value : value ? [value] : []))
+    .filter((value): value is string => typeof value === 'string')
 
-  if (Array.isArray(roles)) return roles.includes('admin')
-  return roles === 'admin'
+  return normalizedRoles.includes('admin')
 }

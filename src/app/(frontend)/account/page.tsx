@@ -162,6 +162,7 @@ function AccountPageContent() {
   const [sessionUserOverride, setSessionUserOverride] = useState<{ email?: string | null } | null>(
     null,
   )
+  const [hasSessionCheckTimedOut, setHasSessionCheckTimedOut] = useState(false)
   const [authGateReason, setAuthGateReason] = useState<AuthGateReason | null>(null)
   const [toastID, setToastID] = useState(0)
   const [showUnverifiedToast, setShowUnverifiedToast] = useState(false)
@@ -169,7 +170,7 @@ function AccountPageContent() {
 
   const effectiveSessionUser = session?.user ?? sessionUserOverride
   const isSignedIn = Boolean(effectiveSessionUser)
-  const isSessionCheckPending = isPending && !isSignedIn
+  const isSessionCheckPending = isPending && !isSignedIn && !hasSessionCheckTimedOut
   const isDashboardLoading = isSignedIn && dashboardStatus === 'loading'
   const isDashboardReady = dashboardStatus === 'ready'
   const hasDashboardError = isSignedIn && dashboardStatus === 'error'
@@ -182,6 +183,7 @@ function AccountPageContent() {
   const canAccessAdmin = permissions?.canAccessAdmin === true
   const canCreatePost = permissions?.canCreatePost === true
   const canCreateWiki = permissions?.canCreateWiki === true
+  const quickAdminURL = dashboard?.actions?.adminURL || '/admin'
   const approvalMessage = useMemo(() => {
     const approvalStatus = searchParams.get('approval')
     if (!approvalStatus) return null
@@ -285,6 +287,21 @@ function AccountPageContent() {
       setAuthGateReason(null)
     }
   }, [session?.user])
+
+  useEffect(() => {
+    if (!isPending || isSignedIn) {
+      setHasSessionCheckTimedOut(false)
+      return
+    }
+
+    const timeout = window.setTimeout(() => {
+      setHasSessionCheckTimedOut(true)
+    }, 4000)
+
+    return () => {
+      window.clearTimeout(timeout)
+    }
+  }, [isPending, isSignedIn])
 
   const pageTitle = useMemo(() => {
     return isSignedIn ? 'Your Account' : 'Sign Up or Log In'
@@ -616,7 +633,7 @@ function AccountPageContent() {
                 <input
                   id="account-password"
                   className="rounded-xl border border-border bg-background px-4 py-3 text-base shadow-sm transition-colors focus-visible:border-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30 sm:text-lg"
-                  minLength={8}
+                  minLength={isSignUpMode ? 8 : 4}
                   onChange={(event) => setPassword(event.target.value)}
                   required
                   type="password"
@@ -739,6 +756,25 @@ function AccountPageContent() {
             {isDashboardLoading ? (
               <div className="mt-6 rounded-2xl border border-border bg-muted/30 p-4 text-sm text-muted-foreground shadow-sm">
                 Loading your account workspace...
+              </div>
+            ) : null}
+
+            {isSignedIn && !isDashboardReady ? (
+              <div className="mt-4 flex flex-wrap gap-3">
+                <a
+                  href={quickAdminURL}
+                  className="inline-flex items-center gap-2 rounded-full border border-border px-4 py-2 text-sm font-medium text-foreground transition-colors hover:border-primary/30 hover:text-primary"
+                >
+                  <Shield className="h-4 w-4" />
+                  Open Admin
+                </a>
+                <Link
+                  href="/account/profile"
+                  className="inline-flex items-center gap-2 rounded-full border border-border px-4 py-2 text-sm font-medium text-foreground transition-colors hover:border-primary/30 hover:text-primary"
+                >
+                  <Pencil className="h-4 w-4" />
+                  Edit Profile
+                </Link>
               </div>
             ) : null}
 
@@ -872,7 +908,7 @@ function AccountPageContent() {
                   ) : null}
 
                   {canAccessAdmin && dashboard?.actions?.adminURL ? (
-                    <Link
+                    <a
                       href={dashboard.actions.adminURL}
                       className="group flex items-start gap-4 rounded-xl border border-border bg-card p-4 transition-all hover:border-primary/30 hover:bg-primary/[0.03] hover:shadow-sm"
                     >
@@ -890,7 +926,7 @@ function AccountPageContent() {
                             : 'Open your scoped editing workspace for posts, wiki pages, and profile management'}
                         </p>
                       </div>
-                    </Link>
+                    </a>
                   ) : null}
                 </div>
 
@@ -1029,7 +1065,7 @@ function AccountPageContent() {
                 onClick={() => void handleSignOut()}
               >
                 <LogOut className="h-4 w-4" />
-                Sign Out
+                Log Out
               </button>
             </div>
           </div>

@@ -3,7 +3,6 @@ import type { GlobalConfig } from 'payload'
 import { adminOnly } from '@/access/adminOnly'
 import { hideFromNonAdmins } from '@/access/hideFromNonAdmins'
 import { link } from '@/fields/link'
-import { revalidateHeader } from './hooks/revalidateHeader'
 
 export const Header: GlobalConfig = {
   slug: 'header',
@@ -86,7 +85,4 @@ export const Header: GlobalConfig = {
       },
     },
   ],
-  hooks: {
-    afterChange: [revalidateHeader],
-  },
 }
