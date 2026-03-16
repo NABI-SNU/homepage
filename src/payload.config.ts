@@ -28,7 +28,6 @@ import { plugins } from './plugins'
 import { defaultLexical } from '@/fields/defaultLexical'
 import { backfillUsersToPeople } from '@/auth/backfillUsersToPeople'
 import { betterAuthOptions, createAuth } from '@/auth/betterAuth'
-import { migrations } from './migrations'
 import { getStorageDatabaseURL, getStoragePgDependency } from './utilities/storageDatabase'
 import { getServerSideURL } from './utilities/getURL'
 
@@ -88,7 +87,6 @@ export default buildConfig({
   editor: defaultLexical,
   db: postgresAdapter({
     pg: pgDependency,
-    prodMigrations: migrations,
     push: process.env.PAYLOAD_PUSH_SCHEMA === 'true',
     pool: {
       connectionString: storageDatabaseURL,
