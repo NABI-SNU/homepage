@@ -40,16 +40,16 @@ export default async function HomePage() {
             {homePage.heroSubtitle}
           </p>
 
-          <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
+          <div className="mx-auto mt-8 grid w-full max-w-md grid-cols-2 gap-3 sm:max-w-xl">
             <Link
-              className="inline-flex items-center justify-center gap-2 rounded-full bg-primary px-8 py-3 text-base font-semibold text-primary-foreground transition-colors hover:bg-secondary"
+              className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-primary px-4 py-3 text-sm font-semibold text-primary-foreground transition-colors hover:bg-secondary sm:px-8 sm:text-base"
               href={homePage.primaryCTA.url}
             >
               {homePage.primaryCTA.label}
               {isExternalHref(homePage.primaryCTA.url) && <ExternalLink className="h-4 w-4" />}
             </Link>
             <Link
-              className="inline-flex items-center justify-center rounded-full border border-border px-8 py-3 text-base font-medium transition-colors hover:bg-muted"
+              className="inline-flex w-full items-center justify-center rounded-full border border-border px-4 py-3 text-sm font-medium transition-colors hover:bg-muted sm:px-8 sm:text-base"
               href={homePage.secondaryCTA.url}
             >
               {homePage.secondaryCTA.label}
@@ -99,16 +99,16 @@ export default async function HomePage() {
               {homePage.joinSubtitle}
             </p>
           )}
-          <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
+          <div className="mx-auto mt-8 grid w-full max-w-md grid-cols-2 gap-3 sm:max-w-xl">
             <Link
-              className="inline-flex items-center justify-center gap-2 rounded-full bg-primary px-8 py-3 text-base font-semibold text-primary-foreground transition-colors hover:bg-secondary"
+              className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-primary px-4 py-3 text-sm font-semibold text-primary-foreground transition-colors hover:bg-secondary sm:px-8 sm:text-base"
               href={homePage.joinPrimaryCTA.url}
             >
               {homePage.joinPrimaryCTA.label}
               {isExternalHref(homePage.joinPrimaryCTA.url) && <ExternalLink className="h-4 w-4" />}
             </Link>
             <Link
-              className="inline-flex items-center justify-center gap-2 rounded-full border border-border px-8 py-3 text-base font-medium transition-colors hover:bg-muted"
+              className="inline-flex w-full items-center justify-center gap-2 rounded-full border border-border px-4 py-3 text-sm font-medium transition-colors hover:bg-muted sm:px-8 sm:text-base"
               href={homePage.joinSecondaryCTA.url}
             >
               {homePage.joinSecondaryCTA.label}
