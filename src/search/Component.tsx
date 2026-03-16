@@ -1,7 +1,7 @@
 'use client'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useEffect, useMemo, useState, useTransition } from 'react'
 import { useDebounce } from '@/utilities/useDebounce'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 
@@ -9,6 +9,7 @@ export const Search: React.FC = () => {
   const router = useRouter()
   const pathname = usePathname()
   const searchParams = useSearchParams()
+  const [, startTransition] = useTransition()
   const currentQuery = useMemo(() => searchParams.get('q')?.trim() || '', [searchParams])
   const [value, setValue] = useState(currentQuery)
 
@@ -30,7 +31,10 @@ export const Search: React.FC = () => {
     const nextQuery = nextParams.toString()
     const nextURL = nextQuery ? `${pathname}?${nextQuery}` : pathname
 
-    router.replace(nextURL, { scroll: false })
+    window.history.replaceState(window.history.state, '', nextURL)
+    startTransition(() => {
+      router.replace(nextURL, { scroll: false })
+    })
   }, [currentQuery, debouncedValue, pathname, router, searchParams])
 
   return (

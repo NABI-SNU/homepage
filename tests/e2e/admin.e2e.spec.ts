@@ -7,7 +7,7 @@ import {
   type SeededScenario,
 } from '../helpers/seedAuthoredPostScenario'
 
-test.describe('Admin Panel', () => {
+test.describe('Admin Panel @auth', () => {
   let page: Page
 
   test.beforeAll(async ({ browser }) => {
@@ -20,8 +20,7 @@ test.describe('Admin Panel', () => {
   test('can navigate to dashboard', async () => {
     await page.goto('http://localhost:3000/admin')
     await expect(page).toHaveURL('http://localhost:3000/admin')
-    const dashboardArtifact = page.locator('span[title="Dashboard"]').first()
-    await expect(dashboardArtifact).toBeVisible()
+    await expect(page.getByText('Welcome to the NABI admin dashboard')).toBeVisible()
   })
 
   test('can navigate to list view', async () => {
@@ -39,7 +38,7 @@ test.describe('Admin Panel', () => {
   })
 })
 
-test.describe('Non-admin admin visibility', () => {
+test.describe('Non-admin admin visibility @auth', () => {
   test('member admin hides sitewide collections and keeps self-service areas visible', async ({
     browser,
   }) => {
@@ -51,9 +50,9 @@ test.describe('Non-admin admin visibility', () => {
       user: userTestAccount,
     })
 
-    await expect(page.getByRole('link', { name: 'Posts' })).toBeVisible()
-    await expect(page.getByRole('link', { name: 'Wiki' })).toBeVisible()
-    await expect(page.getByRole('link', { name: 'People' })).toBeVisible()
+    await expect(page.getByRole('link', { name: 'Show all Posts' })).toBeVisible()
+    await expect(page.getByRole('link', { name: 'Show all Wiki' })).toBeVisible()
+    await expect(page.getByRole('link', { name: 'Show all People' })).toBeVisible()
 
     await expect(page.getByRole('link', { name: 'Users' })).toHaveCount(0)
     await expect(page.getByRole('link', { name: 'News' })).toHaveCount(0)
@@ -65,7 +64,7 @@ test.describe('Non-admin admin visibility', () => {
   })
 })
 
-test.describe('Admin editor stability', () => {
+test.describe('Admin editor stability @auth', () => {
   test.describe.configure({ timeout: 180_000 })
 
   let scenario: SeededScenario | null = null
@@ -79,7 +78,7 @@ test.describe('Admin editor stability', () => {
     await cleanupAuthoredPostScenario(scenario)
   })
 
-  test('non-admin can edit an authored post for 30+ seconds without mid-edit overwrite', async ({
+  test('non-admin can edit an authored post for 90+ seconds without mid-edit overwrite', async ({
     browser,
   }) => {
     if (!scenario) throw new Error('Scenario was not initialized')
@@ -99,18 +98,30 @@ test.describe('Admin editor stability', () => {
     const titleInput = page.locator('input[name="title"]')
     await expect(titleInput).toBeVisible()
 
+    const mutationRequests: string[] = []
+    page.on('request', (request) => {
+      if (
+        request.method() === 'POST' &&
+        (request.url().includes('/admin/collections/posts/') ||
+          request.url().includes('/api/posts/'))
+      ) {
+        mutationRequests.push(request.url())
+      }
+    })
+
     const editedTitle = `Stable Edit ${Date.now()}`
     await titleInput.fill(editedTitle)
     await expect(titleInput).toHaveValue(editedTitle)
 
-    await page.waitForTimeout(32_000)
+    await page.waitForTimeout(95_000)
     await expect(titleInput).toHaveValue(editedTitle)
     await expect(page.getByText(/out of date/i)).toHaveCount(0)
+    expect(mutationRequests.length).toBeLessThanOrEqual(1)
 
     await context.close()
   })
 
-  test('admin save response for contact global keeps updated text value stable after 30+ seconds', async ({
+  test('admin save response for footer global stays stable across consecutive saves and long idle periods', async ({
     browser,
   }) => {
     const context = await browser.newContext()
@@ -121,13 +132,14 @@ test.describe('Admin editor stability', () => {
       user: adminTestAccount,
     })
 
-    await page.goto('http://localhost:3000/admin/globals/contactPage')
+    await page.goto('http://localhost:3000/admin/globals/footer')
 
-    const titleInput = page.locator('input[name="title"]').first()
+    const titleInput = page.locator('input[name="brandName"]').first()
     await expect(titleInput).toBeVisible()
 
     const originalTitle = await titleInput.inputValue()
     const editedTitle = `Admin Stable Save ${Date.now()}`
+    const editedTitleAgain = `${editedTitle} Again`
 
     try {
       await titleInput.fill(editedTitle)
@@ -137,7 +149,7 @@ test.describe('Admin editor stability', () => {
         return (
           response.request().method() === 'POST' &&
           response.status() === 200 &&
-          response.url().includes('/api/globals/contactPage')
+          response.url().includes('/api/globals/footer')
         )
       })
 
@@ -145,16 +157,51 @@ test.describe('Admin editor stability', () => {
         .getByRole('button', { name: /^Save$/ })
         .first()
         .click()
-      const saveResponse = await saveResponsePromise
-      const savedGlobal = (await saveResponse.json().catch(() => null)) as { title?: string } | null
-      expect(savedGlobal?.title).toBe(editedTitle)
-
-      await page.waitForTimeout(32_000)
+      await saveResponsePromise
       await expect(titleInput).toHaveValue(editedTitle)
+      await page.reload()
+      await expect(page.locator('input[name="brandName"]').first()).toHaveValue(editedTitle)
+      await page.locator('input[name="brandName"]').first().fill(editedTitle)
+
+      await titleInput.fill(editedTitleAgain)
+      await expect(titleInput).toHaveValue(editedTitleAgain)
+
+      const secondSaveResponsePromise = page.waitForResponse((response) => {
+        return (
+          response.request().method() === 'POST' &&
+          response.status() === 200 &&
+          response.url().includes('/api/globals/footer')
+        )
+      })
+
+      await page
+        .getByRole('button', { name: /^Save$/ })
+        .first()
+        .click()
+      await secondSaveResponsePromise
+      await expect(titleInput).toHaveValue(editedTitleAgain)
+
+      const idleMutationRequests: string[] = []
+      page.on('request', (request) => {
+        if (
+          request.method() === 'POST' &&
+          (request.url().includes('/admin/globals/footer') ||
+            request.url().includes('/api/globals/footer'))
+        ) {
+          idleMutationRequests.push(request.url())
+        }
+      })
+
+      await page.waitForTimeout(95_000)
+      await expect(titleInput).toHaveValue(editedTitleAgain)
       await expect(page.getByText(/out of date/i)).toHaveCount(0)
+      expect(
+        idleMutationRequests.filter((url) => url.includes('/admin/globals/footer')).length,
+      ).toBeLessThanOrEqual(1)
+      expect(idleMutationRequests.length).toBeLessThanOrEqual(2)
 
       await page.reload()
-      await expect(page.locator('input[name="title"]').first()).toHaveValue(editedTitle)
+      await expect(page.locator('input[name="brandName"]').first()).toHaveValue(editedTitleAgain)
     } finally {
       const currentValue = await titleInput.inputValue().catch(() => originalTitle)
       if (currentValue !== originalTitle) {
@@ -164,7 +211,7 @@ test.describe('Admin editor stability', () => {
           return (
             response.request().method() === 'POST' &&
             response.status() === 200 &&
-            response.url().includes('/api/globals/contactPage')
+            response.url().includes('/api/globals/footer')
           )
         })
 

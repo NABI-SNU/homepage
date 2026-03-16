@@ -9,7 +9,9 @@
     "prebuild": "pnpm generate:importmap",
     "build": "cross-env NODE_OPTIONS=--no-deprecation next build",
     "postbuild": "next-sitemap --config next-sitemap.config.cjs",
+    "predev": "rm -rf .next/cache && pnpm generate:importmap",
     "dev": "cross-env NODE_OPTIONS=--no-deprecation next dev",
+    "predev:turbopack": "rm -rf .next/cache && pnpm generate:importmap",
     "dev:turbopack": "cross-env NODE_OPTIONS=--no-deprecation next dev --turbopack",
     "dev:prod": "cross-env NODE_OPTIONS=--no-deprecation rm -rf .next && pnpm build && pnpm start",
     "generate:importmap": "cross-env NODE_OPTIONS=--no-deprecation payload generate:importmap",
@@ -34,6 +36,8 @@
     "format:check": "cross-env NODE_OPTIONS=--no-deprecation prettier --check ."
   },
   "dependencies": {
+    "@better-auth/passkey": "^1.5.5",
+    "@delmaredigital/payload-better-auth": "^0.6.1",
     "@neondatabase/serverless": "^1.0.2",
     "@payloadcms/db-postgres": "3.78.0",
     "@payloadcms/email-nodemailer": "^3.78.0",
@@ -77,7 +81,7 @@
     "react": "19.2.4",
     "react-dom": "19.2.4",
     "react-hook-form": "7.71.2",
-    "sharp": "0.34.2",
+    "sharp": "0.34.5",
     "styled-components": "5.3.11",
     "tailwind-merge": "^3.4.0"
   },

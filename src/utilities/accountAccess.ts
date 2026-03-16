@@ -3,9 +3,7 @@ import { getPayload, type Payload } from 'payload'
 import type { NextRequest } from 'next/server'
 
 import configPromise from '@payload-config'
-import { getBetterAuthUserFromHeaders } from '@/auth/getBetterAuthUserFromHeaders'
-import { strictPayloadSessionResolutionOptions } from '@/auth/payloadSessionPolicy'
-import { resolvePayloadUserFromSession } from '@/auth/resolvePayloadUserFromSession'
+import { getServerUser } from '@/auth/session'
 import type { Person, Post, User, Wiki } from '@/payload-types'
 
 type LinkedPersonSummary = {
@@ -42,6 +40,7 @@ export type AccountCapabilities = {
   user: {
     id: number
     name?: string | null
+    role?: string | null
     roles?: string | string[] | null
   } | null
 }
@@ -177,16 +176,11 @@ export const resolveAccountRequestContext = async (
   | AccountRequestContext
 > => {
   const payload = await getPayload({ config: configPromise })
-  const { betterAuthUser, responseHeaders } = await getBetterAuthUserFromHeaders(req.headers)
-  const user = await resolvePayloadUserFromSession({
-    payload,
-    betterAuthUser,
-    ...strictPayloadSessionResolutionOptions,
-  })
+  const user = await getServerUser(payload, req.headers)
 
   if (!user) {
     return {
-      responseHeaders: buildPrivateResponseHeaders(responseHeaders),
+      responseHeaders: buildPrivateResponseHeaders(),
       user: null,
     }
   }
@@ -198,7 +192,7 @@ export const resolveAccountRequestContext = async (
     linkedPerson,
     payload,
     permissions,
-    responseHeaders: buildPrivateResponseHeaders(responseHeaders),
+    responseHeaders: buildPrivateResponseHeaders(),
     user,
   }
 }
@@ -217,6 +211,7 @@ export const buildAccountCapabilities = ({
   user: {
     id: user.id,
     name: user.name || null,
+    role: user.role ?? null,
     roles: user.roles ?? null,
   },
 })
@@ -312,6 +307,7 @@ export const getAccountDashboardData = async ({
     user: {
       id: user.id,
       name: user.name || null,
+      role: user.role ?? null,
       roles: user.roles ?? null,
     },
   }

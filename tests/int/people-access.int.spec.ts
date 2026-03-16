@@ -68,7 +68,6 @@ describe('People Access', () => {
           email: `people-access-b-${runID}@example.com`,
           years: [2026],
           memberType: 'alumni',
-          user: null,
           bio: 'Original bio B',
         },
       })

@@ -1,14 +1,12 @@
 import { NextRequest } from 'next/server'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
-const { draftMode, findResearchBySlug, getPayload, resolvePayloadUserFromHeaders } = vi.hoisted(
-  () => ({
-    draftMode: vi.fn(),
-    findResearchBySlug: vi.fn(),
-    getPayload: vi.fn(),
-    resolvePayloadUserFromHeaders: vi.fn(),
-  }),
-)
+const { draftMode, findResearchBySlug, getPayload, getServerUser } = vi.hoisted(() => ({
+  draftMode: vi.fn(),
+  findResearchBySlug: vi.fn(),
+  getPayload: vi.fn(),
+  getServerUser: vi.fn(),
+}))
 
 vi.mock('payload', () => ({
   getPayload,
@@ -22,8 +20,8 @@ vi.mock('next/headers', () => ({
   draftMode,
 }))
 
-vi.mock('@/auth/resolvePayloadUserFromHeaders', () => ({
-  resolvePayloadUserFromHeaders,
+vi.mock('@/auth/session', () => ({
+  getServerUser,
 }))
 
 vi.mock('@/utilities/getResearchBySlug', () => ({
@@ -41,7 +39,7 @@ describe('lab notebook route', () => {
     getPayload.mockResolvedValue({
       findByID: vi.fn(),
     })
-    resolvePayloadUserFromHeaders.mockResolvedValue({ user: null })
+    getServerUser.mockResolvedValue(null)
   })
 
   it('returns notebook JSON for published research with an uploaded notebook', async () => {
@@ -238,7 +236,7 @@ describe('lab notebook route', () => {
     }
 
     draftMode.mockResolvedValue({ isEnabled: true })
-    resolvePayloadUserFromHeaders.mockResolvedValue({ user })
+    getServerUser.mockResolvedValue(user)
     findResearchBySlug.mockResolvedValue({
       notebook: {
         url: '/notebooks/preview.ipynb',
@@ -258,7 +256,7 @@ describe('lab notebook route', () => {
     })
 
     expect(response.status).toBe(200)
-    expect(resolvePayloadUserFromHeaders).toHaveBeenCalled()
+    expect(getServerUser).toHaveBeenCalled()
     expect(findResearchBySlug).toHaveBeenCalledWith({
       depth: 1,
       draft: true,

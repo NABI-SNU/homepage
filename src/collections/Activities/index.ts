@@ -31,7 +31,6 @@ import {
   ensureSymposiumExistsBeforeChange,
   ensureSymposiumExistsBeforeDelete,
 } from './hooks/ensureSymposiumExists'
-import { revalidateActivities, revalidateActivitiesDelete } from './hooks/revalidateActivities'
 
 const activityRichTextEditor = lexicalEditor({
   features: ({ rootFeatures }) => {
@@ -189,8 +188,6 @@ export const Activities: CollectionConfig<'activities'> = {
   hooks: {
     beforeChange: [ensureSymposiumExistsBeforeChange],
     beforeDelete: [ensureSymposiumExistsBeforeDelete],
-    afterChange: [revalidateActivities],
-    afterDelete: [revalidateActivitiesDelete],
   },
   versions: {
     drafts: {

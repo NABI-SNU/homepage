@@ -65,8 +65,8 @@ export async function seedAnnouncementScenario(): Promise<SeededAnnouncementScen
 
   const announcement = await payload.create({
     collection: 'announcements',
+    draft: false,
     overrideAccess: true,
-    context: { disableRevalidate: true },
     data: {
       title: `Announcement Demo ${runID}`,
       slug: `announcement-demo-${runID}`,
@@ -93,7 +93,6 @@ export async function cleanupAnnouncementScenario(
     collection: 'announcements',
     id: scenario.announcementID,
     overrideAccess: true,
-    context: { disableRevalidate: true },
   })
 }
 

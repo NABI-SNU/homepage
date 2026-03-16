@@ -2,9 +2,8 @@ import { expect, test } from '@playwright/test'
 
 test.describe('Search interactions', () => {
   test('posts search clear does not re-apply stale query', async ({ page }) => {
-    await page.goto('http://localhost:3000/posts', {
-      waitUntil: 'domcontentloaded',
-    })
+    await page.goto('http://localhost:3000/posts')
+    await page.waitForLoadState('networkidle')
 
     const postsSearchInput = page.getByRole('textbox', { name: 'Search posts' })
     const query = 'playwright-posts-search-regression'
@@ -24,9 +23,8 @@ test.describe('Search interactions', () => {
   })
 
   test('global search updates and clears q param', async ({ page }) => {
-    await page.goto('http://localhost:3000/search', {
-      waitUntil: 'domcontentloaded',
-    })
+    await page.goto('http://localhost:3000/search')
+    await page.waitForLoadState('networkidle')
 
     const globalSearchInput = page.getByRole('textbox', { name: 'Search' })
     const query = 'playwright-global-search'

@@ -4,7 +4,7 @@ import configPromise from '@payload-config'
 import { draftMode } from 'next/headers'
 import { getPayload } from 'payload'
 
-import { resolvePayloadUserFromHeaders } from '@/auth/resolvePayloadUserFromHeaders'
+import { getServerUser } from '@/auth/session'
 import { findResearchBySlug } from '@/utilities/getResearchBySlug'
 import {
   fetchNotebookContent,
@@ -33,13 +33,8 @@ export async function GET(req: NextRequest, { params }: RouteContext): Promise<R
   let user = null
 
   if (isEnabled) {
-    const resolved = await resolvePayloadUserFromHeaders({
-      headers: req.headers,
-      payload,
-    })
-
-    user = resolved.user
-    draft = Boolean(resolved.user)
+    user = await getServerUser(payload, req.headers)
+    draft = Boolean(user)
   }
 
   const research = await findResearchBySlug({

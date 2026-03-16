@@ -1,45 +1,82 @@
-import { getPayload, type Payload } from 'payload'
-import { beforeAll, describe, expect, it } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 
-import config from '@/payload.config'
-import { resolvePayloadUserFromSession } from '@/auth/resolvePayloadUserFromSession'
-import { requireTestAccountUsers, userTestAccount } from '../helpers/testAccounts'
+import { syncBetterAuthUserToPayload } from '@/auth/syncBetterAuthUserToPayload'
 
-let payload: Payload
-let users: Awaited<ReturnType<typeof requireTestAccountUsers>>
-
-describe('Auth Session Resolution', () => {
-  beforeAll(async () => {
-    const payloadConfig = await config
-    payload = await getPayload({ config: payloadConfig })
-    users = await requireTestAccountUsers(payload)
+describe('auth sync auto-approval', () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
   })
 
-  it(
-    'resolves the existing fixed user account from BetterAuth session data',
-    async () => {
-      if (!users.user.betterAuthUserId) {
-        throw new Error(
-          `"${userTestAccount.email}" must have betterAuthUserId populated. Tests must use pre-seeded accounts.`,
-        )
-      }
+  it('auto-approves a user when a visible person profile already matches the email', async () => {
+    const payload = {
+      create: vi.fn(),
+      find: vi
+        .fn()
+        .mockResolvedValueOnce({
+          docs: [
+            {
+              id: 25,
+              email: 'member@example.com',
+              isApproved: false,
+              role: 'user',
+              roles: 'user',
+            },
+          ],
+        })
+        .mockResolvedValueOnce({ docs: [] })
+        .mockResolvedValueOnce({
+          docs: [
+            {
+              id: 90,
+              isVisible: true,
+              user: null,
+            },
+          ],
+        }),
+      update: vi
+        .fn()
+        .mockResolvedValueOnce({
+          id: 90,
+          isVisible: true,
+          user: 25,
+        })
+        .mockResolvedValueOnce({
+          id: 25,
+          email: 'member@example.com',
+          isApproved: true,
+          role: 'user',
+          roles: 'user',
+        }),
+    }
 
-      const resolved = await resolvePayloadUserFromSession({
-        payload,
-        betterAuthUser: {
-          id: users.user.betterAuthUserId,
-          email: userTestAccount.email,
-          emailVerified: true,
-        },
-        requireApproval: true,
-        autoApproveByPeopleEmail: true,
-        enforceProductionEmailVerification: false,
-      })
+    await syncBetterAuthUserToPayload({
+      betterAuthUser: {
+        email: 'member@example.com',
+        id: '25',
+        name: 'Member Example',
+      },
+      payload: payload as never,
+    })
 
-      expect(resolved?.id).toBe(users.user.id)
-      expect(resolved?.isApproved).toBe(true)
-      expect(resolved?.email?.toLowerCase()).toBe(userTestAccount.email)
-    },
-    30_000,
-  )
+    expect(payload.update).toHaveBeenNthCalledWith(
+      1,
+      expect.objectContaining({
+        collection: 'people',
+        data: expect.objectContaining({
+          user: 25,
+        }),
+        id: 90,
+      }),
+    )
+    expect(payload.update).toHaveBeenNthCalledWith(
+      2,
+      expect.objectContaining({
+        collection: 'users',
+        data: expect.objectContaining({
+          isApproved: true,
+        }),
+        id: 25,
+      }),
+    )
+  })
 })

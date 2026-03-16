@@ -63,6 +63,7 @@ export async function GET(req: NextRequest): Promise<Response> {
         id: user.id,
         email: user.email,
         name: user.name,
+        role: user.role,
         roles: user.roles,
       },
       person: people.docs[0] ?? null,

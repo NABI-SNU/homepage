@@ -20,7 +20,6 @@ import { YouTubeEmbed } from '../../blocks/YouTubeEmbed/config'
 import { referenceFields } from '../../fields/referenceFields'
 import { generatePreviewPath } from '../../utilities/generatePreviewPath'
 import { slugField } from 'payload'
-import { revalidateNews, revalidateNewsDelete } from './hooks/revalidateNews'
 
 export const News: CollectionConfig<'news'> = {
   slug: 'news',
@@ -94,10 +93,6 @@ export const News: CollectionConfig<'news'> = {
     },
     slugField(),
   ],
-  hooks: {
-    afterChange: [revalidateNews],
-    afterDelete: [revalidateNewsDelete],
-  },
   versions: {
     drafts: {
       autosave: false,

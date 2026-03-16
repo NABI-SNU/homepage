@@ -3,6 +3,8 @@ import { unstable_cache } from 'next/cache'
 import { getPayload } from 'payload'
 import type { Announcement } from '@/payload-types'
 
+const disableCache = process.env.E2E_DISABLE_CACHE === 'true'
+
 type PublishedAnnouncementListItem = Pick<
   Announcement,
   'description' | 'id' | 'image' | 'meta' | 'publishedAt' | 'slug' | 'title'
@@ -115,26 +117,32 @@ const getPublishedAnnouncementBySlug = async (
 }
 
 export const getCachedAnnouncementsList = () =>
-  unstable_cache(getAnnouncementsList, ['announcements-list'], {
-    revalidate: 3600,
-    tags: ['announcements_list'],
-  })
+  disableCache
+    ? () => getAnnouncementsList()
+    : unstable_cache(getAnnouncementsList, ['announcements-list'], {
+        revalidate: 3600,
+        tags: ['announcements_list'],
+      })
 
 export const getCachedAnnouncementSlugs = () =>
-  unstable_cache(getAnnouncementSlugs, ['announcements-slugs'], {
-    revalidate: 3600,
-    tags: ['announcements_slugs', 'site-sitemap'],
-  })
+  disableCache
+    ? () => getAnnouncementSlugs()
+    : unstable_cache(getAnnouncementSlugs, ['announcements-slugs'], {
+        revalidate: 3600,
+        tags: ['announcements_slugs', 'site-sitemap'],
+      })
 
 export const getCachedPublishedAnnouncementBySlug = (slug: string) => {
   const normalizedSlug = normalizeAnnouncementSlug(slug)
 
-  return unstable_cache(
-    () => getPublishedAnnouncementBySlug(normalizedSlug),
-    ['announcement-by-slug', normalizedSlug],
-    {
-      revalidate: 3600,
-      tags: [`announcement_${normalizedSlug}`],
-    },
-  )
+  return disableCache
+    ? () => getPublishedAnnouncementBySlug(normalizedSlug)
+    : unstable_cache(
+        () => getPublishedAnnouncementBySlug(normalizedSlug),
+        ['announcement-by-slug', normalizedSlug],
+        {
+          revalidate: 3600,
+          tags: [`announcement_${normalizedSlug}`],
+        },
+      )
 }

@@ -28,7 +28,7 @@ describe('production blocked auth accounts', () => {
     const resolved = await resolvePayloadUserFromSession({
       payload,
       betterAuthUser: {
-        id: 'some-id',
+        id: '101',
         email: 'test@example.com',
         emailVerified: true,
       },
@@ -48,7 +48,7 @@ describe('production blocked auth accounts', () => {
     const resolved = await resolvePayloadUserFromSessionWithReason({
       payload,
       betterAuthUser: {
-        id: 'some-id',
+        id: '101',
         email: 'dev@payloadcms.com',
         emailVerified: true,
       },
@@ -70,7 +70,7 @@ describe('production blocked auth accounts', () => {
     const resolved = await resolvePayloadUserFromSessionWithReason({
       payload,
       betterAuthUser: {
-        id: 'some-id',
+        id: '101',
         email: 'admin@example.com',
         emailVerified: true,
       },
@@ -94,8 +94,8 @@ describe('production blocked auth accounts', () => {
           docs: [
             {
               id: 101,
-              betterAuthUserId: 'visible-check',
               email: 'member@example.com',
+              emailVerified: true,
               isApproved: true,
               roles: 'user',
             },
@@ -120,7 +120,7 @@ describe('production blocked auth accounts', () => {
     const resolved = await resolvePayloadUserFromSessionWithReason({
       payload,
       betterAuthUser: {
-        id: 'visible-check',
+        id: '101',
         email: 'member@example.com',
         emailVerified: true,
       },
@@ -144,8 +144,8 @@ describe('production blocked auth accounts', () => {
           docs: [
             {
               id: 202,
-              betterAuthUserId: 'hidden-resolver',
               email: 'hidden@example.com',
+              emailVerified: true,
               isApproved: true,
               roles: 'user',
             },
@@ -170,7 +170,7 @@ describe('production blocked auth accounts', () => {
     const resolved = await resolvePayloadUserFromSession({
       payload,
       betterAuthUser: {
-        id: 'hidden-resolver',
+        id: '202',
         email: 'hidden@example.com',
         emailVerified: true,
       },
