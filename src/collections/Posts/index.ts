@@ -21,6 +21,7 @@ import { YouTubeEmbed } from '../../blocks/YouTubeEmbed/config'
 import { referenceFields } from '../../fields/referenceFields'
 import { generatePreviewPath } from '../../utilities/generatePreviewPath'
 import { ensurePostAuthors } from './hooks/ensurePostAuthors'
+import { revalidateDelete, revalidatePost } from './hooks/revalidatePost'
 
 import {
   MetaDescriptionField,
@@ -223,6 +224,8 @@ export const Posts: CollectionConfig<'posts'> = {
     slugField(),
   ],
   hooks: {
+    afterChange: [revalidatePost],
+    afterDelete: [revalidateDelete],
     beforeValidate: [ensurePostAuthors],
   },
   versions: {

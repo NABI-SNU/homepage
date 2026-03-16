@@ -1,6 +1,7 @@
 import type { Access, CollectionConfig, Where } from 'payload'
 
 import { adminOnly } from '../../access/adminOnly'
+import { revalidatePerson, revalidatePersonDelete } from './hooks/revalidatePeople'
 import { syncResearchTagsFromPerson } from './hooks/syncResearchTags'
 import { slugField } from 'payload'
 import { parseResearchTags } from '@/utilities/researchTags'
@@ -257,6 +258,7 @@ export const People: CollectionConfig<'people'> = {
         }
       },
     ],
-    afterChange: [syncResearchTagsFromPerson],
+    afterChange: [syncResearchTagsFromPerson, revalidatePerson],
+    afterDelete: [revalidatePersonDelete],
   },
 }

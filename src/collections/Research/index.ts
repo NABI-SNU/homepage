@@ -20,6 +20,7 @@ import { YouTubeEmbed } from '../../blocks/YouTubeEmbed/config'
 import { referenceFields } from '../../fields/referenceFields'
 import { generatePreviewPath } from '../../utilities/generatePreviewPath'
 import { slugField } from 'payload'
+import { revalidateResearch, revalidateResearchDelete } from './hooks/revalidateResearch'
 
 export const Research: CollectionConfig<'research'> = {
   slug: 'research',
@@ -114,6 +115,10 @@ export const Research: CollectionConfig<'research'> = {
     },
     slugField(),
   ],
+  hooks: {
+    afterChange: [revalidateResearch],
+    afterDelete: [revalidateResearchDelete],
+  },
   versions: {
     drafts: {
       autosave: false,

@@ -2,11 +2,14 @@ import type { Metadata } from 'next'
 
 import Link from 'next/link'
 import Image from 'next/image'
-import { ChevronRight, ExternalLink, Mail } from 'lucide-react'
+import { ChevronRight, ExternalLink } from 'lucide-react'
 
 import { getCachedGlobal } from '@/utilities/getGlobals'
 import type { HomePage as HomePageGlobal } from '@/payload-types'
 import heroImage from '@/assets/images/hero-image.png'
+
+const isExternalHref = (href?: string | null) =>
+  typeof href === 'string' && (href.startsWith('http://') || href.startsWith('https://'))
 
 export default async function HomePage() {
   const homePageData = await getCachedGlobal('homePage', 2)()
@@ -43,7 +46,7 @@ export default async function HomePage() {
               href={homePage.primaryCTA.url}
             >
               {homePage.primaryCTA.label}
-              <ExternalLink className="h-4 w-4" />
+              {isExternalHref(homePage.primaryCTA.url) && <ExternalLink className="h-4 w-4" />}
             </Link>
             <Link
               className="inline-flex items-center justify-center rounded-full border border-border px-8 py-3 text-base font-medium transition-colors hover:bg-muted"
@@ -102,14 +105,13 @@ export default async function HomePage() {
               href={homePage.joinPrimaryCTA.url}
             >
               {homePage.joinPrimaryCTA.label}
-              <ExternalLink className="h-4 w-4" />
+              {isExternalHref(homePage.joinPrimaryCTA.url) && <ExternalLink className="h-4 w-4" />}
             </Link>
             <Link
               className="inline-flex items-center justify-center gap-2 rounded-full border border-border px-8 py-3 text-base font-medium transition-colors hover:bg-muted"
               href={homePage.joinSecondaryCTA.url}
             >
               {homePage.joinSecondaryCTA.label}
-              <Mail className="h-4 w-4" />
             </Link>
           </div>
         </div>

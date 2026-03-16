@@ -7,51 +7,12 @@ import type { Header as HeaderType } from '@/payload-types'
 import { CMSLink } from '@/components/Link'
 import { getActivityPathFromReferenceValue } from '@/utilities/activityURL'
 import { cn } from '@/utilities/ui'
-import { ChevronDown } from 'lucide-react'
+import { ChevronDown, ExternalLink } from 'lucide-react'
 import { usePathname } from 'next/navigation'
 
 type HeaderNavItem = NonNullable<NonNullable<HeaderType['navItems']>[number]>
 type HeaderNavLink = HeaderNavItem['link']
 type HeaderSubNavItem = NonNullable<NonNullable<HeaderNavItem['links']>[number]>
-
-const fallbackNavItems: HeaderNavItem[] = [
-  { link: { type: 'custom', label: 'About', url: '/about' } },
-  { link: { type: 'custom', label: 'People', url: '/people' } },
-  {
-    link: { type: 'custom', label: 'Activities', url: '/conferences' },
-    links: [
-      { link: { type: 'custom', label: 'Announcements', url: '/announcements' } },
-      { link: { type: 'custom', label: 'Symposium', url: '/symposium' } },
-      { link: { type: 'custom', label: 'Conferences', url: '/conferences' } },
-    ],
-  },
-  {
-    link: { type: 'custom', label: 'Articles', url: '/posts' },
-    links: [
-      { link: { type: 'custom', label: 'All Posts', url: '/posts' } },
-      { link: { type: 'custom', label: 'Monthly Meetings', url: '/category/monthly-meeting' } },
-      { link: { type: 'custom', label: 'Opinions', url: '/category/opinions' } },
-    ],
-  },
-  {
-    link: { type: 'custom', label: 'Resources', url: '/labs' },
-    links: [
-      { link: { type: 'custom', label: 'Research', url: '/labs' } },
-      { link: { type: 'custom', label: 'News', url: '/news' } },
-      { link: { type: 'custom', label: 'Bibliography', url: '/references' } },
-      { link: { type: 'custom', label: 'Wiki', url: '/wiki' } },
-      {
-        link: {
-          type: 'custom',
-          label: 'Book',
-          url: 'https://book.nabilab.org',
-          newTab: true,
-        },
-      },
-    ],
-  },
-  { link: { type: 'custom', label: 'Contact', url: '/contact' } },
-]
 
 const hasRenderableLink = (link: HeaderNavLink | undefined | null) => {
   if (!link?.label) return false
@@ -94,8 +55,16 @@ const getNavHref = (link: HeaderNavLink | undefined) => {
 const getRenderableSubLinks = (item: HeaderNavItem): HeaderSubNavItem[] =>
   (item.links || []).filter((subLink) => hasRenderableLink(subLink?.link))
 
+const isExternalHref = (href: string) => href.startsWith('http://') || href.startsWith('https://')
+
 const isPathActive = (pathname: string | null, href: string) =>
   Boolean(href) && (pathname === href || (href !== '/' && pathname?.startsWith(`${href}/`)))
+
+const shouldShowExternalBookIcon = (item: HeaderSubNavItem) => {
+  const href = getNavHref(item.link)
+
+  return item.link?.label?.trim().toLowerCase() === 'book' && isExternalHref(href)
+}
 
 export const HeaderNav: React.FC<{
   data: HeaderType
@@ -103,8 +72,7 @@ export const HeaderNav: React.FC<{
   onNavigate?: () => void
 }> = ({ data, mobile = false, onNavigate }) => {
   const pathname = usePathname()
-  const sourceItems = (data?.navItems || []).filter((item) => hasRenderableLink(item?.link))
-  const navItems = sourceItems.length > 0 ? sourceItems : fallbackNavItems
+  const navItems = (data?.navItems || []).filter((item) => hasRenderableLink(item?.link))
 
   return (
     <nav
@@ -119,13 +87,13 @@ export const HeaderNav: React.FC<{
       {navItems.map((item, i) => {
         const { link } = item
         const href = getNavHref(link)
-        const isExternal = href.startsWith('http://') || href.startsWith('https://')
+        const isExternal = isExternalHref(href)
         const isActive = !isExternal && isPathActive(pathname, href)
         const subLinks = getRenderableSubLinks(item)
         const hasDropdown = !mobile && subLinks.length > 0
         const hasActiveChild = subLinks.some((subLink) => {
           const childHref = getNavHref(subLink.link)
-          const childExternal = childHref.startsWith('http://') || childHref.startsWith('https://')
+          const childExternal = isExternalHref(childHref)
           return !childExternal && isPathActive(pathname, childHref)
         })
 
@@ -156,7 +124,11 @@ export const HeaderNav: React.FC<{
                           ? 'text-primary'
                           : 'text-foreground hover:text-primary',
                       )}
-                    />
+                    >
+                      {shouldShowExternalBookIcon(subLink) && (
+                        <ExternalLink className="ml-1 inline-block h-3.5 w-3.5 align-middle" />
+                      )}
+                    </CMSLink>
                   </li>
                 ))}
               </ul>
@@ -187,7 +159,11 @@ export const HeaderNav: React.FC<{
                       'block py-2.5 text-lg leading-[1.3] text-muted-foreground transition-colors hover:text-primary',
                       isPathActive(pathname, getNavHref(subLink.link)) ? 'text-primary' : '',
                     )}
-                  />
+                  >
+                    {shouldShowExternalBookIcon(subLink) && (
+                      <ExternalLink className="ml-1 inline-block h-4 w-4 align-middle" />
+                    )}
+                  </CMSLink>
                 ))}
               </div>
             )}
