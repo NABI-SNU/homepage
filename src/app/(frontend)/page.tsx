@@ -2,11 +2,14 @@ import type { Metadata } from 'next'
 
 import Link from 'next/link'
 import Image from 'next/image'
-import { ChevronRight, ExternalLink, Mail } from 'lucide-react'
+import { ChevronRight, ExternalLink } from 'lucide-react'
 
 import { getCachedGlobal } from '@/utilities/getGlobals'
 import type { HomePage as HomePageGlobal } from '@/payload-types'
 import heroImage from '@/assets/images/hero-image.png'
+
+const isExternalHref = (href?: string | null) =>
+  typeof href === 'string' && (href.startsWith('http://') || href.startsWith('https://'))
 
 export default async function HomePage() {
   const homePageData = await getCachedGlobal('homePage', 2)()
@@ -37,16 +40,16 @@ export default async function HomePage() {
             {homePage.heroSubtitle}
           </p>
 
-          <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
+          <div className="mx-auto mt-8 grid w-full max-w-md grid-cols-2 gap-3 sm:max-w-xl">
             <Link
-              className="inline-flex items-center justify-center gap-2 rounded-full bg-primary px-8 py-3 text-base font-semibold text-primary-foreground transition-colors hover:bg-secondary"
+              className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-primary px-4 py-3 text-sm font-semibold text-primary-foreground transition-colors hover:bg-secondary sm:px-8 sm:text-base"
               href={homePage.primaryCTA.url}
             >
               {homePage.primaryCTA.label}
-              <ExternalLink className="h-4 w-4" />
+              {isExternalHref(homePage.primaryCTA.url) && <ExternalLink className="h-4 w-4" />}
             </Link>
             <Link
-              className="inline-flex items-center justify-center rounded-full border border-border px-8 py-3 text-base font-medium transition-colors hover:bg-muted"
+              className="inline-flex w-full items-center justify-center rounded-full border border-border px-4 py-3 text-sm font-medium transition-colors hover:bg-muted sm:px-8 sm:text-base"
               href={homePage.secondaryCTA.url}
             >
               {homePage.secondaryCTA.label}
@@ -96,20 +99,19 @@ export default async function HomePage() {
               {homePage.joinSubtitle}
             </p>
           )}
-          <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
+          <div className="mx-auto mt-8 grid w-full max-w-md grid-cols-2 gap-3 sm:max-w-xl">
             <Link
-              className="inline-flex items-center justify-center gap-2 rounded-full bg-primary px-8 py-3 text-base font-semibold text-primary-foreground transition-colors hover:bg-secondary"
+              className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-primary px-4 py-3 text-sm font-semibold text-primary-foreground transition-colors hover:bg-secondary sm:px-8 sm:text-base"
               href={homePage.joinPrimaryCTA.url}
             >
               {homePage.joinPrimaryCTA.label}
-              <ExternalLink className="h-4 w-4" />
+              {isExternalHref(homePage.joinPrimaryCTA.url) && <ExternalLink className="h-4 w-4" />}
             </Link>
             <Link
-              className="inline-flex items-center justify-center gap-2 rounded-full border border-border px-8 py-3 text-base font-medium transition-colors hover:bg-muted"
+              className="inline-flex w-full items-center justify-center gap-2 rounded-full border border-border px-4 py-3 text-sm font-medium transition-colors hover:bg-muted sm:px-8 sm:text-base"
               href={homePage.joinSecondaryCTA.url}
             >
               {homePage.joinSecondaryCTA.label}
-              <Mail className="h-4 w-4" />
             </Link>
           </div>
         </div>

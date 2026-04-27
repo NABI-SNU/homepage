@@ -1,4 +1,4 @@
-import { test, expect, Page } from '@playwright/test'
+import { test, expect, Locator, Page } from '@playwright/test'
 import { login } from '../helpers/login'
 import { adminTestAccount, userTestAccount } from '../helpers/testAccounts'
 import {
@@ -6,6 +6,59 @@ import {
   seedAuthoredPostScenario,
   type SeededScenario,
 } from '../helpers/seedAuthoredPostScenario'
+
+const clickSaveAndWaitForGlobalResponse = async (page: Page, slug: string) => {
+  const saveResponsePromise = page.waitForResponse((response) => {
+    return (
+      response.request().method() === 'POST' &&
+      response.status() === 200 &&
+      response.url().includes(`/api/globals/${slug}`)
+    )
+  })
+
+  await page
+    .getByRole('button', { name: /^Save$/ })
+    .first()
+    .click()
+
+  return saveResponsePromise
+}
+
+const restoreGlobalInputValue = async ({
+  page,
+  input,
+  originalValue,
+  slug,
+}: {
+  page: Page
+  input: Locator
+  originalValue: string
+  slug: string
+}) => {
+  const currentValue = await input.inputValue().catch(() => originalValue)
+  if (currentValue === originalValue) return
+
+  await input.fill(originalValue)
+  await clickSaveAndWaitForGlobalResponse(page, slug)
+}
+
+const openFirstHeaderNavItem = async (page: Page) => {
+  const labelInput = page.locator('input[name="navItems.0.link.label"]').first()
+  if (await labelInput.isVisible().catch(() => false)) return labelInput
+
+  const toggle = page.getByRole('button', { name: 'Toggle block' }).first()
+  if ((await toggle.count()) > 0) {
+    await toggle.click()
+  } else {
+    await page
+      .getByText(/^Nav item 1:/)
+      .first()
+      .click()
+  }
+
+  await expect(labelInput).toBeVisible()
+  return labelInput
+}
 
 test.describe('Admin Panel @auth', () => {
   let page: Page
@@ -221,6 +274,116 @@ test.describe('Admin editor stability @auth', () => {
           .click()
         await restoreResponsePromise
       }
+    }
+
+    await context.close()
+  })
+
+  test('admin save response for contact global stays stable across consecutive saves and long idle periods', async ({
+    browser,
+  }) => {
+    const context = await browser.newContext()
+    const page = await context.newPage()
+
+    await login({
+      page,
+      user: adminTestAccount,
+    })
+
+    await page.goto('http://localhost:3000/admin/globals/contactPage')
+
+    const titleInput = page.locator('input[name="title"]').first()
+    await expect(titleInput).toBeVisible()
+
+    const originalTitle = await titleInput.inputValue()
+    const editedTitle = `Contact Stable Save ${Date.now()}`
+    const editedTitleAgain = `${editedTitle} Again`
+
+    try {
+      await titleInput.fill(editedTitle)
+      await expect(titleInput).toHaveValue(editedTitle)
+
+      await clickSaveAndWaitForGlobalResponse(page, 'contactPage')
+      await expect(titleInput).toHaveValue(editedTitle)
+
+      await page.reload()
+      await expect(page.locator('input[name="title"]').first()).toHaveValue(editedTitle)
+      await page.locator('input[name="title"]').first().fill(editedTitle)
+
+      await titleInput.fill(editedTitleAgain)
+      await expect(titleInput).toHaveValue(editedTitleAgain)
+
+      await clickSaveAndWaitForGlobalResponse(page, 'contactPage')
+      await expect(titleInput).toHaveValue(editedTitleAgain)
+
+      const idleMutationRequests: string[] = []
+      page.on('request', (request) => {
+        if (
+          request.method() === 'POST' &&
+          (request.url().includes('/admin/globals/contactPage') ||
+            request.url().includes('/api/globals/contactPage'))
+        ) {
+          idleMutationRequests.push(request.url())
+        }
+      })
+
+      await page.waitForTimeout(95_000)
+      await expect(titleInput).toHaveValue(editedTitleAgain)
+      await expect(page.getByText(/out of date/i)).toHaveCount(0)
+      expect(
+        idleMutationRequests.filter((url) => url.includes('/admin/globals/contactPage')).length,
+      ).toBeLessThanOrEqual(1)
+      expect(idleMutationRequests.length).toBeLessThanOrEqual(2)
+
+      await page.reload()
+      await expect(page.locator('input[name="title"]').first()).toHaveValue(editedTitleAgain)
+    } finally {
+      await restoreGlobalInputValue({
+        page,
+        input: page.locator('input[name="title"]').first(),
+        originalValue: originalTitle,
+        slug: 'contactPage',
+      })
+    }
+
+    await context.close()
+  })
+
+  test('admin save response for header global persists nav changes after reload', async ({
+    browser,
+  }) => {
+    const context = await browser.newContext()
+    const page = await context.newPage()
+
+    await login({
+      page,
+      user: adminTestAccount,
+    })
+
+    await page.goto('http://localhost:3000/admin/globals/header')
+
+    const labelInput = await openFirstHeaderNavItem(page)
+    const originalLabel = await labelInput.inputValue()
+    const editedLabel = `About ${Date.now()}`
+
+    try {
+      await labelInput.fill(editedLabel)
+      await expect(labelInput).toHaveValue(editedLabel)
+
+      await clickSaveAndWaitForGlobalResponse(page, 'header')
+      await expect(labelInput).toHaveValue(editedLabel)
+
+      await page.reload()
+      const reloadedInput = await openFirstHeaderNavItem(page)
+      await expect(reloadedInput).toHaveValue(editedLabel)
+    } finally {
+      const restoreInput = await openFirstHeaderNavItem(page)
+      await restoreGlobalInputValue({
+        page,
+        input: restoreInput,
+        originalValue: originalLabel,
+        slug: 'header',
+      })
     }
 
     await context.close()

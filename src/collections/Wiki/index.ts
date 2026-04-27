@@ -22,6 +22,7 @@ import { generatePreviewPath } from '@/utilities/generatePreviewPath'
 import { slugField } from 'payload'
 
 import { assignWikiOwner } from './hooks/assignOwner'
+import { revalidateWiki, revalidateWikiDelete } from './hooks/revalidateWiki'
 import { resolveOutgoingWikiLinks } from './hooks/resolveLinks'
 
 export const Wiki: CollectionConfig = {
@@ -133,6 +134,8 @@ export const Wiki: CollectionConfig = {
     slugField(),
   ],
   hooks: {
+    afterChange: [revalidateWiki],
+    afterDelete: [revalidateWikiDelete],
     beforeChange: [assignWikiOwner, resolveOutgoingWikiLinks],
   },
   versions: {
