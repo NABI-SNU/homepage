@@ -1,204 +1,111 @@
 # NABI Homepage
 
-A Payload CMS + Next.js site for NABI (Natural and Artificial Brain Intelligence), with a public frontend and integrated Payload admin.
+```text
++-------------------+      +-------------------+      +-------------------+
+| 1. Clone + install| ---> | 2. Copy .env file | ---> | 3. Run pnpm dev   |
++-------------------+      +-------------------+      +-------------------+
+          |                            |                           |
+          v                            v                           v
+   Node 24 + pnpm 10             Local Postgres             Frontend + Admin
+```
 
-## Stack
+NABI Homepage is a Next.js App Router app with an integrated Payload CMS admin for easy manipulation of the backend data.
 
-- Next.js App Router
-- Payload CMS (Postgres adapter)
-- TypeScript
-- Tailwind CSS v4
+## Start Here
 
-## Local Development
+### Requirements
 
-1. Copy environment variables:
+- Node `24.x`
+- pnpm `10.x`
+- Postgres
+
+The repo pins the expected versions in `.nvmrc` and `package.json`.
+
+### Local Setup
+
+1. Install dependencies:
+
+```bash
+pnpm install
+```
+
+2. Copy the environment file:
 
 ```bash
 cp .env.example .env
 ```
 
-2. Install dependencies and start dev server:
+3. Fill in the required local values:
+
+- `STORAGE_DATABASE_URL`
+- `PAYLOAD_SECRET`
+- `BETTER_AUTH_SECRET`
+- `NEXT_PUBLIC_SERVER_URL`
+- `BETTER_AUTH_URL`
+- `PREVIEW_SECRET`
+- `CRON_SECRET`
+
+4. Start the app:
 
 ```bash
-pnpm install
 pnpm dev
 ```
 
-3. Open:
+5. Open the app:
 
 - Frontend: `http://localhost:3000`
 - Admin: `http://localhost:3000/admin`
 
-### Database Environment
-
-- `STORAGE_DATABASE_URL` is the primary Postgres connection string used by Payload and BetterAuth.
-- `STORAGE_DATABASE_USE_NEON_SERVERLESS` optionally forces Neon serverless pooling (`true` / `false`).
-- `DATABASE_URL` is treated as a deprecated fallback during migration.
-- `AUTH_DEBUG_LOGS=true` enables verbose auth-bridge diagnostics (default `false`).
-- `AUTH_SESSION_CACHE_TTL_MS` controls short-lived BetterAuth session lookup caching (default `60000` ms).
-- Production blocks shared test logins (`test@example.com`, `dev@payloadcms.com`) by default; extend with `AUTH_PRODUCTION_BLOCKED_EMAILS`.
-
 ## Core Commands
 
-- `pnpm dev`: start development server
-- `pnpm build`: production build
-- `pnpm start`: run production server
-- `pnpm lint`: run Next lint
-- `pnpm lint:fix`: run lint with fixes
+- `pnpm dev`: start local development
+- `pnpm build`: create a production build
+- `pnpm start`: run the production build
+- `pnpm lint`: run ESLint
 - `pnpm typecheck`: run TypeScript checks
-- `pnpm test`: run integration + e2e test suites
-- `pnpm test:int`: run integration tests (Vitest)
-- `pnpm test:e2e`: run e2e tests (Playwright)
+- `pnpm test:int`: run Vitest integration tests
+- `pnpm test:e2e`: run Playwright end-to-end tests
 - `pnpm generate:types`: regenerate `src/payload-types.ts`
-- `pnpm generate:importmap`: regenerate Payload admin import map
-- `pnpm seed:test-accounts`: upsert fixed shared test accounts used by tests
-- `pnpm migrate`: run checked-in DB migrations
-- `pnpm migrate:status`: show which migrations have run
-- `pnpm migrate:repair`: remove Payload's dev-push migration marker when `pnpm migrate` is blocked by the interactive dev-mode warning
-- `pnpm migrate:create <name>`: create a new DB migration
-- `pnpm payload migrate:create`: create a DB migration when a future schema change requires one
-- `pnpm payload migrate`: run DB migrations
+- `pnpm generate:importmap`: regenerate `src/app/(payload)/admin/importMap.js`
+- `pnpm migrate`: run checked-in Payload migrations
+- `pnpm seed:test-accounts`: upsert the shared test accounts
 
-## Git Hooks
+## Shared Test Accounts
 
-Pre-commit hooks are managed with Husky + lint-staged.
+Use the seeded shared accounts for local testing and automated tests.
 
-- Hook: `.husky/pre-commit`
-- Behavior: runs ESLint + Prettier on staged files only
+- Member account: `test@example.com` / `test`
+- Admin account: `dev@payloadcms.com` / `test`
 
-If hooks are not installed yet, run:
+Do not create or delete users inside tests.
 
-```bash
-pnpm prepare
+## Validation Before a PR
+
+```text
+Small UI/content change     -> pnpm lint && pnpm typecheck
+Schema or admin UI change   -> generate:* + typecheck + test:int
+Route or UX change          -> lint + typecheck + relevant e2e test
 ```
 
-## CI/CD
-
-GitHub Actions workflows:
-
-- `CI` (`.github/workflows/ci.yml`)
-  - Pull requests: runs fast quality checks (`pnpm lint` + `pnpm typecheck`)
-  - `main` pushes / manual dispatch: additionally verifies generated files (`importMap.js`, `payload-types.ts`)
-  - `main` pushes / manual dispatch: runs production build
-  - Optional non-blocking Docker smoke build runs only when a `Dockerfile` exists
-- `Security` (`.github/workflows/security.yml`)
-  - Runs dependency review on pull requests
-  - Runs `pnpm audit --audit-level=critical` on `main`, manual dispatch, and biweekly schedule
-- `Dependabot` (`.github/dependabot.yml`)
-  - Checks npm and GitHub Actions dependencies every 2 weeks and opens update PRs with security/dependency labels
-
-## Content Model Overview
-
-Main collections configured in `src/payload.config.ts`:
-
-- `posts`
-- `news`
-- `research`
-- `people`
-- `tags`
-- `categories`
-- `media`
-- `users`
-
-Globals:
-
-- `header`
-- `footer`
-- `homePage`
-- `aboutPage`
-- `contactPage`
-
-## Frontend Routes
-
-Primary public routes include:
-
-- `/` (home)
-- `/about`
-- `/people`, `/people/[slug]`
-- `/posts`, `/posts/[slug]`
-- `/news`, `/news/[slug]`
-- `/labs`, `/labs/[slug]`
-- `/references`
-- `/symposium`
-- `/contact`
-
-## Migrations and Deployment
-
-For schema changes on shared/production databases:
-
-1. Update Payload schema.
-2. Create migration: `pnpm migrate:create <descriptive_name>`
-3. Commit migration files.
-4. Run migration in target environment: `pnpm migrate`
-
-If `pnpm migrate` stops with a warning that Payload previously ran in dev mode and pushed schema changes,
-run `pnpm migrate:repair` once to clear the `batch = -1` marker row from `payload_migrations`, then rerun
-`pnpm migrate`.
-
-Payload will generate migration files when needed; there are no longer any checked-in legacy notebook migration files or repository-backed notebook assets.
-
-### Production Media Uploads
-
-By default, local development uploads write to `public/media`.
-
-For production (especially Vercel), configure S3-compatible storage via `.env`:
-
-- `S3_STORAGE_ENABLED=true`
-- `S3_BUCKET`
-- `S3_REGION`
-- `S3_ACCESS_KEY_ID`
-- `S3_SECRET_ACCESS_KEY`
-
-Optional:
-
-- `S3_ENDPOINT` (required for Cloudflare R2)
-- `S3_PUBLIC_URL` (recommended for R2: custom domain or `*.r2.dev` for browser-accessible file URLs)
-- `S3_MEDIA_PREFIX` (optional folder prefix for keys and public URLs, e.g. `webp`)
-- `S3_FORCE_PATH_STYLE`
-- `S3_CLIENT_UPLOADS=false` (recommended default unless your bucket CORS explicitly allows browser PUTs from your site)
-
-For `https://nabilab.org`, keep `S3_CLIENT_UPLOADS=false` unless the bucket CORS policy has been configured
-to allow browser uploads from that exact origin.
-
-When S3 env vars are configured, the `media` collection uses cloud storage and avoids ephemeral local disk.
-Notebook uploads follow the same storage backend through the dedicated `notebooks` collection.
-If `S3_MEDIA_PREFIX` is set, notebook objects are stored under `<prefix>/notebooks`.
-Otherwise notebook objects are stored under `notebooks/`.
-
-## Notebook Dependency (Labs)
-
-`/labs/[slug]` renders uploaded `.ipynb` files into a reading-first document view using MyST
-parsing for notebook markdown cells and server-side notebook loading.
-
-Research entries now link notebooks through the `research.notebook` upload field, which points to the
-dedicated `notebooks` collection. The uploaded notebook file is the source of truth; notebook files are
-no longer read from the repository at request time.
-
-Optional research fields retained in the schema:
-
-- `colabURL`
-- `kaggleURL`
-
-These are not surfaced in the current labs UI. A direct notebook download link is always derived from the
-uploaded notebook file.
-
-## Security and Local API Notes
-
-When using Payload Local API with a user context, enforce access control explicitly:
-
-- pass `overrideAccess: false` when authorizing as a specific user
-
-In hooks, pass `req` to nested Payload operations to preserve transaction scope.
-
-## Testing and Validation
-
-For schema/UI changes, run:
+Recommended full validation for schema or Payload admin changes:
 
 ```bash
 pnpm generate:importmap
 pnpm generate:types
-pnpm -s tsc --noEmit
+pnpm typecheck
 pnpm test:int
 ```
 
-Run `pnpm test:e2e` when route-level or UX behavior changes.
+Run `pnpm test:e2e` when you change route behavior, interactive UX, or auth/admin journeys.
+
+## Where Next
+
+Start with the onboarding docs:
+
+- [Contributor entry point](docs/onboarding/README.md)
+- [Architecture guide](docs/onboarding/architecture.md)
+- [Common workflows](docs/onboarding/common-workflows.md)
+- [Payload safety rules](docs/onboarding/payload-safety.md)
+- [Reviewer guide](docs/onboarding/reviewer-guide.md)
+
+Contributor workflow details live in [CONTRIBUTING.md](CONTRIBUTING.md).

@@ -187,10 +187,10 @@ export const Activities: CollectionConfig<'activities'> = {
     slugField(),
   ],
   hooks: {
-    beforeChange: [ensureSymposiumExistsBeforeChange],
-    beforeDelete: [ensureSymposiumExistsBeforeDelete],
     afterChange: [revalidateActivities],
     afterDelete: [revalidateActivitiesDelete],
+    beforeChange: [ensureSymposiumExistsBeforeChange],
+    beforeDelete: [ensureSymposiumExistsBeforeDelete],
   },
   versions: {
     drafts: {

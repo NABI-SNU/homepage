@@ -5,7 +5,7 @@ import { redirect } from 'next/navigation'
 import { NextRequest } from 'next/server'
 
 import configPromise from '@payload-config'
-import { resolvePayloadUserFromHeaders } from '@/auth/resolvePayloadUserFromHeaders'
+import { getServerUser } from '@/auth/session'
 import { getActivityPath } from '@/utilities/activityURL'
 import {
   getPreviewTargetPath,
@@ -46,10 +46,7 @@ export async function GET(req: NextRequest): Promise<Response> {
   }
 
   try {
-    const { user } = await resolvePayloadUserFromHeaders({
-      headers: req.headers,
-      payload,
-    })
+    const user = await getServerUser(payload, req.headers)
 
     const draft = await draftMode()
 

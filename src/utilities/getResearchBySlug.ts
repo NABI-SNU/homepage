@@ -5,6 +5,8 @@ import { unstable_cache } from 'next/cache'
 
 import type { Research, User } from '@/payload-types'
 
+const disableCache = process.env.E2E_DISABLE_CACHE === 'true'
+
 type FindResearchBySlugArgs = {
   depth?: number
   draft: boolean
@@ -152,26 +154,32 @@ const getResearchSlugs = async (): Promise<string[]> => {
 }
 
 export const getCachedResearchList = () =>
-  unstable_cache(getResearchList, ['research-list'], {
-    revalidate: 3600,
-    tags: ['research_list'],
-  })
+  disableCache
+    ? () => getResearchList()
+    : unstable_cache(getResearchList, ['research-list'], {
+        revalidate: 3600,
+        tags: ['research_list'],
+      })
 
 export const getCachedResearchSlugs = () =>
-  unstable_cache(getResearchSlugs, ['research-slugs'], {
-    revalidate: 3600,
-    tags: ['research_slugs', 'site-sitemap'],
-  })
+  disableCache
+    ? () => getResearchSlugs()
+    : unstable_cache(getResearchSlugs, ['research-slugs'], {
+        revalidate: 3600,
+        tags: ['research_slugs', 'site-sitemap'],
+      })
 
 export const getCachedPublishedResearchBySlug = (slug: string) => {
   const normalizedSlug = normalizeResearchSlug(slug)
 
-  return unstable_cache(
-    () => getPublishedResearchBySlug(normalizedSlug),
-    ['research-by-slug', normalizedSlug],
-    {
-      revalidate: 3600,
-      tags: [`research_${normalizedSlug}`],
-    },
-  )
+  return disableCache
+    ? () => getPublishedResearchBySlug(normalizedSlug)
+    : unstable_cache(
+        () => getPublishedResearchBySlug(normalizedSlug),
+        ['research-by-slug', normalizedSlug],
+        {
+          revalidate: 3600,
+          tags: [`research_${normalizedSlug}`],
+        },
+      )
 }

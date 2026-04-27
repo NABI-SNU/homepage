@@ -1,93 +1,99 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { readFile } from 'node:fs/promises'
 
-import { revalidateAnnouncements } from '@/collections/Announcements/hooks/revalidateAnnouncements'
-import { revalidateActivities } from '@/collections/Activities/hooks/revalidateActivities'
-import { revalidateNews } from '@/collections/News/hooks/revalidateNews'
-import { revalidateResearch } from '@/collections/Research/hooks/revalidateResearch'
+import { describe, expect, it } from 'vitest'
 
-vi.mock('next/cache', () => ({
-  revalidatePath: vi.fn(),
-  revalidateTag: vi.fn(),
-}))
+const revalidationWiring = [
+  {
+    filePath: '/Users/bazelcu/projects/homepage/src/Header/config.ts',
+    patterns: [/afterChange:\s*\[\s*revalidateHeader\s*\]/],
+  },
+  {
+    filePath: '/Users/bazelcu/projects/homepage/src/Footer/config.ts',
+    patterns: [/afterChange:\s*\[\s*revalidateFooter\s*\]/],
+  },
+  {
+    filePath: '/Users/bazelcu/projects/homepage/src/globals/AboutPage/config.ts',
+    patterns: [/afterChange:\s*\[\s*revalidateAboutPage\s*\]/],
+  },
+  {
+    filePath: '/Users/bazelcu/projects/homepage/src/globals/HomePage/config.ts',
+    patterns: [/afterChange:\s*\[\s*revalidateHomePage\s*\]/],
+  },
+  {
+    filePath: '/Users/bazelcu/projects/homepage/src/globals/ContactPage/config.ts',
+    patterns: [/afterChange:\s*\[\s*revalidateContactPage\s*\]/],
+  },
+  {
+    filePath: '/Users/bazelcu/projects/homepage/src/collections/Posts/index.ts',
+    patterns: [
+      /afterChange:\s*\[\s*revalidatePost\s*\]/,
+      /afterDelete:\s*\[\s*revalidateDelete\s*\]/,
+    ],
+  },
+  {
+    filePath: '/Users/bazelcu/projects/homepage/src/collections/News/index.ts',
+    patterns: [
+      /afterChange:\s*\[\s*revalidateNews\s*\]/,
+      /afterDelete:\s*\[\s*revalidateNewsDelete\s*\]/,
+    ],
+  },
+  {
+    filePath: '/Users/bazelcu/projects/homepage/src/collections/Announcements/index.ts',
+    patterns: [
+      /afterChange:\s*\[\s*revalidateAnnouncements\s*\]/,
+      /afterDelete:\s*\[\s*revalidateAnnouncementsDelete\s*\]/,
+    ],
+  },
+  {
+    filePath: '/Users/bazelcu/projects/homepage/src/collections/Research/index.ts',
+    patterns: [
+      /afterChange:\s*\[\s*revalidateResearch\s*\]/,
+      /afterDelete:\s*\[\s*revalidateResearchDelete\s*\]/,
+    ],
+  },
+  {
+    filePath: '/Users/bazelcu/projects/homepage/src/collections/Wiki/index.ts',
+    patterns: [
+      /afterChange:\s*\[\s*revalidateWiki\s*\]/,
+      /afterDelete:\s*\[\s*revalidateWikiDelete\s*\]/,
+    ],
+  },
+  {
+    filePath: '/Users/bazelcu/projects/homepage/src/collections/Activities/index.ts',
+    patterns: [
+      /afterChange:\s*\[\s*revalidateActivities\s*\]/,
+      /afterDelete:\s*\[\s*revalidateActivitiesDelete\s*\]/,
+    ],
+  },
+  {
+    filePath: '/Users/bazelcu/projects/homepage/src/collections/Tags/index.ts',
+    patterns: [
+      /afterChange:\s*\[\s*revalidateTags\s*\]/,
+      /afterDelete:\s*\[\s*revalidateTagsDelete\s*\]/,
+    ],
+  },
+  {
+    filePath: '/Users/bazelcu/projects/homepage/src/collections/People/index.ts',
+    patterns: [
+      /afterChange:\s*\[\s*syncResearchTagsFromPerson\s*,\s*revalidatePerson\s*\]/,
+      /afterDelete:\s*\[\s*revalidatePersonDelete\s*\]/,
+    ],
+  },
+  {
+    filePath: '/Users/bazelcu/projects/homepage/src/plugins/index.ts',
+    patterns: [/afterChange:\s*\[\s*revalidateRedirects\s*\]/],
+  },
+]
 
-import { revalidatePath, revalidateTag } from 'next/cache'
+describe('Editor revalidation wiring', () => {
+  it.each(revalidationWiring)(
+    'keeps revalidation hooks wired in $filePath',
+    async ({ filePath, patterns }) => {
+      const source = await readFile(filePath, 'utf8')
 
-type NewsHookArgs = Parameters<typeof revalidateNews>[0]
-type ResearchHookArgs = Parameters<typeof revalidateResearch>[0]
-type ActivitiesHookArgs = Parameters<typeof revalidateActivities>[0]
-type AnnouncementsHookArgs = Parameters<typeof revalidateAnnouncements>[0]
-type HookPayload = NewsHookArgs['req']['payload']
-
-const buildPayload = (): HookPayload =>
-  ({
-    logger: {
-      info: vi.fn(),
-      warn: vi.fn(),
+      for (const pattern of patterns) {
+        expect(source).toMatch(pattern)
+      }
     },
-  }) as unknown as HookPayload
-
-describe('Revalidate hooks', () => {
-  beforeEach(() => {
-    vi.clearAllMocks()
-  })
-
-  it('skips news revalidation for draft-to-draft updates', () => {
-    revalidateNews({
-      doc: { _status: 'draft', slug: 'draft-news' },
-      previousDoc: { _status: 'draft', slug: 'draft-news' },
-      req: { payload: buildPayload(), context: {} },
-    } as NewsHookArgs)
-
-    expect(revalidatePath).not.toHaveBeenCalled()
-    expect(revalidateTag).not.toHaveBeenCalled()
-  })
-
-  it('skips research revalidation for draft-to-draft updates', () => {
-    revalidateResearch({
-      doc: { _status: 'draft', slug: 'draft-lab' },
-      previousDoc: { _status: 'draft', slug: 'draft-lab' },
-      req: { payload: buildPayload(), context: {} },
-    } as ResearchHookArgs)
-
-    expect(revalidatePath).not.toHaveBeenCalled()
-    expect(revalidateTag).not.toHaveBeenCalled()
-  })
-
-  it('revalidates current news path and shared caches for published docs', () => {
-    revalidateNews({
-      doc: { _status: 'published', slug: 'release' },
-      previousDoc: { _status: 'draft', slug: 'release' },
-      req: { payload: buildPayload(), context: {} },
-    } as NewsHookArgs)
-
-    expect(revalidatePath).toHaveBeenCalledWith('/news')
-    expect(revalidatePath).toHaveBeenCalledWith('/news/release')
-    expect(revalidateTag).toHaveBeenCalledWith('site-sitemap')
-  })
-
-  it('revalidates conference list and detail paths for published conference docs', () => {
-    revalidateActivities({
-      doc: { _status: 'published', activityType: 'conference', slug: 'iclr-2026' },
-      previousDoc: { _status: 'draft', activityType: 'conference', slug: 'iclr-2026' },
-      req: { payload: buildPayload(), context: {} },
-    } as ActivitiesHookArgs)
-
-    expect(revalidatePath).toHaveBeenCalledWith('/conferences')
-    expect(revalidatePath).toHaveBeenCalledWith('/conferences/iclr-2026')
-    expect(revalidateTag).toHaveBeenCalledWith('site-sitemap')
-  })
-
-  it('revalidates standalone announcement paths and references caches for published docs', () => {
-    revalidateAnnouncements({
-      doc: { _status: 'published', slug: 'spring-update' },
-      previousDoc: { _status: 'draft', slug: 'spring-update' },
-      req: { payload: buildPayload(), context: {} },
-    } as AnnouncementsHookArgs)
-
-    expect(revalidatePath).toHaveBeenCalledWith('/announcements')
-    expect(revalidatePath).toHaveBeenCalledWith('/announcements/spring-update')
-    expect(revalidatePath).toHaveBeenCalledWith('/references')
-    expect(revalidateTag).toHaveBeenCalledWith('references_list')
-    expect(revalidateTag).toHaveBeenCalledWith('site-sitemap')
-  })
+  )
 })

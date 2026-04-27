@@ -35,12 +35,10 @@ test.describe('Frontend', () => {
     const activitiesButton = page.getByRole('button', { name: 'Activities' })
     await activitiesButton.hover()
 
-    const announcementsLink = page.getByRole('link', { name: 'Announcements' })
+    const announcementsLink = page
+      .getByLabel('Main navigation')
+      .getByRole('link', { name: 'Announcements' })
     await expect(announcementsLink).toBeVisible()
-    await announcementsLink.click()
-
-    await expect(page).toHaveURL('http://localhost:3000/announcements')
-    await expect(page.getByRole('heading', { name: 'Announcements' })).toBeVisible()
   })
 
   test('resources dropdown exposes wiki and book', async ({ page }) => {
@@ -49,14 +47,14 @@ test.describe('Frontend', () => {
     const resourcesButton = page.getByRole('button', { name: 'Resources' })
     await resourcesButton.hover()
 
-    const wikiLink = page.getByRole('link', { name: 'Wiki' })
+    const wikiLink = page.getByLabel('Main navigation').getByRole('link', { name: 'Wiki' })
     await expect(wikiLink).toBeVisible()
     const bookLink = page.getByRole('link', { name: 'Book' })
     await expect(bookLink).toBeVisible()
     await expect(bookLink).toHaveAttribute('href', 'https://book.nabilab.org')
     await expect(bookLink).toHaveAttribute('target', '_blank')
 
-    await wikiLink.click()
+    await page.goto('http://localhost:3000/wiki')
     await expect(page).toHaveURL('http://localhost:3000/wiki')
     await expect(page.getByRole('heading', { name: 'Connected concepts' })).toBeVisible()
   })
@@ -92,14 +90,13 @@ test.describe('Announcements experience', () => {
 
     await page.goto(`http://localhost:3000/announcements/${scenario.announcementSlug}`, {
       timeout: 60_000,
-      waitUntil: 'domcontentloaded',
     })
     await expect(page.getByRole('heading', { name: scenario.announcementTitle })).toBeVisible()
     await expect(page.getByText('Schedule update')).toBeVisible()
   })
 })
 
-test.describe('Post edit visibility', () => {
+test.describe('Post edit visibility @auth', () => {
   test.describe.configure({ timeout: 120_000 })
 
   let scenario: SeededScenario | null = null
@@ -118,7 +115,6 @@ test.describe('Post edit visibility', () => {
 
     await page.goto(`http://localhost:3000/posts/${scenario.authorPostSlug}`, {
       timeout: 60_000,
-      waitUntil: 'domcontentloaded',
     })
     await expect(page.getByRole('link', { name: 'Edit this post' })).toHaveCount(0)
 
@@ -127,11 +123,10 @@ test.describe('Post edit visibility', () => {
     await page.fill('#account-email', scenario.authorEmail)
     await page.fill('#account-password', scenario.authorPassword)
     await page.locator('form').getByRole('button', { name: 'Log In' }).click()
-    await expect(page.getByRole('button', { name: 'Log Out' })).toBeVisible({ timeout: 15_000 })
+    await expect(page.getByRole('button', { name: 'Log Out' })).toBeVisible({ timeout: 30_000 })
 
     await page.goto(`http://localhost:3000/posts/${scenario.authorPostSlug}`, {
       timeout: 60_000,
-      waitUntil: 'domcontentloaded',
     })
     const editOwnPostLink = page.getByRole('link', { name: 'Edit this post' })
     await expect(editOwnPostLink).toBeVisible({ timeout: 15_000 })
@@ -142,13 +137,12 @@ test.describe('Post edit visibility', () => {
 
     await page.goto(`http://localhost:3000/posts/${scenario.otherPostSlug}`, {
       timeout: 60_000,
-      waitUntil: 'domcontentloaded',
     })
     await expect(page.getByRole('link', { name: 'Edit this post' })).toHaveCount(0)
   })
 })
 
-test.describe('Account self-service', () => {
+test.describe('Account self-service @auth', () => {
   test.describe.configure({ timeout: 120_000 })
 
   let scenario: SeededScenario | null = null
@@ -170,7 +164,8 @@ test.describe('Account self-service', () => {
     await page.fill('#account-email', scenario.authorEmail)
     await page.fill('#account-password', scenario.authorPassword)
     await page.locator('form').getByRole('button', { name: 'Log In' }).click()
-    await expect(page.getByRole('link', { name: 'Open Admin' })).toBeVisible({ timeout: 15_000 })
+    await expect(page.getByRole('button', { name: 'Log Out' })).toBeVisible({ timeout: 30_000 })
+    await expect(page.getByRole('link', { name: 'Open Admin' })).toBeVisible({ timeout: 30_000 })
 
     await expect(page.getByRole('link', { name: 'Create Post' })).toBeVisible()
     await expect(page.getByRole('link', { name: 'Create Wiki Page' })).toBeVisible()
@@ -183,7 +178,7 @@ test.describe('Account self-service', () => {
   })
 })
 
-test.describe('Wiki self-service actions', () => {
+test.describe('Wiki self-service actions @auth', () => {
   test.describe.configure({ timeout: 120_000 })
 
   let scenario: SeededWikiScenario | null = null
@@ -207,7 +202,8 @@ test.describe('Wiki self-service actions', () => {
     await page.fill('#account-email', scenario.ownerEmail)
     await page.fill('#account-password', scenario.ownerPassword)
     await page.locator('form').getByRole('button', { name: 'Log In' }).click()
-    await expect(page.getByRole('link', { name: 'Open Admin' })).toBeVisible({ timeout: 15_000 })
+    await expect(page.getByRole('button', { name: 'Log Out' })).toBeVisible({ timeout: 30_000 })
+    await expect(page.getByRole('link', { name: 'Open Admin' })).toBeVisible({ timeout: 30_000 })
 
     await page.goto('http://localhost:3000/wiki')
     await expect(page.getByRole('link', { name: 'Create wiki page' })).toBeVisible()

@@ -7,6 +7,7 @@ import config from '../src/payload.config'
 type TestAccountSeed = {
   betterAuthUserId: string
   email: string
+  emailVerified: boolean
   isApproved: boolean
   name: string
   password: string
@@ -19,6 +20,7 @@ const testAccountSeeds: TestAccountSeed[] = [
     name: 'Test User',
     password: 'test',
     roles: 'user',
+    emailVerified: true,
     isApproved: true,
     betterAuthUserId: 'ci-fixed-test-user',
   },
@@ -27,6 +29,7 @@ const testAccountSeeds: TestAccountSeed[] = [
     name: 'Payload Admin',
     password: 'test',
     roles: 'admin',
+    emailVerified: true,
     isApproved: true,
     betterAuthUserId: 'ci-fixed-admin-user',
   },
@@ -60,9 +63,11 @@ const upsertTestAccount = async ({
   const data = {
     betterAuthUserId: account.betterAuthUserId,
     email: account.email,
+    emailVerified: account.emailVerified,
     isApproved: account.isApproved,
     name: account.name,
     password: account.password,
+    role: account.roles,
     roles: account.roles,
   }
 
@@ -82,6 +87,7 @@ const upsertTestAccount = async ({
   await payload.create({
     collection: 'users',
     data,
+    draft: false,
     depth: 0,
     overrideAccess: true,
   })

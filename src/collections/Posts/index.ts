@@ -224,9 +224,9 @@ export const Posts: CollectionConfig<'posts'> = {
     slugField(),
   ],
   hooks: {
-    beforeValidate: [ensurePostAuthors],
     afterChange: [revalidatePost],
     afterDelete: [revalidateDelete],
+    beforeValidate: [ensurePostAuthors],
   },
   versions: {
     drafts: {

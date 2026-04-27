@@ -14,6 +14,7 @@ const IMAGE_REMOTE_SOURCES = [
   'https://secure.gravatar.com',
   'https://images.unsplash.com',
 ].filter(Boolean)
+const IS_E2E_ENV = process.env.E2E_DISABLE_CACHE === 'true'
 
 const IMAGE_REMOTE_PATTERNS = Array.from(new Set(IMAGE_REMOTE_SOURCES)).flatMap((item) => {
   try {
@@ -35,7 +36,17 @@ const IMAGE_REMOTE_PATTERNS = Array.from(new Set(IMAGE_REMOTE_SOURCES)).flatMap(
 const nextConfig = {
   output: 'standalone',
   images: {
+    localPatterns: [
+      {
+        pathname: '/api/media/file/**',
+      },
+      {
+        pathname: '/api/notebooks/file/**',
+      },
+    ],
+    qualities: [75, 82],
     remotePatterns: IMAGE_REMOTE_PATTERNS,
+    ...(IS_E2E_ENV ? { unoptimized: true } : {}),
   },
   webpack: (webpackConfig) => {
     webpackConfig.resolve.extensionAlias = {

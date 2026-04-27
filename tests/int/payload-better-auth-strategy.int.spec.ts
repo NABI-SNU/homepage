@@ -1,112 +1,159 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
-const { getBetterAuthUserFromHeaders, resolvePayloadUserFromSession } = vi.hoisted(() => ({
-  getBetterAuthUserFromHeaders: vi.fn(),
-  resolvePayloadUserFromSession: vi.fn(),
-}))
-
-vi.mock('@/auth/getBetterAuthUserFromHeaders', () => ({
-  getBetterAuthUserFromHeaders,
-}))
-
-vi.mock('@/auth/resolvePayloadUserFromSession', () => ({
-  resolvePayloadUserFromSession,
-}))
-
 import { payloadBetterAuthStrategy } from '@/auth/payloadBetterAuthStrategy'
+import { Users } from '@/collections/Users'
 
-const createMockPayload = () => {
-  const error = vi.fn()
-  const info = vi.fn()
-  const warn = vi.fn()
-
-  return {
-    logger: {
-      error,
-      info,
-      warn,
-    },
-  }
-}
-
-describe('payloadBetterAuthStrategy', () => {
+describe('Payload Better Auth strategy wiring', () => {
   beforeEach(() => {
-    vi.clearAllMocks()
-    delete process.env.AUTH_DEBUG_LOGS
+    vi.restoreAllMocks()
   })
 
-  it('returns null user with propagated response headers when BetterAuth session is missing', async () => {
-    const responseHeaders = new Headers()
-    responseHeaders.append('set-cookie', 'a=b; Path=/; HttpOnly')
+  it('configures the users collection with the package better-auth strategy', () => {
+    const authConfig = Users.auth
 
-    getBetterAuthUserFromHeaders.mockResolvedValueOnce({
-      betterAuthUser: null,
-      responseHeaders,
-      failureReason: 'missing_session_user',
-      statusCode: 200,
-    })
+    if (!authConfig || typeof authConfig === 'boolean') {
+      throw new Error('Users auth config is not defined')
+    }
 
-    const payload = createMockPayload()
-    const result = await payloadBetterAuthStrategy.authenticate({
-      headers: new Headers(),
-      payload: payload as never,
-    })
-
-    expect(result.user).toBeNull()
-    expect(result.responseHeaders).toBeDefined()
-    expect(result.responseHeaders?.get('set-cookie') || '').toContain('a=b')
-    expect(resolvePayloadUserFromSession).not.toHaveBeenCalled()
+    expect(authConfig.strategies).toHaveLength(1)
+    expect(authConfig.strategies?.[0]?.name).toBe('better-auth')
   })
 
-  it('strips set-cookie headers for admin requests to avoid forced reloads', async () => {
-    const responseHeaders = new Headers()
-    responseHeaders.append('set-cookie', 'session=value; Path=/; HttpOnly')
-
-    getBetterAuthUserFromHeaders.mockResolvedValueOnce({
-      betterAuthUser: null,
-      responseHeaders,
-      failureReason: 'missing_session_user',
-      statusCode: 200,
-    })
-
-    const payload = createMockPayload()
-    const result = await payloadBetterAuthStrategy.authenticate({
-      headers: new Headers({
-        referer: 'http://localhost:3000/admin/globals/footer',
-      }),
-      payload: payload as never,
-    })
-
-    expect(result.user).toBeNull()
-    expect(result.responseHeaders).toBeDefined()
-    expect(result.responseHeaders?.get('set-cookie')).toBeNull()
-  })
-
-  it('logs and safely returns null user when resolver throws', async () => {
-    const responseHeaders = new Headers()
-    responseHeaders.append('set-cookie', 'session=value; Path=/; HttpOnly')
-
-    getBetterAuthUserFromHeaders.mockResolvedValueOnce({
-      betterAuthUser: {
-        id: 'better-auth-user-1',
-        email: 'admin@example.com',
-        emailVerified: true,
+  it('resolves payload users from a numeric Better Auth session user id', async () => {
+    const strategy = payloadBetterAuthStrategy({ idType: 'number' })
+    const payload = {
+      logger: {
+        error: vi.fn(),
+        warn: vi.fn(),
       },
-      responseHeaders,
-      failureReason: null,
-      statusCode: 200,
-    })
-    resolvePayloadUserFromSession.mockRejectedValueOnce(new Error('transient db error'))
+      betterAuth: {
+        api: {
+          getSession: vi.fn().mockResolvedValue({
+            session: {
+              id: 'session-1',
+            },
+            user: {
+              id: '7',
+            },
+          }),
+        },
+      },
+      find: vi.fn().mockResolvedValue({
+        docs: [
+          {
+            email: 'admin@example.com',
+            id: 7,
+            role: 'admin',
+            roles: 'admin',
+          },
+        ],
+      }),
+    }
 
-    const payload = createMockPayload()
-    const result = await payloadBetterAuthStrategy.authenticate({
+    const result = await strategy.authenticate({
+      headers: new Headers(),
+      payload: payload as never,
+    })
+
+    expect(payload.find).toHaveBeenCalledWith(
+      expect.objectContaining({
+        collection: 'users',
+        limit: 1,
+        overrideAccess: true,
+        pagination: false,
+        where: {
+          id: {
+            equals: 7,
+          },
+        },
+      }),
+    )
+    expect(result.user).toMatchObject({
+      id: 7,
+      role: 'admin',
+      roles: 'admin',
+    })
+  })
+
+  it('falls back to betterAuthUserId when session ids are string-based', async () => {
+    const strategy = payloadBetterAuthStrategy({ idType: 'number' })
+    const payload = {
+      logger: {
+        error: vi.fn(),
+        warn: vi.fn(),
+      },
+      betterAuth: {
+        api: {
+          getSession: vi.fn().mockResolvedValue({
+            session: {
+              id: 'session-1',
+            },
+            user: {
+              email: 'admin@example.com',
+              id: 'legacy-better-auth-user-id',
+            },
+          }),
+        },
+      },
+      find: vi
+        .fn()
+        .mockResolvedValueOnce({ docs: [] })
+        .mockResolvedValueOnce({
+          docs: [
+            {
+              betterAuthUserId: 'legacy-better-auth-user-id',
+              email: 'admin@example.com',
+              id: 7,
+              role: 'admin',
+              roles: 'admin',
+            },
+          ],
+        }),
+    }
+
+    const result = await strategy.authenticate({
+      headers: new Headers(),
+      payload: payload as never,
+    })
+
+    expect(payload.find).toHaveBeenNthCalledWith(
+      1,
+      expect.objectContaining({
+        where: {
+          betterAuthUserId: {
+            equals: 'legacy-better-auth-user-id',
+          },
+        },
+      }),
+    )
+    expect(result.user).toMatchObject({
+      id: 7,
+      role: 'admin',
+      roles: 'admin',
+    })
+  })
+
+  it('returns a null user when Better Auth has no active session', async () => {
+    const strategy = payloadBetterAuthStrategy({ idType: 'number' })
+    const payload = {
+      logger: {
+        error: vi.fn(),
+        warn: vi.fn(),
+      },
+      betterAuth: {
+        api: {
+          getSession: vi.fn().mockResolvedValue(null),
+        },
+      },
+      find: vi.fn(),
+    }
+
+    const result = await strategy.authenticate({
       headers: new Headers(),
       payload: payload as never,
     })
 
     expect(result.user).toBeNull()
-    expect(result.responseHeaders).toBeDefined()
-    expect(result.responseHeaders?.get('set-cookie') || '').toContain('session=value')
-    expect(payload.logger.error).toHaveBeenCalledOnce()
+    expect(payload.find).not.toHaveBeenCalled()
   })
 })

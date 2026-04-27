@@ -1,185 +1,189 @@
-import type { AuthStrategy } from 'payload'
+import type { AuthStrategy, Payload } from 'payload'
 
-import { getBetterAuthUserFromHeaders } from './getBetterAuthUserFromHeaders'
-import { strictPayloadSessionResolutionOptions } from './payloadSessionPolicy'
-import { resolvePayloadUserFromSession } from './resolvePayloadUserFromSession'
+import type { User } from '@/payload-types'
 
-const authDebugLogsEnabled = (): boolean =>
-  ['1', 'true', 'yes', 'on'].includes((process.env.AUTH_DEBUG_LOGS || '').toLowerCase())
-
-const getHeaderValue = (
-  headers: Headers | Record<string, string | string[] | undefined>,
-  name: string,
-): string => {
-  if (typeof (headers as Headers).get === 'function') {
-    return (headers as Headers).get(name) || ''
-  }
-
-  const record = headers as Record<string, string | string[] | undefined>
-  const value = record[name] ?? record[name.toLowerCase()]
-  if (Array.isArray(value)) return value[0] || ''
-  return value || ''
+type BetterAuthStrategyOptions = {
+  idType?: 'number' | 'text'
+  usersCollection?: 'users' | string
 }
 
-const logAuthEvent = ({
-  level,
-  message,
+type BetterAuthSessionUser = {
+  email?: string | null
+  id?: number | string | null
+}
+
+type BetterAuthSession = {
+  session?: Record<string, unknown> | null
+  user?: BetterAuthSessionUser | null
+}
+
+type BetterAuthAPI = {
+  getSession?: (args: { headers: Headers }) => Promise<BetterAuthSession | null>
+}
+
+type PayloadWithBetterAuth = Payload & {
+  betterAuth?: {
+    api?: BetterAuthAPI
+  }
+}
+
+const normalizeEmail = (value: string | null | undefined): string | null => {
+  const normalized = value?.trim().toLowerCase()
+  return normalized && normalized.length > 0 ? normalized : null
+}
+
+const coerceNumericID = (value: number | string | null | undefined): number | null => {
+  if (typeof value === 'number') return value
+  if (typeof value === 'string' && /^\d+$/.test(value)) {
+    return Number.parseInt(value, 10)
+  }
+  return null
+}
+
+const coerceSessionFields = (
+  value: Record<string, unknown> | null | undefined,
+  idType: 'number' | 'text',
+): Record<string, unknown> => {
+  if (!value) return {}
+
+  const result = { ...value }
+  if (idType !== 'number') return result
+
+  for (const [key, entry] of Object.entries(result)) {
+    if (typeof entry !== 'string') continue
+    if (key === 'id' || /(?:Id|_id)$/.test(key)) {
+      const coerced = coerceNumericID(entry)
+      if (coerced !== null) {
+        result[key] = coerced
+      }
+    }
+  }
+
+  return result
+}
+
+const findPayloadUser = async ({
+  betterAuthUser,
+  idType,
   payload,
-  details,
+  usersCollection,
 }: {
-  level: 'error' | 'info' | 'warn'
-  message: string
-  payload: {
-    logger: {
-      error: (value: string) => void
-      info: (value: string) => void
-      warn: (value: string) => void
-    }
-  }
-  details?: Record<string, unknown>
-}) => {
-  const serialized = details ? `${message} ${JSON.stringify(details)}` : message
-  payload.logger[level](serialized)
-}
+  betterAuthUser: BetterAuthSessionUser
+  idType: 'number' | 'text'
+  payload: Payload
+  usersCollection: string
+}): Promise<User | null> => {
+  const resolvedID =
+    idType === 'number'
+      ? coerceNumericID(betterAuthUser.id)
+      : typeof betterAuthUser.id === 'string' || typeof betterAuthUser.id === 'number'
+        ? betterAuthUser.id
+        : null
 
-const isAdminRequest = (
-  headers: Headers | Record<string, string | string[] | undefined>,
-): boolean => {
-  const referer = getHeaderValue(headers, 'referer')
-  if (referer.includes('/admin')) return true
+  const matchers: Array<Record<string, unknown>> = []
 
-  const pathname = getHeaderValue(headers, 'x-invoke-path')
-  if (pathname.includes('/admin')) return true
-
-  return false
-}
-
-const sanitizeResponseHeadersForAdmin = ({
-  headers,
-  responseHeaders,
-}: {
-  headers: Headers | Record<string, string | string[] | undefined>
-  responseHeaders: Headers
-}): Headers => {
-  if (!isAdminRequest(headers)) return responseHeaders
-
-  // Avoid forcing client refreshes from auth cookie rotation while editing admin forms.
-  const sanitized = new Headers()
-  for (const [key, value] of responseHeaders.entries()) {
-    if (key.toLowerCase() === 'set-cookie') continue
-    sanitized.append(key, value)
+  if (resolvedID != null) {
+    matchers.push({
+      id: {
+        equals: resolvedID,
+      },
+    })
   }
 
-  return sanitized
+  if (typeof betterAuthUser.id === 'string' && betterAuthUser.id.length > 0) {
+    matchers.push({
+      betterAuthUserId: {
+        equals: betterAuthUser.id,
+      },
+    })
+  }
+
+  const normalizedEmail = normalizeEmail(betterAuthUser.email)
+  if (normalizedEmail) {
+    matchers.push({
+      email: {
+        equals: normalizedEmail,
+      },
+    })
+  }
+
+  for (const where of matchers) {
+    const users = await payload.find({
+      collection: usersCollection as never,
+      depth: 0,
+      limit: 1,
+      overrideAccess: true,
+      pagination: false,
+      where: where as never,
+    })
+
+    const user = users.docs[0]
+    if (user) return user as User
+  }
+
+  return null
 }
 
-export const payloadBetterAuthStrategy: AuthStrategy = {
-  name: 'better-auth',
-  authenticate: async ({ headers, payload }) => {
-    let responseHeaders = new Headers()
+export const payloadBetterAuthStrategy = ({
+  idType = 'number',
+  usersCollection = 'users',
+}: BetterAuthStrategyOptions = {}): AuthStrategy => {
+  return {
+    name: 'better-auth',
+    authenticate: async ({ headers, payload }: { headers: Headers; payload: Payload }) => {
+      const auth = (payload as PayloadWithBetterAuth).betterAuth
 
-    try {
-      const {
-        betterAuthUser,
-        failureReason,
-        responseHeaders: lookupResponseHeaders,
-        statusCode,
-      } = await getBetterAuthUserFromHeaders(headers)
-      responseHeaders = sanitizeResponseHeadersForAdmin({
-        headers,
-        responseHeaders: lookupResponseHeaders,
-      })
-
-      if (failureReason && failureReason !== 'missing_session_user') {
-        logAuthEvent({
-          level: 'warn',
-          message: '[auth] BetterAuth strategy failed to resolve session user.',
-          payload,
-          details: {
-            failureReason,
-            statusCode,
-            host: getHeaderValue(headers, 'host'),
-            referer: getHeaderValue(headers, 'referer'),
-          },
-        })
-      } else if (authDebugLogsEnabled()) {
-        logAuthEvent({
-          level: 'info',
-          message: '[auth] BetterAuth strategy session lookup completed.',
-          payload,
-          details: {
-            betterAuthUserID: betterAuthUser?.id || null,
-            failureReason,
-            statusCode,
-            host: getHeaderValue(headers, 'host'),
-            referer: getHeaderValue(headers, 'referer'),
-          },
-        })
+      if (!auth?.api?.getSession) {
+        payload.logger.error('[auth] Better Auth strategy missing initialized auth instance.')
+        return { user: null }
       }
 
-      if (!betterAuthUser) {
-        return { user: null, responseHeaders }
-      }
+      try {
+        const sessionData = (await auth.api.getSession({
+          headers,
+        })) as BetterAuthSession | null
 
-      const payloadUser = await resolvePayloadUserFromSession({
-        payload,
-        betterAuthUser,
-        ...strictPayloadSessionResolutionOptions,
-      })
-
-      if (!payloadUser) {
-        if (authDebugLogsEnabled()) {
-          logAuthEvent({
-            level: 'info',
-            message: '[auth] BetterAuth strategy did not resolve a payload user.',
-            payload,
-            details: {
-              betterAuthUserID: betterAuthUser.id || null,
-              host: getHeaderValue(headers, 'host'),
-              referer: getHeaderValue(headers, 'referer'),
-            },
-          })
+        if (!sessionData?.user?.id) {
+          payload.logger.warn('[auth] Better Auth strategy received no active session user.')
+          return { user: null }
         }
-        return { user: null, responseHeaders }
-      }
 
-      if (authDebugLogsEnabled()) {
-        logAuthEvent({
-          level: 'info',
-          message: '[auth] BetterAuth strategy resolved payload user.',
+        const payloadUser = await findPayloadUser({
+          betterAuthUser: sessionData.user,
+          idType,
           payload,
-          details: {
-            betterAuthUserID: betterAuthUser.id || null,
-            payloadUserID: payloadUser.id,
-            host: getHeaderValue(headers, 'host'),
-            referer: getHeaderValue(headers, 'referer'),
-          },
+          usersCollection,
         })
-      }
 
-      return {
-        user: {
-          ...payloadUser,
-          _strategy: 'better-auth',
-          collection: 'users',
-        },
-        responseHeaders,
-      }
-    } catch (error) {
-      const details = {
-        error: error instanceof Error ? error.message : String(error),
-        host: getHeaderValue(headers, 'host'),
-        referer: getHeaderValue(headers, 'referer'),
-      }
+        if (!payloadUser) {
+          payload.logger.warn(
+            `[auth] Better Auth strategy could not resolve payload user for session user ${String(sessionData.user.id)}.`,
+          )
+          return { user: null }
+        }
 
-      logAuthEvent({
-        level: 'error',
-        message: '[auth] BetterAuth strategy crashed during authentication.',
-        payload,
-        details,
-      })
+        const {
+          expiresAt: _expiresAt,
+          id: _sessionID,
+          token: _token,
+          userId: _userID,
+          ...sessionFields
+        } = sessionData.session || {}
 
-      return { user: null, responseHeaders }
-    }
-  },
+        return {
+          user: {
+            ...payloadUser,
+            ...coerceSessionFields(sessionFields, idType),
+            collection: usersCollection,
+            _strategy: 'better-auth',
+          } as User,
+        }
+      } catch (error) {
+        payload.logger.error(
+          `[auth] Better Auth strategy error: ${error instanceof Error ? error.message : String(error)}`,
+        )
+        return { user: null }
+      }
+    },
+  }
 }

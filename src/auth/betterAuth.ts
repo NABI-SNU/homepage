@@ -1,13 +1,11 @@
-import { betterAuth } from 'better-auth'
-import type { BetterAuthPlugin } from 'better-auth'
-import { nextCookies } from 'better-auth/next-js'
+import { payloadAdapter } from '@delmaredigital/payload-better-auth'
+import { betterAuth, type BetterAuthOptions, type BetterAuthPlugin } from 'better-auth'
 import { createRequire } from 'module'
-import type { Payload } from 'payload'
+import type { BasePayload, Payload } from 'payload'
 
 import { strictPayloadSessionResolutionOptions } from './payloadSessionPolicy'
+import { resolvePayloadUserFromSessionWithReason } from './resolvePayloadUserFromSession'
 import { syncBetterAuthUserToPayload } from './syncBetterAuthUserToPayload'
-import { resolvePayloadUserFromSession } from './resolvePayloadUserFromSession'
-import { createStoragePool } from '../utilities/storageDatabase'
 
 const parseList = (value: string | undefined): string[] => {
   return (value || '')
@@ -63,7 +61,6 @@ const trustedOrigins = Array.from(
   ),
 )
 
-const pool = createStoragePool()
 const require = createRequire(import.meta.url)
 const nodemailer = require('nodemailer') as {
   createTransport: (options: Record<string, unknown>) => {
@@ -87,55 +84,17 @@ const mailTransport = nodemailer.createTransport(
 )
 const mailFromAddress = process.env.SMTP_FROM_ADDRESS || 'no-reply@nabi.local'
 const mailFromName = process.env.SMTP_FROM_NAME || process.env.APP_NAME || 'NABI Labs'
+const plugins: BetterAuthPlugin[] = []
 
-const plugins: BetterAuthPlugin[] = [nextCookies()]
-
-let payloadPromise: Promise<Payload> | null = null
-
-const getPayloadInstance = async (): Promise<Payload> => {
-  if (!payloadPromise) {
-    payloadPromise = (async () => {
-      const [{ getPayload }, configModule] = await Promise.all([
-        import('payload'),
-        import('@payload-config'),
-      ])
-      return getPayload({ config: configModule.default })
-    })()
-  }
-
-  return payloadPromise
+type SharedBetterAuthOptions = Omit<
+  BetterAuthOptions,
+  'advanced' | 'basePath' | 'baseURL' | 'database' | 'secret'
+> & {
+  advanced?: Exclude<BetterAuthOptions['advanced'], undefined>
 }
 
-const getBetterAuthUserForSession = async (
-  userId: string,
-): Promise<{ email: string | null; emailVerified: boolean; id: string } | null> => {
-  try {
-    const result = await pool.query<{ email: string | null; emailVerified: boolean }>(
-      'SELECT "email", "emailVerified" FROM "user" WHERE "id" = $1 LIMIT 1',
-      [userId],
-    )
-
-    const row = result.rows[0]
-    if (!row) return null
-
-    return {
-      id: userId,
-      email: normalizeEmail(row.email),
-      emailVerified: row.emailVerified === true,
-    }
-  } catch (error) {
-    console.error('[auth] Failed loading BetterAuth user during session create', error)
-    return null
-  }
-}
-
-export const auth = betterAuth({
+export const betterAuthOptions: SharedBetterAuthOptions = {
   appName: process.env.APP_NAME || 'NABI Labs',
-  basePath: '/api/auth',
-  baseURL: authBaseURL,
-  secret: process.env.BETTER_AUTH_SECRET,
-  database: pool,
-  trustedOrigins,
   account: {
     accountLinking: {
       trustedProviders: ['github', 'google'],
@@ -182,56 +141,92 @@ export const auth = betterAuth({
         }
       : {}),
   },
-  advanced: {
-    useSecureCookies,
+  trustedOrigins,
+  user: {
+    additionalFields: {
+      isApproved: {
+        type: 'boolean',
+        defaultValue: false,
+      },
+      role: {
+        type: 'string',
+        defaultValue: 'user',
+      },
+      roles: {
+        type: 'string',
+        defaultValue: 'user',
+      },
+    },
   },
   plugins,
-  databaseHooks: {
-    user: {
-      create: {
-        after: async (user) => {
-          await syncBetterAuthUserToPayload({
-            betterAuthUser: {
-              id: user.id,
-              email: user.email,
-              name: user.name,
-            },
-          })
+}
+
+export const createAuth = (payload: BasePayload) =>
+  betterAuth({
+    ...betterAuthOptions,
+    advanced: {
+      ...betterAuthOptions.advanced,
+      database: {
+        ...betterAuthOptions.advanced?.database,
+        generateId: 'serial',
+      },
+      useSecureCookies,
+    },
+    basePath: '/api/auth',
+    baseURL: authBaseURL,
+    database: payloadAdapter({
+      payloadClient: payload,
+      adapterConfig: {
+        idType: 'number',
+      },
+    }),
+    databaseHooks: {
+      session: {
+        create: {
+          before: async (session) => {
+            const resolved = await resolvePayloadUserFromSessionWithReason({
+              payload: payload as Payload,
+              betterAuthUser: {
+                id: session.userId,
+              },
+              ...strictPayloadSessionResolutionOptions,
+            })
+
+            if (!resolved.user) {
+              ;(payload as Payload).logger.warn(
+                `[auth] Denied Better Auth session creation for user ${session.userId}: ${resolved.reason}`,
+              )
+              return false
+            }
+          },
         },
       },
-      update: {
-        after: async (user) => {
-          await syncBetterAuthUserToPayload({
-            betterAuthUser: {
-              id: user.id,
-              email: user.email,
-              name: user.name,
-            },
-          })
+      user: {
+        create: {
+          after: async (user) => {
+            await syncBetterAuthUserToPayload({
+              betterAuthUser: {
+                email: user.email,
+                id: user.id,
+                name: user.name,
+              },
+              payload: payload as Payload,
+            })
+          },
+        },
+        update: {
+          after: async (user) => {
+            await syncBetterAuthUserToPayload({
+              betterAuthUser: {
+                email: user.email,
+                id: user.id,
+                name: user.name,
+              },
+              payload: payload as Payload,
+            })
+          },
         },
       },
     },
-    session: {
-      create: {
-        before: async (session) => {
-          const betterAuthUser = await getBetterAuthUserForSession(session.userId)
-          if (!betterAuthUser) return false
-
-          const payload = await getPayloadInstance()
-          const payloadUser = await resolvePayloadUserFromSession({
-            payload,
-            betterAuthUser,
-            ...strictPayloadSessionResolutionOptions,
-          })
-
-          if (!payloadUser) return false
-        },
-        after: async (session) => {
-          await syncBetterAuthUserToPayload({
-            betterAuthUserId: session.userId,
-          })
-        },
-      },
-    },
-  },
-})
+    secret: process.env.BETTER_AUTH_SECRET,
+  })

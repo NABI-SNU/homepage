@@ -14,6 +14,9 @@ export const Footer: GlobalConfig = {
     read: () => true,
     update: adminOnly,
   },
+  hooks: {
+    afterChange: [revalidateFooter],
+  },
   fields: [
     {
       name: 'brandName',
@@ -120,7 +123,4 @@ export const Footer: GlobalConfig = {
       },
     },
   ],
-  hooks: {
-    afterChange: [revalidateFooter],
-  },
 }

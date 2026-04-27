@@ -110,7 +110,6 @@ describe('Posts Access', () => {
           email: `post-access-b-${runId}@example.com`,
           years: [2026],
           memberType: 'alumni',
-          user: null,
         },
       })
 

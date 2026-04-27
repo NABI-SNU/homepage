@@ -14,6 +14,9 @@ export const Header: GlobalConfig = {
     read: () => true,
     update: adminOnly,
   },
+  hooks: {
+    afterChange: [revalidateHeader],
+  },
   fields: [
     {
       name: 'navItems',
@@ -86,7 +89,4 @@ export const Header: GlobalConfig = {
       },
     },
   ],
-  hooks: {
-    afterChange: [revalidateHeader],
-  },
 }

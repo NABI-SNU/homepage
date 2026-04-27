@@ -1,5 +1,5 @@
 export const strictPayloadSessionResolutionOptions = {
-  autoApproveByPeopleEmail: true,
+  autoApproveByPeopleEmail: false,
   denyAlumni: true,
   enforceProductionEmailVerification: true,
   requireApproval: true,

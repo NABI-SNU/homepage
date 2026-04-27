@@ -1,4 +1,5 @@
 import { postgresAdapter } from '@payloadcms/db-postgres'
+import { betterAuthCollections, createBetterAuthPlugin } from '@delmaredigital/payload-better-auth'
 import { nodemailerAdapter } from '@payloadcms/email-nodemailer'
 import sharp from 'sharp'
 import path from 'path'
@@ -26,7 +27,7 @@ import { HomePage } from './globals/HomePage/config'
 import { plugins } from './plugins'
 import { defaultLexical } from '@/fields/defaultLexical'
 import { backfillUsersToPeople } from '@/auth/backfillUsersToPeople'
-import { migrations } from './migrations'
+import { betterAuthOptions, createAuth } from '@/auth/betterAuth'
 import { getStorageDatabaseURL, getStoragePgDependency } from './utilities/storageDatabase'
 import { getServerSideURL } from './utilities/getURL'
 
@@ -53,7 +54,6 @@ export default buildConfig({
         Icon: '@/components/admin/AdminIcon',
         Logo: '@/components/admin/AdminLogo',
       },
-      beforeLogin: ['@/components/BeforeLogin'],
       beforeDashboard: ['@/components/BeforeDashboard'],
     },
     importMap: {
@@ -87,7 +87,6 @@ export default buildConfig({
   editor: defaultLexical,
   db: postgresAdapter({
     pg: pgDependency,
-    prodMigrations: migrations,
     push: process.env.PAYLOAD_PUSH_SCHEMA === 'true',
     pool: {
       connectionString: storageDatabaseURL,
@@ -126,7 +125,23 @@ export default buildConfig({
         },
   }),
   globals: [Header, Footer, HomePage, AboutPage, ContactPage].map(disableDocumentLocks),
-  plugins,
+  plugins: [
+    betterAuthCollections({
+      betterAuthOptions,
+      skipCollections: ['user'],
+    }),
+    createBetterAuthPlugin({
+      admin: {
+        betterAuthOptions,
+        login: {
+          afterLoginPath: '/admin',
+          requiredRole: null,
+        },
+      },
+      createAuth,
+    }),
+    ...plugins,
+  ],
   secret: process.env.PAYLOAD_SECRET,
   sharp,
   typescript: {

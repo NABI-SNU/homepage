@@ -4,7 +4,7 @@ import { getPayload } from 'payload'
 
 import configPromise from '@payload-config'
 import type { User } from '@/payload-types'
-import { resolvePayloadUserFromHeaders } from '@/auth/resolvePayloadUserFromHeaders'
+import { getServerUser } from '@/auth/session'
 
 type DraftAccessContext = {
   draft: boolean
@@ -25,10 +25,7 @@ export const getDraftAccessContext = cache(async (): Promise<DraftAccessContext>
   }
 
   const requestHeaders = await getRequestHeaders()
-  const { user } = await resolvePayloadUserFromHeaders({
-    headers: requestHeaders,
-    payload,
-  })
+  const user = await getServerUser(payload, requestHeaders)
 
   return {
     draft: Boolean(user),

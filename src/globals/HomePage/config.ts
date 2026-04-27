@@ -13,6 +13,9 @@ export const HomePage: GlobalConfig = {
     read: () => true,
     update: adminOnly,
   },
+  hooks: {
+    afterChange: [revalidateHomePage],
+  },
   fields: [
     {
       name: 'heroTagline',
@@ -129,7 +132,4 @@ export const HomePage: GlobalConfig = {
       ],
     },
   ],
-  hooks: {
-    afterChange: [revalidateHomePage],
-  },
 }

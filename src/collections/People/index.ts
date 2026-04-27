@@ -252,9 +252,9 @@ export const People: CollectionConfig<'people'> = {
 
         return {
           ...data,
-          research: normalizedResearch.length > 0 ? normalizedResearch : null,
-          roleAssignments: normalizedRoleAssignments,
-          years: normalizedYears.length > 0 ? normalizedYears : null,
+          research: normalizedResearch,
+          roleAssignments: normalizedRoleAssignments || [],
+          years: normalizedYears.length > 0 ? normalizedYears : undefined,
         }
       },
     ],

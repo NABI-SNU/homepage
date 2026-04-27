@@ -13,6 +13,9 @@ export const AboutPage: GlobalConfig = {
     read: () => true,
     update: adminOnly,
   },
+  hooks: {
+    afterChange: [revalidateAboutPage],
+  },
   fields: [
     {
       name: 'tagline',
@@ -86,7 +89,4 @@ export const AboutPage: GlobalConfig = {
       type: 'textarea',
     },
   ],
-  hooks: {
-    afterChange: [revalidateAboutPage],
-  },
 }
