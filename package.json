@@ -38,7 +38,7 @@
   "dependencies": {
     "@better-auth/passkey": "^1.5.5",
     "@delmaredigital/payload-better-auth": "^0.6.1",
-    "@neondatabase/serverless": "^1.0.2",
+    "@neondatabase/serverless": "^1.1.0",
     "@payloadcms/db-postgres": "3.79.1",
     "@payloadcms/email-nodemailer": "3.79.1",
     "@payloadcms/live-preview-react": "3.79.1",
