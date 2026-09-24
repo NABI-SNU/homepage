@@ -7,7 +7,7 @@ export const revalidateHeader: GlobalAfterChangeHook = ({ doc, req: { payload, c
   if (!isRevalidateDisabled(context)) {
     payload.logger.info(`Revalidating header`)
 
-    safeRevalidate(payload, 'global header', () => revalidateTag('global_header'))
+    safeRevalidate(payload, 'global header', () => revalidateTag('global_header', { expire: 0 }))
     safeRevalidate(payload, 'root layout', () => revalidatePath('/', 'layout'))
   }
 

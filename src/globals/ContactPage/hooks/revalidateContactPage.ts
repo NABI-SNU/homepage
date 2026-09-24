@@ -9,7 +9,9 @@ export const revalidateContactPage: GlobalAfterChangeHook = ({
 }) => {
   if (!isRevalidateDisabled(context)) {
     payload.logger.info('Revalidating contact page global')
-    safeRevalidate(payload, 'global contactPage', () => revalidateTag('global_contactPage'))
+    safeRevalidate(payload, 'global contactPage', () =>
+      revalidateTag('global_contactPage', { expire: 0 }),
+    )
     safeRevalidate(payload, 'contact page', () => revalidatePath('/contact'))
   }
 

@@ -13,7 +13,7 @@ export const revalidateRedirects: CollectionAfterChangeHook = ({
 
   payload.logger.info(`Revalidating redirects`)
 
-  safeRevalidate(payload, 'redirects', () => revalidateTag('redirects'))
+  safeRevalidate(payload, 'redirects', () => revalidateTag('redirects', { expire: 0 }))
 
   return doc
 }

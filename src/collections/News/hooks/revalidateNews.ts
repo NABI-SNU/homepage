@@ -17,11 +17,15 @@ export const revalidateNews: CollectionAfterChangeHook<News> = ({
       if (revalidatedCollectionCaches) return
 
       safeRevalidate(payload, 'news list', () => revalidatePath('/news'))
-      safeRevalidate(payload, 'news list cache', () => revalidateTag('news_list'))
-      safeRevalidate(payload, 'search results cache', () => revalidateTag('search_results'))
+      safeRevalidate(payload, 'news list cache', () => revalidateTag('news_list', { expire: 0 }))
+      safeRevalidate(payload, 'search results cache', () =>
+        revalidateTag('search_results', { expire: 0 }),
+      )
       safeRevalidate(payload, 'references page', () => revalidatePath('/references'))
-      safeRevalidate(payload, 'references cache', () => revalidateTag('references_list'))
-      safeRevalidate(payload, 'site sitemap', () => revalidateTag('site-sitemap'))
+      safeRevalidate(payload, 'references cache', () =>
+        revalidateTag('references_list', { expire: 0 }),
+      )
+      safeRevalidate(payload, 'site sitemap', () => revalidateTag('site-sitemap', { expire: 0 }))
       revalidatedCollectionCaches = true
     }
 
@@ -30,7 +34,9 @@ export const revalidateNews: CollectionAfterChangeHook<News> = ({
       payload.logger.info(`Revalidating news at path: ${currentPath}`)
       revalidateCollectionCaches()
       safeRevalidate(payload, 'news page', () => revalidatePath(currentPath))
-      safeRevalidate(payload, 'news detail cache', () => revalidateTag(`news_${doc.slug}`))
+      safeRevalidate(payload, 'news detail cache', () =>
+        revalidateTag(`news_${doc.slug}`, { expire: 0 }),
+      )
     }
 
     const shouldRevalidatePreviousPath =
@@ -43,7 +49,7 @@ export const revalidateNews: CollectionAfterChangeHook<News> = ({
       revalidateCollectionCaches()
       safeRevalidate(payload, 'previous news page', () => revalidatePath(previousPath))
       safeRevalidate(payload, 'previous news detail cache', () =>
-        revalidateTag(`news_${previousDoc.slug}`),
+        revalidateTag(`news_${previousDoc.slug}`, { expire: 0 }),
       )
     }
   }
@@ -57,13 +63,19 @@ export const revalidateNewsDelete: CollectionAfterDeleteHook<News> = ({
 }) => {
   if (!isRevalidateDisabled(context)) {
     safeRevalidate(payload, 'news list', () => revalidatePath('/news'))
-    safeRevalidate(payload, 'news list cache', () => revalidateTag('news_list'))
+    safeRevalidate(payload, 'news list cache', () => revalidateTag('news_list', { expire: 0 }))
     safeRevalidate(payload, 'news delete page', () => revalidatePath(`/news/${doc?.slug}`))
-    safeRevalidate(payload, 'news detail cache', () => revalidateTag(`news_${doc?.slug}`))
-    safeRevalidate(payload, 'search results cache', () => revalidateTag('search_results'))
+    safeRevalidate(payload, 'news detail cache', () =>
+      revalidateTag(`news_${doc?.slug}`, { expire: 0 }),
+    )
+    safeRevalidate(payload, 'search results cache', () =>
+      revalidateTag('search_results', { expire: 0 }),
+    )
     safeRevalidate(payload, 'references page', () => revalidatePath('/references'))
-    safeRevalidate(payload, 'references cache', () => revalidateTag('references_list'))
-    safeRevalidate(payload, 'site sitemap', () => revalidateTag('site-sitemap'))
+    safeRevalidate(payload, 'references cache', () =>
+      revalidateTag('references_list', { expire: 0 }),
+    )
+    safeRevalidate(payload, 'site sitemap', () => revalidateTag('site-sitemap', { expire: 0 }))
   }
 
   return doc

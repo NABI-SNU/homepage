@@ -17,11 +17,17 @@ export const revalidateResearch: CollectionAfterChangeHook<Research> = ({
       if (revalidatedCollectionCaches) return
 
       safeRevalidate(payload, 'labs list', () => revalidatePath('/labs'))
-      safeRevalidate(payload, 'research list cache', () => revalidateTag('research_list'))
-      safeRevalidate(payload, 'research slugs cache', () => revalidateTag('research_slugs'))
+      safeRevalidate(payload, 'research list cache', () =>
+        revalidateTag('research_list', { expire: 0 }),
+      )
+      safeRevalidate(payload, 'research slugs cache', () =>
+        revalidateTag('research_slugs', { expire: 0 }),
+      )
       safeRevalidate(payload, 'references page', () => revalidatePath('/references'))
-      safeRevalidate(payload, 'references cache', () => revalidateTag('references_list'))
-      safeRevalidate(payload, 'site sitemap', () => revalidateTag('site-sitemap'))
+      safeRevalidate(payload, 'references cache', () =>
+        revalidateTag('references_list', { expire: 0 }),
+      )
+      safeRevalidate(payload, 'site sitemap', () => revalidateTag('site-sitemap', { expire: 0 }))
       revalidatedCollectionCaches = true
     }
 
@@ -30,7 +36,9 @@ export const revalidateResearch: CollectionAfterChangeHook<Research> = ({
       payload.logger.info(`Revalidating research at path: ${currentPath}`)
       revalidateCollectionCaches()
       safeRevalidate(payload, 'research page', () => revalidatePath(currentPath))
-      safeRevalidate(payload, 'research detail cache', () => revalidateTag(`research_${doc.slug}`))
+      safeRevalidate(payload, 'research detail cache', () =>
+        revalidateTag(`research_${doc.slug}`, { expire: 0 }),
+      )
     }
 
     const shouldRevalidatePreviousPath =
@@ -43,7 +51,7 @@ export const revalidateResearch: CollectionAfterChangeHook<Research> = ({
       revalidateCollectionCaches()
       safeRevalidate(payload, 'previous research page', () => revalidatePath(previousPath))
       safeRevalidate(payload, 'previous research detail cache', () =>
-        revalidateTag(`research_${previousDoc.slug}`),
+        revalidateTag(`research_${previousDoc.slug}`, { expire: 0 }),
       )
     }
   }
@@ -57,13 +65,21 @@ export const revalidateResearchDelete: CollectionAfterDeleteHook<Research> = ({
 }) => {
   if (!isRevalidateDisabled(context)) {
     safeRevalidate(payload, 'labs list', () => revalidatePath('/labs'))
-    safeRevalidate(payload, 'research list cache', () => revalidateTag('research_list'))
-    safeRevalidate(payload, 'research slugs cache', () => revalidateTag('research_slugs'))
+    safeRevalidate(payload, 'research list cache', () =>
+      revalidateTag('research_list', { expire: 0 }),
+    )
+    safeRevalidate(payload, 'research slugs cache', () =>
+      revalidateTag('research_slugs', { expire: 0 }),
+    )
     safeRevalidate(payload, 'references page', () => revalidatePath('/references'))
-    safeRevalidate(payload, 'references cache', () => revalidateTag('references_list'))
+    safeRevalidate(payload, 'references cache', () =>
+      revalidateTag('references_list', { expire: 0 }),
+    )
     safeRevalidate(payload, 'research delete page', () => revalidatePath(`/labs/${doc?.slug}`))
-    safeRevalidate(payload, 'research detail cache', () => revalidateTag(`research_${doc?.slug}`))
-    safeRevalidate(payload, 'site sitemap', () => revalidateTag('site-sitemap'))
+    safeRevalidate(payload, 'research detail cache', () =>
+      revalidateTag(`research_${doc?.slug}`, { expire: 0 }),
+    )
+    safeRevalidate(payload, 'site sitemap', () => revalidateTag('site-sitemap', { expire: 0 }))
   }
 
   return doc
