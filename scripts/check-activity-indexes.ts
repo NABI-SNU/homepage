@@ -7,7 +7,8 @@ const REQUIRED_INDEXES = [
   'activities_status_activity_type_date_idx',
 ] as const
 
-const connectionString = process.env.STORAGE_DATABASE_URL?.trim() || process.env.DATABASE_URL?.trim()
+const connectionString =
+  process.env.STORAGE_DATABASE_URL?.trim() || process.env.DATABASE_URL?.trim()
 
 if (!connectionString) {
   console.error('Missing STORAGE_DATABASE_URL (or fallback DATABASE_URL).')

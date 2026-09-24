@@ -17,25 +17,23 @@ describe('Account Approve Endpoint', () => {
     users = await requireTestAccountUsers(payload)
   })
 
-  it(
-    'redirects with already status for the pre-approved fixed user account',
-    async () => {
-      if (users.user.isApproved !== true) {
-        throw new Error(
-          `"${userTestAccount.email}" must be approved for this test. Tests must use pre-seeded accounts.`,
-        )
-      }
-
-      const token = createUserApprovalToken(users.user.id)
-      const response = await approveUserGET(
-        new NextRequest(`http://localhost:3000/api/account/approve?token=${encodeURIComponent(token)}`),
+  it('redirects with already status for the pre-approved fixed user account', async () => {
+    if (users.user.isApproved !== true) {
+      throw new Error(
+        `"${userTestAccount.email}" must be approved for this test. Tests must use pre-seeded accounts.`,
       )
+    }
 
-      expect(response.status).toBe(302)
-      expect(response.headers.get('location')).toContain('/account?approval=already')
-    },
-    30_000,
-  )
+    const token = createUserApprovalToken(users.user.id)
+    const response = await approveUserGET(
+      new NextRequest(
+        `http://localhost:3000/api/account/approve?token=${encodeURIComponent(token)}`,
+      ),
+    )
+
+    expect(response.status).toBe(302)
+    expect(response.headers.get('location')).toContain('/account?approval=already')
+  }, 30_000)
 
   it('redirects with invalid status for malformed tokens', async () => {
     const response = await approveUserGET(

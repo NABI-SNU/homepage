@@ -27,7 +27,9 @@ export const PayloadRedirects: React.FC<Props> = async ({ disableNotFound, url }
       const collection = redirectItem.to?.reference?.relationTo
       const id = redirectItem.to?.reference?.value
 
-      const document = (await getCachedDocument(collection, id)()) as { slug?: string | null } | null
+      const document = (await getCachedDocument(collection, id)()) as {
+        slug?: string | null
+      } | null
       const relationPrefix =
         redirectItem.to?.reference?.relationTo === 'research'
           ? '/labs'

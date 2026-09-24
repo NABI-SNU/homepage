@@ -42,10 +42,7 @@ export const Pagination: React.FC<{
             {hasPrevPage ? (
               <PaginationPrevious href={buildHref(page - 1)} />
             ) : (
-              <PaginationPrevious
-                aria-disabled="true"
-                className="pointer-events-none opacity-50"
-              />
+              <PaginationPrevious aria-disabled="true" className="pointer-events-none opacity-50" />
             )}
           </PaginationItem>
 
@@ -57,9 +54,7 @@ export const Pagination: React.FC<{
 
           {hasPrevPage && (
             <PaginationItem>
-              <PaginationLink href={buildHref(page - 1)}>
-                {page - 1}
-              </PaginationLink>
+              <PaginationLink href={buildHref(page - 1)}>{page - 1}</PaginationLink>
             </PaginationItem>
           )}
 
@@ -71,9 +66,7 @@ export const Pagination: React.FC<{
 
           {hasNextPage && (
             <PaginationItem>
-              <PaginationLink href={buildHref(page + 1)}>
-                {page + 1}
-              </PaginationLink>
+              <PaginationLink href={buildHref(page + 1)}>{page + 1}</PaginationLink>
             </PaginationItem>
           )}
 
@@ -87,10 +80,7 @@ export const Pagination: React.FC<{
             {hasNextPage ? (
               <PaginationNext href={buildHref(page + 1)} />
             ) : (
-              <PaginationNext
-                aria-disabled="true"
-                className="pointer-events-none opacity-50"
-              />
+              <PaginationNext aria-disabled="true" className="pointer-events-none opacity-50" />
             )}
           </PaginationItem>
         </PaginationContent>

@@ -68,8 +68,12 @@ const getSearchResults = async (query?: string) => {
 export const getCachedSearchResults = (query?: string) => {
   const normalizedQuery = normalizeSearchQuery(query)
 
-  return unstable_cache(() => getSearchResults(normalizedQuery), ['search-results', normalizedQuery], {
-    revalidate: 300,
-    tags: ['search_results'],
-  })
+  return unstable_cache(
+    () => getSearchResults(normalizedQuery),
+    ['search-results', normalizedQuery],
+    {
+      revalidate: 300,
+      tags: ['search_results'],
+    },
+  )
 }

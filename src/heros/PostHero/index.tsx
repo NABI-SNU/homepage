@@ -40,7 +40,11 @@ export const PostHero: React.FC<{
             <div className="flex min-w-0 flex-wrap items-center gap-x-4 gap-y-2 text-sm text-muted-foreground">
               <div className="flex items-center gap-1.5">
                 <span className="font-medium">Published</span>
-                {publishedAt ? <time dateTime={publishedAt}>{formatDateTime(publishedAt)}</time> : <span>Undated</span>}
+                {publishedAt ? (
+                  <time dateTime={publishedAt}>{formatDateTime(publishedAt)}</time>
+                ) : (
+                  <span>Undated</span>
+                )}
               </div>
 
               {authorEntries.length > 0 && (
@@ -88,7 +92,10 @@ export const PostHero: React.FC<{
                       return (
                         <React.Fragment key={index}>
                           {categorySlug ? (
-                            <Link className="text-foreground hover:text-primary hover:underline" href={`/category/${categorySlug}`}>
+                            <Link
+                              className="text-foreground hover:text-primary hover:underline"
+                              href={`/category/${categorySlug}`}
+                            >
                               {titleToUse}
                             </Link>
                           ) : (
@@ -108,10 +115,16 @@ export const PostHero: React.FC<{
             {metaAction ? <div className="ml-auto shrink-0 self-end">{metaAction}</div> : null}
           </div>
 
-          <h1 className="text-3xl font-bold leading-tight tracking-tight md:text-5xl lg:text-6xl">{title}</h1>
+          <h1 className="text-3xl font-bold leading-tight tracking-tight md:text-5xl lg:text-6xl">
+            {title}
+          </h1>
           <div className="mt-6 h-1 w-28 rounded-full bg-linear-to-r from-primary to-accent" />
 
-          {excerpt && <p className="mt-6 text-lg leading-relaxed text-muted-foreground md:text-xl">{excerpt}</p>}
+          {excerpt && (
+            <p className="mt-6 text-lg leading-relaxed text-muted-foreground md:text-xl">
+              {excerpt}
+            </p>
+          )}
         </div>
 
         {heroImage && typeof heroImage !== 'string' && (
