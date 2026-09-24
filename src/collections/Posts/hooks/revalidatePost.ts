@@ -18,16 +18,30 @@ export const revalidatePost: CollectionAfterChangeHook<Post> = ({
 
       safeRevalidate(payload, 'post page', () => revalidatePath(path))
       safeRevalidate(payload, 'about page', () => revalidatePath('/about'))
-      safeRevalidate(payload, 'post detail cache', () => revalidateTag(`post_${doc.slug}`))
-      safeRevalidate(payload, 'posts sitemap', () => revalidateTag('posts-sitemap'))
-      safeRevalidate(payload, 'posts list cache', () => revalidateTag('posts_list'))
-      safeRevalidate(payload, 'category posts cache', () => revalidateTag('posts_by_category'))
-      safeRevalidate(payload, 'recent posts cache', () => revalidateTag('recent_posts'))
-      safeRevalidate(payload, 'person posts cache', () => revalidateTag('person_posts'))
-      safeRevalidate(payload, 'topic posts cache', () => revalidateTag('topic_posts'))
-      safeRevalidate(payload, 'search results cache', () => revalidateTag('search_results'))
+      safeRevalidate(payload, 'post detail cache', () =>
+        revalidateTag(`post_${doc.slug}`, { expire: 0 }),
+      )
+      safeRevalidate(payload, 'posts sitemap', () => revalidateTag('posts-sitemap', { expire: 0 }))
+      safeRevalidate(payload, 'posts list cache', () => revalidateTag('posts_list', { expire: 0 }))
+      safeRevalidate(payload, 'category posts cache', () =>
+        revalidateTag('posts_by_category', { expire: 0 }),
+      )
+      safeRevalidate(payload, 'recent posts cache', () =>
+        revalidateTag('recent_posts', { expire: 0 }),
+      )
+      safeRevalidate(payload, 'person posts cache', () =>
+        revalidateTag('person_posts', { expire: 0 }),
+      )
+      safeRevalidate(payload, 'topic posts cache', () =>
+        revalidateTag('topic_posts', { expire: 0 }),
+      )
+      safeRevalidate(payload, 'search results cache', () =>
+        revalidateTag('search_results', { expire: 0 }),
+      )
       safeRevalidate(payload, 'references page', () => revalidatePath('/references'))
-      safeRevalidate(payload, 'references cache', () => revalidateTag('references_list'))
+      safeRevalidate(payload, 'references cache', () =>
+        revalidateTag('references_list', { expire: 0 }),
+      )
     }
 
     // If the post was previously published, we need to revalidate the old path
@@ -39,17 +53,29 @@ export const revalidatePost: CollectionAfterChangeHook<Post> = ({
       safeRevalidate(payload, 'old post page', () => revalidatePath(oldPath))
       safeRevalidate(payload, 'about page', () => revalidatePath('/about'))
       safeRevalidate(payload, 'old post detail cache', () =>
-        revalidateTag(`post_${previousDoc.slug}`),
+        revalidateTag(`post_${previousDoc.slug}`, { expire: 0 }),
       )
-      safeRevalidate(payload, 'posts sitemap', () => revalidateTag('posts-sitemap'))
-      safeRevalidate(payload, 'posts list cache', () => revalidateTag('posts_list'))
-      safeRevalidate(payload, 'category posts cache', () => revalidateTag('posts_by_category'))
-      safeRevalidate(payload, 'recent posts cache', () => revalidateTag('recent_posts'))
-      safeRevalidate(payload, 'person posts cache', () => revalidateTag('person_posts'))
-      safeRevalidate(payload, 'topic posts cache', () => revalidateTag('topic_posts'))
-      safeRevalidate(payload, 'search results cache', () => revalidateTag('search_results'))
+      safeRevalidate(payload, 'posts sitemap', () => revalidateTag('posts-sitemap', { expire: 0 }))
+      safeRevalidate(payload, 'posts list cache', () => revalidateTag('posts_list', { expire: 0 }))
+      safeRevalidate(payload, 'category posts cache', () =>
+        revalidateTag('posts_by_category', { expire: 0 }),
+      )
+      safeRevalidate(payload, 'recent posts cache', () =>
+        revalidateTag('recent_posts', { expire: 0 }),
+      )
+      safeRevalidate(payload, 'person posts cache', () =>
+        revalidateTag('person_posts', { expire: 0 }),
+      )
+      safeRevalidate(payload, 'topic posts cache', () =>
+        revalidateTag('topic_posts', { expire: 0 }),
+      )
+      safeRevalidate(payload, 'search results cache', () =>
+        revalidateTag('search_results', { expire: 0 }),
+      )
       safeRevalidate(payload, 'references page', () => revalidatePath('/references'))
-      safeRevalidate(payload, 'references cache', () => revalidateTag('references_list'))
+      safeRevalidate(payload, 'references cache', () =>
+        revalidateTag('references_list', { expire: 0 }),
+      )
     }
   }
   return doc
@@ -64,16 +90,28 @@ export const revalidateDelete: CollectionAfterDeleteHook<Post> = ({
 
     safeRevalidate(payload, 'post delete page', () => revalidatePath(path))
     safeRevalidate(payload, 'about page', () => revalidatePath('/about'))
-    safeRevalidate(payload, 'post detail cache', () => revalidateTag(`post_${doc?.slug}`))
-    safeRevalidate(payload, 'posts sitemap', () => revalidateTag('posts-sitemap'))
-    safeRevalidate(payload, 'posts list cache', () => revalidateTag('posts_list'))
-    safeRevalidate(payload, 'category posts cache', () => revalidateTag('posts_by_category'))
-    safeRevalidate(payload, 'recent posts cache', () => revalidateTag('recent_posts'))
-    safeRevalidate(payload, 'person posts cache', () => revalidateTag('person_posts'))
-    safeRevalidate(payload, 'topic posts cache', () => revalidateTag('topic_posts'))
-    safeRevalidate(payload, 'search results cache', () => revalidateTag('search_results'))
+    safeRevalidate(payload, 'post detail cache', () =>
+      revalidateTag(`post_${doc?.slug}`, { expire: 0 }),
+    )
+    safeRevalidate(payload, 'posts sitemap', () => revalidateTag('posts-sitemap', { expire: 0 }))
+    safeRevalidate(payload, 'posts list cache', () => revalidateTag('posts_list', { expire: 0 }))
+    safeRevalidate(payload, 'category posts cache', () =>
+      revalidateTag('posts_by_category', { expire: 0 }),
+    )
+    safeRevalidate(payload, 'recent posts cache', () =>
+      revalidateTag('recent_posts', { expire: 0 }),
+    )
+    safeRevalidate(payload, 'person posts cache', () =>
+      revalidateTag('person_posts', { expire: 0 }),
+    )
+    safeRevalidate(payload, 'topic posts cache', () => revalidateTag('topic_posts', { expire: 0 }))
+    safeRevalidate(payload, 'search results cache', () =>
+      revalidateTag('search_results', { expire: 0 }),
+    )
     safeRevalidate(payload, 'references page', () => revalidatePath('/references'))
-    safeRevalidate(payload, 'references cache', () => revalidateTag('references_list'))
+    safeRevalidate(payload, 'references cache', () =>
+      revalidateTag('references_list', { expire: 0 }),
+    )
   }
 
   return doc

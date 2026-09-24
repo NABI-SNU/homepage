@@ -35,17 +35,19 @@ export const revalidateActivities: CollectionAfterChangeHook<Activity> = ({
 
       safeRevalidate(payload, 'symposium page', () => revalidatePath('/symposium'))
       safeRevalidate(payload, 'conferences list', () => revalidatePath('/conferences'))
-      safeRevalidate(payload, 'symposium list cache', () => revalidateTag('symposium_list'))
+      safeRevalidate(payload, 'symposium list cache', () =>
+        revalidateTag('symposium_list', { expire: 0 }),
+      )
       safeRevalidate(payload, 'conference years cache', () =>
-        revalidateTag('activities_conference_years'),
+        revalidateTag('activities_conference_years', { expire: 0 }),
       )
       safeRevalidate(payload, 'conference slugs cache', () =>
-        revalidateTag('activities_conference_slugs'),
+        revalidateTag('activities_conference_slugs', { expire: 0 }),
       )
       safeRevalidate(payload, 'symposium slugs cache', () =>
-        revalidateTag('activities_symposium_slugs'),
+        revalidateTag('activities_symposium_slugs', { expire: 0 }),
       )
-      safeRevalidate(payload, 'site sitemap', () => revalidateTag('site-sitemap'))
+      safeRevalidate(payload, 'site sitemap', () => revalidateTag('site-sitemap', { expire: 0 }))
       revalidatedCollectionCaches = true
     }
 
@@ -61,7 +63,9 @@ export const revalidateActivities: CollectionAfterChangeHook<Activity> = ({
 
       const currentSlugTag = getActivitySlugTag(doc.activityType, doc.slug)
       if (currentSlugTag) {
-        safeRevalidate(payload, 'activity slug cache', () => revalidateTag(currentSlugTag))
+        safeRevalidate(payload, 'activity slug cache', () =>
+          revalidateTag(currentSlugTag, { expire: 0 }),
+        )
       }
     }
 
@@ -79,7 +83,9 @@ export const revalidateActivities: CollectionAfterChangeHook<Activity> = ({
 
     const previousSlugTag = getActivitySlugTag(previousDoc?.activityType, previousDoc?.slug)
     if (previousSlugTag) {
-      safeRevalidate(payload, 'previous activity slug cache', () => revalidateTag(previousSlugTag))
+      safeRevalidate(payload, 'previous activity slug cache', () =>
+        revalidateTag(previousSlugTag, { expire: 0 }),
+      )
     }
 
     const conferenceYearsToInvalidate = new Set<number>()
@@ -93,7 +99,7 @@ export const revalidateActivities: CollectionAfterChangeHook<Activity> = ({
 
     conferenceYearsToInvalidate.forEach((year) => {
       safeRevalidate(payload, `conference year cache ${year}`, () =>
-        revalidateTag(`activities_conference_year_${year}`),
+        revalidateTag(`activities_conference_year_${year}`, { expire: 0 }),
       )
     })
   }
@@ -108,27 +114,29 @@ export const revalidateActivitiesDelete: CollectionAfterDeleteHook<Activity> = (
   if (!isRevalidateDisabled(context)) {
     safeRevalidate(payload, 'symposium page', () => revalidatePath('/symposium'))
     safeRevalidate(payload, 'conferences list', () => revalidatePath('/conferences'))
-    safeRevalidate(payload, 'symposium list cache', () => revalidateTag('symposium_list'))
+    safeRevalidate(payload, 'symposium list cache', () =>
+      revalidateTag('symposium_list', { expire: 0 }),
+    )
     safeRevalidate(payload, 'conference years cache', () =>
-      revalidateTag('activities_conference_years'),
+      revalidateTag('activities_conference_years', { expire: 0 }),
     )
     safeRevalidate(payload, 'conference slugs cache', () =>
-      revalidateTag('activities_conference_slugs'),
+      revalidateTag('activities_conference_slugs', { expire: 0 }),
     )
     safeRevalidate(payload, 'symposium slugs cache', () =>
-      revalidateTag('activities_symposium_slugs'),
+      revalidateTag('activities_symposium_slugs', { expire: 0 }),
     )
 
     const slugTag = getActivitySlugTag(doc.activityType, doc.slug)
     if (slugTag) {
-      safeRevalidate(payload, 'activity slug cache', () => revalidateTag(slugTag))
+      safeRevalidate(payload, 'activity slug cache', () => revalidateTag(slugTag, { expire: 0 }))
     }
 
     if (doc.activityType === 'conference') {
       const year = getYearFromISODate(doc.date)
       if (year) {
         safeRevalidate(payload, `conference year cache ${year}`, () =>
-          revalidateTag(`activities_conference_year_${year}`),
+          revalidateTag(`activities_conference_year_${year}`, { expire: 0 }),
         )
       }
     }
@@ -138,7 +146,7 @@ export const revalidateActivitiesDelete: CollectionAfterDeleteHook<Activity> = (
       safeRevalidate(payload, 'activity delete page', () => revalidatePath(path))
     }
 
-    safeRevalidate(payload, 'site sitemap', () => revalidateTag('site-sitemap'))
+    safeRevalidate(payload, 'site sitemap', () => revalidateTag('site-sitemap', { expire: 0 }))
   }
 
   return doc

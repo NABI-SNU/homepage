@@ -12,14 +12,7 @@ export const VideoMedia: React.FC<MediaProps> = (props) => {
     const { filename } = resource
 
     return (
-      <video
-        autoPlay
-        className={cn(videoClassName)}
-        controls={false}
-        loop
-        muted
-        playsInline
-      >
+      <video autoPlay className={cn(videoClassName)} controls={false} loop muted playsInline>
         <source src={getMediaUrl(`/media/${filename}`)} />
       </video>
     )

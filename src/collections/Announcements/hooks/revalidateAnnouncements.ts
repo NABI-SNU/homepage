@@ -17,13 +17,17 @@ export const revalidateAnnouncements: CollectionAfterChangeHook<Announcement> = 
       if (revalidatedCollectionCaches) return
 
       safeRevalidate(payload, 'announcements list', () => revalidatePath('/announcements'))
-      safeRevalidate(payload, 'announcements list cache', () => revalidateTag('announcements_list'))
+      safeRevalidate(payload, 'announcements list cache', () =>
+        revalidateTag('announcements_list', { expire: 0 }),
+      )
       safeRevalidate(payload, 'announcements slugs cache', () =>
-        revalidateTag('announcements_slugs'),
+        revalidateTag('announcements_slugs', { expire: 0 }),
       )
       safeRevalidate(payload, 'references page', () => revalidatePath('/references'))
-      safeRevalidate(payload, 'references cache', () => revalidateTag('references_list'))
-      safeRevalidate(payload, 'site sitemap', () => revalidateTag('site-sitemap'))
+      safeRevalidate(payload, 'references cache', () =>
+        revalidateTag('references_list', { expire: 0 }),
+      )
+      safeRevalidate(payload, 'site sitemap', () => revalidateTag('site-sitemap', { expire: 0 }))
       revalidatedCollectionCaches = true
     }
 
@@ -33,7 +37,7 @@ export const revalidateAnnouncements: CollectionAfterChangeHook<Announcement> = 
       revalidateCollectionCaches()
       safeRevalidate(payload, 'announcement page', () => revalidatePath(currentPath))
       safeRevalidate(payload, 'announcement detail cache', () =>
-        revalidateTag(`announcement_${doc.slug}`),
+        revalidateTag(`announcement_${doc.slug}`, { expire: 0 }),
       )
     }
 
@@ -47,7 +51,7 @@ export const revalidateAnnouncements: CollectionAfterChangeHook<Announcement> = 
       revalidateCollectionCaches()
       safeRevalidate(payload, 'previous announcement page', () => revalidatePath(previousPath))
       safeRevalidate(payload, 'previous announcement detail cache', () =>
-        revalidateTag(`announcement_${previousDoc.slug}`),
+        revalidateTag(`announcement_${previousDoc.slug}`, { expire: 0 }),
       )
     }
   }
@@ -61,17 +65,23 @@ export const revalidateAnnouncementsDelete: CollectionAfterDeleteHook<Announceme
 }) => {
   if (!isRevalidateDisabled(context)) {
     safeRevalidate(payload, 'announcements list', () => revalidatePath('/announcements'))
-    safeRevalidate(payload, 'announcements list cache', () => revalidateTag('announcements_list'))
-    safeRevalidate(payload, 'announcements slugs cache', () => revalidateTag('announcements_slugs'))
+    safeRevalidate(payload, 'announcements list cache', () =>
+      revalidateTag('announcements_list', { expire: 0 }),
+    )
+    safeRevalidate(payload, 'announcements slugs cache', () =>
+      revalidateTag('announcements_slugs', { expire: 0 }),
+    )
     safeRevalidate(payload, 'announcement delete page', () =>
       revalidatePath(`/announcements/${doc?.slug}`),
     )
     safeRevalidate(payload, 'announcement detail cache', () =>
-      revalidateTag(`announcement_${doc?.slug}`),
+      revalidateTag(`announcement_${doc?.slug}`, { expire: 0 }),
     )
     safeRevalidate(payload, 'references page', () => revalidatePath('/references'))
-    safeRevalidate(payload, 'references cache', () => revalidateTag('references_list'))
-    safeRevalidate(payload, 'site sitemap', () => revalidateTag('site-sitemap'))
+    safeRevalidate(payload, 'references cache', () =>
+      revalidateTag('references_list', { expire: 0 }),
+    )
+    safeRevalidate(payload, 'site sitemap', () => revalidateTag('site-sitemap', { expire: 0 }))
   }
 
   return doc

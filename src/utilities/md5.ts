@@ -1,14 +1,16 @@
 const LEFT_ROTATE_AMOUNTS = [
-  7, 12, 17, 22, 7, 12, 17, 22, 7, 12, 17, 22, 7, 12, 17, 22, 5, 9, 14, 20, 5, 9, 14,
-  20, 5, 9, 14, 20, 5, 9, 14, 20, 4, 11, 16, 23, 4, 11, 16, 23, 4, 11, 16, 23, 4, 11,
-  16, 23, 6, 10, 15, 21, 6, 10, 15, 21, 6, 10, 15, 21, 6, 10, 15, 21,
+  7, 12, 17, 22, 7, 12, 17, 22, 7, 12, 17, 22, 7, 12, 17, 22, 5, 9, 14, 20, 5, 9, 14, 20, 5, 9, 14,
+  20, 5, 9, 14, 20, 4, 11, 16, 23, 4, 11, 16, 23, 4, 11, 16, 23, 4, 11, 16, 23, 6, 10, 15, 21, 6,
+  10, 15, 21, 6, 10, 15, 21, 6, 10, 15, 21,
 ]
 
-const TABLE_T = Array.from({ length: 64 }, (_, index) =>
-  Math.floor(Math.abs(Math.sin(index + 1)) * 0x100000000) >>> 0,
+const TABLE_T = Array.from(
+  { length: 64 },
+  (_, index) => Math.floor(Math.abs(Math.sin(index + 1)) * 0x100000000) >>> 0,
 )
 
-const leftRotate = (value: number, bits: number) => ((value << bits) | (value >>> (32 - bits))) >>> 0
+const leftRotate = (value: number, bits: number) =>
+  ((value << bits) | (value >>> (32 - bits))) >>> 0
 
 const toHexLE = (value: number) => {
   let result = ''
@@ -99,4 +101,3 @@ export const md5 = (input: string) => {
 
   return `${toHexLE(a0)}${toHexLE(b0)}${toHexLE(c0)}${toHexLE(d0)}`
 }
-

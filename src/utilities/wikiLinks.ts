@@ -166,7 +166,9 @@ export const buildWikiLookup = (docs: WikiLookupDoc[]) => {
   docs.forEach((doc) => {
     const slug = normalizeWhitespace(doc.slug || '')
     const title = normalizeWhitespace(doc.title || '')
-    const aliases = (doc.aliases || []).map((value) => normalizeWhitespace(value || '')).filter(Boolean)
+    const aliases = (doc.aliases || [])
+      .map((value) => normalizeWhitespace(value || ''))
+      .filter(Boolean)
 
     const keys = new Set<string>()
     ;[slug, title, ...aliases].forEach((value) => {

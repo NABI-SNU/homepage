@@ -12,14 +12,14 @@ export const revalidateTags: CollectionAfterChangeHook<Tag> = ({
 }) => {
   if (isRevalidateDisabled(context)) return doc
 
-  safeRevalidate(payload, 'topics list cache', () => revalidateTag('topics_list'))
-  safeRevalidate(payload, 'topic posts cache', () => revalidateTag('topic_posts'))
-  safeRevalidate(payload, 'wiki list cache', () => revalidateTag('wiki_list'))
-  safeRevalidate(payload, 'wiki index cache', () => revalidateTag('wiki_index'))
+  safeRevalidate(payload, 'topics list cache', () => revalidateTag('topics_list', { expire: 0 }))
+  safeRevalidate(payload, 'topic posts cache', () => revalidateTag('topic_posts', { expire: 0 }))
+  safeRevalidate(payload, 'wiki list cache', () => revalidateTag('wiki_list', { expire: 0 }))
+  safeRevalidate(payload, 'wiki index cache', () => revalidateTag('wiki_index', { expire: 0 }))
 
   if (doc?.slug) {
     safeRevalidate(payload, 'topic page', () => revalidatePath(`/topics/${doc.slug}`))
-    safeRevalidate(payload, 'topic cache', () => revalidateTag(`topic_${doc.slug}`))
+    safeRevalidate(payload, 'topic cache', () => revalidateTag(`topic_${doc.slug}`, { expire: 0 }))
   }
 
   if (previousDoc?.slug && previousDoc.slug !== doc?.slug) {
@@ -27,7 +27,7 @@ export const revalidateTags: CollectionAfterChangeHook<Tag> = ({
       revalidatePath(`/topics/${previousDoc.slug}`),
     )
     safeRevalidate(payload, 'previous topic cache', () =>
-      revalidateTag(`topic_${previousDoc.slug}`),
+      revalidateTag(`topic_${previousDoc.slug}`, { expire: 0 }),
     )
   }
 
@@ -40,14 +40,14 @@ export const revalidateTagsDelete: CollectionAfterDeleteHook<Tag> = ({
 }) => {
   if (isRevalidateDisabled(context)) return doc
 
-  safeRevalidate(payload, 'topics list cache', () => revalidateTag('topics_list'))
-  safeRevalidate(payload, 'topic posts cache', () => revalidateTag('topic_posts'))
-  safeRevalidate(payload, 'wiki list cache', () => revalidateTag('wiki_list'))
-  safeRevalidate(payload, 'wiki index cache', () => revalidateTag('wiki_index'))
+  safeRevalidate(payload, 'topics list cache', () => revalidateTag('topics_list', { expire: 0 }))
+  safeRevalidate(payload, 'topic posts cache', () => revalidateTag('topic_posts', { expire: 0 }))
+  safeRevalidate(payload, 'wiki list cache', () => revalidateTag('wiki_list', { expire: 0 }))
+  safeRevalidate(payload, 'wiki index cache', () => revalidateTag('wiki_index', { expire: 0 }))
 
   if (doc?.slug) {
     safeRevalidate(payload, 'topic delete page', () => revalidatePath(`/topics/${doc.slug}`))
-    safeRevalidate(payload, 'topic cache', () => revalidateTag(`topic_${doc.slug}`))
+    safeRevalidate(payload, 'topic cache', () => revalidateTag(`topic_${doc.slug}`, { expire: 0 }))
   }
 
   return doc

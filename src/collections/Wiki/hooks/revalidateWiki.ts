@@ -14,11 +14,13 @@ export const revalidateWiki: CollectionAfterChangeHook = ({
   const revalidateCollectionPages = () => {
     safeRevalidate(payload, 'wiki list', () => revalidatePath('/wiki'))
     safeRevalidate(payload, 'wiki graph page', () => revalidatePath('/wiki/graph'))
-    safeRevalidate(payload, 'wiki list cache', () => revalidateTag('wiki_list'))
-    safeRevalidate(payload, 'wiki graph cache', () => revalidateTag('wiki_graph'))
-    safeRevalidate(payload, 'wiki index cache', () => revalidateTag('wiki_index'))
-    safeRevalidate(payload, 'search results cache', () => revalidateTag('search_results'))
-    safeRevalidate(payload, 'site sitemap', () => revalidateTag('site-sitemap'))
+    safeRevalidate(payload, 'wiki list cache', () => revalidateTag('wiki_list', { expire: 0 }))
+    safeRevalidate(payload, 'wiki graph cache', () => revalidateTag('wiki_graph', { expire: 0 }))
+    safeRevalidate(payload, 'wiki index cache', () => revalidateTag('wiki_index', { expire: 0 }))
+    safeRevalidate(payload, 'search results cache', () =>
+      revalidateTag('search_results', { expire: 0 }),
+    )
+    safeRevalidate(payload, 'site sitemap', () => revalidateTag('site-sitemap', { expire: 0 }))
   }
 
   if (doc?._status === 'published') {
@@ -26,7 +28,9 @@ export const revalidateWiki: CollectionAfterChangeHook = ({
     payload.logger.info(`Revalidating wiki page at path: ${currentPath}`)
     revalidateCollectionPages()
     safeRevalidate(payload, 'wiki detail page', () => revalidatePath(currentPath))
-    safeRevalidate(payload, 'wiki detail cache', () => revalidateTag(`wiki_${doc.slug}`))
+    safeRevalidate(payload, 'wiki detail cache', () =>
+      revalidateTag(`wiki_${doc.slug}`, { expire: 0 }),
+    )
   }
 
   const shouldRevalidatePreviousPath =
@@ -39,7 +43,7 @@ export const revalidateWiki: CollectionAfterChangeHook = ({
     revalidateCollectionPages()
     safeRevalidate(payload, 'previous wiki detail page', () => revalidatePath(previousPath))
     safeRevalidate(payload, 'previous wiki detail cache', () =>
-      revalidateTag(`wiki_${previousDoc.slug}`),
+      revalidateTag(`wiki_${previousDoc.slug}`, { expire: 0 }),
     )
   }
 
@@ -55,12 +59,16 @@ export const revalidateWikiDelete: CollectionAfterDeleteHook = ({
   safeRevalidate(payload, 'wiki list', () => revalidatePath('/wiki'))
   safeRevalidate(payload, 'wiki graph page', () => revalidatePath('/wiki/graph'))
   safeRevalidate(payload, 'wiki detail page', () => revalidatePath(`/wiki/${doc?.slug}`))
-  safeRevalidate(payload, 'wiki list cache', () => revalidateTag('wiki_list'))
-  safeRevalidate(payload, 'wiki graph cache', () => revalidateTag('wiki_graph'))
-  safeRevalidate(payload, 'wiki index cache', () => revalidateTag('wiki_index'))
-  safeRevalidate(payload, 'wiki detail cache', () => revalidateTag(`wiki_${doc?.slug}`))
-  safeRevalidate(payload, 'search results cache', () => revalidateTag('search_results'))
-  safeRevalidate(payload, 'site sitemap', () => revalidateTag('site-sitemap'))
+  safeRevalidate(payload, 'wiki list cache', () => revalidateTag('wiki_list', { expire: 0 }))
+  safeRevalidate(payload, 'wiki graph cache', () => revalidateTag('wiki_graph', { expire: 0 }))
+  safeRevalidate(payload, 'wiki index cache', () => revalidateTag('wiki_index', { expire: 0 }))
+  safeRevalidate(payload, 'wiki detail cache', () =>
+    revalidateTag(`wiki_${doc?.slug}`, { expire: 0 }),
+  )
+  safeRevalidate(payload, 'search results cache', () =>
+    revalidateTag('search_results', { expire: 0 }),
+  )
+  safeRevalidate(payload, 'site sitemap', () => revalidateTag('site-sitemap', { expire: 0 }))
 
   return doc
 }

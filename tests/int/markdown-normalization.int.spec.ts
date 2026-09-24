@@ -11,10 +11,14 @@ describe('normalizeMarkdownForLexical', () => {
   })
 
   it('preserves tabs inside fenced code blocks', () => {
-    const input = ['```python', 'for x in range(2):', '\tprint(x)', '```', '\t- nested list'].join('\n')
+    const input = ['```python', 'for x in range(2):', '\tprint(x)', '```', '\t- nested list'].join(
+      '\n',
+    )
     const output = normalizeMarkdownForLexical(input)
 
-    expect(output).toBe(['```python', 'for x in range(2):', '\tprint(x)', '```', '    - nested list'].join('\n'))
+    expect(output).toBe(
+      ['```python', 'for x in range(2):', '\tprint(x)', '```', '    - nested list'].join('\n'),
+    )
   })
 
   it('preserves pipe table markdown structure', () => {

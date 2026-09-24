@@ -7,11 +7,7 @@ type RevalidateContext = {
 export const isRevalidateDisabled = (context: RevalidateContext | undefined): boolean =>
   Boolean(context?.disableRevalidate)
 
-export const safeRevalidate = (
-  payload: Payload,
-  label: string,
-  callback: () => void,
-): void => {
+export const safeRevalidate = (payload: Payload, label: string, callback: () => void): void => {
   try {
     callback()
   } catch (error) {
