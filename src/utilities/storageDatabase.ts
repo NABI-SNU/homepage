@@ -69,7 +69,7 @@ export const getStoragePgDependency = (): PgDependency => {
 
   return {
     ...(nodePg as PgDependency),
-    Pool: NeonServerlessPool,
+    Pool: NeonServerlessPool as unknown as PgDependency['Pool'],
   }
 }
 

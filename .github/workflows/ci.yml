@@ -43,7 +43,7 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       - name: Setup PNPM
         uses: pnpm/action-setup@v6
@@ -52,7 +52,7 @@ jobs:
           version: 10.13.1
 
       - name: Setup Node.js
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@v7
         with:
           cache: pnpm
           node-version-file: .nvmrc
@@ -77,7 +77,7 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       - name: Setup PNPM
         uses: pnpm/action-setup@v6
@@ -86,7 +86,7 @@ jobs:
           version: 10.13.1
 
       - name: Setup Node.js
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@v7
         with:
           cache: pnpm
           node-version-file: .nvmrc
@@ -115,7 +115,7 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       - name: Setup PNPM
         uses: pnpm/action-setup@v6
@@ -124,7 +124,7 @@ jobs:
           version: 10.13.1
 
       - name: Setup Node.js
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@v7
         with:
           cache: pnpm
           node-version-file: .nvmrc
@@ -146,7 +146,7 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       - name: Build Docker Image
         run: docker build -t homepage-ci-smoke .
