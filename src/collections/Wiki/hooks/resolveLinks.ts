@@ -57,7 +57,9 @@ export const resolveOutgoingWikiLinks: CollectionBeforeChangeHook = async ({
   const lookup = buildWikiLookup(docs)
   const currentDocID =
     operation === 'update'
-      ? ((originalDoc as { id?: number | string })?.id ?? (data as { id?: number | string })?.id ?? null)
+      ? ((originalDoc as { id?: number | string })?.id ??
+        (data as { id?: number | string })?.id ??
+        null)
       : null
   const currentSlug =
     normalizeWikiLookupKey(
@@ -87,7 +89,6 @@ export const resolveOutgoingWikiLinks: CollectionBeforeChangeHook = async ({
       unresolvedTargets.add(candidate.target)
     }
   })
-
   ;(data as { outgoingLinks?: unknown[] }).outgoingLinks = Array.from(resolvedIDs)
   ;(data as { unresolvedWikiLinks?: { target: string }[] }).unresolvedWikiLinks = Array.from(
     unresolvedTargets,

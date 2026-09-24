@@ -7,7 +7,10 @@ import configPromise from '../payload.config'
 import { getPayload, type CollectionSlug, type Field, type RichTextField } from 'payload'
 
 let payloadPromise: ReturnType<typeof getPayload> | null = null
-const editorConfigCache = new Map<string, Awaited<ReturnType<typeof editorConfigFactory.fromField>>>()
+const editorConfigCache = new Map<
+  string,
+  Awaited<ReturnType<typeof editorConfigFactory.fromField>>
+>()
 const FENCE_PATTERN = /^(\s*)(`{3,}|~{3,})/
 
 export const normalizeMarkdownForLexical = (markdown: string): string => {
@@ -99,7 +102,9 @@ const getEditorConfigForCollection = async (
   const field = findFieldByName(collectionConfig.fields as Field[], richTextFieldName)
 
   if (!field) {
-    throw new Error(`Rich text field '${richTextFieldName}' not found in collection '${collection}'`)
+    throw new Error(
+      `Rich text field '${richTextFieldName}' not found in collection '${collection}'`,
+    )
   }
 
   const editorConfig = editorConfigFactory.fromField({

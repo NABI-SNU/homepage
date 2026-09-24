@@ -10,7 +10,9 @@ export function WikiBacklinks({ items }: { items: BacklinkItem[] }) {
   if (items.length === 0) {
     return (
       <section className="rounded-2xl border border-border/70 bg-card/50 p-4">
-        <h2 className="text-sm font-semibold uppercase tracking-[0.12em] text-muted-foreground">Backlinks</h2>
+        <h2 className="text-sm font-semibold uppercase tracking-[0.12em] text-muted-foreground">
+          Backlinks
+        </h2>
         <p className="mt-3 text-sm text-muted-foreground">No backlinks yet.</p>
       </section>
     )
@@ -18,7 +20,9 @@ export function WikiBacklinks({ items }: { items: BacklinkItem[] }) {
 
   return (
     <section className="rounded-2xl border border-border/70 bg-card/50 p-4">
-      <h2 className="text-sm font-semibold uppercase tracking-[0.12em] text-muted-foreground">Backlinks</h2>
+      <h2 className="text-sm font-semibold uppercase tracking-[0.12em] text-muted-foreground">
+        Backlinks
+      </h2>
       <ul className="mt-3 space-y-2">
         {items.map((item) => (
           <li key={item.slug}>
@@ -27,7 +31,9 @@ export function WikiBacklinks({ items }: { items: BacklinkItem[] }) {
               href={`/wiki/${item.slug}`}
             >
               <p className="text-sm font-medium">{item.title}</p>
-              {item.summary && <p className="mt-1 line-clamp-2 text-xs text-muted-foreground">{item.summary}</p>}
+              {item.summary && (
+                <p className="mt-1 line-clamp-2 text-xs text-muted-foreground">{item.summary}</p>
+              )}
             </Link>
           </li>
         ))}
@@ -35,4 +41,3 @@ export function WikiBacklinks({ items }: { items: BacklinkItem[] }) {
     </section>
   )
 }
-

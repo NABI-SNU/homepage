@@ -44,7 +44,11 @@ export function WikiSearch({ items }: { items: WikiSearchItem[] }) {
       if (selectedTag && !item.tags.some((tag) => tag.slug === selectedTag)) return false
       if (!normalizedQuery) return true
 
-      const searchable = [item.title, item.summary || '', item.tags.map((tag) => tag.title).join(' ')]
+      const searchable = [
+        item.title,
+        item.summary || '',
+        item.tags.map((tag) => tag.title).join(' '),
+      ]
         .join(' ')
         .toLowerCase()
       return searchable.includes(normalizedQuery)
@@ -109,7 +113,9 @@ export function WikiSearch({ items }: { items: WikiSearchItem[] }) {
               key={item.slug}
             >
               <h2 className="text-xl font-semibold">{item.title}</h2>
-              {item.summary && <p className="mt-2 line-clamp-3 text-sm text-muted-foreground">{item.summary}</p>}
+              {item.summary && (
+                <p className="mt-2 line-clamp-3 text-sm text-muted-foreground">{item.summary}</p>
+              )}
               {item.tags.length > 0 && (
                 <div className="mt-4 flex flex-wrap gap-2">
                   {item.tags.map((tag) => (
@@ -129,4 +135,3 @@ export function WikiSearch({ items }: { items: WikiSearchItem[] }) {
     </div>
   )
 }
-

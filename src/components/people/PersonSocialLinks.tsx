@@ -63,7 +63,9 @@ export function PersonSocialLinks({ className, iconOnly = true, socials }: Props
             'group/social inline-flex items-center rounded-full border border-border/70 text-muted-foreground transition-all duration-300',
             'hover:-translate-y-0.5 hover:scale-110 hover:border-primary/45 hover:text-primary hover:shadow-lg hover:shadow-primary/20',
             'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60',
-            iconOnly ? 'h-11 w-11 justify-center bg-transparent' : 'gap-2 px-3 py-1.5 text-sm bg-card/40 hover:bg-card/60',
+            iconOnly
+              ? 'h-11 w-11 justify-center bg-transparent'
+              : 'gap-2 px-3 py-1.5 text-sm bg-card/40 hover:bg-card/60',
           )}
           href={social.url}
           key={`${social.platform}-${social.url}-${index}`}

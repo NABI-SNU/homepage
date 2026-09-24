@@ -74,7 +74,8 @@ const feedbackByReason: Record<AuthGateReason, AuthFeedbackContent> = {
   },
   unknown: {
     title: 'Unable to sign in',
-    description: 'Sign-in could not be completed. Try again, or use email login for clearer status.',
+    description:
+      'Sign-in could not be completed. Try again, or use email login for clearer status.',
   },
 }
 

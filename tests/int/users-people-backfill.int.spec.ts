@@ -73,7 +73,9 @@ const buildMockPayload = ({
       if (collection === 'people') {
         const userFilter = (where?.user as { equals?: number } | undefined)?.equals
         if (typeof userFilter === 'number') {
-          const docs = mutablePeople.filter((person) => person.user === userFilter).slice(0, limit ?? 25)
+          const docs = mutablePeople
+            .filter((person) => person.user === userFilter)
+            .slice(0, limit ?? 25)
           return { docs, hasNextPage: false }
         }
 
