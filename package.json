@@ -7,7 +7,7 @@
   "packageManager": "pnpm@10.33.2",
   "scripts": {
     "prebuild": "pnpm generate:importmap",
-    "build": "cross-env NODE_OPTIONS=--no-deprecation next build",
+    "build": "cross-env NODE_OPTIONS=--no-deprecation next build --webpack",
     "postbuild": "next-sitemap --config next-sitemap.config.cjs",
     "predev": "rm -rf .next/cache && pnpm generate:importmap",
     "dev": "cross-env NODE_OPTIONS=--no-deprecation next dev",
