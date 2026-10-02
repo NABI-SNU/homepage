@@ -143,6 +143,14 @@ jobs:
       - name: Install Dependencies
         run: pnpm install --frozen-lockfile
 
+      # Payload never pushes the schema under NODE_ENV=production and the repo has no
+      # migrations, so create the tables up front or page data collection hits empty-DB errors.
+      - name: Prepare Database Schema
+        run: pnpm seed:test-accounts
+        env:
+          NODE_ENV: test
+          PAYLOAD_PUSH_SCHEMA: 'true'
+
       - name: Build
         run: NODE_ENV=production pnpm build
 

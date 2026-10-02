@@ -112,3 +112,5 @@ run()
     console.error('Failed to seed fixed test accounts:', error)
     process.exitCode = 1
   })
+  // Payload keeps the DB pool open, which would otherwise hold the process (and CI step) forever.
+  .finally(() => process.exit())
