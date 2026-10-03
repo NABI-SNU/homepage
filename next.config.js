@@ -1,6 +1,10 @@
 import { withPayload } from '@payloadcms/next/withPayload'
+import path from 'path'
+import { fileURLToPath } from 'url'
 
 import redirects from './redirects.js'
+
+const dirname = path.dirname(fileURLToPath(import.meta.url))
 
 const IMAGE_REMOTE_SOURCES = [
   process.env.NEXT_PUBLIC_SERVER_URL,
@@ -58,6 +62,11 @@ const nextConfig = {
     return webpackConfig
   },
   reactStrictMode: true,
+  sassOptions: {
+    // Turbopack's Sass importer can't resolve the bare `@import 'vars'` partials inside
+    // `@payloadcms/ui/scss` relative to that file once it's in node_modules, so let Sass find them.
+    loadPaths: [path.join(dirname, 'node_modules/@payloadcms/ui/dist/scss')],
+  },
   redirects,
 }
 
