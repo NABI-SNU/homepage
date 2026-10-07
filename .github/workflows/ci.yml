@@ -108,6 +108,20 @@ jobs:
       - generated-files
     if: github.event_name != 'pull_request'
     timeout-minutes: 20
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_DB: homepage_ci_build
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_USER: postgres
+        options: >-
+          --health-cmd "pg_isready -U postgres -d homepage_ci_build"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
     env:
       STORAGE_DATABASE_URL: postgresql://postgres:postgres@localhost:5432/homepage_ci_build
 
@@ -128,6 +142,14 @@ jobs:
 
       - name: Install Dependencies
         run: pnpm install --frozen-lockfile
+
+      # Payload never pushes the schema under NODE_ENV=production and the repo has no
+      # migrations, so create the tables up front or page data collection hits empty-DB errors.
+      - name: Prepare Database Schema
+        run: pnpm seed:test-accounts
+        env:
+          NODE_ENV: test
+          PAYLOAD_PUSH_SCHEMA: 'true'
 
       - name: Build
         run: NODE_ENV=production pnpm build
