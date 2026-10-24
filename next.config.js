@@ -48,6 +48,13 @@ const nextConfig = {
         pathname: '/api/notebooks/file/**',
       },
     ],
+    // Fewer, smaller breakpoints: Next picks the fallback `src` from the largest one, and the
+    // default 3840px fallback was a ~260 KB download for a card.
+    deviceSizes: [640, 828, 1200, 1920],
+    imageSizes: [96, 256, 384],
+    // Media URLs carry the document's updatedAt, so a changed image gets a new URL and
+    // the optimizer output can be cached for a long time (default is 4 hours).
+    minimumCacheTTL: 60 * 60 * 24 * 31,
     qualities: [75, 82],
     remotePatterns: IMAGE_REMOTE_PATTERNS,
     ...(IS_E2E_ENV ? { unoptimized: true } : {}),

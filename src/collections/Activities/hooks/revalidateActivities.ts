@@ -35,6 +35,9 @@ export const revalidateActivities: CollectionAfterChangeHook<Activity> = ({
 
       safeRevalidate(payload, 'symposium page', () => revalidatePath('/symposium'))
       safeRevalidate(payload, 'conferences list', () => revalidatePath('/conferences'))
+      safeRevalidate(payload, 'conference year pages', () =>
+        revalidatePath('/conferences/year/[year]', 'page'),
+      )
       safeRevalidate(payload, 'symposium list cache', () =>
         revalidateTag('symposium_list', { expire: 0 }),
       )
@@ -114,6 +117,9 @@ export const revalidateActivitiesDelete: CollectionAfterDeleteHook<Activity> = (
   if (!isRevalidateDisabled(context)) {
     safeRevalidate(payload, 'symposium page', () => revalidatePath('/symposium'))
     safeRevalidate(payload, 'conferences list', () => revalidatePath('/conferences'))
+    safeRevalidate(payload, 'conference year pages', () =>
+      revalidatePath('/conferences/year/[year]', 'page'),
+    )
     safeRevalidate(payload, 'symposium list cache', () =>
       revalidateTag('symposium_list', { expire: 0 }),
     )

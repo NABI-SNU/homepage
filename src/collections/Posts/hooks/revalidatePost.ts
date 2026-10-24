@@ -1,9 +1,21 @@
-import type { CollectionAfterChangeHook, CollectionAfterDeleteHook } from 'payload'
+import type { CollectionAfterChangeHook, CollectionAfterDeleteHook, Payload } from 'payload'
 
 import { revalidatePath, revalidateTag } from 'next/cache'
 import { isRevalidateDisabled, safeRevalidate } from '@/utilities/safeRevalidate'
 
 import type { Post } from '../../../payload-types'
+
+// The post listings are prerendered, so path revalidation (not just the data tag) keeps them fresh.
+const revalidatePostListPages = (payload: Payload): void => {
+  safeRevalidate(payload, 'posts list page', () => revalidatePath('/posts'))
+  safeRevalidate(payload, 'paged posts list pages', () =>
+    revalidatePath('/posts/page/[pageNumber]', 'page'),
+  )
+  safeRevalidate(payload, 'category pages', () => revalidatePath('/category/[slug]', 'page'))
+  safeRevalidate(payload, 'paged category pages', () =>
+    revalidatePath('/category/[slug]/page/[pageNumber]', 'page'),
+  )
+}
 
 export const revalidatePost: CollectionAfterChangeHook<Post> = ({
   doc,
@@ -23,6 +35,7 @@ export const revalidatePost: CollectionAfterChangeHook<Post> = ({
       )
       safeRevalidate(payload, 'posts sitemap', () => revalidateTag('posts-sitemap', { expire: 0 }))
       safeRevalidate(payload, 'posts list cache', () => revalidateTag('posts_list', { expire: 0 }))
+      revalidatePostListPages(payload)
       safeRevalidate(payload, 'category posts cache', () =>
         revalidateTag('posts_by_category', { expire: 0 }),
       )
@@ -57,6 +70,7 @@ export const revalidatePost: CollectionAfterChangeHook<Post> = ({
       )
       safeRevalidate(payload, 'posts sitemap', () => revalidateTag('posts-sitemap', { expire: 0 }))
       safeRevalidate(payload, 'posts list cache', () => revalidateTag('posts_list', { expire: 0 }))
+      revalidatePostListPages(payload)
       safeRevalidate(payload, 'category posts cache', () =>
         revalidateTag('posts_by_category', { expire: 0 }),
       )
@@ -95,6 +109,7 @@ export const revalidateDelete: CollectionAfterDeleteHook<Post> = ({
     )
     safeRevalidate(payload, 'posts sitemap', () => revalidateTag('posts-sitemap', { expire: 0 }))
     safeRevalidate(payload, 'posts list cache', () => revalidateTag('posts_list', { expire: 0 }))
+    revalidatePostListPages(payload)
     safeRevalidate(payload, 'category posts cache', () =>
       revalidateTag('posts_by_category', { expire: 0 }),
     )

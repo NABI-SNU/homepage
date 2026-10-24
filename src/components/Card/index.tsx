@@ -20,6 +20,7 @@ export const Card: React.FC<{
   className?: string
   doc?: CardDocData
   imageAspect?: 'landscape' | 'portrait'
+  imagePriority?: boolean
   relationTo?: 'posts' | 'news' | 'wiki' | 'conferences' | 'symposium' | 'labs' | 'announcements'
   showCategories?: boolean
   showDate?: boolean
@@ -29,6 +30,7 @@ export const Card: React.FC<{
     className,
     doc,
     imageAspect = 'landscape',
+    imagePriority = false,
     relationTo,
     showCategories,
     showDate,
@@ -77,6 +79,7 @@ export const Card: React.FC<{
         )}
         {hasRenderableImage && (
           <Media
+            priority={imagePriority}
             resource={metaImage}
             size="(min-width: 1024px) 30vw, (min-width: 640px) 45vw, 100vw"
             pictureClassName="absolute inset-0 h-full w-full"
@@ -88,7 +91,8 @@ export const Card: React.FC<{
             alt={previewImage?.alt || ''}
             className="h-full w-full rounded-sm object-cover transition-transform duration-300 group-hover:scale-[1.02]"
             height={previewImage?.height ?? 900}
-            loading="lazy"
+            loading={imagePriority ? undefined : 'lazy'}
+            priority={imagePriority}
             sizes="(min-width: 1024px) 30vw, (min-width: 640px) 45vw, 100vw"
             src={previewImage?.src ?? ''}
             unoptimized
