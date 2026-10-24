@@ -15,7 +15,7 @@ const AdminLogo: React.FC = () => {
         whiteSpace: 'nowrap',
       }}
     >
-      <Image alt="NABI" src="/favicon.svg" width={24} height={24} style={{ flexShrink: 0 }} />
+      <Image alt="NABI" src="/nabi-brand-icon.svg" width={24} height={24} style={{ flexShrink: 0 }} />
       <span>NABI Labs</span>
     </span>
   )

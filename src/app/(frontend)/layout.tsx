@@ -68,7 +68,7 @@ gtag('config', '${googleAnalyticsID}');`}
         <link href="/favicon.ico" rel="icon" sizes="32x32" />
         <link href="/favicon.svg" rel="icon" type="image/svg+xml" />
         <link href="/apple-touch-icon.png" rel="apple-touch-icon" />
-        <link color="#8D46E7" href="/favicon.svg" rel="mask-icon" />
+        <link color="#F2873A" href="/favicon.svg" rel="mask-icon" />
       </head>
       <body>
         <Providers>

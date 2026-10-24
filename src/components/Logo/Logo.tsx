@@ -26,7 +26,7 @@ export const Logo = (props: Props) => {
         loading={loading}
         priority={priority === 'high'}
         sizes="20px"
-        src="/favicon.svg"
+        src="/nabi-brand-icon.svg"
         width={20}
       />
       {showText && (
