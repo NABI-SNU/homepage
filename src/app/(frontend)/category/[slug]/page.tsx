@@ -13,6 +13,11 @@ import { notFound } from 'next/navigation'
 
 export const revalidate = 3600
 
+// Rendered on first request, then cached and revalidated like the other archive pages.
+export async function generateStaticParams() {
+  return []
+}
+
 type Args = {
   params: Promise<{
     slug: string

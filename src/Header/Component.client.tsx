@@ -28,7 +28,8 @@ const shouldForceLightHeader = (pathname: string | null) => {
   ) {
     return true
   }
-  if (pathname.startsWith('/posts/page/')) return true
+  if (pathname.startsWith('/posts/page/') || pathname === '/posts/search') return true
+  if (pathname.startsWith('/news/year/')) return true
   if (pathname.startsWith('/conferences/')) return true
   return false
 }
@@ -37,6 +38,7 @@ const shouldForceLightHeader = (pathname: string | null) => {
 const useIsInLivePreviewIframe = () => {
   const [isInIframe, setIsInIframe] = useState(false)
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- browser-only value, only known after mount
     setIsInIframe(window.self !== window.top)
   }, [])
   return isInIframe
@@ -54,11 +56,13 @@ export const HeaderClient: React.FC<HeaderClientProps> = ({ data }) => {
   const headerThemeAttr = isHydrated ? (resolvedTheme ?? undefined) : undefined
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- flags hydration so SSR and first client render match
     setIsHydrated(true)
   }, [])
 
   useEffect(() => {
     setHeaderTheme(shouldForceLightHeader(pathname) ? 'light' : null)
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- close the mobile menu on navigation
     setMobileMenuOpen(false)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pathname])

@@ -13,11 +13,19 @@ import React from 'react'
 export const Pagination: React.FC<{
   className?: string
   page: number
+  pageAsQuery?: boolean
   pathPrefix?: string
   query?: Record<string, string | undefined>
   totalPages: number
 }> = (props) => {
-  const { className, page, pathPrefix = '/posts', query: queryParams, totalPages } = props
+  const {
+    className,
+    page,
+    pageAsQuery = false,
+    pathPrefix = '/posts',
+    query: queryParams,
+    totalPages,
+  } = props
   const hasNextPage = page < totalPages
   const hasPrevPage = page > 1
 
@@ -25,11 +33,13 @@ export const Pagination: React.FC<{
   const hasExtraNextPages = page + 1 < totalPages
 
   const buildHref = (targetPage: number) => {
-    const basePath = targetPage === 1 ? pathPrefix : `${pathPrefix}/page/${targetPage}`
+    const basePath =
+      targetPage === 1 || pageAsQuery ? pathPrefix : `${pathPrefix}/page/${targetPage}`
     const params = new URLSearchParams()
     Object.entries(queryParams || {}).forEach(([key, value]) => {
       if (value) params.set(key, value)
     })
+    if (pageAsQuery && targetPage > 1) params.set('page', String(targetPage))
     const serializedParams = params.toString()
     return serializedParams ? `${basePath}?${serializedParams}` : basePath
   }

@@ -68,6 +68,7 @@ export default async function HomePage() {
             className="h-auto w-full object-cover"
             placeholder="blur"
             priority
+            sizes="(min-width: 1024px) 1024px, 100vw"
             src={heroImage}
           />
         </div>

@@ -17,6 +17,8 @@ export const revalidateNews: CollectionAfterChangeHook<News> = ({
       if (revalidatedCollectionCaches) return
 
       safeRevalidate(payload, 'news list', () => revalidatePath('/news'))
+      safeRevalidate(payload, 'news year pages', () => revalidatePath('/news/year/[year]', 'page'))
+      safeRevalidate(payload, 'news year pages', () => revalidatePath('/news/year/[year]', 'page'))
       safeRevalidate(payload, 'news list cache', () => revalidateTag('news_list', { expire: 0 }))
       safeRevalidate(payload, 'search results cache', () =>
         revalidateTag('search_results', { expire: 0 }),

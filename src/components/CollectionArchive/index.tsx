@@ -12,6 +12,9 @@ export type Props = {
   showDate?: boolean
 }
 
+// Cards in the first row are above the fold; load their images eagerly so LCP is not lazy.
+const PRIORITY_CARD_COUNT = 3
+
 export const CollectionArchive: React.FC<Props> = (props) => {
   const {
     cardImageAspect = 'landscape',
@@ -42,6 +45,7 @@ export const CollectionArchive: React.FC<Props> = (props) => {
                     className="h-full"
                     doc={result}
                     imageAspect={cardImageAspect}
+                    imagePriority={index < PRIORITY_CARD_COUNT}
                     relationTo={relationTo}
                     showCategories={showCategories}
                     showDate={showDate}
