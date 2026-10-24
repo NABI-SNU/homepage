@@ -5,7 +5,7 @@ const AdminIcon: React.FC = () => {
   return (
     <Image
       alt="NABI"
-      src="/favicon.svg"
+      src="/nabi-brand-icon.svg"
       width={24}
       height={24}
       style={{ display: 'block', flexShrink: 0 }}
