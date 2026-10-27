@@ -31,6 +31,10 @@ import { betterAuthOptions, createAuth } from '@/auth/betterAuth'
 import { getStorageDatabaseURL, getStoragePgDependency } from './utilities/storageDatabase'
 import { getServerSideURL } from './utilities/getURL'
 
+type NodemailerTransportOptions = NonNullable<
+  NonNullable<Parameters<typeof nodemailerAdapter>[0]>['transportOptions']
+>
+
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
 const smtpPort = Number(process.env.SMTP_PORT || 587)
@@ -120,9 +124,8 @@ export default buildConfig({
             pass: process.env.SMTP_PASS,
           },
         }
-      : {
-          jsonTransport: true,
-        },
+      : // nodemailer's JSON transport (log-only) is valid at runtime but missing from SMTPTransport.Options.
+        ({ jsonTransport: true } as unknown as NodemailerTransportOptions),
   }),
   globals: [Header, Footer, HomePage, AboutPage, ContactPage].map(disableDocumentLocks),
   plugins: [
