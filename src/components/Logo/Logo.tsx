@@ -21,13 +21,23 @@ export const Logo = (props: Props) => {
     >
       <Image
         alt="NABI"
-        className="mr-1 inline-block h-5 w-5"
-        height={20}
+        className="mr-1 inline-block h-[25px] w-[25px] dark:hidden"
+        height={25}
         loading={loading}
         priority={priority === 'high'}
-        sizes="20px"
+        sizes="25px"
         src="/nabi-brand-icon.svg"
-        width={20}
+        width={25}
+      />
+      <Image
+        alt="NABI"
+        className="mr-1 hidden h-[25px] w-[25px] dark:inline-block"
+        height={25}
+        loading={loading}
+        priority={priority === 'high'}
+        sizes="25px"
+        src="/nabi-brand-icon-dark.svg"
+        width={25}
       />
       {showText && (
         <>
