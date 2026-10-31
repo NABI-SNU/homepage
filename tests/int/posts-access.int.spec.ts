@@ -3,7 +3,7 @@ import { getPayload, type Payload } from 'payload'
 import { beforeAll, describe, expect, it } from 'vitest'
 
 import config from '@/payload.config'
-import { requireTestAccountUsers, userTestAccount } from '../helpers/testAccounts'
+import { requireTestAccountUsers } from '../helpers/testAccounts'
 
 let payload: Payload
 let users: Awaited<ReturnType<typeof requireTestAccountUsers>>
@@ -49,6 +49,16 @@ const normalizeRelationshipID = (
   return typeof value.id === 'number' ? value.id : null
 }
 
+const toAuthorIDs = (authors: unknown): number[] =>
+  ((authors as Array<number | { id: number }> | null | undefined) || [])
+    .map((author) => normalizeRelationshipID(author))
+    .filter((id): id is number => id !== null)
+
+/**
+ * `posts.authors` holds user ids: every user is their own author profile. Non-admin writes are
+ * forced to include the requester's own id (ensurePostAuthors), and non-admins may only update
+ * posts they author.
+ */
 describe('Posts Access', () => {
   beforeAll(async () => {
     const payloadConfig = await config
@@ -57,63 +67,30 @@ describe('Posts Access', () => {
   })
 
   it('allows own-post edits, blocks cross-user edits, and allows admins to edit all posts', async () => {
-    let authorPersonId: number | null = null
-    let authorPersonWasCreated = false
-    let otherPersonId: number | null = null
+    const authorUserId = users.user.id
+    let otherUserId: number | null = null
     let postAId: number | null = null
     let postBId: number | null = null
     let userCreatedPostId: number | null = null
 
     try {
-      const existingAuthorPerson = (
-        await payload.find({
-          collection: 'people',
-          depth: 0,
-          limit: 1,
-          overrideAccess: true,
-          pagination: false,
-          where: {
-            user: {
-              equals: users.user.id,
-            },
-          },
-        })
-      ).docs[0]
-
-      if (existingAuthorPerson) {
-        authorPersonId = existingAuthorPerson.id
-      } else {
-        authorPersonWasCreated = true
-        const createdAuthorPerson = await payload.create({
-          collection: 'people',
-          overrideAccess: true,
-          context: { disableRevalidate: true },
-          data: {
-            name: userTestAccount.name,
-            slug: `post-access-person-a-${runId}`,
-            email: userTestAccount.email,
-            years: [2026],
-            memberType: 'user',
-            user: users.user.id,
-          },
-        })
-        authorPersonId = createdAuthorPerson.id
-      }
-
-      const otherPerson = await payload.create({
-        collection: 'people',
+      // A throwaway profile-only member (no login) to author the "other" post.
+      const otherUser = await payload.create({
+        collection: 'users',
         overrideAccess: true,
         context: { disableRevalidate: true },
         data: {
-          name: `Post Access Person B ${runId}`,
-          slug: `post-access-person-b-${runId}`,
-          email: `post-access-b-${runId}@example.com`,
+          name: `Post Access Other ${runId}`,
+          slug: `post-access-other-${runId}`,
+          contactEmail: `post-access-other-${runId}@example.com`,
           years: [2026],
           memberType: 'alumni',
-        },
+          isApproved: false,
+          emailVerified: false,
+        } as never,
       })
 
-      otherPersonId = otherPerson.id
+      otherUserId = otherUser.id
 
       const [postByA, postByB] = await Promise.all([
         payload.create({
@@ -123,7 +100,7 @@ describe('Posts Access', () => {
           data: {
             title: `Authored Post A ${runId}`,
             slug: `authored-post-a-${runId}`,
-            authors: [authorPersonId],
+            authors: [authorUserId],
             content: buildMinimalRichText(),
             _status: 'draft',
           },
@@ -135,7 +112,7 @@ describe('Posts Access', () => {
           data: {
             title: `Authored Post B ${runId}`,
             slug: `authored-post-b-${runId}`,
-            authors: [otherPerson.id],
+            authors: [otherUser.id],
             content: buildMinimalRichText(),
             _status: 'draft',
           },
@@ -145,6 +122,7 @@ describe('Posts Access', () => {
       postAId = postByA.id
       postBId = postByB.id
 
+      // A non-admin creating a post is always added as an author, whatever they submit.
       const createdByUser = await payload.create({
         collection: 'posts',
         user: users.user,
@@ -153,7 +131,7 @@ describe('Posts Access', () => {
         data: {
           title: `Authored Post User Create ${runId}`,
           slug: `authored-post-user-create-${runId}`,
-          authors: [otherPerson.id],
+          authors: [otherUser.id],
           content: buildMinimalRichText(),
           _status: 'draft',
         },
@@ -161,12 +139,9 @@ describe('Posts Access', () => {
 
       userCreatedPostId = createdByUser.id
 
-      const createdPostAuthorIDs = (createdByUser.authors || [])
-        .map((author) => normalizeRelationshipID(author as number | { id: number }))
-        .filter((id): id is number => id !== null)
-
-      expect(createdPostAuthorIDs).toContain(authorPersonId)
-      expect(createdPostAuthorIDs).toContain(otherPerson.id)
+      const createdPostAuthorIDs = toAuthorIDs(createdByUser.authors)
+      expect(createdPostAuthorIDs).toContain(authorUserId)
+      expect(createdPostAuthorIDs).toContain(otherUser.id)
 
       const updatedUserCreatedPost = await payload.update({
         collection: 'posts',
@@ -181,23 +156,21 @@ describe('Posts Access', () => {
 
       expect(updatedUserCreatedPost.excerpt).toBe(`Updated own created post ${runId}`)
 
+      // A non-admin cannot remove themselves from the author list.
       const updatedAuthors = await payload.update({
         collection: 'posts',
         id: createdByUser.id,
         data: {
-          authors: [otherPerson.id],
+          authors: [otherUser.id],
         },
         user: users.user,
         overrideAccess: false,
         context: { disableRevalidate: true },
       })
 
-      const updatedAuthorIDs = (updatedAuthors.authors || [])
-        .map((author) => normalizeRelationshipID(author as number | { id: number }))
-        .filter((id): id is number => id !== null)
-
-      expect(updatedAuthorIDs).toContain(authorPersonId)
-      expect(updatedAuthorIDs).toContain(otherPerson.id)
+      const updatedAuthorIDs = toAuthorIDs(updatedAuthors.authors)
+      expect(updatedAuthorIDs).toContain(authorUserId)
+      expect(updatedAuthorIDs).toContain(otherUser.id)
 
       const updatedOwnPost = await payload.update({
         collection: 'posts',
@@ -212,6 +185,7 @@ describe('Posts Access', () => {
 
       expect(updatedOwnPost.excerpt).toBe(`Updated by author ${runId}`)
 
+      // Drafts authored by someone else are neither readable nor editable.
       await expect(
         payload.update({
           collection: 'posts',
@@ -224,6 +198,20 @@ describe('Posts Access', () => {
           context: { disableRevalidate: true },
         }),
       ).rejects.toThrow()
+
+      const readableDrafts = await payload.find({
+        collection: 'posts',
+        depth: 0,
+        draft: true,
+        limit: 10,
+        pagination: false,
+        user: users.user,
+        overrideAccess: false,
+        where: {
+          id: { in: [postByA.id, postByB.id] },
+        },
+      })
+      expect(readableDrafts.docs.map((doc) => doc.id)).toEqual([postByA.id])
 
       const adminUpdatedA = await payload.update({
         collection: 'posts',
@@ -249,47 +237,26 @@ describe('Posts Access', () => {
 
       expect(adminUpdatedA.excerpt).toBe(`Admin updated A ${runId}`)
       expect(adminUpdatedB.excerpt).toBe(`Admin updated B ${runId}`)
+
+      // Admin writes are not forced to include the admin as an author.
+      expect(toAuthorIDs(adminUpdatedB.authors)).toEqual([otherUser.id])
     } finally {
-      if (userCreatedPostId) {
+      for (const id of [userCreatedPostId, postAId, postBId]) {
+        if (!id) continue
         await payload.delete({
           collection: 'posts',
-          id: userCreatedPostId,
+          id,
           overrideAccess: true,
           context: { disableRevalidate: true },
         })
       }
 
-      if (postAId) {
+      if (otherUserId) {
         await payload.delete({
-          collection: 'posts',
-          id: postAId,
+          collection: 'users',
+          id: otherUserId,
           overrideAccess: true,
           context: { disableRevalidate: true },
-        })
-      }
-
-      if (postBId) {
-        await payload.delete({
-          collection: 'posts',
-          id: postBId,
-          overrideAccess: true,
-          context: { disableRevalidate: true },
-        })
-      }
-
-      if (otherPersonId) {
-        await payload.delete({
-          collection: 'people',
-          id: otherPersonId,
-          overrideAccess: true,
-        })
-      }
-
-      if (authorPersonWasCreated && authorPersonId) {
-        await payload.delete({
-          collection: 'people',
-          id: authorPersonId,
-          overrideAccess: true,
         })
       }
     }

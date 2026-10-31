@@ -27,7 +27,7 @@ import {
 import { authClient } from '@/auth/betterAuthClient'
 import { PersonAvatar } from '@/components/people/PersonAvatar'
 import { PersonRoleBadge } from '@/components/people/PersonRoleBadge'
-import type { Person } from '@/payload-types'
+import type { User as MemberProfile } from '@/payload-types'
 import { getLatestPersonRoleAssignment } from '@/utilities/personRoles'
 
 const providerOptions = [
@@ -35,7 +35,7 @@ const providerOptions = [
   { label: 'Continue with Google', provider: 'google' },
 ] as const
 const signInRequirementsMessage =
-  'Only members of NABI may join. Sign-in requires email verification; member emails listed in People can log in without manual approval.'
+  'Only members of NABI may join. Sign-in requires email verification; members already listed on the People page can log in without manual approval once their email is verified.'
 
 const approvalStatusMessages: Record<string, string> = {
   approved: 'User approved successfully.',
@@ -84,10 +84,10 @@ type ProfileResponse = {
     wikiCreateURL?: string
   }
   linkedPerson?: {
-    avatar?: Person['avatar']
+    avatar?: MemberProfile['avatar']
     id: number
     name?: string | null
-    roleAssignments?: Person['roleAssignments']
+    roleAssignments?: MemberProfile['roleAssignments']
     slug?: string | null
   } | null
   permissions?: {
@@ -415,7 +415,7 @@ function AccountPageContent() {
         })
 
         setAuthMessage(
-          'Account created. Verify your email in production. People emails can sign in immediately; others may still need approval.',
+          'Account created. Verify your email to continue. Members already listed on the People page are approved automatically once verified; others need an admin approval.',
         )
       } else {
         trackAuthEvent('auth_attempt', {
@@ -801,7 +801,7 @@ function AccountPageContent() {
                     </p>
                     <p className="mt-1 text-amber-900/90">
                       You can already create and publish wiki pages. Ask an admin to link your
-                      People profile to unlock post authorship and post creation.
+                      member profile to unlock post authorship and post creation.
                     </p>
                   </div>
                 ) : null}
@@ -994,7 +994,7 @@ function AccountPageContent() {
                       <p className="mt-4 text-sm text-muted-foreground">
                         {canCreatePost
                           ? 'You have not created any posts yet.'
-                          : 'Post creation will appear here after your People profile is linked.'}
+                          : 'Post creation will appear here after your member profile is set up.'}
                       </p>
                     )}
                   </section>

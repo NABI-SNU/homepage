@@ -1,6 +1,10 @@
 # Plan: consolidate `people` into `users`
 
-Status: proposal for review — nothing in this document is implemented.
+Status: implemented on this branch (collection code, `scripts/sql/2026-11-people-to-users.sql` for the
+data move, `scripts/sql/2026-11-drop-people.sql` for the clean-up once the new build is live). The
+design below is what was built; two details changed during implementation: profile-only members keep
+their address in `contactEmail` (no placeholder login email) and get `username = slug` to satisfy
+Payload's auth-collection rule, and the merge with a sign-up happens only after the email is verified.
 
 ## Why
 

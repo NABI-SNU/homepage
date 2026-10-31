@@ -4,10 +4,10 @@ import React from 'react'
 
 import { Media } from '@/components/Media'
 import { PersonAvatar } from '@/components/people/PersonAvatar'
-import type { Person, Post } from '@/payload-types'
+import type { Post, User } from '@/payload-types'
 
 type AuthorEntry = {
-  avatar?: Person['avatar']
+  avatar?: User['avatar']
   email?: string | null
   name: string
   slug: string

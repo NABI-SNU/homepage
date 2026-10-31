@@ -1,6 +1,6 @@
 import type { CollectionAfterChangeHook } from 'payload'
 
-import type { Person, Tag } from '@/payload-types'
+import type { Tag, User } from '@/payload-types'
 import { parseResearchTags, toTagSlug } from '@/utilities/researchTags'
 
 const SYNC_CONTEXT_FLAG = 'disableResearchTagSync'
@@ -8,7 +8,7 @@ const SYNC_CONTEXT_FLAG = 'disableResearchTagSync'
 const toNormalizedTagSlugs = (tags: string[]): string[] =>
   Array.from(new Set(tags.map((tag) => toTagSlug(tag)).filter(Boolean))).sort()
 
-export const syncResearchTagsFromPerson: CollectionAfterChangeHook<Person> = async ({
+export const syncResearchTagsFromUser: CollectionAfterChangeHook<User> = async ({
   doc,
   previousDoc,
   req,
@@ -110,6 +110,7 @@ export const syncResearchTagsFromPerson: CollectionAfterChangeHook<Person> = asy
     pagination: false,
     req,
     select: {
+      _status: true,
       tags: true,
     },
     where: {
@@ -147,6 +148,8 @@ export const syncResearchTagsFromPerson: CollectionAfterChangeHook<Person> = asy
         disableRevalidate: true,
         [SYNC_CONTEXT_FLAG]: true,
       },
+      // An unfinished draft would fail required-field validation as a normal update.
+      draft: post._status !== 'published',
       overrideAccess: true,
       req,
     })

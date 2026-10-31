@@ -13,6 +13,8 @@ export const sendApprovalRequestEmail: CollectionAfterChangeHook<User> = async (
 }) => {
   if (operation !== 'create') return doc
   if (doc.isApproved === true) return doc
+  // Profile-only members (listed by an admin, no login) have nothing to approve yet.
+  if (!doc.email) return doc
 
   const token = createUserApprovalToken(doc.id)
   const approvalURL = new URL('/api/account/approve', getServerSideURL())

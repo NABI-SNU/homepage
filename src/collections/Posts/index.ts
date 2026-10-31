@@ -146,14 +146,14 @@ export const Posts: CollectionConfig<'posts'> = {
               hasMany: true,
               relationTo: 'tags',
               admin: {
-                description: 'Includes shared tags and topics synced from People research fields.',
+                description: 'Includes shared tags and topics synced from member research fields.',
               },
             },
             {
               name: 'authors',
               type: 'relationship',
               hasMany: true,
-              relationTo: 'people',
+              relationTo: 'users',
             },
             {
               name: 'legacyPath',

@@ -1,16 +1,19 @@
 import type { Payload } from 'payload'
 
-import type { Person, User } from '@/payload-types'
-import { toKebabCase } from '@/utilities/toKebabCase'
+import type { User } from '@/payload-types'
+import { findProfileOnlyUserByContactEmail, mergeProfileOnlyUser } from './mergeProfileOnlyUser'
 
 type BetterAuthUserShape = {
   email?: string | null
+  emailVerified?: boolean | null
   id: number | string
   name?: string | null
 }
 
 type SyncArgs = {
   betterAuthUser: BetterAuthUserShape
+  /** Which Better Auth database hook is calling: a fresh sign-up or a later update. */
+  operation?: 'create' | 'update'
   payload: Payload
 }
 
@@ -67,94 +70,66 @@ const findPayloadUserByID = async (payload: Payload, userID: number): Promise<Us
   return results.docs[0] ?? null
 }
 
-const findPersonByUser = async (payload: Payload, userID: number): Promise<Person | null> => {
-  const results = await payload.find({
-    collection: 'people',
-    depth: 0,
-    limit: 1,
-    overrideAccess: true,
-    pagination: false,
-    where: {
-      user: {
-        equals: userID,
-      },
-    },
-  })
-
-  return results.docs[0] ?? null
-}
-
-const findPersonByEmail = async (payload: Payload, email: string): Promise<Person | null> => {
-  const results = await payload.find({
-    collection: 'people',
-    depth: 0,
-    limit: 1,
-    overrideAccess: true,
-    pagination: false,
-    sort: '-updatedAt',
-    where: {
-      email: {
-        equals: email,
-      },
-    },
-  })
-
-  return results.docs[0] ?? null
-}
-
+/**
+ * Runs after Better Auth creates or updates a user. The user row *is* the member profile, so
+ * this fills in profile defaults and applies the membership rule:
+ *
+ * - When the account has verified its email and an admin had already listed a member with that
+ *   address (a profile-only user, no login), the two records are merged: the account takes over
+ *   the profile, its slug and its posts, and is approved. Nothing happens before verification,
+ *   so signing up with someone else's address grants nothing.
+ * - Listed, visible members are approved as soon as they are verified; everyone else needs an
+ *   admin approval.
+ */
 export const syncBetterAuthUserToPayload = async ({
   betterAuthUser,
+  operation = 'update',
   payload,
 }: SyncArgs): Promise<void> => {
   const payloadUserID = toPayloadUserID(betterAuthUser.id)
   if (!payloadUserID) return
 
-  const payloadUser = await findPayloadUserByID(payload, payloadUserID)
+  let payloadUser = await findPayloadUserByID(payload, payloadUserID)
   if (!payloadUser) return
 
   const normalizedEmail = normalizeEmail(payloadUser.email) ?? normalizeEmail(betterAuthUser.email)
-  const normalizedName = inferDisplayName({
-    email: normalizedEmail,
-    name: payloadUser.name ?? betterAuthUser.name,
-  })
+  const emailVerified = betterAuthUser.emailVerified ?? payloadUser.emailVerified
+  const userPatch: Record<string, unknown> = {}
+  let merged = false
 
-  let person = await findPersonByUser(payload, payloadUser.id)
-
-  if (!person && normalizedEmail) {
-    person = await findPersonByEmail(payload, normalizedEmail)
-  }
-
-  if (!person) {
-    await payload.create({
-      collection: 'people',
-      data: {
-        email: normalizedEmail ?? undefined,
-        isVisible: true,
-        memberType: 'user',
-        name: normalizedName,
-        slug: `${toKebabCase(normalizedName) || 'user'}-${payloadUser.id}`,
-        user: payloadUser.id,
-        years: [new Date().getUTCFullYear()],
-      },
-      depth: 0,
-      draft: false,
-      overrideAccess: true,
+  if (normalizedEmail && emailVerified === true) {
+    const listedMember = await findProfileOnlyUserByContactEmail({
+      email: normalizedEmail,
+      excludeUserID: payloadUser.id,
+      payload,
     })
 
-    return
+    if (listedMember) {
+      await mergeProfileOnlyUser({ from: listedMember, into: payloadUser, payload })
+      payloadUser = (await findPayloadUserByID(payload, payloadUserID)) ?? payloadUser
+      merged = true
+    }
   }
 
-  const personPatch: Record<string, unknown> = {}
-  const userPatch: Record<string, unknown> = {}
-  const linkedUserID = typeof person.user === 'object' ? person.user?.id : person.user
+  // A self-registered account stays out of the public directory until an admin approves it
+  // (approval reveals it, see `revealOnApproval`); a merged or admin-listed profile keeps its
+  // own visibility.
+  if (operation === 'create' && !merged && payloadUser.isVisible !== false) {
+    userPatch.isVisible = false
+  }
+
   const resolvedRole = normalizeRole(payloadUser.role ?? payloadUser.roles)
 
-  if (!linkedUserID) {
-    personPatch.user = payloadUser.id
+  if (!payloadUser.name?.trim()) {
+    userPatch.name = inferDisplayName({ email: normalizedEmail, name: betterAuthUser.name })
   }
 
-  if (person.memberType == null) {
-    personPatch.memberType = 'user'
+  if (payloadUser.memberType == null) {
+    userPatch.memberType = 'user'
+  }
+
+  if (!Array.isArray(payloadUser.years) || payloadUser.years.length === 0) {
+    userPatch.years = [new Date().getUTCFullYear()]
   }
 
   if (payloadUser.role !== resolvedRole) {
@@ -165,18 +140,13 @@ export const syncBetterAuthUserToPayload = async ({
     userPatch.roles = resolvedRole
   }
 
-  if (person.isVisible === true && payloadUser.isApproved !== true) {
-    userPatch.isApproved = true
-  }
+  const isListedMember =
+    userPatch.isVisible !== false &&
+    payloadUser.isVisible === true &&
+    payloadUser.memberType !== 'alumni'
 
-  if (Object.keys(personPatch).length > 0) {
-    await payload.update({
-      collection: 'people',
-      id: person.id,
-      data: personPatch,
-      depth: 0,
-      overrideAccess: true,
-    })
+  if (isListedMember && emailVerified === true && payloadUser.isApproved !== true) {
+    userPatch.isApproved = true
   }
 
   if (Object.keys(userPatch).length > 0) {

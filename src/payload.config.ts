@@ -12,7 +12,6 @@ import { Activities } from './collections/Activities'
 import { Media } from './collections/Media'
 import { News } from './collections/News'
 import { Notebooks } from './collections/Notebooks'
-import { People } from './collections/People'
 import { Posts } from './collections/Posts'
 import { Research } from './collections/Research'
 import { Tags } from './collections/Tags'
@@ -26,7 +25,6 @@ import { Header } from './Header/config'
 import { HomePage } from './globals/HomePage/config'
 import { plugins } from './plugins'
 import { defaultLexical } from '@/fields/defaultLexical'
-import { backfillUsersToPeople } from '@/auth/backfillUsersToPeople'
 import { betterAuthOptions, createAuth } from '@/auth/betterAuth'
 import { getStorageDatabaseURL, getStoragePgDependency } from './utilities/storageDatabase'
 import { getServerSideURL } from './utilities/getURL'
@@ -103,7 +101,6 @@ export default buildConfig({
     Research,
     Wiki,
     Activities,
-    People,
     Tags,
     Media,
     Notebooks,
@@ -191,6 +188,5 @@ export default buildConfig({
       return
     }
     await ensureDefaultSymposiumActivity(payload)
-    await backfillUsersToPeople(payload)
   },
 })

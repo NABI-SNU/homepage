@@ -226,9 +226,11 @@ export const createAuth = (payload: BasePayload) =>
             await syncBetterAuthUserToPayload({
               betterAuthUser: {
                 email: user.email,
+                emailVerified: user.emailVerified,
                 id: user.id,
                 name: user.name,
               },
+              operation: 'create',
               payload: payload as Payload,
             })
           },
@@ -238,9 +240,11 @@ export const createAuth = (payload: BasePayload) =>
             await syncBetterAuthUserToPayload({
               betterAuthUser: {
                 email: user.email,
+                emailVerified: user.emailVerified,
                 id: user.id,
                 name: user.name,
               },
+              operation: 'update',
               payload: payload as Payload,
             })
           },

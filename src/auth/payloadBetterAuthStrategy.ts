@@ -160,13 +160,12 @@ export const payloadBetterAuthStrategy = ({
 
         // Re-apply the sign-in policy on every request, so revoking approval, hiding the
         // linked Person, marking them alumni or blocklisting the email is effective at once.
-        const policy = await evaluateSessionPolicy({
+        const policy = evaluateSessionPolicy({
           betterAuthUser: {
             email: sessionData.user.email,
             emailVerified: sessionData.user.emailVerified,
             id: String(sessionData.user.id),
           },
-          payload,
           payloadUser,
           ...strictPayloadSessionResolutionOptions,
         })

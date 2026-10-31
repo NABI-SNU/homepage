@@ -380,10 +380,12 @@ const getWikiIndexData = async (): Promise<WikiIndexData> => {
     ),
   )
 
-  const visiblePeopleResult =
+  // Public profile data (avatar, slug) lives on the user record itself; only visible members
+  // get a profile link.
+  const visibleContributorsResult =
     contributorUserIDs.length > 0
       ? await payload.find({
-          collection: 'people',
+          collection: 'users',
           depth: 1,
           limit: contributorUserIDs.length,
           overrideAccess: false,
@@ -391,10 +393,9 @@ const getWikiIndexData = async (): Promise<WikiIndexData> => {
           select: {
             avatar: true,
             slug: true,
-            user: true,
           },
           where: {
-            user: {
+            id: {
               in: contributorUserIDs,
             },
           },
@@ -402,35 +403,25 @@ const getWikiIndexData = async (): Promise<WikiIndexData> => {
       : { docs: [] as Array<Record<string, unknown>> }
 
   const peopleByUserID = new Map<number, { avatar: string | null; slug: string | null }>()
-  visiblePeopleResult.docs.forEach((rawPerson) => {
-    const person = rawPerson as {
+  visibleContributorsResult.docs.forEach((rawUser) => {
+    const profile = rawUser as {
       avatar?: unknown
+      id?: unknown
       slug?: string | null
-      user?: unknown
     }
-    const linkedUser = person.user
-    const userID =
-      linkedUser &&
-      typeof linkedUser === 'object' &&
-      'id' in linkedUser &&
-      typeof linkedUser.id === 'number'
-        ? linkedUser.id
-        : typeof linkedUser === 'number'
-          ? linkedUser
-          : null
-    if (userID === null) return
+    if (typeof profile.id !== 'number') return
 
     const avatar =
-      person.avatar &&
-      typeof person.avatar === 'object' &&
-      'url' in person.avatar &&
-      typeof person.avatar.url === 'string'
-        ? person.avatar.url
+      profile.avatar &&
+      typeof profile.avatar === 'object' &&
+      'url' in profile.avatar &&
+      typeof profile.avatar.url === 'string'
+        ? profile.avatar.url
         : null
 
-    peopleByUserID.set(userID, {
+    peopleByUserID.set(profile.id, {
       avatar,
-      slug: typeof person.slug === 'string' ? person.slug : null,
+      slug: typeof profile.slug === 'string' ? profile.slug : null,
     })
   })
 

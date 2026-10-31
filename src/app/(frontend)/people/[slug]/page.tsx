@@ -37,6 +37,7 @@ export default async function PersonPage({ params }: Args) {
   const researchTopics = parseResearchTags(person.research)
   const roleAssignments = [...(person.roleAssignments || [])].sort((a, b) => b.year - a.year)
   const authoredPosts = await getCachedAuthoredPostsByPersonID(person.id)()
+  const publicEmail = person.contactEmail || person.email || null
 
   return (
     <main className="pb-20 pt-12">
@@ -100,23 +101,23 @@ export default async function PersonPage({ params }: Args) {
             <PersonAvatar
               avatar={person.avatar}
               className="shrink-0 self-start shadow-lg shadow-black/20"
-              email={person.email}
+              email={publicEmail}
               name={person.name}
               size={132}
             />
           </div>
 
-          {(person.email || (person.socials && person.socials.length > 0)) && (
+          {(publicEmail || (person.socials && person.socials.length > 0)) && (
             <div className="mt-6">
               <p className="text-sm uppercase tracking-[0.18em] text-primary">Contact at</p>
               <div className="mt-2 flex flex-wrap items-center gap-3">
-                {person.email && (
+                {publicEmail && (
                   <a
-                    href={`mailto:${person.email}`}
+                    href={`mailto:${publicEmail}`}
                     className="inline-flex items-center gap-2 rounded-full border border-border/70 bg-card/40 px-3 py-1.5 text-sm text-primary transition-all duration-300 hover:-translate-y-0.5 hover:border-primary/45 hover:bg-card/60 hover:shadow-lg hover:shadow-primary/20"
                   >
                     <Mail className="h-3.5 w-3.5" />
-                    <span>{person.email}</span>
+                    <span>{publicEmail}</span>
                   </a>
                 )}
                 {person.socials && person.socials.length > 0 && (

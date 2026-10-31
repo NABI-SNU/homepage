@@ -1,6 +1,6 @@
 import type { CollectionAfterChangeHook, Payload, PayloadRequest } from 'payload'
 
-import type { Person, User } from '@/payload-types'
+import type { User } from '@/payload-types'
 
 /**
  * Deletes every Better Auth session of a user, signing them out everywhere.
@@ -37,44 +37,26 @@ export const revokeUserSessions = async ({
   }
 }
 
-/** Users: losing approval signs the user out everywhere. */
-export const revokeSessionsOnDisapproval: CollectionAfterChangeHook<User> = async ({
+/**
+ * Losing approval, being hidden from the directory or being marked alumni all end the right to
+ * sign in, so they sign the user out everywhere.
+ */
+export const revokeSessionsOnAccessLoss: CollectionAfterChangeHook<User> = async ({
   doc,
   operation,
   previousDoc,
   req,
 }) => {
-  if (operation !== 'update') return doc
-  if (previousDoc?.isApproved !== true || doc.isApproved === true) return doc
+  if (operation !== 'update' || !previousDoc) return doc
+
+  // `doc` may be a partial document when the update used `select`; a missing field means
+  // "unchanged", never "revoked".
+  const lostApproval = previousDoc.isApproved === true && doc.isApproved === false
+  const becameHidden = previousDoc.isVisible !== false && doc.isVisible === false
+  const becameAlumni = previousDoc.memberType !== 'alumni' && doc.memberType === 'alumni'
+
+  if (!lostApproval && !becameHidden && !becameAlumni) return doc
 
   await revokeUserSessions({ payload: req.payload, req, userID: doc.id })
-  return doc
-}
-
-const linkedUserID = (person: Partial<Person> | null | undefined): number | null => {
-  const user = person?.user
-  if (typeof user === 'number') return user
-  if (user && typeof user === 'object' && typeof user.id === 'number') return user.id
-  return null
-}
-
-/** People: hiding a Person or marking them alumni signs the linked user out everywhere. */
-export const revokeSessionsOnPersonAccessLoss: CollectionAfterChangeHook<Person> = async ({
-  doc,
-  operation,
-  previousDoc,
-  req,
-}) => {
-  if (operation !== 'update') return doc
-
-  const userID = linkedUserID(doc) ?? linkedUserID(previousDoc)
-  if (!userID) return doc
-
-  const becameHidden = previousDoc?.isVisible !== false && doc.isVisible === false
-  const becameAlumni = previousDoc?.memberType !== 'alumni' && doc.memberType === 'alumni'
-
-  if (!becameHidden && !becameAlumni) return doc
-
-  await revokeUserSessions({ payload: req.payload, req, userID })
   return doc
 }

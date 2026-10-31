@@ -74,10 +74,12 @@ const revalidationWiring = [
     ],
   },
   {
-    filePath: 'src/collections/People/index.ts',
+    // Users double as public member profiles (/people), so profile edits must revalidate them.
+    filePath: 'src/collections/Users/index.ts',
     patterns: [
-      /afterChange:\s*\[\s*syncResearchTagsFromPerson\s*,\s*revalidatePerson\s*\]/,
-      /afterDelete:\s*\[\s*revalidatePersonDelete\s*\]/,
+      /afterChange:\s*\[[^\]]*\bsyncResearchTagsFromUser\b[^\]]*\]/,
+      /afterChange:\s*\[[^\]]*\brevalidateUserProfile\b[^\]]*\]/,
+      /afterDelete:\s*\[\s*revalidateUserProfileDelete\s*\]/,
     ],
   },
   {

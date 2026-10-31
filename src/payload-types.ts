@@ -73,7 +73,6 @@ export interface Config {
     research: Research;
     wiki: Wiki;
     activities: Activity;
-    people: Person;
     tags: Tag;
     media: Media;
     notebooks: Notebook;
@@ -105,7 +104,6 @@ export interface Config {
     research: ResearchSelect<false> | ResearchSelect<true>;
     wiki: WikiSelect<false> | WikiSelect<true>;
     activities: ActivitiesSelect<false> | ActivitiesSelect<true>;
-    people: PeopleSelect<false> | PeopleSelect<true>;
     tags: TagsSelect<false> | TagsSelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
     notebooks: NotebooksSelect<false> | NotebooksSelect<true>;
@@ -160,22 +158,34 @@ export interface Config {
   };
 }
 export interface UserAuthOperations {
-  forgotPassword: {
-    email: string;
-    password: string;
-  };
-  login: {
-    email: string;
-    password: string;
-  };
+  forgotPassword:
+    | {
+        email: string;
+      }
+    | {
+        username: string;
+      };
+  login:
+    | {
+        email: string;
+        password: string;
+      }
+    | {
+        password: string;
+        username: string;
+      };
   registerFirstUser: {
-    email: string;
     password: string;
+    username?: string;
+    email?: string;
   };
-  unlock: {
-    email: string;
-    password: string;
-  };
+  unlock:
+    | {
+        email: string;
+      }
+    | {
+        username: string;
+      };
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -204,10 +214,10 @@ export interface Post {
   relatedPosts?: (number | Post)[] | null;
   categories?: (number | Category)[] | null;
   /**
-   * Includes shared tags and topics synced from People research fields.
+   * Includes shared tags and topics synced from member research fields.
    */
   tags?: (number | Tag)[] | null;
-  authors?: (number | Person)[] | null;
+  authors?: (number | User)[] | null;
   /**
    * Original Astro path used to generate redirects during migration.
    */
@@ -268,8 +278,6 @@ export interface Media {
     };
     [k: string]: unknown;
   } | null;
-  prefix?: string | null;
-  _objectKey?: string | null;
   folder?: (number | null) | FolderInterface;
   updatedAt: string;
   createdAt: string;
@@ -368,24 +376,41 @@ export interface Tag {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "people".
+ * via the `definition` "users".
  */
-export interface Person {
+export interface User {
   id: number;
   name: string;
-  email?: string | null;
   /**
-   * User records can log in. Alumni records cannot access admin APIs.
+   * Public profile URL: /people/<slug>. Generated from the name when empty.
+   */
+  slug?: string | null;
+  role: 'admin' | 'user';
+  roles: 'admin' | 'user';
+  /**
+   * Users must be approved by an admin before they can sign in.
+   */
+  isApproved: boolean;
+  /**
+   * Mirrors Better Auth email verification status for admin checks.
+   */
+  emailVerified: boolean;
+  /**
+   * Mapped BetterAuth user ID for cross-system identity sync.
+   */
+  betterAuthUserId?: string | null;
+  /**
+   * Public contact address shown on the profile. Members without a login are listed with this address; when they later sign up (and verify) with it, the two records are merged.
+   */
+  contactEmail?: string | null;
+  /**
+   * Alumni are listed publicly but cannot sign in to the member workspace.
    */
   memberType?: ('user' | 'alumni') | null;
   /**
-   * Controls whether this person appears publicly in /people and profile pages.
+   * Controls whether this member appears publicly in /people and profile pages.
    */
   isVisible?: boolean | null;
-  /**
-   * Linked auth-enabled user identity.
-   */
-  user?: (number | null) | User;
   bio?: string | null;
   /**
    * Research topics are stored as a list of strings and synced into the Tags collection for post tagging.
@@ -393,9 +418,9 @@ export interface Person {
   research?: string[] | null;
   isAuthor?: boolean | null;
   /**
-   * Years in which this person has participated in the group.
+   * Years in which this member has participated in the group.
    */
-  years: number[];
+  years?: number[] | null;
   /**
    * Optional leadership roles by year, used for public role badges.
    */
@@ -416,44 +441,13 @@ export interface Person {
     | null;
   avatar?: (number | null) | Media;
   /**
-   * When enabled, the slug will auto-generate from the title field on save and autosave.
-   */
-  generateSlug?: boolean | null;
-  slug: string;
-  updatedAt: string;
-  createdAt: string;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "users".
- */
-export interface User {
-  id: number;
-  name?: string | null;
-  role: 'admin' | 'user';
-  roles: 'admin' | 'user';
-  /**
-   * Users must be approved by an admin before they can sign in.
-   */
-  isApproved: boolean;
-  /**
-   * Mirrors Better Auth email verification status for admin checks.
-   */
-  emailVerified: boolean;
-  /**
-   * Mapped BetterAuth user ID for cross-system identity sync.
-   */
-  betterAuthUserId?: string | null;
-  /**
    * Auto-added by Better Auth (image)
    */
   image?: string | null;
   updatedAt: string;
   createdAt: string;
-  /**
-   * Auto-added by Better Auth (email)
-   */
-  email: string;
+  email?: string | null;
+  username?: string | null;
   resetPasswordToken?: string | null;
   resetPasswordExpiration?: string | null;
   salt?: string | null;
@@ -647,8 +641,6 @@ export interface Research {
  */
 export interface Notebook {
   id: number;
-  prefix?: string | null;
-  _objectKey?: string | null;
   updatedAt: string;
   createdAt: string;
   url?: string | null;
@@ -857,8 +849,8 @@ export interface Redirect {
           value: number | Post;
         } | null)
       | ({
-          relationTo: 'people';
-          value: number | Person;
+          relationTo: 'users';
+          value: number | User;
         } | null)
       | ({
           relationTo: 'news';
@@ -1524,41 +1516,6 @@ export interface ActivitiesSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "people_select".
- */
-export interface PeopleSelect<T extends boolean = true> {
-  name?: T;
-  email?: T;
-  memberType?: T;
-  isVisible?: T;
-  user?: T;
-  bio?: T;
-  research?: T;
-  isAuthor?: T;
-  years?: T;
-  roleAssignments?:
-    | T
-    | {
-        year?: T;
-        role?: T;
-        id?: T;
-      };
-  socials?:
-    | T
-    | {
-        platform?: T;
-        url?: T;
-        label?: T;
-        id?: T;
-      };
-  avatar?: T;
-  generateSlug?: T;
-  slug?: T;
-  updatedAt?: T;
-  createdAt?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "tags_select".
  */
 export interface TagsSelect<T extends boolean = true> {
@@ -1575,8 +1532,6 @@ export interface TagsSelect<T extends boolean = true> {
 export interface MediaSelect<T extends boolean = true> {
   alt?: T;
   caption?: T;
-  prefix?: T;
-  _objectKey?: T;
   folder?: T;
   updatedAt?: T;
   createdAt?: T;
@@ -1619,8 +1574,6 @@ export interface MediaSelect<T extends boolean = true> {
  * via the `definition` "notebooks_select".
  */
 export interface NotebooksSelect<T extends boolean = true> {
-  prefix?: T;
-  _objectKey?: T;
   updatedAt?: T;
   createdAt?: T;
   url?: T;
@@ -1659,15 +1612,40 @@ export interface CategoriesSelect<T extends boolean = true> {
  */
 export interface UsersSelect<T extends boolean = true> {
   name?: T;
+  slug?: T;
   role?: T;
   roles?: T;
   isApproved?: T;
   emailVerified?: T;
   betterAuthUserId?: T;
+  contactEmail?: T;
+  memberType?: T;
+  isVisible?: T;
+  bio?: T;
+  research?: T;
+  isAuthor?: T;
+  years?: T;
+  roleAssignments?:
+    | T
+    | {
+        year?: T;
+        role?: T;
+        id?: T;
+      };
+  socials?:
+    | T
+    | {
+        platform?: T;
+        url?: T;
+        label?: T;
+        id?: T;
+      };
+  avatar?: T;
   image?: T;
   updatedAt?: T;
   createdAt?: T;
   email?: T;
+  username?: T;
   resetPasswordToken?: T;
   resetPasswordExpiration?: T;
   salt?: T;
@@ -2017,8 +1995,8 @@ export interface Header {
                 value: number | Post;
               } | null)
             | ({
-                relationTo: 'people';
-                value: number | Person;
+                relationTo: 'users';
+                value: number | User;
               } | null)
             | ({
                 relationTo: 'news';
@@ -2057,8 +2035,8 @@ export interface Header {
                       value: number | Post;
                     } | null)
                   | ({
-                      relationTo: 'people';
-                      value: number | Person;
+                      relationTo: 'users';
+                      value: number | User;
                     } | null)
                   | ({
                       relationTo: 'news';
@@ -2110,8 +2088,8 @@ export interface Footer {
                 value: number | Post;
               } | null)
             | ({
-                relationTo: 'people';
-                value: number | Person;
+                relationTo: 'users';
+                value: number | User;
               } | null)
             | ({
                 relationTo: 'news';
@@ -2153,8 +2131,8 @@ export interface Footer {
                       value: number | Post;
                     } | null)
                   | ({
-                      relationTo: 'people';
-                      value: number | Person;
+                      relationTo: 'users';
+                      value: number | User;
                     } | null)
                   | ({
                       relationTo: 'news';
@@ -2209,8 +2187,8 @@ export interface Footer {
                 value: number | Post;
               } | null)
             | ({
-                relationTo: 'people';
-                value: number | Person;
+                relationTo: 'users';
+                value: number | User;
               } | null)
             | ({
                 relationTo: 'news';

@@ -90,7 +90,7 @@ export async function GET(req: NextRequest): Promise<Response> {
 
   const { payload, user } = pending
   const admin = await isAdminSession(req, payload)
-  const details = `<dl><dt>Name</dt><dd>${escapeHTML(user.name || 'Unknown')}</dd><dt>Email</dt><dd>${escapeHTML(user.email)}</dd></dl>`
+  const details = `<dl><dt>Name</dt><dd>${escapeHTML(user.name || 'Unknown')}</dd><dt>Email</dt><dd>${escapeHTML(user.email ?? user.contactEmail ?? '—')}</dd></dl>`
 
   if (!admin) {
     const loginURL = new URL('/account', req.url)
