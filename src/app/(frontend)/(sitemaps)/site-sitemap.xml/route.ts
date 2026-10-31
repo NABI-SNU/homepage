@@ -133,7 +133,7 @@ const getSiteSitemap = unstable_cache(
         .sort((a, b) => (a > b ? -1 : 1))[0] || dateFallback
     const latestProgramUpdatedAt =
       activitiesResults.docs
-        .filter((item) => item.activityType === 'seminar' || item.activityType === 'topic-review')
+        .filter((item) => item.activityType === 'seminar')
         .map((item) => item.updatedAt || dateFallback)
         .sort((a, b) => (a > b ? -1 : 1))[0] || dateFallback
     const latestAnnouncementUpdatedAt =
@@ -152,6 +152,10 @@ const getSiteSitemap = unstable_cache(
       },
       {
         loc: `${SITE_URL}/about`,
+        lastmod: dateFallback,
+      },
+      {
+        loc: `${SITE_URL}/charter`,
         lastmod: dateFallback,
       },
       {
@@ -247,11 +251,7 @@ const getSiteSitemap = unstable_cache(
 
     const programSitemap = activitiesResults.docs
       ? activitiesResults.docs
-          .filter(
-            (item) =>
-              (item?.activityType === 'seminar' || item?.activityType === 'topic-review') &&
-              Boolean(item?.slug),
-          )
+          .filter((item) => item?.activityType === 'seminar' && Boolean(item?.slug))
           .map((item) => ({
             loc: `${SITE_URL}${getActivityPath(item)}`,
             lastmod: item.updatedAt || dateFallback,
