@@ -22,7 +22,7 @@ const getSiteSitemap = unstable_cache(
       announcementsResults,
     ] = await Promise.all([
       payload.find({
-        collection: 'people',
+        collection: 'users',
         overrideAccess: false,
         depth: 0,
         limit: 1000,

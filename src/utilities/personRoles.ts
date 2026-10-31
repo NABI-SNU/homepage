@@ -1,6 +1,6 @@
-import type { Person } from '@/payload-types'
+import type { User } from '@/payload-types'
 
-export type PersonRoleAssignment = NonNullable<NonNullable<Person['roleAssignments']>[number]>
+export type PersonRoleAssignment = NonNullable<NonNullable<User['roleAssignments']>[number]>
 export type PersonRoleValue = PersonRoleAssignment['role']
 
 const roleLabelMap: Record<PersonRoleValue, string> = {
@@ -47,7 +47,7 @@ export const normalizePersonRoleAssignments = (value: unknown): PersonRoleAssign
 }
 
 export const getPersonRoleForYear = (
-  roleAssignments: Person['roleAssignments'] | null | undefined,
+  roleAssignments: User['roleAssignments'] | null | undefined,
   year: number | null | undefined,
 ): PersonRoleAssignment | null => {
   if (!roleAssignments || !year) return null
@@ -56,7 +56,7 @@ export const getPersonRoleForYear = (
 }
 
 export const getLatestPersonRoleAssignment = (
-  roleAssignments: Person['roleAssignments'] | null | undefined,
+  roleAssignments: User['roleAssignments'] | null | undefined,
 ): PersonRoleAssignment | null => {
   if (!roleAssignments || roleAssignments.length === 0) return null
 
@@ -72,7 +72,7 @@ export const getLatestPersonRoleAssignment = (
 export const comparePeopleByRoleForYear = <
   T extends {
     name?: string | null
-    roleAssignments?: Person['roleAssignments'] | null
+    roleAssignments?: User['roleAssignments'] | null
   },
 >(
   left: T,

@@ -1,5 +1,6 @@
 import 'dotenv/config'
 
+import { hashPassword } from 'better-auth/crypto'
 import { getPayload, type Payload } from 'payload'
 
 import config from '../src/payload.config'
@@ -95,12 +96,74 @@ const upsertTestAccount = async ({
   payload.logger.info(`[seed-test-accounts] Created ${account.email}`)
 }
 
+/**
+ * The Users collection has no local password strategy — sign-in goes through Better Auth, which
+ * keeps the password hash on a `credential` row in `accounts`. Without this row the seeded user
+ * exists but "User not found" is returned on sign-in, so make sure the row exists.
+ */
+const ensureCredentialAccount = async ({
+  account,
+  payload,
+}: {
+  account: TestAccountSeed
+  payload: Payload
+}): Promise<void> => {
+  const users = await payload.find({
+    collection: 'users',
+    depth: 0,
+    limit: 1,
+    overrideAccess: true,
+    pagination: false,
+    where: { email: { equals: account.email } },
+  })
+  const user = users.docs[0]
+  if (!user) return
+
+  const existing = await payload.find({
+    collection: 'accounts',
+    depth: 0,
+    limit: 1,
+    overrideAccess: true,
+    pagination: false,
+    where: {
+      and: [{ user: { equals: user.id } }, { providerId: { equals: 'credential' } }],
+    },
+  })
+
+  const password = await hashPassword(account.password)
+
+  if (existing.docs[0]) {
+    await payload.update({
+      collection: 'accounts',
+      id: existing.docs[0].id,
+      data: { password },
+      depth: 0,
+      overrideAccess: true,
+    })
+    return
+  }
+
+  await payload.create({
+    collection: 'accounts',
+    data: {
+      accountId: String(user.id),
+      password,
+      providerId: 'credential',
+      user: user.id,
+    },
+    depth: 0,
+    overrideAccess: true,
+  })
+  payload.logger.info(`[seed-test-accounts] Created credential account for ${account.email}`)
+}
+
 const run = async (): Promise<void> => {
   const payloadConfig = await config
   const payload = await getPayload({ config: payloadConfig })
 
   for (const account of testAccountSeeds) {
     await upsertTestAccount({ account, payload })
+    await ensureCredentialAccount({ account, payload })
   }
 }
 

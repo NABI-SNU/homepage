@@ -4,7 +4,7 @@ import type { User } from '@/payload-types'
 import { createUserApprovalToken } from '@/auth/approvalToken'
 import { getServerSideURL } from '@/utilities/getURL'
 
-const approvalInbox = process.env.USER_APPROVAL_EMAIL_TO || 'admin@nabi.org'
+const approvalInbox = process.env.USER_APPROVAL_EMAIL_TO || 'admin@nabilab.org'
 
 export const sendApprovalRequestEmail: CollectionAfterChangeHook<User> = async ({
   doc,
@@ -13,6 +13,8 @@ export const sendApprovalRequestEmail: CollectionAfterChangeHook<User> = async (
 }) => {
   if (operation !== 'create') return doc
   if (doc.isApproved === true) return doc
+  // Profile-only members (listed by an admin, no login) have nothing to approve yet.
+  if (!doc.email) return doc
 
   const token = createUserApprovalToken(doc.id)
   const approvalURL = new URL('/api/account/approve', getServerSideURL())
@@ -30,7 +32,7 @@ export const sendApprovalRequestEmail: CollectionAfterChangeHook<User> = async (
       `Name: ${doc.name || 'Unknown'}`,
       `Email: ${doc.email}`,
       '',
-      `Approve this user: ${approvalURL.toString()}`,
+      `Review and approve this user (requires an admin sign-in): ${approvalURL.toString()}`,
     ].join('\n'),
     html: `
       <p>A new user account requires approval.</p>
@@ -38,7 +40,7 @@ export const sendApprovalRequestEmail: CollectionAfterChangeHook<User> = async (
         <li><strong>Name:</strong> ${doc.name || 'Unknown'}</li>
         <li><strong>Email:</strong> ${doc.email}</li>
       </ul>
-      <p><a href="${approvalURL.toString()}">Approve this user</a></p>
+      <p><a href="${approvalURL.toString()}">Review and approve this user</a> (requires an admin sign-in)</p>
       <p>If the button does not work, copy this URL:</p>
       <p>${approvalURL.toString()}</p>
     `,

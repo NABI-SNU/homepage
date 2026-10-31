@@ -5,10 +5,29 @@ import { NextRequest } from 'next/server'
 
 import { privateAccountResponse, resolveAccountRequestContext } from '@/utilities/accountAccess'
 
+/**
+ * The fields a member may change on their own profile. Everything else on the user record
+ * (email, roles, approval, visibility, role assignments) stays admin-only; the collection's own
+ * update access is admin-only, so this whitelist is the only self-service write path.
+ */
 const editableProfileFields = ['name', 'bio', 'research', 'socials', 'avatar', 'years'] as const
 const MAX_AVATAR_SIZE_BYTES = 5 * 1024 * 1024
 const SAFE_AVATAR_FORMATS = new Set(['jpeg', 'png', 'webp'])
 const SAFE_AVATAR_MIME_TYPES = new Set(['image/jpeg', 'image/png', 'image/webp'])
+const SOCIAL_PLATFORMS = new Set(['x', 'github', 'linkedin', 'orcid', 'website'])
+
+const profileSelect = {
+  avatar: true,
+  bio: true,
+  email: true,
+  id: true,
+  name: true,
+  research: true,
+  roleAssignments: true,
+  slug: true,
+  socials: true,
+  years: true,
+} as const
 
 const parseYearsInput = (value: unknown): number[] | null => {
   const rawValues = Array.isArray(value)
@@ -29,6 +48,46 @@ const parseYearsInput = (value: unknown): number[] | null => {
   return normalized.length > 0 ? normalized : null
 }
 
+const parseResearchInput = (value: unknown): string[] => {
+  const rawValues = Array.isArray(value) ? value : String(value ?? '').split(',')
+  return Array.from(
+    new Set(
+      rawValues
+        .map((item) => String(item ?? '').trim())
+        .filter((item) => item.length > 0 && item.length <= 120),
+    ),
+  )
+}
+
+const parseSocialsInput = (
+  value: unknown,
+): Array<{ label?: string; platform: string; url: string }> => {
+  if (!Array.isArray(value)) return []
+
+  return value.flatMap((item) => {
+    if (!item || typeof item !== 'object') return []
+    const { label, platform, url } = item as Record<string, unknown>
+    if (typeof platform !== 'string' || !SOCIAL_PLATFORMS.has(platform)) return []
+    if (typeof url !== 'string') return []
+
+    try {
+      const parsed = new URL(url.trim())
+      if (parsed.protocol !== 'https:' && parsed.protocol !== 'http:') return []
+      return [
+        {
+          platform,
+          url: parsed.toString(),
+          ...(typeof label === 'string' && label.trim()
+            ? { label: label.trim().slice(0, 80) }
+            : {}),
+        },
+      ]
+    } catch {
+      return []
+    }
+  })
+}
+
 type EditableProfileField = (typeof editableProfileFields)[number]
 
 export async function GET(req: NextRequest): Promise<Response> {
@@ -43,18 +102,13 @@ export async function GET(req: NextRequest): Promise<Response> {
 
   const { payload, responseHeaders, user } = context
 
-  const people = await payload.find({
-    collection: 'people',
+  const profile = await payload.findByID({
+    collection: 'users',
+    id: user.id,
     depth: 1,
-    limit: 1,
     overrideAccess: false,
-    pagination: false,
+    select: profileSelect,
     user,
-    where: {
-      user: {
-        equals: user.id,
-      },
-    },
   })
 
   return privateAccountResponse(
@@ -66,7 +120,8 @@ export async function GET(req: NextRequest): Promise<Response> {
         role: user.role,
         roles: user.roles,
       },
-      person: people.docs[0] ?? null,
+      // Kept under the historical `person` key so the account UI keeps working.
+      person: profile,
     },
     { headers: responseHeaders },
   )
@@ -86,7 +141,32 @@ export async function PATCH(req: NextRequest): Promise<Response> {
 
   const contentType = req.headers.get('content-type') || ''
   let avatarUpload: File | null = null
-  let updateData: Record<string, unknown> = {}
+  const updateData: Record<string, unknown> = {}
+
+  const applyField = (key: EditableProfileField, value: unknown) => {
+    if (key === 'avatar') {
+      if (value === null) updateData.avatar = null
+      return
+    }
+    if (key === 'years') {
+      updateData.years = parseYearsInput(value)
+      return
+    }
+    if (key === 'research') {
+      updateData.research = parseResearchInput(value)
+      return
+    }
+    if (key === 'socials') {
+      updateData.socials = parseSocialsInput(value)
+      return
+    }
+    if (key === 'name') {
+      const name = String(value ?? '').trim()
+      if (name) updateData.name = name.slice(0, 120)
+      return
+    }
+    updateData[key] = String(value ?? '').slice(0, 4000)
+  }
 
   if (contentType.includes('multipart/form-data')) {
     const formData = await req.formData()
@@ -96,17 +176,10 @@ export async function PATCH(req: NextRequest): Promise<Response> {
     const removeAvatar = String(formData.get('removeAvatar') || '').toLowerCase() === 'true'
 
     for (const key of editableProfileFields) {
-      if (key === 'avatar') continue
+      if (key === 'avatar' || key === 'socials') continue
       const value = formData.get(key)
       if (value === null) continue
-
-      if (key === 'years') {
-        updateData[key] = parseYearsInput(value)
-        continue
-      }
-
-      if (key === 'socials') continue
-      updateData[key] = String(value)
+      applyField(key, value)
     }
 
     if (removeAvatar) {
@@ -114,40 +187,15 @@ export async function PATCH(req: NextRequest): Promise<Response> {
     }
   } else {
     const body = (await req.json().catch(() => ({}))) as Record<string, unknown>
-    updateData = editableProfileFields.reduce<Record<string, unknown>>(
-      (acc, key: EditableProfileField) => {
-        if (Object.prototype.hasOwnProperty.call(body, key)) {
-          acc[key] = key === 'years' ? parseYearsInput(body[key]) : body[key]
-        }
-
-        return acc
-      },
-      {},
-    )
+    for (const key of editableProfileFields) {
+      if (Object.prototype.hasOwnProperty.call(body, key)) {
+        applyField(key, body[key])
+      }
+    }
   }
 
   if (!avatarUpload && Object.keys(updateData).length === 0) {
     return privateAccountResponse({ error: 'No editable fields provided' }, { status: 400 })
-  }
-
-  const people = await payload.find({
-    collection: 'people',
-    depth: 0,
-    limit: 1,
-    overrideAccess: false,
-    pagination: false,
-    user,
-    where: {
-      user: {
-        equals: user.id,
-      },
-    },
-  })
-
-  const person = people.docs[0]
-
-  if (!person) {
-    return privateAccountResponse({ error: 'Profile not found' }, { status: 404 })
   }
 
   if (avatarUpload) {
@@ -193,7 +241,7 @@ export async function PATCH(req: NextRequest): Promise<Response> {
     const uploadedAvatar = await payload.create({
       collection: 'media',
       data: {
-        alt: `${person.name || user.name || 'User'} avatar`,
+        alt: `${user.name || 'User'} avatar`,
       },
       file,
       overrideAccess: true,
@@ -202,13 +250,24 @@ export async function PATCH(req: NextRequest): Promise<Response> {
     updateData.avatar = uploadedAvatar.id
   }
 
-  const updated = await payload.update({
-    collection: 'people',
-    id: person.id,
+  // Collection updates are admin-only; this route is the one self-service path and only ever
+  // writes the whitelisted fields above, so the access bypass is intentional and bounded.
+  // No `select` here: the Users afterChange hooks compare the full document with the previous
+  // one, and a partial document would read as "fields removed".
+  await payload.update({
+    collection: 'users',
+    id: user.id,
     data: updateData,
+    depth: 0,
+    overrideAccess: true,
+  })
+
+  const updated = await payload.findByID({
+    collection: 'users',
+    id: user.id,
     depth: 1,
-    overrideAccess: false,
-    user,
+    overrideAccess: true,
+    select: profileSelect,
   })
 
   return privateAccountResponse({ person: updated }, { headers: responseHeaders })

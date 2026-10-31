@@ -105,7 +105,6 @@ test.describe('Non-admin admin visibility @auth', () => {
 
     await expect(page.getByRole('link', { name: 'Show all Posts' })).toBeVisible()
     await expect(page.getByRole('link', { name: 'Show all Wiki' })).toBeVisible()
-    await expect(page.getByRole('link', { name: 'Show all People' })).toBeVisible()
 
     await expect(page.getByRole('link', { name: 'Users' })).toHaveCount(0)
     await expect(page.getByRole('link', { name: 'News' })).toHaveCount(0)

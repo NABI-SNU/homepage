@@ -93,7 +93,7 @@ const notebookS3CollectionConfig = createS3CollectionConfig({
 
 export const plugins: Plugin[] = [
   redirectsPlugin({
-    collections: ['posts', 'people', 'news', 'research', 'wiki', 'activities', 'announcements'],
+    collections: ['posts', 'users', 'news', 'research', 'wiki', 'activities', 'announcements'],
     overrides: {
       admin: {
         hidden: hideFromNonAdmins,

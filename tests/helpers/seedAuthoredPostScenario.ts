@@ -4,16 +4,19 @@ import { getPayload } from 'payload'
 import config from '../../src/payload.config.js'
 import { requireTestAccountUsers, userTestAccount } from './testAccounts'
 
+/**
+ * Users are their own author profiles now: `posts.authors` holds user ids. The shared test user
+ * authors one post directly; a throwaway profile-only member (no login) authors the other.
+ */
 type SeededScenario = {
   authorEmail: string
   authorPassword: string
   authorPostID: number
   authorPostSlug: string
-  authorPersonID: number
-  authorPersonWasCreated: boolean
+  authorUserID: number
   otherPostID: number
   otherPostSlug: string
-  otherPersonID: number
+  otherUserID: number
 }
 
 const buildMinimalRichText = (): DefaultTypedEditorState => ({
@@ -52,52 +55,20 @@ export async function seedAuthoredPostScenario(): Promise<SeededScenario> {
   const { user: authorUser } = await requireTestAccountUsers(payload)
   const runID = `${Date.now()}-${Math.floor(Math.random() * 1_000_000)}`
 
-  let authorPerson = (
-    await payload.find({
-      collection: 'people',
-      depth: 0,
-      limit: 1,
-      overrideAccess: true,
-      pagination: false,
-      where: {
-        user: {
-          equals: authorUser.id,
-        },
-      },
-    })
-  ).docs[0]
-
-  let authorPersonWasCreated = false
-
-  if (!authorPerson) {
-    authorPersonWasCreated = true
-    authorPerson = await payload.create({
-      collection: 'people',
-      overrideAccess: true,
-      context: { disableRevalidate: true },
-      data: {
-        name: userTestAccount.name,
-        slug: `post-author-person-${runID}`,
-        email: userTestAccount.email,
-        years: [2026],
-        memberType: 'user',
-        user: authorUser.id,
-      },
-    })
-  }
-
-  const otherPerson = await payload.create({
-    collection: 'people',
+  // A listed member without a login: no `email`, only a public contact address.
+  const otherUser = await payload.create({
+    collection: 'users',
     overrideAccess: true,
     context: { disableRevalidate: true },
     data: {
       name: `Post Other ${runID}`,
-      slug: `post-other-person-${runID}`,
-      email: `post-other-${runID}@example.com`,
+      slug: `post-other-user-${runID}`,
+      contactEmail: `post-other-${runID}@example.com`,
       years: [2026],
       memberType: 'alumni',
-      user: null,
-    },
+      isApproved: false,
+      emailVerified: false,
+    } as never,
   })
 
   const authorPost = await payload.create({
@@ -107,7 +78,7 @@ export async function seedAuthoredPostScenario(): Promise<SeededScenario> {
     data: {
       title: `Author Post ${runID}`,
       slug: `post-author-${runID}`,
-      authors: [authorPerson.id],
+      authors: [authorUser.id],
       content: buildMinimalRichText(),
       _status: 'published',
     },
@@ -120,7 +91,7 @@ export async function seedAuthoredPostScenario(): Promise<SeededScenario> {
     data: {
       title: `Other Post ${runID}`,
       slug: `post-other-${runID}`,
-      authors: [otherPerson.id],
+      authors: [otherUser.id],
       content: buildMinimalRichText(),
       _status: 'published',
     },
@@ -131,11 +102,10 @@ export async function seedAuthoredPostScenario(): Promise<SeededScenario> {
     authorPassword: userTestAccount.password,
     authorPostID: authorPost.id,
     authorPostSlug: authorPost.slug as string,
-    authorPersonID: authorPerson.id,
-    authorPersonWasCreated,
+    authorUserID: authorUser.id,
     otherPostID: otherPost.id,
     otherPostSlug: otherPost.slug as string,
-    otherPersonID: otherPerson.id,
+    otherUserID: otherUser.id,
   }
 }
 
@@ -156,19 +126,13 @@ export async function cleanupAuthoredPostScenario(scenario: SeededScenario): Pro
     context: { disableRevalidate: true },
   })
 
+  // The shared test user is never deleted; only the throwaway member goes.
   await payload.delete({
-    collection: 'people',
-    id: scenario.otherPersonID,
+    collection: 'users',
+    id: scenario.otherUserID,
     overrideAccess: true,
+    context: { disableRevalidate: true },
   })
-
-  if (scenario.authorPersonWasCreated) {
-    await payload.delete({
-      collection: 'people',
-      id: scenario.authorPersonID,
-      overrideAccess: true,
-    })
-  }
 }
 
 export type { SeededScenario }

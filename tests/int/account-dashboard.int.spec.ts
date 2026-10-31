@@ -2,8 +2,12 @@ import { describe, expect, it, vi } from 'vitest'
 
 import { getAccountDashboardData } from '@/utilities/accountAccess'
 
+/**
+ * `linkedPerson` is kept in the account API for the UI, but it is now derived from the user
+ * itself (its `id` is the user id) rather than looked up in a separate collection.
+ */
 describe('account dashboard data', () => {
-  it('omits post creation actions when no linked person exists', async () => {
+  it('omits post creation actions when the request carries no author profile', async () => {
     const payload = {
       find: vi.fn().mockResolvedValue({ docs: [] }),
     }

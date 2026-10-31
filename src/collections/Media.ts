@@ -14,9 +14,12 @@ import { hideFromNonAdmins } from '../access/hideFromNonAdmins'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
+// WebP at effort 3 is close to the default (4) in size but noticeably faster to encode; the
+// encode happens on every upload, inside a serverless function, once per generated size.
 const webpFormatOptions = {
   format: 'webp',
   options: {
+    effort: 3,
     quality: 82,
   },
 } as const
@@ -56,36 +59,14 @@ export const Media: CollectionConfig = {
     adminThumbnail: 'thumbnail',
     focalPoint: true,
     formatOptions: webpFormatOptions,
+    // The site renders media through Next.js's image optimizer (`/_next/image?url=...`), which
+    // resizes on demand and caches the result, so pre-rendered size variants are only needed
+    // where a fixed file is required: the admin thumbnail and the Open Graph image used in
+    // `generateMeta`. Every extra variant here is one more full WebP encode + upload per save.
     imageSizes: [
       {
         name: 'thumbnail',
         width: 300,
-        formatOptions: webpFormatOptions,
-      },
-      {
-        name: 'square',
-        width: 500,
-        height: 500,
-        formatOptions: webpFormatOptions,
-      },
-      {
-        name: 'small',
-        width: 600,
-        formatOptions: webpFormatOptions,
-      },
-      {
-        name: 'medium',
-        width: 900,
-        formatOptions: webpFormatOptions,
-      },
-      {
-        name: 'large',
-        width: 1400,
-        formatOptions: webpFormatOptions,
-      },
-      {
-        name: 'xlarge',
-        width: 1920,
         formatOptions: webpFormatOptions,
       },
       {

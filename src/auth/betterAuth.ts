@@ -37,6 +37,15 @@ const useSecureCookies = isProduction
     ? baseURLUsesHTTPS
     : configuredSecureCookies && baseURLUsesHTTPS
   : false
+
+// A production deployment must serve auth over HTTPS with Secure cookies. Silently falling back
+// to insecure cookies (because BETTER_AUTH_URL was unset or http://) would ship session cookies
+// in the clear, so fail loudly instead.
+if (isProduction && !isProductionBuildPhase && !isPayloadGenerateCommand && !useSecureCookies) {
+  throw new Error(
+    '[auth] Production requires an https:// BETTER_AUTH_URL (or NEXT_PUBLIC_SERVER_URL) and AUTH_USE_SECURE_COOKIES not set to false.',
+  )
+}
 const githubConfigured = Boolean(process.env.GITHUB_CLIENT_ID && process.env.GITHUB_CLIENT_SECRET)
 const googleConfigured = Boolean(process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET)
 const smtpConfigured = Boolean(
@@ -146,18 +155,25 @@ export const betterAuthOptions: SharedBetterAuthOptions = {
   },
   trustedOrigins,
   user: {
+    // `input: false` is what stops a client from setting these through the Better Auth
+    // sign-up and update-user request bodies. Without it, anyone could self-register as an
+    // approved admin — the Payload adapter writes with `overrideAccess: true`, so the
+    // field-level access on the Users collection never sees these writes.
     additionalFields: {
       isApproved: {
         type: 'boolean',
         defaultValue: false,
+        input: false,
       },
       role: {
         type: 'string',
         defaultValue: 'user',
+        input: false,
       },
       roles: {
         type: 'string',
         defaultValue: 'user',
+        input: false,
       },
     },
   },
@@ -210,9 +226,11 @@ export const createAuth = (payload: BasePayload) =>
             await syncBetterAuthUserToPayload({
               betterAuthUser: {
                 email: user.email,
+                emailVerified: user.emailVerified,
                 id: user.id,
                 name: user.name,
               },
+              operation: 'create',
               payload: payload as Payload,
             })
           },
@@ -222,9 +240,11 @@ export const createAuth = (payload: BasePayload) =>
             await syncBetterAuthUserToPayload({
               betterAuthUser: {
                 email: user.email,
+                emailVerified: user.emailVerified,
                 id: user.id,
                 name: user.name,
               },
+              operation: 'update',
               payload: payload as Payload,
             })
           },

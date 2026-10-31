@@ -3,16 +3,34 @@ import { unstable_cache } from 'next/cache'
 import { getPayload } from 'payload'
 
 import { postCardSelect } from '@/utilities/getPosts'
-import type { Person, Post } from '@/payload-types'
+import type { Post, User } from '@/payload-types'
 
 type PublicPersonListItem = Pick<
-  Person,
-  'avatar' | 'email' | 'id' | 'name' | 'research' | 'roleAssignments' | 'slug' | 'socials' | 'years'
+  User,
+  | 'avatar'
+  | 'contactEmail'
+  | 'email'
+  | 'id'
+  | 'name'
+  | 'research'
+  | 'roleAssignments'
+  | 'slug'
+  | 'socials'
+  | 'years'
 >
 
 type PublicPersonDetail = Pick<
-  Person,
-  'avatar' | 'bio' | 'email' | 'id' | 'name' | 'research' | 'roleAssignments' | 'slug' | 'socials'
+  User,
+  | 'avatar'
+  | 'bio'
+  | 'contactEmail'
+  | 'email'
+  | 'id'
+  | 'name'
+  | 'research'
+  | 'roleAssignments'
+  | 'slug'
+  | 'socials'
 >
 
 type AuthoredPostCard = Pick<Post, 'categories' | 'id' | 'meta' | 'slug' | 'title'>
@@ -21,6 +39,7 @@ const peopleListSelect = {
   id: true,
   name: true,
   slug: true,
+  contactEmail: true,
   email: true,
   research: true,
   roleAssignments: true,
@@ -32,6 +51,7 @@ const personDetailSelect = {
   id: true,
   name: true,
   slug: true,
+  contactEmail: true,
   email: true,
   research: true,
   roleAssignments: true,
@@ -47,7 +67,7 @@ const normalizePersonSlug = (slug: string): string => slug.trim()
 const getPeopleList = async (): Promise<PublicPersonListItem[]> => {
   const payload = await getPayload({ config: configPromise })
   const result = await payload.find({
-    collection: 'people',
+    collection: 'users',
     depth: 1,
     limit: 1000,
     overrideAccess: false,
@@ -62,7 +82,7 @@ const getPeopleList = async (): Promise<PublicPersonListItem[]> => {
 const getPersonSlugs = async (): Promise<string[]> => {
   const payload = await getPayload({ config: configPromise })
   const result = await payload.find({
-    collection: 'people',
+    collection: 'users',
     depth: 0,
     limit: 1000,
     overrideAccess: false,
@@ -78,7 +98,7 @@ const getPublicPersonBySlug = async (slug: string): Promise<PublicPersonDetail |
   const payload = await getPayload({ config: configPromise })
   const normalizedSlug = normalizePersonSlug(slug)
   const result = await payload.find({
-    collection: 'people',
+    collection: 'users',
     depth: 1,
     limit: 1,
     overrideAccess: false,

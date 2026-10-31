@@ -19,7 +19,7 @@ import {
 import { slugField } from 'payload'
 
 import { adminOnly } from '@/access/adminOnly'
-import { authenticatedOrPublished } from '@/access/authenticatedOrPublished'
+import { adminOrPublished } from '@/access/adminOrPublished'
 import { hideFromNonAdmins } from '@/access/hideFromNonAdmins'
 import { Banner } from '@/blocks/Banner/config'
 import { Code } from '@/blocks/Code/config'
@@ -51,7 +51,7 @@ export const Announcements: CollectionConfig<'announcements'> = {
   access: {
     create: adminOnly,
     delete: adminOnly,
-    read: authenticatedOrPublished,
+    read: adminOrPublished,
     update: adminOnly,
   },
   defaultPopulate: {
@@ -149,7 +149,10 @@ export const Announcements: CollectionConfig<'announcements'> = {
   },
   versions: {
     drafts: {
-      autosave: false,
+      // Persist the draft a few seconds after each change. A deployment going live mid-edit
+      // forces a full page reload (Next.js's deployment-skew handling, no Skew Protection on
+      // the Hobby plan), so this bounds what an editor can lose to the last few seconds.
+      autosave: { interval: 3000 },
       schedulePublish: true,
     },
     maxPerDoc: 50,

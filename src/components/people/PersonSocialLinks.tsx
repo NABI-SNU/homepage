@@ -1,10 +1,10 @@
-import type { Person } from '@/payload-types'
+import type { User } from '@/payload-types'
 import { Globe, Github, Linkedin } from 'lucide-react'
 import React from 'react'
 
 import { cn } from '@/utilities/ui'
 
-type PersonSocial = NonNullable<NonNullable<Person['socials']>[number]>
+type PersonSocial = NonNullable<NonNullable<User['socials']>[number]>
 
 const XIcon = ({ className }: { className?: string }) => (
   <svg
@@ -49,7 +49,7 @@ const platformName = (platform: PersonSocial['platform']) => {
 type Props = {
   className?: string
   iconOnly?: boolean
-  socials: Person['socials']
+  socials: User['socials']
 }
 
 export function PersonSocialLinks({ className, iconOnly = true, socials }: Props) {

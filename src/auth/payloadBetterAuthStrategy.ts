@@ -1,6 +1,8 @@
 import type { AuthStrategy, Payload } from 'payload'
 
 import type { User } from '@/payload-types'
+import { evaluateSessionPolicy } from './resolvePayloadUserFromSession'
+import { strictPayloadSessionResolutionOptions } from './payloadSessionPolicy'
 
 type BetterAuthStrategyOptions = {
   idType?: 'number' | 'text'
@@ -9,6 +11,7 @@ type BetterAuthStrategyOptions = {
 
 type BetterAuthSessionUser = {
   email?: string | null
+  emailVerified?: boolean
   id?: number | string | null
 }
 
@@ -25,11 +28,6 @@ type PayloadWithBetterAuth = Payload & {
   betterAuth?: {
     api?: BetterAuthAPI
   }
-}
-
-const normalizeEmail = (value: string | null | undefined): string | null => {
-  const normalized = value?.trim().toLowerCase()
-  return normalized && normalized.length > 0 ? normalized : null
 }
 
 const coerceNumericID = (value: number | string | null | undefined): number | null => {
@@ -62,6 +60,14 @@ const coerceSessionFields = (
   return result
 }
 
+/**
+ * Maps a Better Auth session user onto the Payload user it belongs to.
+ *
+ * Only identity-bearing matchers are used: the numeric id (Better Auth ids *are* the Payload
+ * ids with the payload adapter) and the legacy `betterAuthUserId` column. Matching by email on
+ * purpose is not done — an email is not an identity here, and matching on it would let a Better
+ * Auth account be mapped onto a different Payload user that happens to share the address.
+ */
 const findPayloadUser = async ({
   betterAuthUser,
   idType,
@@ -94,15 +100,6 @@ const findPayloadUser = async ({
     matchers.push({
       betterAuthUserId: {
         equals: betterAuthUser.id,
-      },
-    })
-  }
-
-  const normalizedEmail = normalizeEmail(betterAuthUser.email)
-  if (normalizedEmail) {
-    matchers.push({
-      email: {
-        equals: normalizedEmail,
       },
     })
   }
@@ -144,7 +141,6 @@ export const payloadBetterAuthStrategy = ({
         })) as BetterAuthSession | null
 
         if (!sessionData?.user?.id) {
-          payload.logger.warn('[auth] Better Auth strategy received no active session user.')
           return { user: null }
         }
 
@@ -158,6 +154,25 @@ export const payloadBetterAuthStrategy = ({
         if (!payloadUser) {
           payload.logger.warn(
             `[auth] Better Auth strategy could not resolve payload user for session user ${String(sessionData.user.id)}.`,
+          )
+          return { user: null }
+        }
+
+        // Re-apply the sign-in policy on every request, so revoking approval, hiding the
+        // linked Person, marking them alumni or blocklisting the email is effective at once.
+        const policy = evaluateSessionPolicy({
+          betterAuthUser: {
+            email: sessionData.user.email,
+            emailVerified: sessionData.user.emailVerified,
+            id: String(sessionData.user.id),
+          },
+          payloadUser,
+          ...strictPayloadSessionResolutionOptions,
+        })
+
+        if (!policy.user) {
+          payload.logger.warn(
+            `[auth] Better Auth session for user ${payloadUser.id} denied: ${policy.reason}`,
           )
           return { user: null }
         }

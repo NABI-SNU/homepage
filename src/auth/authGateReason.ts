@@ -75,7 +75,7 @@ const feedbackByReason: Record<AuthGateReason, AuthFeedbackContent> = {
   unknown: {
     title: 'Unable to sign in',
     description:
-      'Sign-in could not be completed. Try again, or use email login for clearer status.',
+      'Sign-in could not be completed. Check your email and password and try again; if the problem persists, contact admin@nabilab.org.',
   },
 }
 

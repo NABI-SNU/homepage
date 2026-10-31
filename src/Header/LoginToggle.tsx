@@ -2,12 +2,12 @@
 
 import { authClient } from '@/auth/betterAuthClient'
 import { PersonAvatar } from '@/components/people/PersonAvatar'
-import type { Person } from '@/payload-types'
+import type { User } from '@/payload-types'
 import { cn } from '@/utilities/ui'
 import { CircleUserRound } from 'lucide-react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import React, { useEffect, useId, useMemo, useRef, useState } from 'react'
+import React, { useEffect, useId, useRef, useState } from 'react'
 
 type MeUser = {
   email?: string | null
@@ -16,7 +16,7 @@ type MeUser = {
 }
 
 type ProfilePayload = {
-  person?: Pick<Person, 'avatar' | 'email' | 'name' | 'slug'> | null
+  person?: Pick<User, 'avatar' | 'email' | 'name' | 'slug'> | null
   user?: MeUser | null
 }
 
@@ -30,18 +30,17 @@ export const LoginToggle: React.FC<{
   const wrapperRef = useRef<HTMLDivElement | null>(null)
   const pathname = usePathname()
   const { data: session, refetch } = authClient.useSession()
-  const user = useMemo<MeUser | null>(() => {
-    if (!session?.user) return null
-
-    return {
-      id: session.user.id,
-      email: session.user.email,
-      name: session.user.name,
-    }
-  }, [session?.user])
+  const user: MeUser | null = session?.user
+    ? {
+        id: session.user.id,
+        email: session.user.email,
+        name: session.user.name,
+      }
+    : null
 
   useEffect(() => {
     if (!session?.user?.id) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- clear the cached profile on sign-out
       setProfile(null)
       setPersonSlug(null)
       return
@@ -109,6 +108,7 @@ export const LoginToggle: React.FC<{
   }, [isOpen])
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- close the menu on navigation
     setIsOpen(false)
   }, [pathname])
 

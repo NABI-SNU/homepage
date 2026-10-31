@@ -4,13 +4,13 @@ import type { NextRequest } from 'next/server'
 
 import configPromise from '@payload-config'
 import { getServerUser } from '@/auth/session'
-import type { Person, Post, User, Wiki } from '@/payload-types'
+import type { Post, User, Wiki } from '@/payload-types'
 
 type LinkedPersonSummary = {
-  avatar?: Person['avatar']
+  avatar?: User['avatar']
   id: number
   name?: string | null
-  roleAssignments?: Person['roleAssignments']
+  roleAssignments?: User['roleAssignments']
   slug?: string | null
 }
 
@@ -91,36 +91,18 @@ const toLinkedPersonSummary = (
   }
 }
 
-const getLinkedPerson = async ({
-  payload,
-  user,
-}: {
-  payload: Payload
-  user: User
-}): Promise<LinkedPersonSummary | null> => {
-  const people = await payload.find({
-    collection: 'people',
-    depth: 1,
-    limit: 1,
-    overrideAccess: false,
-    pagination: false,
-    select: {
-      avatar: true,
-      id: true,
-      name: true,
-      roleAssignments: true,
-      slug: true,
-    },
-    user,
-    where: {
-      user: {
-        equals: user.id,
-      },
-    },
+/**
+ * The user *is* the member profile now; keep the `linkedPerson` name in the API so the account
+ * pages and the edit buttons keep working unchanged (its `id` is the user id).
+ */
+const getLinkedPerson = ({ user }: { user: User }): LinkedPersonSummary | null =>
+  toLinkedPersonSummary({
+    avatar: user.avatar,
+    id: user.id,
+    name: user.name,
+    roleAssignments: user.roleAssignments,
+    slug: user.slug,
   })
-
-  return toLinkedPersonSummary(people.docs[0] as Partial<LinkedPersonSummary> | undefined)
-}
 
 const buildPermissions = ({
   linkedPerson,
@@ -185,7 +167,7 @@ export const resolveAccountRequestContext = async (
     }
   }
 
-  const linkedPerson = await getLinkedPerson({ payload, user })
+  const linkedPerson = getLinkedPerson({ user })
   const permissions = buildPermissions({ linkedPerson })
 
   return {

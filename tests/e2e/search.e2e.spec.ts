@@ -9,7 +9,7 @@ test.describe('Search interactions', () => {
     const query = 'playwright-posts-search-regression'
 
     await postsSearchInput.fill(query)
-    await expect(page).toHaveURL(new RegExp(`/posts\\?q=${query}$`))
+    await expect(page).toHaveURL(new RegExp(`/posts/search\\?q=${query}$`))
 
     await page.getByRole('link', { name: 'Clear search' }).click()
 

@@ -4,12 +4,12 @@ import Link from 'next/link'
 import { FormEvent, useEffect, useRef, useState } from 'react'
 
 import { PersonAvatar } from '@/components/people/PersonAvatar'
-import type { Person } from '@/payload-types'
+import type { User } from '@/payload-types'
 
 const serializeYears = (years: number[] | null | undefined): string =>
   (years || []).filter((year) => Number.isFinite(year)).join(', ')
 
-type PersonProfile = Pick<Person, 'avatar' | 'bio' | 'id' | 'name' | 'research' | 'years'>
+type PersonProfile = Pick<User, 'avatar' | 'bio' | 'id' | 'name' | 'research' | 'years'>
 
 type ProfilePayload = {
   person?: PersonProfile | null

@@ -10,25 +10,21 @@ export type BetterAuthSessionUser = {
   id?: string
 }
 
-type ResolvePayloadUserFromSessionArgs = {
-  payload: Payload
-  betterAuthUser: BetterAuthSessionUser | null | undefined
+type SessionPolicyOptions = {
   requireApproval?: boolean
   autoApproveByPeopleEmail?: boolean
   enforceProductionEmailVerification?: boolean
   denyAlumni?: boolean
 }
 
+type ResolvePayloadUserFromSessionArgs = SessionPolicyOptions & {
+  payload: Payload
+  betterAuthUser: BetterAuthSessionUser | null | undefined
+}
+
 export type PayloadUserResolutionWithReason = {
   reason: AuthGateReason
   user: User | null
-}
-
-type PersonVisibilityDoc = {
-  id: number
-  isVisible?: boolean | null
-  memberType?: 'alumni' | 'user' | null
-  user?: number | { id: number } | null
 }
 
 const isProduction = (): boolean => process.env.NODE_ENV === 'production'
@@ -67,29 +63,6 @@ const findPayloadUserByID = async ({
   return users.docs[0] ?? null
 }
 
-const findLinkedPerson = async ({
-  payload,
-  userID,
-}: {
-  payload: Payload
-  userID: number
-}): Promise<PersonVisibilityDoc | null> => {
-  const people = await payload.find({
-    collection: 'people',
-    depth: 0,
-    limit: 1,
-    overrideAccess: true,
-    pagination: false,
-    where: {
-      user: {
-        equals: userID,
-      },
-    },
-  })
-
-  return (people.docs[0] as PersonVisibilityDoc | undefined) ?? null
-}
-
 export const resolvePayloadUserByIdentity = async ({
   betterAuthUser,
   payload,
@@ -108,6 +81,51 @@ export const resolvePayloadUserByIdentity = async ({
     )
     return null
   }
+}
+
+/**
+ * Applies the sign-in policy to an already-loaded Payload user: production blocklist, email
+ * verification, approval, directory visibility and alumni status.
+ *
+ * This is the single source of truth for "may this account use the site right now". It runs
+ * when a Better Auth session is created *and* on every authenticated request (Payload auth
+ * strategy and `/api/account/*`), so revoking approval, hiding a Person, marking them alumni or
+ * blocklisting an email takes effect immediately instead of when the session happens to end.
+ */
+export const evaluateSessionPolicy = ({
+  betterAuthUser,
+  payloadUser,
+  requireApproval = true,
+  enforceProductionEmailVerification = true,
+  denyAlumni = false,
+}: SessionPolicyOptions & {
+  betterAuthUser?: BetterAuthSessionUser | null
+  payloadUser: User
+}): PayloadUserResolutionWithReason => {
+  const normalizedEmail = normalizeEmail(betterAuthUser?.email) ?? normalizeEmail(payloadUser.email)
+
+  if (normalizedEmail && isProductionBlockedAuthEmail(normalizedEmail)) {
+    return { user: null, reason: 'invalid_credentials' }
+  }
+
+  const emailVerified = betterAuthUser?.emailVerified ?? payloadUser.emailVerified
+  if (isProduction() && enforceProductionEmailVerification && emailVerified !== true) {
+    return { user: null, reason: 'email_not_verified' }
+  }
+
+  if (isProduction() && payloadUser.isVisible === false) {
+    return { user: null, reason: 'invalid_credentials' }
+  }
+
+  if (requireApproval && payloadUser.isApproved !== true) {
+    return { user: null, reason: 'admin_approval_required' }
+  }
+
+  if (denyAlumni && payloadUser.memberType === 'alumni') {
+    return { user: null, reason: 'unknown' }
+  }
+
+  return { user: payloadUser, reason: 'allowed' }
 }
 
 export const resolvePayloadUserFromSessionWithReason = async ({
@@ -141,36 +159,13 @@ export const resolvePayloadUserFromSessionWithReason = async ({
       return { user: null, reason: 'account_not_found' }
     }
 
-    const normalizedEmail =
-      normalizeEmail(betterAuthUser?.email) ?? normalizeEmail(payloadUser.email)
-
-    if (normalizedEmail && isProductionBlockedAuthEmail(normalizedEmail)) {
-      return { user: null, reason: 'invalid_credentials' }
-    }
-
-    const emailVerified = betterAuthUser?.emailVerified ?? payloadUser.emailVerified
-    if (isProduction() && enforceProductionEmailVerification && emailVerified !== true) {
-      return { user: null, reason: 'email_not_verified' }
-    }
-
-    const linkedPerson = await findLinkedPerson({
-      payload,
-      userID: payloadUser.id,
+    return evaluateSessionPolicy({
+      betterAuthUser,
+      denyAlumni,
+      enforceProductionEmailVerification,
+      payloadUser,
+      requireApproval,
     })
-
-    if (isProduction() && linkedPerson?.isVisible === false) {
-      return { user: null, reason: 'invalid_credentials' }
-    }
-
-    if (requireApproval && payloadUser.isApproved !== true) {
-      return { user: null, reason: 'admin_approval_required' }
-    }
-
-    if (denyAlumni && linkedPerson?.memberType === 'alumni') {
-      return { user: null, reason: 'unknown' }
-    }
-
-    return { user: payloadUser, reason: 'allowed' }
   } catch (error) {
     payload.logger.error(
       `[auth] Failed resolving payload user from BetterAuth session with reason: ${error instanceof Error ? error.message : String(error)}`,

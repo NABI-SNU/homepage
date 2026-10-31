@@ -1,41 +1,27 @@
 'use client'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import React, { useEffect, useMemo, useState, useTransition } from 'react'
-import { useDebounce } from '@/utilities/useDebounce'
-import { usePathname, useRouter, useSearchParams } from 'next/navigation'
+import React, { useCallback } from 'react'
+import { useSearchQueryNavigation } from '@/utilities/useSearchQueryNavigation'
+import { usePathname, useSearchParams } from 'next/navigation'
 
 export const Search: React.FC = () => {
-  const router = useRouter()
   const pathname = usePathname()
   const searchParams = useSearchParams()
-  const [, startTransition] = useTransition()
-  const currentQuery = useMemo(() => searchParams.get('q')?.trim() || '', [searchParams])
-  const [value, setValue] = useState(currentQuery)
+  const currentQuery = searchParams.get('q')?.trim() || ''
+  const otherParams = searchParams.toString()
+  const buildURL = useCallback(
+    (query: string) => {
+      const nextParams = new URLSearchParams(otherParams)
+      if (query) nextParams.set('q', query)
+      else nextParams.delete('q')
 
-  const debouncedValue = useDebounce(value)
-
-  useEffect(() => {
-    if (currentQuery !== value) setValue(currentQuery)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currentQuery])
-
-  useEffect(() => {
-    const normalizedDebouncedValue = debouncedValue.trim()
-    if (normalizedDebouncedValue === currentQuery) return
-
-    const nextParams = new URLSearchParams(searchParams.toString())
-    if (normalizedDebouncedValue) nextParams.set('q', normalizedDebouncedValue)
-    else nextParams.delete('q')
-
-    const nextQuery = nextParams.toString()
-    const nextURL = nextQuery ? `${pathname}?${nextQuery}` : pathname
-
-    window.history.replaceState(window.history.state, '', nextURL)
-    startTransition(() => {
-      router.replace(nextURL, { scroll: false })
-    })
-  }, [currentQuery, debouncedValue, pathname, router, searchParams])
+      const nextQuery = nextParams.toString()
+      return nextQuery ? `${pathname}?${nextQuery}` : pathname
+    },
+    [otherParams, pathname],
+  )
+  const { inputProps } = useSearchQueryNavigation({ buildURL, currentQuery })
 
   return (
     <div>
@@ -47,14 +33,7 @@ export const Search: React.FC = () => {
         <Label htmlFor="search" className="sr-only">
           Search
         </Label>
-        <Input
-          id="search"
-          onChange={(event) => {
-            setValue(event.target.value)
-          }}
-          placeholder="Search"
-          value={value}
-        />
+        <Input id="search" placeholder="Search" {...inputProps} />
         <button type="submit" className="sr-only">
           submit
         </button>

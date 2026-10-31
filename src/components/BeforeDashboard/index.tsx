@@ -15,7 +15,7 @@ const adminSteps = [
   },
   {
     title: 'Collections',
-    description: 'Update Posts, News, Research, and People as you publish new work.',
+    description: 'Update Posts, News, Research, and member profiles as you publish new work.',
     links: [],
   },
   {
@@ -45,7 +45,7 @@ const memberSteps = [
   {
     title: 'Posts',
     description:
-      'Create or update your own posts. Your linked People profile remains attached as an author automatically.',
+      'Create or update your own posts. Your member profile remains attached as an author automatically.',
     links: [{ label: 'Create post', href: '/admin/collections/posts/create' }],
   },
   {

@@ -1,12 +1,12 @@
 import Image from 'next/image'
 
-import type { Person } from '@/payload-types'
+import type { User } from '@/payload-types'
 import { getMediaUrl } from '@/utilities/getMediaUrl'
 import { md5 } from '@/utilities/md5'
 import { cn } from '@/utilities/ui'
 
 type Props = {
-  avatar?: Person['avatar']
+  avatar?: User['avatar']
   className?: string
   email?: string | null
   name?: string | null

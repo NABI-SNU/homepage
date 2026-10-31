@@ -84,32 +84,23 @@ describe('production blocked auth accounts', () => {
     expect(payload.find).not.toHaveBeenCalled()
   })
 
-  it('blocks production login for accounts linked to non-visible people profiles', async () => {
+  it('blocks production login for users hidden from the member directory', async () => {
     vi.stubEnv('NODE_ENV', 'production')
 
+    // The user row is the profile: visibility is read straight off it, no second lookup.
     const payload = {
-      find: vi
-        .fn()
-        .mockResolvedValueOnce({
-          docs: [
-            {
-              id: 101,
-              email: 'member@example.com',
-              emailVerified: true,
-              isApproved: true,
-              roles: 'user',
-            },
-          ],
-        })
-        .mockResolvedValueOnce({
-          docs: [
-            {
-              id: 501,
-              isVisible: false,
-              user: 101,
-            },
-          ],
-        }),
+      find: vi.fn().mockResolvedValueOnce({
+        docs: [
+          {
+            id: 101,
+            email: 'member@example.com',
+            emailVerified: true,
+            isApproved: true,
+            isVisible: false,
+            roles: 'user',
+          },
+        ],
+      }),
       logger: {
         error: vi.fn(),
         info: vi.fn(),
@@ -131,35 +122,25 @@ describe('production blocked auth accounts', () => {
 
     expect(resolved.user).toBeNull()
     expect(resolved.reason).toBe('invalid_credentials')
-    expect(payload.find).toHaveBeenCalledTimes(2)
+    expect(payload.find).toHaveBeenCalledTimes(1)
   })
 
-  it('returns null for hidden linked profiles in production resolver path', async () => {
+  it('returns null for hidden users in the production resolver path', async () => {
     vi.stubEnv('NODE_ENV', 'production')
 
     const payload = {
-      find: vi
-        .fn()
-        .mockResolvedValueOnce({
-          docs: [
-            {
-              id: 202,
-              email: 'hidden@example.com',
-              emailVerified: true,
-              isApproved: true,
-              roles: 'user',
-            },
-          ],
-        })
-        .mockResolvedValueOnce({
-          docs: [
-            {
-              id: 777,
-              isVisible: false,
-              user: 202,
-            },
-          ],
-        }),
+      find: vi.fn().mockResolvedValueOnce({
+        docs: [
+          {
+            id: 202,
+            email: 'hidden@example.com',
+            emailVerified: true,
+            isApproved: true,
+            isVisible: false,
+            roles: 'user',
+          },
+        ],
+      }),
       logger: {
         error: vi.fn(),
         info: vi.fn(),
@@ -180,6 +161,45 @@ describe('production blocked auth accounts', () => {
     })
 
     expect(resolved).toBeNull()
-    expect(payload.find).toHaveBeenCalledTimes(2)
+    expect(payload.find).toHaveBeenCalledTimes(1)
+  })
+
+  it('allows a visible, approved, verified user outside the blocklist in production', async () => {
+    vi.stubEnv('NODE_ENV', 'production')
+
+    const payload = {
+      find: vi.fn().mockResolvedValueOnce({
+        docs: [
+          {
+            id: 303,
+            email: 'visible@example.com',
+            emailVerified: true,
+            isApproved: true,
+            isVisible: true,
+            roles: 'user',
+          },
+        ],
+      }),
+      logger: {
+        error: vi.fn(),
+        info: vi.fn(),
+      },
+      update: vi.fn(),
+    } as unknown as Payload
+
+    const resolved = await resolvePayloadUserFromSessionWithReason({
+      payload,
+      betterAuthUser: {
+        id: '303',
+        email: 'visible@example.com',
+        emailVerified: true,
+      },
+      requireApproval: true,
+      enforceProductionEmailVerification: true,
+    })
+
+    expect(resolved.reason).toBe('allowed')
+    expect(resolved.user).toMatchObject({ id: 303 })
+    expect(payload.find).toHaveBeenCalledTimes(1)
   })
 })

@@ -7,7 +7,7 @@ import { useDeferredValue, useEffect, useMemo, useState, useTransition } from 'r
 import { PersonAvatar } from '@/components/people/PersonAvatar'
 import { PersonRoleBadge } from '@/components/people/PersonRoleBadge'
 import { PersonSocialLinks } from '@/components/people/PersonSocialLinks'
-import type { Person } from '@/payload-types'
+import type { User } from '@/payload-types'
 import { comparePeopleByRoleForYear, getPersonRoleForYear } from '@/utilities/personRoles'
 import { parseResearchTags, toTagSlug } from '@/utilities/researchTags'
 
@@ -28,8 +28,17 @@ const parseQueryParam = (value: string | null): string => {
 }
 
 export type PeopleDirectoryPerson = Pick<
-  Person,
-  'avatar' | 'email' | 'id' | 'name' | 'research' | 'roleAssignments' | 'slug' | 'socials' | 'years'
+  User,
+  | 'avatar'
+  | 'contactEmail'
+  | 'email'
+  | 'id'
+  | 'name'
+  | 'research'
+  | 'roleAssignments'
+  | 'slug'
+  | 'socials'
+  | 'years'
 >
 
 export function PeopleDirectory({ people }: { people: PeopleDirectoryPerson[] }) {
@@ -62,6 +71,7 @@ export function PeopleDirectory({ people }: { people: PeopleDirectoryPerson[] })
     const urlYear = parseYearParam(urlParams.get('year'), years, fallbackYear)
     const urlQuery = parseQueryParam(urlParams.get('q'))
 
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- mirror the URL filters on back/forward
     setActiveYear((prev) => (prev === urlYear ? prev : urlYear))
     setSearchQuery((prev) => (prev === urlQuery ? prev : urlQuery))
   }, [fallbackYear, searchParamsString, years])
@@ -112,7 +122,7 @@ export function PeopleDirectory({ people }: { people: PeopleDirectoryPerson[] })
       ? filteredByYear.filter((person) => {
           const searchableFields = [
             person.name,
-            person.email || '',
+            person.contactEmail || person.email || '',
             parseResearchTags(person.research).join(' '),
           ]
 
@@ -214,7 +224,7 @@ export function PeopleDirectory({ people }: { people: PeopleDirectoryPerson[] })
                     <PersonAvatar
                       avatar={person.avatar}
                       className="shrink-0"
-                      email={person.email}
+                      email={person.contactEmail || person.email}
                       name={person.name}
                       size={44}
                     />
@@ -264,12 +274,12 @@ export function PeopleDirectory({ people }: { people: PeopleDirectoryPerson[] })
                   <PersonSocialLinks className="mb-6" socials={person.socials} />
 
                   <div className="mt-auto flex items-center justify-between">
-                    {person.email ? (
+                    {person.contactEmail || person.email ? (
                       <a
-                        href={`mailto:${person.email}`}
+                        href={`mailto:${person.contactEmail || person.email}`}
                         className="inline-flex items-center gap-2 text-sm text-primary transition-all duration-300 hover:gap-3 hover:underline"
                       >
-                        {person.email}
+                        {person.contactEmail || person.email}
                       </a>
                     ) : (
                       <span className="text-sm text-muted-foreground">No email listed</span>

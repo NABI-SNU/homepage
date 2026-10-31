@@ -1,6 +1,6 @@
 import { cn } from '@/utilities/ui'
 
-import type { Person } from '@/payload-types'
+import type { User } from '@/payload-types'
 
 import { formatPersonRoleLabel } from '@/utilities/personRoles'
 
@@ -10,7 +10,7 @@ type Props = {
   year?: number | null
 }
 
-type PersonRole = NonNullable<NonNullable<Person['roleAssignments']>[number]>['role']
+type PersonRole = NonNullable<NonNullable<User['roleAssignments']>[number]>['role']
 
 export function PersonRoleBadge({ className, role, year }: Props) {
   if (!role) return null

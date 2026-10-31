@@ -1,9 +1,9 @@
 import { describe, expect, it, vi } from 'vitest'
 
-import { syncResearchTagsFromPerson } from '@/collections/People/hooks/syncResearchTags'
+import { syncResearchTagsFromUser } from '@/collections/Users/hooks/syncResearchTags'
 
-describe('syncResearchTagsFromPerson', () => {
-  type SyncArgs = Parameters<typeof syncResearchTagsFromPerson>[0]
+describe('syncResearchTagsFromUser', () => {
+  type SyncArgs = Parameters<typeof syncResearchTagsFromUser>[0]
 
   it('does nothing when normalized research tags are unchanged', async () => {
     const payload = {
@@ -22,7 +22,7 @@ describe('syncResearchTagsFromPerson', () => {
       research: ['neuroscience', 'ai'],
     }
 
-    const result = await syncResearchTagsFromPerson({
+    const result = await syncResearchTagsFromUser({
       doc,
       previousDoc,
       req: {
@@ -54,7 +54,7 @@ describe('syncResearchTagsFromPerson', () => {
         .mockResolvedValueOnce({ docs: [] }),
     }
 
-    await syncResearchTagsFromPerson({
+    await syncResearchTagsFromUser({
       doc: {
         id: 99,
         research: ['AI', 'Machine Learning', 'Vision'],

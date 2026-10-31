@@ -69,7 +69,8 @@ describe('resolvePayloadUserFromSession stability behavior', () => {
 
     expect(firstAttempt).toBeNull()
     expect(secondAttempt?.id).toBe(user.id)
-    expect(findCalls).toBe(3)
+    // one users lookup per attempt: the profile lives on the user row, so no second query
+    expect(findCalls).toBe(2)
   })
 
   it('never mutates payload users during request-time auth resolution', async () => {
@@ -118,7 +119,7 @@ describe('resolvePayloadUserFromSession stability behavior', () => {
 
     expect(firstAttempt).toBeNull()
     expect(secondAttempt).toBeNull()
-    expect(payload.find).toHaveBeenCalledTimes(4)
+    expect(payload.find).toHaveBeenCalledTimes(2)
     expect(payload.update).not.toHaveBeenCalled()
   })
 })
