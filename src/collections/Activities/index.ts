@@ -115,10 +115,6 @@ export const Activities: CollectionConfig<'activities'> = {
           label: 'Seminar',
           value: 'seminar',
         },
-        {
-          label: 'Topic Review',
-          value: 'topic-review',
-        },
       ],
     },
     {
@@ -144,8 +140,7 @@ export const Activities: CollectionConfig<'activities'> = {
       name: 'recordingUrl',
       type: 'text',
       admin: {
-        condition: (data) =>
-          data?.activityType === 'seminar' || data?.activityType === 'topic-review',
+        condition: (data) => data?.activityType === 'seminar',
         description:
           'YouTube link to the session recording (youtu.be/... or youtube.com/watch?v=...).',
       },

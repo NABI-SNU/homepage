@@ -34,8 +34,7 @@ export const ProgramActivityDetail: React.FC<{ entry: ProgramEntry; url: string 
   entry,
   url,
 }) => {
-  const isTopicReview = entry.activityType === 'topic-review'
-  const eyebrow = isTopicReview ? 'Topic Review Series' : 'Foundations Seminar'
+  const eyebrow = 'Foundations Seminar'
   const videoId = getYouTubeVideoId(entry.recordingUrl)
   const chapters = entry.bookChapters ?? []
   const papers = entry.references ?? []
@@ -48,7 +47,7 @@ export const ProgramActivityDetail: React.FC<{ entry: ProgramEntry; url: string 
       <section className="container pt-8 md:pt-12">
         <div className="mx-auto max-w-3xl">
           <Link className="text-sm text-muted-foreground hover:text-primary" href="/seminars">
-            ← Seminars &amp; Topic Reviews
+            ← Seminars
           </Link>
           <p className="page-eyebrow mt-6">{eyebrow}</p>
           <h1 className="mt-2 text-3xl font-bold leading-tight tracking-tight md:text-5xl">
@@ -89,7 +88,7 @@ export const ProgramActivityDetail: React.FC<{ entry: ProgramEntry; url: string 
           )}
 
           {chapters.length > 0 && (
-            <section aria-label="In the NABI book" className="mt-10">
+            <section aria-label="In the NABI book" className="mt-10 scroll-mt-28" id="book">
               <SectionHeading>In the NABI book</SectionHeading>
               <ul className="grid gap-4 sm:grid-cols-2">
                 {chapters.map((chapter, index) => (
@@ -132,11 +131,8 @@ export const ProgramActivityDetail: React.FC<{ entry: ProgramEntry; url: string 
           )}
 
           {papers.length > 0 && (
-            <section
-              aria-label={isTopicReview ? 'Papers reviewed' : 'References'}
-              className="mt-10"
-            >
-              <SectionHeading>{isTopicReview ? 'Papers reviewed' : 'References'}</SectionHeading>
+            <section aria-label="References" className="mt-10">
+              <SectionHeading>References</SectionHeading>
               <ol className="grid gap-4">
                 {papers.map((paper, index) => {
                   const href = paper.url || (paper.doi ? `https://doi.org/${paper.doi}` : null)

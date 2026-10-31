@@ -53,9 +53,6 @@ export const revalidateActivities: CollectionAfterChangeHook<Activity> = ({
       safeRevalidate(payload, 'seminar slugs cache', () =>
         revalidateTag('activities_seminar_slugs', { expire: 0 }),
       )
-      safeRevalidate(payload, 'topic review slugs cache', () =>
-        revalidateTag('activities_topic-review_slugs', { expire: 0 }),
-      )
       safeRevalidate(payload, 'program cache', () =>
         revalidateTag('activities_program', { expire: 0 }),
       )
@@ -148,9 +145,6 @@ export const revalidateActivitiesDelete: CollectionAfterDeleteHook<Activity> = (
 
     safeRevalidate(payload, 'seminar slugs cache', () =>
       revalidateTag('activities_seminar_slugs', { expire: 0 }),
-    )
-    safeRevalidate(payload, 'topic review slugs cache', () =>
-      revalidateTag('activities_topic-review_slugs', { expire: 0 }),
     )
     safeRevalidate(payload, 'program cache', () =>
       revalidateTag('activities_program', { expire: 0 }),

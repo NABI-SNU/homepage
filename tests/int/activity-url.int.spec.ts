@@ -42,16 +42,13 @@ describe('activity URL helpers', () => {
     ).toBe('/symposium/symposium-2026')
   })
 
-  it('returns seminar and topic review routes', () => {
+  it('returns seminar routes', () => {
     expect(getActivityPath({ activityType: 'seminar', slug: '2026-hidden-dynamics' })).toBe(
       '/seminars/2026-hidden-dynamics',
     )
-    expect(getActivityPath({ activityType: 'topic-review', slug: '2026-october' })).toBe(
-      '/topic-reviews/2026-october',
-    )
     expect(
-      getActivityPathFromReferenceValue({ activityType: 'topic-review', slug: '2026-october' }),
-    ).toBe('/topic-reviews/2026-october')
+      getActivityPathFromReferenceValue({ activityType: 'seminar', slug: '2026-hidden-dynamics' }),
+    ).toBe('/seminars/2026-hidden-dynamics')
   })
 
   it('returns no path for a non-symposium activity without a slug', () => {
@@ -64,9 +61,6 @@ describe('activity URL helpers', () => {
 
     expect(pathOf(getActivityPreviewPath({ activityType: 'seminar', slug: 'a' }))).toBe(
       '/seminars/a',
-    )
-    expect(pathOf(getActivityPreviewPath({ activityType: 'topic-review', slug: 'b' }))).toBe(
-      '/topic-reviews/b',
     )
     expect(pathOf(getActivityPreviewPath({ activityType: 'conference', slug: null }))).toBe(
       '/conferences',

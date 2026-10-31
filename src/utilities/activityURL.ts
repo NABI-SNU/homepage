@@ -1,4 +1,4 @@
-export const ACTIVITY_TYPES = ['symposium', 'conference', 'seminar', 'topic-review'] as const
+export const ACTIVITY_TYPES = ['symposium', 'conference', 'seminar'] as const
 
 export type ActivityType = (typeof ACTIVITY_TYPES)[number]
 
@@ -12,7 +12,6 @@ export const ACTIVITY_BASE_PATHS: Record<ActivityType, string> = {
   symposium: '/symposium',
   conference: '/conferences',
   seminar: '/seminars',
-  'topic-review': '/topic-reviews',
 }
 
 export const isActivityType = (value: unknown): value is ActivityType =>

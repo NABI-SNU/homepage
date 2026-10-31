@@ -14,7 +14,7 @@ export default async function SeminarsPage() {
 }
 
 export const metadata: Metadata = {
-  title: 'Seminars & Topic Reviews',
+  title: 'Seminars',
   description:
-    'The NABI study program: Foundations Seminar sessions with recordings and book chapters, and the Topic Review Series of paper reviews.',
+    'The NABI Foundations Seminar: session recordings and the NABI book chapters for each session.',
 }
