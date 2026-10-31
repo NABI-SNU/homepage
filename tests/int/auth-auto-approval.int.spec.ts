@@ -134,7 +134,9 @@ describe('auth sync auto-approval', () => {
 
     // Authorship (current documents and version history) moves to the account in SQL, before
     // anything is deleted.
-    const sql = (payload.db.execute.mock.calls as Array<[{ raw: string }]>).map(([a]) => a.raw)
+    const sql = (payload.db.execute.mock.calls as unknown as Array<[{ raw: string }]>).map(
+      ([a]) => a.raw,
+    )
     expect(sql.some((q) => q.includes('UPDATE "posts_rels" SET users_id = 25'))).toBe(true)
     expect(sql.some((q) => q.includes('UPDATE "_posts_v_rels" SET users_id = 25'))).toBe(true)
     const lastSQLOrder = Math.max(...payload.db.execute.mock.invocationCallOrder)
