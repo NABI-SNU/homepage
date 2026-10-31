@@ -230,7 +230,10 @@ export const Posts: CollectionConfig<'posts'> = {
   },
   versions: {
     drafts: {
-      autosave: false,
+      // Persist the draft a few seconds after each change. A deployment going live mid-edit
+      // forces a full page reload (Next.js's deployment-skew handling, no Skew Protection on
+      // the Hobby plan), so this bounds what an editor can lose to the last few seconds.
+      autosave: { interval: 3000 },
       schedulePublish: true,
     },
     maxPerDoc: 50,
