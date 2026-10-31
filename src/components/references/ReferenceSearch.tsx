@@ -5,7 +5,7 @@ import { ExternalLink } from 'lucide-react'
 import React, { useDeferredValue, useMemo, useState, useTransition } from 'react'
 
 type ReferenceSource = {
-  type: 'posts' | 'news' | 'research' | 'announcements'
+  type: 'posts' | 'news' | 'research' | 'announcements' | 'activities'
   title: string
   url: string
 }
@@ -31,6 +31,7 @@ const truncate = (value: string, max: number) =>
 
 const sourceLabel: Record<ReferenceSource['type'], string> = {
   announcements: 'Announcement',
+  activities: 'Activity',
   posts: 'Post',
   news: 'News',
   research: 'Research',

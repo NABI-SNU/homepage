@@ -3,7 +3,7 @@ import type { Activity } from '@/payload-types'
 
 import { revalidatePath, revalidateTag } from 'next/cache'
 
-import { getActivityPath } from '@/utilities/activityURL'
+import { getActivityPath, isActivityType } from '@/utilities/activityURL'
 import { isRevalidateDisabled, safeRevalidate } from '@/utilities/safeRevalidate'
 
 const getYearFromISODate = (date: string | null | undefined): number | null => {
@@ -18,7 +18,7 @@ const getActivitySlugTag = (
   slug: string | null | undefined,
 ): string | null => {
   if (!slug) return null
-  if (activityType !== 'conference' && activityType !== 'symposium') return null
+  if (!isActivityType(activityType)) return null
   return `activities_${activityType}_slug_${slug}`
 }
 
@@ -49,6 +49,19 @@ export const revalidateActivities: CollectionAfterChangeHook<Activity> = ({
       )
       safeRevalidate(payload, 'symposium slugs cache', () =>
         revalidateTag('activities_symposium_slugs', { expire: 0 }),
+      )
+      safeRevalidate(payload, 'seminar slugs cache', () =>
+        revalidateTag('activities_seminar_slugs', { expire: 0 }),
+      )
+      safeRevalidate(payload, 'topic review slugs cache', () =>
+        revalidateTag('activities_topic-review_slugs', { expire: 0 }),
+      )
+      safeRevalidate(payload, 'program cache', () =>
+        revalidateTag('activities_program', { expire: 0 }),
+      )
+      safeRevalidate(payload, 'program pages', () => revalidatePath('/seminars'))
+      safeRevalidate(payload, 'references list', () =>
+        revalidateTag('references_list', { expire: 0 }),
       )
       safeRevalidate(payload, 'site sitemap', () => revalidateTag('site-sitemap', { expire: 0 }))
       revalidatedCollectionCaches = true
@@ -133,6 +146,19 @@ export const revalidateActivitiesDelete: CollectionAfterDeleteHook<Activity> = (
       revalidateTag('activities_symposium_slugs', { expire: 0 }),
     )
 
+    safeRevalidate(payload, 'seminar slugs cache', () =>
+      revalidateTag('activities_seminar_slugs', { expire: 0 }),
+    )
+    safeRevalidate(payload, 'topic review slugs cache', () =>
+      revalidateTag('activities_topic-review_slugs', { expire: 0 }),
+    )
+    safeRevalidate(payload, 'program cache', () =>
+      revalidateTag('activities_program', { expire: 0 }),
+    )
+    safeRevalidate(payload, 'program pages', () => revalidatePath('/seminars'))
+    safeRevalidate(payload, 'references list', () =>
+      revalidateTag('references_list', { expire: 0 }),
+    )
     const slugTag = getActivitySlugTag(doc.activityType, doc.slug)
     if (slugTag) {
       safeRevalidate(payload, 'activity slug cache', () => revalidateTag(slugTag, { expire: 0 }))

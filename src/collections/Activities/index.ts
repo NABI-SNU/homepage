@@ -26,7 +26,7 @@ import { Code } from '@/blocks/Code/config'
 import { MediaBlock } from '@/blocks/MediaBlock/config'
 import { YouTubeEmbed } from '@/blocks/YouTubeEmbed/config'
 import { referenceFields } from '@/fields/referenceFields'
-import { getActivityPreviewPath } from '@/utilities/activityURL'
+import { getActivityPreviewPath, type ActivityType } from '@/utilities/activityURL'
 import {
   ensureSymposiumExistsBeforeChange,
   ensureSymposiumExistsBeforeDelete,
@@ -65,6 +65,8 @@ export const Activities: CollectionConfig<'activities'> = {
     heroImage: true,
     relatedPosts: true,
     relatedResearch: true,
+    recordingUrl: true,
+    bookChapters: true,
     meta: {
       image: true,
       description: true,
@@ -77,13 +79,13 @@ export const Activities: CollectionConfig<'activities'> = {
     livePreview: {
       url: ({ data }) =>
         getActivityPreviewPath({
-          activityType: data?.activityType as 'symposium' | 'conference' | undefined,
+          activityType: data?.activityType as ActivityType | undefined,
           slug: data?.slug as string | undefined,
         }),
     },
     preview: (data) =>
       getActivityPreviewPath({
-        activityType: data?.activityType as 'symposium' | 'conference' | undefined,
+        activityType: data?.activityType as ActivityType | undefined,
         slug: data?.slug as string | undefined,
       }),
     useAsTitle: 'title',
@@ -109,6 +111,14 @@ export const Activities: CollectionConfig<'activities'> = {
           label: 'Conference',
           value: 'conference',
         },
+        {
+          label: 'Seminar',
+          value: 'seminar',
+        },
+        {
+          label: 'Topic Review',
+          value: 'topic-review',
+        },
       ],
     },
     {
@@ -129,6 +139,37 @@ export const Activities: CollectionConfig<'activities'> = {
     {
       name: 'location',
       type: 'text',
+    },
+    {
+      name: 'recordingUrl',
+      type: 'text',
+      admin: {
+        condition: (data) =>
+          data?.activityType === 'seminar' || data?.activityType === 'topic-review',
+        description:
+          'YouTube link to the session recording (youtu.be/... or youtube.com/watch?v=...).',
+      },
+    },
+    {
+      name: 'bookChapters',
+      type: 'array',
+      admin: {
+        condition: (data) => data?.activityType === 'seminar',
+        description: 'Chapters of the NABI book (book.nabilab.org) covered in this seminar.',
+        initCollapsed: true,
+      },
+      fields: [
+        {
+          name: 'label',
+          type: 'text',
+          required: true,
+        },
+        {
+          name: 'url',
+          type: 'text',
+          required: true,
+        },
+      ],
     },
     {
       name: 'heroImage',

@@ -2,8 +2,10 @@ import configPromise from '@payload-config'
 import { unstable_cache } from 'next/cache'
 import { getPayload } from 'payload'
 
+import { getActivityPath } from '@/utilities/activityURL'
+
 type Source = {
-  type: 'posts' | 'news' | 'research' | 'announcements'
+  type: 'posts' | 'news' | 'research' | 'announcements' | 'activities'
   title: string
   url: string
 }
@@ -27,7 +29,7 @@ const referenceKey = (title: string, authors: string[]) =>
 const getAllReferences = async (): Promise<ReferenceItem[]> => {
   const payload = await getPayload({ config: configPromise })
 
-  const [posts, news, research, announcements] = await Promise.all([
+  const [posts, news, research, announcements, activities] = await Promise.all([
     payload.find({
       collection: 'posts',
       depth: 0,
@@ -74,6 +76,24 @@ const getAllReferences = async (): Promise<ReferenceItem[]> => {
         _status: {
           equals: 'published',
         },
+      },
+    }),
+    payload.find({
+      collection: 'activities',
+      depth: 0,
+      limit: 1000,
+      pagination: false,
+      overrideAccess: false,
+      where: {
+        _status: {
+          equals: 'published',
+        },
+      },
+      select: {
+        title: true,
+        slug: true,
+        activityType: true,
+        references: true,
       },
     }),
   ])
@@ -160,6 +180,18 @@ const getAllReferences = async (): Promise<ReferenceItem[]> => {
         type: 'announcements',
         title: item.title,
         url: `/announcements/${item.slug}`,
+      })
+    }
+  }
+
+  for (const item of activities.docs) {
+    const url = getActivityPath(item)
+    if (!url) continue
+    for (const reference of item.references || []) {
+      addReference(reference, {
+        type: 'activities',
+        title: item.title,
+        url,
       })
     }
   }

@@ -6,7 +6,7 @@ import { NextRequest } from 'next/server'
 
 import configPromise from '@payload-config'
 import { getServerUser } from '@/auth/session'
-import { getActivityPath } from '@/utilities/activityURL'
+import { getActivityPath, type ActivityType } from '@/utilities/activityURL'
 import {
   getPreviewTargetPath,
   previewCollectionPrefixMap,
@@ -71,7 +71,7 @@ export async function GET(req: NextRequest): Promise<Response> {
     })
 
     const doc = result.docs[0] as
-      | { activityType?: 'conference' | 'symposium' | null; slug?: string | null }
+      | { activityType?: ActivityType | null; slug?: string | null }
       | undefined
 
     if (!doc?.slug) {

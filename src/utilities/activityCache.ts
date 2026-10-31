@@ -26,6 +26,7 @@ const symposiumCardSelect = {
 type CachedActivity = Pick<
   Activity,
   | 'activityType'
+  | 'bookChapters'
   | 'content'
   | 'date'
   | 'description'
@@ -33,6 +34,7 @@ type CachedActivity = Pick<
   | 'id'
   | 'location'
   | 'meta'
+  | 'recordingUrl'
   | 'references'
   | 'relatedPosts'
   | 'relatedResearch'
@@ -127,6 +129,8 @@ const getActivityBySlugAndType = async ({
       meta: true,
       relatedPosts: true,
       relatedResearch: true,
+      recordingUrl: true,
+      bookChapters: true,
     },
   })
 
@@ -328,4 +332,65 @@ export const getCachedSymposiumCards = () =>
   unstable_cache(getSymposiumCards, ['symposium-cards'], {
     revalidate: 3600,
     tags: ['symposium_list'],
+  })
+
+export type ProgramActivity = Pick<
+  Activity,
+  | 'activityType'
+  | 'bookChapters'
+  | 'date'
+  | 'description'
+  | 'id'
+  | 'location'
+  | 'recordingUrl'
+  | 'references'
+  | 'slug'
+  | 'title'
+>
+
+/** Seminars and Topic Reviews, newest first: the yearly study program shown on /seminars. */
+const getProgramActivities = async (): Promise<ProgramActivity[]> => {
+  const payload = await getPayload({ config: configPromise })
+
+  const result = await payload.find({
+    collection: 'activities',
+    depth: 0,
+    limit: 1000,
+    overrideAccess: false,
+    pagination: false,
+    sort: '-date',
+    where: {
+      and: [
+        {
+          _status: {
+            equals: 'published',
+          },
+        },
+        {
+          activityType: {
+            in: ['seminar', 'topic-review'],
+          },
+        },
+      ],
+    },
+    select: {
+      title: true,
+      slug: true,
+      activityType: true,
+      description: true,
+      date: true,
+      location: true,
+      recordingUrl: true,
+      bookChapters: true,
+      references: true,
+    },
+  })
+
+  return result.docs
+}
+
+export const getCachedProgramActivities = () =>
+  unstable_cache(getProgramActivities, ['program-activities'], {
+    revalidate: 3600,
+    tags: ['activities_program'],
   })
