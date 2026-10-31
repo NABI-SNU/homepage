@@ -146,18 +146,25 @@ export const betterAuthOptions: SharedBetterAuthOptions = {
   },
   trustedOrigins,
   user: {
+    // `input: false` is what stops a client from setting these through the Better Auth
+    // sign-up and update-user request bodies. Without it, anyone could self-register as an
+    // approved admin — the Payload adapter writes with `overrideAccess: true`, so the
+    // field-level access on the Users collection never sees these writes.
     additionalFields: {
       isApproved: {
         type: 'boolean',
         defaultValue: false,
+        input: false,
       },
       role: {
         type: 'string',
         defaultValue: 'user',
+        input: false,
       },
       roles: {
         type: 'string',
         defaultValue: 'user',
+        input: false,
       },
     },
   },
