@@ -135,23 +135,23 @@ Use:
 
 Shared test accounts are already expected by the repo. Reuse them. Do not create or delete users in tests.
 
-## 6. Add a Seminar or Topic Review
+## 6. Add a Seminar Session
 
-Each year's study program lives on `/seminars`: the Foundations Seminar sessions and the Topic Review Series. Both are **Activities**, so no code change is needed to add a year.
+Each year's Foundations Seminar lives on `/seminars`. Sessions are **Activities**, so no code change is needed to add a year. (Monthly paper reviews are Posts in the *Monthly Meetings* category, not Activities.)
 
 In the admin (`/admin` → Activities → Create New):
 
-| Field | Seminar | Topic Review |
-| --- | --- | --- |
-| Activity Type | `Seminar` | `Topic Review` |
-| Title / Description | `Session 3: Hidden Dynamics` and a one-line summary | `Topic Review: September 2027` and the two papers' themes |
-| Date / Location | session date and room | review date and room |
-| Recording URL | YouTube link (`youtu.be/...` or `youtube.com/watch?v=...`) | optional |
-| Book Chapters | label + `https://book.nabilab.org/tutorials/<Session>/student/Intro.html` | not shown |
-| References | optional | one entry per paper: title, authors, journal, year, DOI |
-| Slug | `2027-hidden-dynamics` | `2027-september` |
+| Field | Value |
+| --- | --- |
+| Activity Type | `Seminar` |
+| Title / Description | e.g. `Session 3: Hidden Dynamics` and a one-line summary |
+| Date / Location | session date and room |
+| Recording URL | YouTube link (`youtu.be/...` or `youtube.com/watch?v=...`) |
+| Book Chapters | label + `https://book.nabilab.org/tutorials/<Session>/student/Intro.html` |
+| References | optional; listed on the session page and in the Bibliography |
+| Slug | e.g. `2027-hidden-dynamics` |
 
-Publishing revalidates `/seminars`, the detail page (`/seminars/<slug>` or `/topic-reviews/<slug>`), the sitemap, and the Bibliography, where Topic Review papers are listed automatically.
+Publishing revalidates `/seminars`, the session page (`/seminars/<slug>`), the sitemap, and the Bibliography.
 
 To load a whole year at once, copy `scripts/seed-2026-program.ts`, edit the list, and run it with `pnpm seed:program-2026` (or your own script name) against the target database. It matches activities by slug, so re-running updates rather than duplicates.
 

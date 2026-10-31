@@ -348,7 +348,7 @@ export type ProgramActivity = Pick<
   | 'title'
 >
 
-/** Seminars and Topic Reviews, newest first: the yearly study program shown on /seminars. */
+/** Foundations Seminar sessions, newest first, shown on /seminars. */
 const getProgramActivities = async (): Promise<ProgramActivity[]> => {
   const payload = await getPayload({ config: configPromise })
 
@@ -368,7 +368,7 @@ const getProgramActivities = async (): Promise<ProgramActivity[]> => {
         },
         {
           activityType: {
-            in: ['seminar', 'topic-review'],
+            equals: 'seminar',
           },
         },
       ],

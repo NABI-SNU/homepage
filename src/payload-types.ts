@@ -755,7 +755,7 @@ export interface Wiki {
 export interface Activity {
   id: number;
   title: string;
-  activityType: 'symposium' | 'conference' | 'seminar' | 'topic-review';
+  activityType: 'symposium' | 'conference' | 'seminar';
   description?: string | null;
   date: string;
   location?: string | null;

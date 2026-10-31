@@ -61,3 +61,42 @@ export const Tile: React.FC<
     {children}
   </Component>
 )
+
+/**
+ * A small link tile for secondary actions inside a tile (e.g. "Recording", "Book chapter").
+ * It sits above the parent tile's link overlay, so both stay clickable.
+ */
+export const TileAction: React.FC<{
+  children: React.ReactNode
+  external?: boolean
+  href: string
+  icon?: React.ReactNode
+  label?: string
+}> = ({ children, external, href, icon, label }) => {
+  const className =
+    'group/action relative z-20 inline-flex items-center gap-2 rounded-xl border border-border/80 bg-card/80 px-3 py-2 text-sm font-medium text-foreground shadow-sm transition-all duration-300 ease-out hover:-translate-y-0.5 hover:border-primary/40 hover:text-primary hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/70'
+  const content = (
+    <>
+      {icon && (
+        <span className="flex h-6 w-6 items-center justify-center rounded-lg bg-linear-to-br from-primary/15 to-accent/15 text-primary">
+          {icon}
+        </span>
+      )}
+      <span>{children}</span>
+    </>
+  )
+
+  if (external) {
+    return (
+      <a aria-label={label} className={className} href={href} rel="noreferrer" target="_blank">
+        {content}
+      </a>
+    )
+  }
+
+  return (
+    <Link aria-label={label} className={className} href={href}>
+      {content}
+    </Link>
+  )
+}

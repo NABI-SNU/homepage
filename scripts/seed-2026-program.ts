@@ -1,6 +1,6 @@
 /**
- * Creates or updates the NABI 2026 study program: the Foundations Seminar sessions and the
- * Topic Review Series, taken from the 2026 syllabus and timetables in Notion.
+ * Creates or updates the NABI 2026 Foundations Seminar sessions, taken from the 2026 syllabus
+ * and timetable in Notion.
  *
  * Idempotent: activities are matched by slug, so re-running updates them instead of duplicating.
  *
@@ -22,7 +22,7 @@ type Paper = {
 }
 
 type ProgramSeed = {
-  activityType: 'seminar' | 'topic-review'
+  activityType: 'seminar'
   bookChapters?: { label: string; url: string }[]
   date: string
   description: string
@@ -119,86 +119,6 @@ const program: ProgramSeed[] = [
     paragraphs: [
       'Two networks can reach the same accuracy with entirely different internal solutions. This session compares representations with representational similarity analysis (RSA), tests abstraction with cross-condition generalization performance (CCGP), and compares dynamics with dynamical similarity analysis (DSA).',
       SEMINAR_FORMAT,
-    ],
-  },
-  {
-    activityType: 'topic-review',
-    slug: '2026-september',
-    title: 'Topic Review: September 2026',
-    description:
-      'Representational geometry in prefrontal cortex and the neural signatures of novelty.',
-    date: '2026-09-22T09:00:00.000Z',
-    location: '117호',
-    papers: [
-      {
-        title:
-          'Inferring latent behavioral strategy from the representational geometry of prefrontal cortex activity',
-        journal: 'Nature Communications',
-        year: 2026,
-        doi: '10.1038/s41467-026-69380-6',
-      },
-      {
-        title: 'Representational similarity modulates neural and behavioral signatures of novelty',
-        journal: 'Neuron',
-        year: 2026,
-        doi: '10.1016/j.neuron.2026.01.007',
-      },
-    ],
-    paragraphs: [
-      'Two papers reviewed, each with a 40-minute presentation followed by 30 minutes of discussion.',
-    ],
-  },
-  {
-    activityType: 'topic-review',
-    slug: '2026-october',
-    title: 'Topic Review: October 2026',
-    description:
-      'A brain-wide map of neural activity during complex behaviour, and low-dimensional representations in the expert brain.',
-    date: '2026-10-20T09:00:00.000Z',
-    location: '401호',
-    papers: [
-      {
-        title: 'A brain-wide map of neural activity during complex behavior',
-        journal: 'Nature',
-        year: 2025,
-        doi: '10.1038/s41586-025-09235-0',
-      },
-      {
-        title:
-          'Low-dimensional and optimized representations of high-level information in the expert brain',
-        journal: 'Nature Communications',
-        year: 2026,
-        doi: '10.1038/s41467-026-74566-z',
-      },
-    ],
-    paragraphs: [
-      'Two papers reviewed, each with a 40-minute presentation followed by 30 minutes of discussion.',
-    ],
-  },
-  {
-    activityType: 'topic-review',
-    slug: '2026-november',
-    title: 'Topic Review: November 2026',
-    description:
-      'Aligning machine and human visual representations, and action symbols in primate frontal cortex.',
-    date: '2026-11-17T09:00:00.000Z',
-    location: '401호',
-    papers: [
-      {
-        title: 'Aligning machine and human visual representations across abstraction levels',
-        journal: 'Nature',
-        year: 2025,
-        doi: '10.1038/s41586-025-09631-6',
-      },
-      {
-        title: 'Neural representation of action symbols in primate frontal cortex',
-        journal: 'Nature',
-        year: 2026,
-        doi: '10.1038/s41586-026-10297-x',
-      },
-    ],
-    paragraphs: [
-      'Two papers to be reviewed, each with a 40-minute presentation followed by 30 minutes of discussion.',
     ],
   },
 ]
