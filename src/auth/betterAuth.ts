@@ -37,6 +37,15 @@ const useSecureCookies = isProduction
     ? baseURLUsesHTTPS
     : configuredSecureCookies && baseURLUsesHTTPS
   : false
+
+// A production deployment must serve auth over HTTPS with Secure cookies. Silently falling back
+// to insecure cookies (because BETTER_AUTH_URL was unset or http://) would ship session cookies
+// in the clear, so fail loudly instead.
+if (isProduction && !isProductionBuildPhase && !isPayloadGenerateCommand && !useSecureCookies) {
+  throw new Error(
+    '[auth] Production requires an https:// BETTER_AUTH_URL (or NEXT_PUBLIC_SERVER_URL) and AUTH_USE_SECURE_COOKIES not set to false.',
+  )
+}
 const githubConfigured = Boolean(process.env.GITHUB_CLIENT_ID && process.env.GITHUB_CLIENT_SECRET)
 const googleConfigured = Boolean(process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET)
 const smtpConfigured = Boolean(

@@ -2,6 +2,8 @@ import type { Payload } from 'payload'
 
 import type { PayloadWithAuth } from '@delmaredigital/payload-better-auth'
 import type { User } from '@/payload-types'
+import { strictPayloadSessionResolutionOptions } from './payloadSessionPolicy'
+import { resolvePayloadUserFromSessionWithReason } from './resolvePayloadUserFromSession'
 
 type HeaderRecord = Record<string, string | string[] | undefined>
 
@@ -104,9 +106,37 @@ const readBetterAuthSession = async <TUser = User>(
 
     const resolvedSession = session as Session<TUser>
 
+    // Same policy as the Payload auth strategy: a session only counts while the account is
+    // still approved, verified, not blocklisted, and its Person is visible and not alumni.
+    const resolved = await resolvePayloadUserFromSessionWithReason({
+      payload,
+      betterAuthUser: {
+        email: (sessionUser as { email?: string | null }).email,
+        emailVerified: (sessionUser as { emailVerified?: boolean }).emailVerified,
+        id: String(sessionUser.id),
+      },
+      ...strictPayloadSessionResolutionOptions,
+    })
+
+    if (!resolved.user) {
+      logSessionLookup({
+        level: 'warn',
+        message: '[auth] Better Auth session denied by sign-in policy.',
+        payload,
+        details: {
+          reason: resolved.reason,
+          userID: sessionUser.id,
+        },
+      })
+      return null
+    }
+
     return {
       session: coerceIDs(resolvedSession.session),
-      user: coerceIDs(resolvedSession.user),
+      user: {
+        ...coerceIDs(resolvedSession.user),
+        ...(resolved.user as unknown as TUser),
+      },
     }
   } catch (error) {
     logSessionLookup({

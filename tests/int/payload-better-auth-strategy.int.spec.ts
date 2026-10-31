@@ -43,6 +43,7 @@ describe('Payload Better Auth strategy wiring', () => {
           {
             email: 'admin@example.com',
             id: 7,
+            isApproved: true,
             role: 'admin',
             roles: 'admin',
           },
@@ -97,18 +98,21 @@ describe('Payload Better Auth strategy wiring', () => {
       },
       find: vi
         .fn()
-        .mockResolvedValueOnce({ docs: [] })
+        // a non-numeric id skips the id matcher, so the first lookup is by betterAuthUserId
         .mockResolvedValueOnce({
           docs: [
             {
               betterAuthUserId: 'legacy-better-auth-user-id',
               email: 'admin@example.com',
               id: 7,
+              isApproved: true,
               role: 'admin',
               roles: 'admin',
             },
           ],
-        }),
+        })
+        // linked People lookup made by the sign-in policy check
+        .mockResolvedValueOnce({ docs: [] }),
     }
 
     const result = await strategy.authenticate({
@@ -131,6 +135,42 @@ describe('Payload Better Auth strategy wiring', () => {
       role: 'admin',
       roles: 'admin',
     })
+  })
+
+  it('denies a session whose user is no longer approved', async () => {
+    const strategy = payloadBetterAuthStrategy({ idType: 'number' })
+    const payload = {
+      logger: {
+        error: vi.fn(),
+        warn: vi.fn(),
+      },
+      betterAuth: {
+        api: {
+          getSession: vi.fn().mockResolvedValue({
+            session: { id: 'session-1' },
+            user: { id: '7' },
+          }),
+        },
+      },
+      find: vi
+        .fn()
+        .mockResolvedValueOnce({
+          docs: [
+            { email: 'member@example.com', id: 7, isApproved: false, role: 'user', roles: 'user' },
+          ],
+        })
+        .mockResolvedValueOnce({ docs: [] }),
+    }
+
+    const result = await strategy.authenticate({
+      headers: new Headers(),
+      payload: payload as never,
+    })
+
+    expect(result.user).toBeNull()
+    expect(payload.logger.warn).toHaveBeenCalledWith(
+      expect.stringContaining('admin_approval_required'),
+    )
   })
 
   it('returns a null user when Better Auth has no active session', async () => {

@@ -44,6 +44,8 @@ const approvalStatusMessages: Record<string, string> = {
   invalid: 'Approval link is invalid.',
   'not-found': 'User not found for this approval link.',
   error: 'Approval request failed. Please try again.',
+  forbidden:
+    'Only admins can approve users. Sign in with an admin account and open the link again.',
 }
 
 const GoogleLogo = () => (
@@ -193,6 +195,7 @@ function AccountPageContent() {
 
   useEffect(() => {
     const mode = searchParams.get('mode')
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- mirror the ?mode= URL param
     setIsSignUpMode(mode !== 'login')
   }, [searchParams])
 
@@ -283,6 +286,7 @@ function AccountPageContent() {
 
   useEffect(() => {
     if (session?.user) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- the real session replaces the optimistic one
       setSessionUserOverride(null)
       setAuthGateReason(null)
     }
@@ -290,6 +294,7 @@ function AccountPageContent() {
 
   useEffect(() => {
     if (!isPending || isSignedIn) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- reset the timeout flag when the check settles
       setHasSessionCheckTimedOut(false)
       return
     }
@@ -333,6 +338,7 @@ function AccountPageContent() {
 
   useEffect(() => {
     if (!isSignedIn) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- clear the dashboard on sign-out
       setDashboard(null)
       setDashboardStatus('idle')
       return
@@ -427,8 +433,10 @@ function AccountPageContent() {
           let reason = inferAuthGateReasonFromError(result.error)
 
           if (shouldLookupAuthState(reason)) {
+            // The lookup is deliberately generic (it must not reveal whether an email has an
+            // account), so it may only *refine* the reason we already inferred, never erase it.
             const lookedUpReason = await lookupAuthStateByEmail(email)
-            if (lookedUpReason) {
+            if (lookedUpReason && lookedUpReason !== 'unknown') {
               reason = lookedUpReason
             }
           }

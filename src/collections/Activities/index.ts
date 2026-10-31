@@ -19,7 +19,7 @@ import {
 import { slugField } from 'payload'
 
 import { adminOnly } from '@/access/adminOnly'
-import { authenticatedOrPublished } from '@/access/authenticatedOrPublished'
+import { adminOrPublished } from '@/access/adminOrPublished'
 import { hideFromNonAdmins } from '@/access/hideFromNonAdmins'
 import { Banner } from '@/blocks/Banner/config'
 import { Code } from '@/blocks/Code/config'
@@ -52,7 +52,7 @@ export const Activities: CollectionConfig<'activities'> = {
   access: {
     create: adminOnly,
     delete: adminOnly,
-    read: authenticatedOrPublished,
+    read: adminOrPublished,
     update: adminOnly,
   },
   defaultPopulate: {

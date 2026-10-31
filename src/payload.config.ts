@@ -138,6 +138,8 @@ export default buildConfig({
         betterAuthOptions,
         login: {
           afterLoginPath: '/admin',
+          // No passkey plugin is configured; stop the login view probing a 404 endpoint.
+          enablePasskey: false,
           requiredRole: null,
         },
       },

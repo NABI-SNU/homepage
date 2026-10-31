@@ -7,6 +7,8 @@ import { payloadBetterAuthStrategy } from '@/auth/payloadBetterAuthStrategy'
 import { hideFromNonAdmins } from '@/access/hideFromNonAdmins'
 import { syncUserRoleFields } from './hooks/syncUserRoleFields'
 import { sendApprovalRequestEmail } from './hooks/sendApprovalRequestEmail'
+import { revokeSessionsOnDisapproval } from '@/auth/revokeUserSessions'
+import { normalizeUserEmail } from './hooks/normalizeUserEmail'
 
 export const Users: CollectionConfig = {
   slug: 'users',
@@ -104,8 +106,8 @@ export const Users: CollectionConfig = {
     },
   ],
   hooks: {
-    beforeValidate: [syncUserRoleFields],
-    afterChange: [sendApprovalRequestEmail],
+    beforeValidate: [normalizeUserEmail, syncUserRoleFields],
+    afterChange: [sendApprovalRequestEmail, revokeSessionsOnDisapproval],
   },
   timestamps: true,
 }

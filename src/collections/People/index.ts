@@ -3,6 +3,8 @@ import type { Access, CollectionConfig, Where } from 'payload'
 import { adminOnly } from '../../access/adminOnly'
 import { revalidatePerson, revalidatePersonDelete } from './hooks/revalidatePeople'
 import { syncResearchTagsFromPerson } from './hooks/syncResearchTags'
+import { revokeSessionsOnPersonAccessLoss } from '@/auth/revokeUserSessions'
+import { preventDuplicatePeople } from './hooks/preventDuplicatePeople'
 import { slugField } from 'payload'
 import { parseResearchTags } from '@/utilities/researchTags'
 import { normalizePersonRoleAssignments } from '@/utilities/personRoles'
@@ -226,6 +228,7 @@ export const People: CollectionConfig<'people'> = {
   ],
   hooks: {
     beforeValidate: [
+      preventDuplicatePeople,
       ({ data }) => {
         if (!data || typeof data !== 'object') return data
 
@@ -258,7 +261,7 @@ export const People: CollectionConfig<'people'> = {
         }
       },
     ],
-    afterChange: [syncResearchTagsFromPerson, revalidatePerson],
+    afterChange: [syncResearchTagsFromPerson, revalidatePerson, revokeSessionsOnPersonAccessLoss],
     afterDelete: [revalidatePersonDelete],
   },
 }
