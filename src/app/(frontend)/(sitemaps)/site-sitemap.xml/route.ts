@@ -3,6 +3,8 @@ import { unstable_cache } from 'next/cache'
 import { getServerSideSitemap } from 'next-sitemap'
 import { getPayload } from 'payload'
 
+import { getActivityPath } from '@/utilities/activityURL'
+
 const getSiteSitemap = unstable_cache(
   async () => {
     const payload = await getPayload({ config })
@@ -129,6 +131,11 @@ const getSiteSitemap = unstable_cache(
         .filter((item) => item.activityType === 'conference')
         .map((item) => item.updatedAt || dateFallback)
         .sort((a, b) => (a > b ? -1 : 1))[0] || dateFallback
+    const latestProgramUpdatedAt =
+      activitiesResults.docs
+        .filter((item) => item.activityType === 'seminar' || item.activityType === 'topic-review')
+        .map((item) => item.updatedAt || dateFallback)
+        .sort((a, b) => (a > b ? -1 : 1))[0] || dateFallback
     const latestAnnouncementUpdatedAt =
       announcementsResults.docs
         .map((item) => item.updatedAt || dateFallback)
@@ -184,6 +191,10 @@ const getSiteSitemap = unstable_cache(
         lastmod: latestConferenceUpdatedAt,
       },
       {
+        loc: `${SITE_URL}/seminars`,
+        lastmod: latestProgramUpdatedAt,
+      },
+      {
         loc: `${SITE_URL}/announcements`,
         lastmod: latestAnnouncementUpdatedAt,
       },
@@ -234,6 +245,19 @@ const getSiteSitemap = unstable_cache(
           }))
       : []
 
+    const programSitemap = activitiesResults.docs
+      ? activitiesResults.docs
+          .filter(
+            (item) =>
+              (item?.activityType === 'seminar' || item?.activityType === 'topic-review') &&
+              Boolean(item?.slug),
+          )
+          .map((item) => ({
+            loc: `${SITE_URL}${getActivityPath(item)}`,
+            lastmod: item.updatedAt || dateFallback,
+          }))
+      : []
+
     const symposiumSitemap = activitiesResults.docs
       ? activitiesResults.docs
           .filter((item) => item?.activityType === 'symposium' && Boolean(item?.slug))
@@ -260,6 +284,7 @@ const getSiteSitemap = unstable_cache(
       ...wikiSitemap,
       ...symposiumSitemap,
       ...conferencesSitemap,
+      ...programSitemap,
       ...announcementsSitemap,
     ]
   },

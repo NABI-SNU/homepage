@@ -33,7 +33,8 @@
     "test:e2e": "cross-env NODE_OPTIONS=\"--no-deprecation --import=tsx/esm\" playwright test --config=playwright.config.ts",
     "test:int": "cross-env NODE_OPTIONS=--no-deprecation vitest run --config ./vitest.config.mts",
     "typecheck": "cross-env NODE_OPTIONS=--no-deprecation tsc --noEmit",
-    "format:check": "cross-env NODE_OPTIONS=--no-deprecation prettier --check ."
+    "format:check": "cross-env NODE_OPTIONS=--no-deprecation prettier --check .",
+    "seed:program-2026": "cross-env NODE_OPTIONS=\"--no-deprecation --import=tsx/esm\" tsx scripts/seed-2026-program.ts"
   },
   "dependencies": {
     "@better-auth/passkey": "^1.7.7",
