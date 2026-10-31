@@ -1,9 +1,11 @@
 import Link from 'next/link'
 import React from 'react'
 
+import { Tile, TileLinkOverlay, tilePillClassName, tileTitleClassName } from '@/components/Tile'
 import type { ProgramActivity } from '@/utilities/activityCache'
 import { getActivityPath } from '@/utilities/activityURL'
 import { formatDateTime } from '@/utilities/formatDateTime'
+import { cn } from '@/utilities/ui'
 
 type YearGroup = {
   seminars: ProgramActivity[]
@@ -48,44 +50,39 @@ const ProgramItem: React.FC<{ activity: ProgramActivity; now: number }> = ({ act
   const chapterCount = activity.bookChapters?.length ?? 0
 
   return (
-    <li className="group relative rounded-2xl border border-border/80 bg-card/70 p-5 transition-colors hover:border-primary/50">
-      <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-muted-foreground">
-        {activity.date && <time dateTime={activity.date}>{formatDateTime(activity.date)}</time>}
-        {activity.location && <span>· {activity.location}</span>}
-        {isUpcoming && (
-          <span className="rounded-full bg-primary/15 px-2 py-0.5 text-xs font-semibold text-primary">
-            Upcoming
-          </span>
+    <Tile as="li" className="h-full">
+      {href && <TileLinkOverlay href={href} label={`Open ${activity.title}`} />}
+      <div className="relative flex h-full flex-col p-6">
+        <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs uppercase tracking-[0.14em] text-muted-foreground">
+          {activity.date && <time dateTime={activity.date}>{formatDateTime(activity.date)}</time>}
+          {activity.location && <span>· {activity.location}</span>}
+          {isUpcoming && (
+            <span className="rounded-full bg-primary/15 px-2 py-0.5 font-semibold normal-case tracking-normal text-primary">
+              Upcoming
+            </span>
+          )}
+        </div>
+        <h3 className={cn('mt-3 text-xl font-semibold leading-snug', tileTitleClassName)}>
+          {activity.title}
+        </h3>
+        {activity.description && (
+          <p className="mt-3 text-sm leading-6 text-muted-foreground">{activity.description}</p>
         )}
+        <div className="mt-auto flex flex-wrap gap-2 pt-4">
+          {activity.recordingUrl && <span className={tilePillClassName}>Recording</span>}
+          {chapterCount > 0 && (
+            <span className={tilePillClassName}>
+              {chapterCount === 1 ? 'Book chapter' : `${chapterCount} book chapters`}
+            </span>
+          )}
+          {paperCount > 0 && (
+            <span className={tilePillClassName}>
+              {paperCount === 1 ? '1 paper' : `${paperCount} papers`}
+            </span>
+          )}
+        </div>
       </div>
-      <h3 className="mt-2 text-lg font-semibold leading-snug">
-        {href ? (
-          <Link className="after:absolute after:inset-0 group-hover:underline" href={href}>
-            {activity.title}
-          </Link>
-        ) : (
-          activity.title
-        )}
-      </h3>
-      {activity.description && (
-        <p className="mt-2 text-sm leading-6 text-muted-foreground">{activity.description}</p>
-      )}
-      <div className="mt-3 flex flex-wrap gap-2 text-xs text-muted-foreground">
-        {activity.recordingUrl && (
-          <span className="rounded-full border border-border px-2 py-0.5">Recording</span>
-        )}
-        {chapterCount > 0 && (
-          <span className="rounded-full border border-border px-2 py-0.5">
-            {chapterCount === 1 ? 'Book chapter' : `${chapterCount} book chapters`}
-          </span>
-        )}
-        {paperCount > 0 && (
-          <span className="rounded-full border border-border px-2 py-0.5">
-            {paperCount === 1 ? '1 paper' : `${paperCount} papers`}
-          </span>
-        )}
-      </div>
-    </li>
+    </Tile>
   )
 }
 

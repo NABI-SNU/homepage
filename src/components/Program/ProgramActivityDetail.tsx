@@ -1,3 +1,4 @@
+import { ArrowUpRight, BookOpen } from 'lucide-react'
 import Link from 'next/link'
 import React from 'react'
 
@@ -6,8 +7,10 @@ import { MathJaxTypeset } from '@/components/MathJax/Typeset'
 import { PayloadRedirects } from '@/components/PayloadRedirects'
 import RichText from '@/components/RichText'
 import { SocialShare } from '@/components/SocialShare'
+import { Tile, TileLinkOverlay, tilePillClassName, tileTitleClassName } from '@/components/Tile'
 import type { Activity } from '@/payload-types'
 import { formatDateTime } from '@/utilities/formatDateTime'
+import { cn } from '@/utilities/ui'
 import { getYouTubeVideoId } from '@/utilities/youtube'
 
 type ProgramEntry = Pick<
@@ -88,19 +91,34 @@ export const ProgramActivityDetail: React.FC<{ entry: ProgramEntry; url: string 
           {chapters.length > 0 && (
             <section aria-label="In the NABI book" className="mt-10">
               <SectionHeading>In the NABI book</SectionHeading>
-              <ul className="grid gap-3 sm:grid-cols-2">
+              <ul className="grid gap-4 sm:grid-cols-2">
                 {chapters.map((chapter, index) => (
-                  <li key={chapter.id || index}>
-                    <a
-                      className="flex h-full items-center justify-between gap-3 rounded-2xl border border-border/80 bg-card/70 px-5 py-4 font-medium transition-colors hover:border-primary/60 hover:text-primary"
+                  <Tile as="li" className="h-full" key={chapter.id || index}>
+                    <TileLinkOverlay
+                      external
                       href={chapter.url}
-                      rel="noreferrer"
-                      target="_blank"
-                    >
-                      <span>{chapter.label}</span>
-                      <span aria-hidden>↗</span>
-                    </a>
-                  </li>
+                      label={`Open ${chapter.label} in the NABI book`}
+                    />
+                    <div className="relative flex h-full items-center gap-4 p-5">
+                      <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-linear-to-br from-primary/15 to-accent/15 text-primary">
+                        <BookOpen aria-hidden className="h-5 w-5" />
+                      </span>
+                      <span className="min-w-0 flex-1">
+                        <span className="block text-xs uppercase tracking-[0.14em] text-muted-foreground">
+                          NABI book
+                        </span>
+                        <span
+                          className={cn('block font-semibold leading-snug', tileTitleClassName)}
+                        >
+                          {chapter.label}
+                        </span>
+                      </span>
+                      <ArrowUpRight
+                        aria-hidden
+                        className="h-4 w-4 shrink-0 text-muted-foreground transition-all duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:text-primary"
+                      />
+                    </div>
+                  </Tile>
                 ))}
               </ul>
               <p className="mt-3 text-sm text-muted-foreground">
@@ -119,7 +137,7 @@ export const ProgramActivityDetail: React.FC<{ entry: ProgramEntry; url: string 
               className="mt-10"
             >
               <SectionHeading>{isTopicReview ? 'Papers reviewed' : 'References'}</SectionHeading>
-              <ol className="space-y-4 rounded-2xl border border-border/80 bg-card/70 p-6 sm:p-8">
+              <ol className="grid gap-4">
                 {papers.map((paper, index) => {
                   const href = paper.url || (paper.doi ? `https://doi.org/${paper.doi}` : null)
                   const authors = paper.authors
@@ -127,28 +145,33 @@ export const ProgramActivityDetail: React.FC<{ entry: ProgramEntry; url: string 
                     .filter(Boolean)
                     .join(', ')
                   return (
-                    <li key={paper.id || index} className="flex gap-4">
-                      <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary/15 text-sm font-semibold text-primary">
-                        {index + 1}
-                      </span>
-                      <div className="flex-1 pt-1 text-sm leading-6">
-                        {href ? (
-                          <a
-                            className="font-medium text-foreground hover:text-primary hover:underline"
-                            href={href}
-                            rel="noreferrer"
-                            target="_blank"
-                          >
+                    <Tile as="li" key={paper.id || index}>
+                      {href && (
+                        <TileLinkOverlay external href={href} label={`Open ${paper.title}`} />
+                      )}
+                      <div className="relative flex gap-4 p-5 sm:p-6">
+                        <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-linear-to-br from-primary/15 to-accent/15 text-sm font-semibold text-primary">
+                          {index + 1}
+                        </span>
+                        <div className="min-w-0 flex-1">
+                          <p className={cn('font-semibold leading-snug', tileTitleClassName)}>
                             {paper.title}
-                          </a>
-                        ) : (
-                          <span className="font-medium text-foreground">{paper.title}</span>
-                        )}
-                        <div className="text-muted-foreground">
-                          {[authors, paper.journal, paper.year].filter(Boolean).join(' · ')}
+                          </p>
+                          {authors && (
+                            <p className="mt-1 text-sm text-muted-foreground">{authors}</p>
+                          )}
+                          <div className="mt-3 flex flex-wrap gap-2">
+                            {paper.journal && (
+                              <span className={tilePillClassName}>{paper.journal}</span>
+                            )}
+                            {paper.year && <span className={tilePillClassName}>{paper.year}</span>}
+                            {paper.doi && (
+                              <span className={tilePillClassName}>DOI {paper.doi}</span>
+                            )}
+                          </div>
                         </div>
                       </div>
-                    </li>
+                    </Tile>
                   )
                 })}
               </ol>
