@@ -76,7 +76,7 @@
     "nodemailer": "^10.3.1",
     "payload": "3.92.0",
     "pg": "^8.20.0",
-    "pixi.js": "^8.16.0",
+    "pixi.js": "^8.23.0",
     "plotly.js-dist-min": "^3.4.0",
     "plugin-redirects@3.79.1": "link:payloadcms/plugin-redirects@3.79.1",
     "plugin-search@3.79.1": "link:payloadcms/plugin-search@3.79.1",
